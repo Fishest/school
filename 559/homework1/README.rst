@@ -15,6 +15,7 @@ I chose to detect eyes by using red-eye detection and removal. The solution
 was obtained by the following steps:
 
 * read the image into Matlab
-* run the image through a predetermined color threshold (created with impixel)
-* create a logic vector of pixel locations
-* remove the image's red component from each position in the logic vector
+* run the image through three predetermined color thresholds (RGB)
+  * these were created with inspection using impixel on the image
+* combine the three color logic vectors into a single logic vector of pixel locations
+* remove the original image's red component where the pixel is true in the logic vector

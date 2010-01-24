@@ -6,3 +6,4 @@ Resources
 * http://www.cs.wustl.edu/~pless/559/
 * http://research.microsoft.com/en-us/um/people/szeliski/Book/
 * http://www.cs.washington.edu/education/courses/cse576/08sp/
+* http://www.cs.umd.edu/~djacobs/CMSC426/CMSC426_Postclass.htm

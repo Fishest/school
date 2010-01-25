@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Homework 1 - Redeye Detection
+title: Homework 1 - Red Eye Detection
 ---
 
 h1. {{ page.title }}
@@ -21,7 +21,18 @@ The solution was obtained by the following steps:
 * combine the three color logic vectors into a single logic vector of pixel locations
 * remove the original image's red component where the pixel is true in the logic vector
 
+As already mentioned, this was implemented in Matlab. The code can be found in the following
+"repository":http://github.com/bashwork/school/tree/master/559/homework1/homework1.m.
+
 h2. Successful Image Conversion
+
+Since the following image contains a pretty consistent red eye color, we can just
+create a static threshold of the colors and send the image through it.  We then have
+a logic vector that we can apply against the original image to perform any alteration
+on the pixels that matched that color range.
+
+<img src="http://github.com/bashwork/school/tree/master/559/working-input.jpg" />
+<img src="http://github.com/bashwork/school/tree/master/559/working-input-result.jpg" />
 
 h2. Less Than Successful Image Conversion
 
@@ -29,6 +40,6 @@ Since the following image does not contain red eyes (especially red eyes that ar
 in the same range as the previous image), we not only do not detect the subject's
 eyes, but we accidently detect random parts of the tunic instead.
 
-The code can be found at the following
-"repository":http://github.com/bashwork/school/tree/master/559/homework1/homework1.m.
+<img src="http://github.com/bashwork/school/tree/master/559/failing-input.jpg" />
+<img src="http://github.com/bashwork/school/tree/master/559/failing-input-result.jpg" />
 

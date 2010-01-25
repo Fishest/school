@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Homework 1: Red-eye Detection
+title: Homework 1 - Redeye Detection
 ---
 
 h1. {{ page.title }}
@@ -30,5 +30,5 @@ in the same range as the previous image), we not only do not detect the subject'
 eyes, but we accidently detect random parts of the tunic instead.
 
 The code can be found at the following
-"repository":http://github.com/bashwork/School/tree/master/559/homework1/homework1.m.
+"repository":http://github.com/bashwork/school/tree/master/559/homework1/homework1.m.
 

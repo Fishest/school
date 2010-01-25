@@ -18,14 +18,14 @@ I chose to detect eyes by using red-eye detection and removal.
 The solution was obtained by the following steps:
 
 * Read the image into Matlab.
-* Run the image through three (RGB) predetermined color thresholds to create
+* Pass the image through three per-color(RGB) static thresholds to create
   three color location logic vectors (these were created by manually inspecting
   pixels of interest).
 * Logically *AND* the three color logic vectors into a single logic vector.
 * Remove the original image's red component where the pixel is *TRUE* in the logic vector.
 
 As already mentioned, this was implemented in Matlab. The code can be found in the following
-"repository":http://github.com/bashwork/school/tree/master/559/homework1/homework1.m.
+[repository](http://github.com/bashwork/school/tree/master/559/homework1/homework1.m).
 
 Successful Image Conversion
 ------------------------------------------------------------
@@ -37,7 +37,7 @@ on the pixels that matched that color range.
 
 <img width="640" src="http://github.com/bashwork/school/raw/master/559/homework1/working-input-result.jpg" />
 
-Less Than Successful Image Conversion
+...Less Than Successful Image Conversion
 ------------------------------------------------------------
 
 Since the following image does not contain red eyes (especially red eyes that are

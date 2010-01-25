@@ -3,14 +3,16 @@ layout: post
 title: Homework 1 - Red Eye Detection
 ---
 
-h1. {{ page.title }}
+{{ page.title }}
+============================================================
 
-p(meta). 24 Jan 2010 - St. Louis
+<p class="meta"/>24 Jan 2010 - St. Louis</p>
 
-h2. Problem and Solution
+Problem and Solution
+------------------------------------------------------------
 
-bq. _In the language of your choice, create a program that reads in an image,s
-    finds the eyes, and outputs the image with the eye location marked._
+> _In the language of your choice, create a program that reads in an image,s
+> finds the eyes, and outputs the image with the eye location marked._
 
 I chose to detect eyes by using red-eye detection and removal.
 The solution was obtained by the following steps:
@@ -25,7 +27,8 @@ The solution was obtained by the following steps:
 As already mentioned, this was implemented in Matlab. The code can be found in the following
 "repository":http://github.com/bashwork/school/tree/master/559/homework1/homework1.m.
 
-h2. Successful Image Conversion
+Successful Image Conversion
+------------------------------------------------------------
 
 Since the following image contains a pretty consistent red eye color, we can just
 create a static threshold of the colors and send the image through it.  We then have
@@ -34,7 +37,8 @@ on the pixels that matched that color range.
 
 <img width="640" src="http://github.com/bashwork/school/raw/master/559/homework1/working-input-result.jpg" />
 
-h2. Less Than Successful Image Conversion
+Less Than Successful Image Conversion
+------------------------------------------------------------
 
 Since the following image does not contain red eyes (especially red eyes that are
 in the same range as the previous image), we not only do not detect the subject's

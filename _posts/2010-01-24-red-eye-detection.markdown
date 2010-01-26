@@ -11,20 +11,21 @@ title: Homework 1 - Red Eye Detection
 Problem and Solution
 ------------------------------------------------------------
 
-> _In the language of your choice, create a program that reads in an image,s
+> _In the language of your choice, create a program that reads in an image(s),
 > finds the eyes, and outputs the image with the eye location marked._
 
 I chose to detect eyes by using red-eye detection and removal.
 The solution was obtained by the following steps:
 
 * Read the image into Matlab.
-* Pass the image through three per-color(RGB) static thresholds to create
-  three color location logic vectors (these were created by manually inspecting
-  pixels of interest).
+* Pass the image through three static thresholds (one per RGB color vector) to create
+  three color-presence logic vectors
 * Logically *AND* the three color logic vectors into a single logic vector.
 * Remove the original image's red component where the pixel is *TRUE* in the logic vector.
 
-As already mentioned, this was implemented in Matlab. The code can be found in the following
+The static thresholds were created by inspecting the poitns of interest with impixel and
+then tuning them until the desired result was reached. As already mentioned, this was
+implemented in Matlab and the code can be found in the following
 [repository](http://github.com/bashwork/school/tree/master/559/homework1/homework1.m).
 
 Successful Image Conversion

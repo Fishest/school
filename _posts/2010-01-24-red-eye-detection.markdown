@@ -14,27 +14,27 @@ Problem and Solution
 > _In the language of your choice, create a program that reads in an image(s),
 > finds the eyes, and outputs the image with the eye location marked._
 
-I chose to detect eyes by using red-eye detection and removal.
-The solution was obtained by the following steps:
+As this was supposed to be a warm up assignment, I chose to simply
+search for eyes suffering from the
+[red eye effect](http://en.wikipedia.org/wiki/Red-eye_effect).
+The following is a summary of the solution I implemented:
 
-* Read the image into Matlab.
-* Pass the image through three static thresholds (one per RGB color vector) to create
-  three color-presence logic vectors
-* Logically *AND* the three color logic vectors into a single logic vector.
-* Remove the original image's red component where the pixel is *TRUE* in the logic vector.
+* Read the image into Matlab (imread).
+* Find the highest occurrences of red (255) in the image
+* Chose the single highest row and the highest and lowest columns
+* Draw a crosshair on each of those points ([r, cl] [r, ch])
 
-The static thresholds were created by inspecting the poitns of interest with impixel and
-then tuning them until the desired result was reached. As already mentioned, this was
-implemented in Matlab and the code can be found in the following
+As already mentioned, this was implemented in Matlab and the code can be found in the following
 [repository](http://github.com/bashwork/school/tree/master/559/homework1/homework1.m).
 
 Successful Image Conversion
 ------------------------------------------------------------
 
-Since the following image contains a pretty consistent red eye color, we can just
-create a static threshold of the colors and send the image through it.  We then have
-a logic vector that we can apply against the original image to perform any alteration
-on the pixels that matched that color range.
+Since the following image contains a pretty consistent red eye color that
+maxes out the red spectrum, we can simply search for those points. After
+that, we only need two points, one for each eye, so we just choose the
+max and min of the columns. Next, since we only need to place two points,
+we only need one row. The result can be seen below:
 
 <img width="640" src="http://github.com/bashwork/school/raw/master/559/homework1/working-input-result.jpg" />
 
@@ -43,7 +43,7 @@ on the pixels that matched that color range.
 
 Since the following image does not contain red eyes (especially red eyes that are
 in the same range as the previous image), we not only do not detect the subject's
-eyes, but we accidently detect random parts of the tunic instead.
+eyes, but we accidently detect random parts of the tunic instead:
 
 <img width="640" src="http://github.com/bashwork/school/raw/master/559/homework1/failing-input-result.jpg" />
 

@@ -1,22 +1,23 @@
 %
-% Simple program to read in an image, apply a pre determined
-% red eye threshold, and subtract the pixels that match from
-% the red color color portion.
+% Simple program to read in an image, find the pixels with
+% the highest red coloring, and draw cross-hairs the highest
+$ and lowest matching columns.
 %
-function homework1(file);
-    ey = imread(file);
-    o(:,:,1) = ey(:,:,1) >= 110 & ey(:,:,1) < 255;
-    o(:,:,2) = ey(:,:,2) >=   0 & ey(:,:,2) <  45;
-    o(:,:,3) = ey(:,:,3) >=   0 & ey(:,:,3) <  70;
-    z = o(:,:,1) & o(:,:,2) & o(:,:,3);
-    
-    subplot(1,3,1);
-    imshow(ey);
-    
-    subplot(1,3,2);
-    imshow(z);
-    
-    ey(:,:,1) = ey(:,:,1) - uint8(z).*ey(:,:,1);
-    subplot(1,3,3);
-    imshow(ey);
+function homework1(file)
+	ey = imread(file);
+	id = (ey(:,:,1) == 255);
+	[x,y] = find(id == 1);
+	
+	subplot(1,2,1);
+	imshow(ey);
+	
+	x = max(x);
+	y = [min(y) max(y)];
+    ey(x-10:x+10,y,:) = 0;
+	for yi = y
+		ey(x,yi-10:yi+10,:) =0;
+	end
+
+	subplot(1,2,2);
+	imshow(ey);
 end

@@ -1,0 +1,86 @@
+---
+layout: post
+title: Project 1 - Magic Eye Puzzle
+---
+
+{{ page.title }}
+============================================================
+
+<p class="meta"/>11 Feb 2010 - St. Louis</p>
+
+Problem Description
+------------------------------------------------------------
+
+For this project we were allowed to form groups to work on one of the two problems
+together, however there was a catch.  For each added team member, the team would
+have to solve an extra problem.  As such, it really only made sense for each
+student to tackle the problem on their own and simply do the one extra problem
+that they were on the hook for (which is the option I chose).
+
+We were allowed to chose from two projects (and a number of extra sub-projects),
+but this is the one that I decided on implementing:
+
+**Autostereogram Generator**
+*(Not recommended if you can't see autostereograms)*
+
+1.  *Base Project, [14 points]*
+
+    Write a program that makes an autostereogram. This program must be automatic,
+    and take in a depth map, and (perhaps a texture source, or you can generate
+    the texture randomly). You turn in a web page, with your favorite (2 or 3)
+    example outputs (and the depth map they came from). 
+
+2.  *Extension, Worth [6 points]* 
+
+    Moving autostereograms (good java choice). The idea here is to create a depth
+    map that changes through time, and then show the autostereogram images through
+    time (so that you see a moving depth map). This might entail creating a depth
+    map that is a mathematical function that depends on time (or frame number t):
+
+        d(x,y) = 4 + sin((x+t) / 150)
+
+    Now, continually update the autostereograms as the depth map changes. This
+    would be a nice java applet, or you could save the results as a movie
+    (mpeg or avi). 
+
+Solution
+------------------------------------------------------------
+
+What follows is a quick psauedo-code description of the algorithm I used for
+the first part of the assignment:
+
+    some code example
+
+Continuing, the psauedo-code for the second part of the assignment is:
+
+    some code example
+
+As already mentioned, this was implemented in Matlab and the full code for both solutions
+can be found in the following [repository][].
+
+Discussion
+------------------------------------------------------------
+
+Discussion. 2-3 paragraphs about what worked, what didn't work, and for what
+didn't work, why it didn't work. 
+
+Successful Image Conversion
+------------------------------------------------------------
+
+Since the following image contains a pretty consistent red eye color that
+maxes out the red spectrum, we can simply search for those points. After
+that, we only need two points, one for each eye, so we just choose the
+max and min of the columns. Next, since we only need to place two points,
+we only need one row. The result can be seen below:
+
+<img width="640" src="http://github.com/bashwork/school/raw/master/559/project1/input-result1.jpg" />
+<img width="640" src="http://github.com/bashwork/school/raw/master/559/project1/output-result1.jpg" />
+
+<img width="640" src="http://github.com/bashwork/school/raw/master/559/project1/input-result2.jpg" />
+<img width="640" src="http://github.com/bashwork/school/raw/master/559/project1/output-result2.jpg" />
+
+<img width="640" src="http://github.com/bashwork/school/raw/master/559/project1/input-result1.jpg" />
+<img width="640" src="http://github.com/bashwork/school/raw/master/559/project1/output-result2.jpg" />
+
+
+  [repository]: http://github.com/bashwork/school/tree/master/559/project1/ "Master Repository"

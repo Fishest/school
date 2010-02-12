@@ -1,0 +1,26 @@
+---
+layout: nil
+---
+<?xml version="1.0" encoding="utf-8" ?>
+<rss version="2.0">
+  <channel>
+    <link href="http://bashwork.github.com/school/atom.xml" rel="self"/>
+    <link href="http://bashwork.github.com/school/"/>
+    <description>A collection of homework for my graduate degree</description>
+    <language>en-us</language>
+    <lastBuildDate>{{ site.time | date_to_xmlschema }}</lastBuildDate>
+    <generator>jekyll</generator>
+  
+    {% for post in site.posts %}
+    <item>
+      <title>{{ post.title }}</title>
+      <link href="http://bashwork.github.com/school/{{ post.url }}"/>
+      <author>Galen Collins</author>
+      <pubDate>{{ post.date | date_to_xmlschema }}</pubDate>
+      <guid>http://bashwork.github.com/school/{{ post.id }}</guid>
+      <description>{{ post.content | xml_escape }}</description>
+    </item>
+    {% endfor %}
+  
+  </channel>
+</rss>

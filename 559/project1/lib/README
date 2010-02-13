@@ -1,0 +1,12 @@
+===========================================================
+About This Library
+===========================================================
+
+The following helper modules were taken from the
+`visvis project (http://code.google.com/p/visvis/)`_:
+
+* image_gif_convert.py
+* image_swf_convert.py
+
+They were originally released under the LGPL and their modifications
+are being released here as specified by the license (included).

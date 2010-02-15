@@ -12,17 +12,10 @@ Almar Klein (June 2009)
 
 """
 from struct import pack
-try:
-    import PIL
-    from PIL import Image, ImageChops
-    from PIL.GifImagePlugin import getheader, getdata
-except ImportError:
-    PIL = None
-
-try:
-    import numpy as np
-except ImportError:
-    np = None    
+import PIL
+from PIL import Image, ImageChops
+from PIL.GifImagePlugin import getheader, getdata
+import numpy
 
 # getheader gives a 87a header and a color palette (two elements in a list).
 # getdata()[0] gives the Image Descriptor up to (including) "LZW min code size".
@@ -30,29 +23,45 @@ except ImportError:
 # technically the first byte says how many bytes follow, after which that
 # amount (max 255) follows).
 
-def getheaderAnim(im):
-    """ Animation header. To replace the getheader()[0] """
-    bb = "GIF89a"
-    bb += pack('H', im.size[0])
-    bb += pack('H', im.size[1])
+#--------------------------------------------------------------------- # 
+# Private Helper Functions
+#--------------------------------------------------------------------- # 
+
+def CreateAnimationHeader(image):
+    ''' Returns the GIF89a image header for the requested image
+
+    :param image: The image to create a header for
+    :returns: The animated gif header for the specified image
+    '''
+    bb  = "GIF89a"                      # Magic header
+    bb += pack('H', image.size[0])      # canvas width in pixels
+    bb += pack('H', image.size[1])      # canvas height in pixels
     bb += "\x87\x00\x00"
     return bb
 
-def getAppExt(loops=0):
-    """ Application extention. Part that secifies amount of loops. 
-    if loops is 0, if goes on infinitely.
-    """
-    bb = "\x21\xFF\x0B"                 # application extension
-    bb += "NETSCAPE2.0"
-    bb += "\x03\x01"
-    bb += pack('H', (loops or 2**16-1)
+def CreateApplicationExtension(loops=0):
+    ''' Returns the application extension that specifies how
+    many times to loop
+
+    :param loops: The number of times to loop, or 0 to loop forever
+    :returns: The animated gif application extension.
+    '''
+    bb  = "\x21\xFF\x0B"                # application extension
+    bb += "NETSCAPE2.0"                 # I dunno
+    bb += "\x03\x01"                    # Indicates data follows
+    bb += pack('H', (loops or 2**16-1)) # how many times to loop
     bb += '\x00'                        # end
     return bb
 
-def getGraphicsControlExt(duration=0.1):
-    """ Graphics Control Extension. A sort of header at the start of
-    each image. Specifies transparancy and duration. """
-    bb = '\x21\xF9\x04'
+def CreateGraphicsControlExtension(duration=0.1):
+    ''' Returns the Graphics Control Extension which is a header
+    for each image in the set that specifies the transparency and
+    the duration.
+
+    :param duration: How long the specified image should be shown
+    :returns: The animated gif graphics control extension.
+    '''
+    bb  = '\x21\xF9\x04'                # i dunno
     bb += '\x08'                        # no transparancy
     bb += pack('H', int(duration*100))  # in 100th of seconds
     bb += '\x00'                        # no transparant color
@@ -76,9 +85,9 @@ def _writeGifToFile(fp, images, durations, loops):
             palette = getheader(im)[1]
             data = getdata(im)
             imdes, data = data[0], data[1:]            
-            header = getheaderAnim(im)
-            appext = getAppExt(loops)
-            graphext = getGraphicsControlExt(durations[0])
+            header = CreateAnimationHeader(im)
+            appext = CreateApplicationExtension(loops)
+            graphext = CreateGraphicsControlExtension(durations[0])
             
             # write global header
             fp.write(header)
@@ -95,7 +104,7 @@ def _writeGifToFile(fp, images, durations, loops):
             # gather info (compress difference)              
             data = getdata(im) 
             imdes, data = data[0], data[1:]       
-            graphext = getGraphicsControlExt(durations[frames])
+            graphext = CreateGraphicsControlExtension(durations[frames])
             
             # write image
             fp.write(graphext)
@@ -110,8 +119,11 @@ def _writeGifToFile(fp, images, durations, loops):
     fp.write(";")  # end gif
     return frames
 
+#--------------------------------------------------------------------- # 
+# Public Functions
+#--------------------------------------------------------------------- # 
 
-def writeGif(filename, images, duration=0.1, loops=0, dither=1):
+def CreateAnimatedGif(filename, images, duration=0.1, loops=0, dither=1):
     """ writeGif(filename, images, duration=0.1, loops=0, dither=1)
     Write an animated gif from the specified images. 
     images should be a list of numpy arrays of PIL images.
@@ -130,13 +142,13 @@ def writeGif(filename, images, duration=0.1, loops=0, dither=1):
         if isinstance(im,Image.Image):
             images2.append( im.convert('P',dither=dither) )
             
-        elif np and isinstance(im, np.ndarray):
-            if im.dtype == np.uint8:
+        elif numpy and isinstance(im, numpy.ndarray):
+            if im.dtype == numpy.uint8:
                 pass
-            elif im.dtype in [np.float32, np.float64]:
-                im = (im*255).astype(np.uint8)
+            elif im.dtype in [numpy.float32, numpy.float64]:
+                im = (im*255).astype(numpy.uint8)
             else:
-                im = im.astype(np.uint8)
+                im = im.astype(numpy.uint8)
             # convert
             if len(im.shape)==3 and im.shape[2]==3:
                 im = Image.fromarray(im,'RGB').convert('P',dither=dither)
@@ -161,10 +173,10 @@ def writeGif(filename, images, duration=0.1, loops=0, dither=1):
         n = _writeGifToFile(fp, images2, durations, loops)
     
 if __name__ == '__main__':
-    im = np.zeros((200,200), dtype=np.uint8)
+    im = numpy.zeros((200,200), dtype=numpy.uint8)
     im[10:30,:] = 100
     im[:,80:120] = 255
     im[-50:-40,:] = 50
     images = [im*1.0, im*0.8, im*0.6, im*0.4, im*0]
-    writeGif('lala3.gif',images, duration=0.2, dither=0)
+    CreateAnimatedGif('lala3.gif',images, duration=0.2, dither=0)
     

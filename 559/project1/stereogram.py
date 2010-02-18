@@ -22,10 +22,10 @@ v = SIRD("Boxes.jpg")
 j = v.create_random_dot()
 j.show()
 '''
-try: # try for the free speedup
-    import psyco
-    psyco.full()
-except ImportError: pass
+#try: # try for the free speedup
+#    import psyco
+#    psyco.full()
+#except ImportError: pass
 
 from random import randint
 from PIL import Image, ImageOps
@@ -130,11 +130,13 @@ class SIRD(object):
     an appropriate depthmap.
     '''
     dpi        = 81
+    yshift     = dpi / 16
     distance   = dpi * 14
     separation = dpi * 2.5
     factor     = 0.55
     maximum    = dpi * 12
     minimum    = int((factor * maximum * distance) / ((1 - factor) * maximum + distance))
+    pattern    = (separation * maximum) / (maximum + distance)
 
     def __init__(self, depthmap):
         ''' Initialize a new instance of the SIRD generator
@@ -154,6 +156,19 @@ class SIRD(object):
     # ------------------------------------------------------------------------- #
     # Private Interface
     # ------------------------------------------------------------------------- #
+    def _correct_texture(self, texture):
+        ''' Makes sure that the supplied texture will be wide enough to
+        correctly cover the supplied seperation. If not, we resize it in
+        a scaled manner so that it will cover the max seperation.
+
+        :param texture: The texture to correct
+        :returns: The correct resized texture
+        '''
+        size = texture.size
+        if size[0] < self.pattern:
+            height = (size[1] * self.pattern) / size[0]
+            size = (int(self.pattern), int(height))
+        return texture.resize(size)
 
     def _get_displacement(self, color):
         ''' Return the displacement for the given depth color
@@ -221,11 +236,10 @@ class SIRD(object):
                 result[right] = left
         return result
 
-    def _create(self, depth, texture):
+    def _create(self, depth):
         ''' Build a sird image using random dots to hide the depthmap.
     
         :param depth: The depthmap to create a sird for
-        :param texture: The texture map to use
         :returns: The resulting sird
         '''
         output = Image.new('RGB', depth.size)
@@ -241,6 +255,35 @@ class SIRD(object):
                     output.putpixel((w,h), output.getpixel((lookup[w],h)))
         return output
 
+    def _create_textured(self, depth, texture):
+        ''' Build a sird image using a supplied texture file
+        to hide the depthmap.
+    
+        :param depth: The depthmap to create a sird for
+        :param texture: The texture map to use
+        :returns: The resulting sird
+        '''
+        output = Image.new('RGB', depth.size)
+        (dw, dh) = output.size
+        (tw, th) = texture.size
+        mapping = numpy.asarray(depth)
+        lastlink = -10
+
+        for h in xrange(dh):
+            lookup = self._create_lookup(mapping, h)
+            for w in xrange(dw):
+                if lookup[w] == w: # if the point isn't mapped
+                    if lastlink == (w - 1):
+                        output.putpixel((w,h), output.getpixel((w - 1, h)))
+                    else:
+                        height = (h + ((w / self.pattern) * self.yshift)) % th
+                        output.putpixel((w,h), texture.getpixel(
+                            (w % self.pattern, height)))
+                else:
+                    output.putpixel((w,h), output.getpixel((lookup[w],h)))
+                    lastlink = w
+        return output
+
     # ------------------------------------------------------------------------- #
     # Public Interface
     # ------------------------------------------------------------------------- #
@@ -250,8 +293,7 @@ class SIRD(object):
     
         :returns: The resulting sird
         '''
-        texture = create_random_texture(40, 40)
-        return self._create(self.depth, texture)
+        return self._create(self.depth)
     
     def create_textured(self, texture):
         ''' Build a sird image using the specified texture
@@ -260,7 +302,8 @@ class SIRD(object):
         :param texture: The texture filename to hide the depthmap
         :returns: The resulting sird
         '''
-        return self._create(self.depth, Image.open(texture))
+        overlay = self._correct_texture(Image.open(texture))
+        return self._create_textured(self.depth, overlay)
 
     def create_animated_random_dot(self, frames=37):
         ''' Build a sird image that rotates using random dots
@@ -269,8 +312,7 @@ class SIRD(object):
         :param frames: The number of frames to create
         :returns: The resulting sird
         '''
-        texture = create_random_texture(40, 40)
-        return (self._create(self.depth.rotate(i*10), texture)
+        return (self._create(self.depth.rotate(i*10))
             for i in xrange(frames))
     
     def create_animated_textured(self, texture, frames=37):
@@ -281,8 +323,8 @@ class SIRD(object):
         :param frames: The number of frames to create
         :returns: The resulting sird
         '''
-        overlay = Image.open(texture)
-        return (self._create(self.depth.rotate(i*10), overlay)
+        overlay = self._correct_texture(Image.open(texture))
+        return (self._create_textured(self.depth.rotate(i*10), overlay)
             for i in xrange(frames))
 
 # ------------------------------------------------------------------------- #

@@ -103,7 +103,7 @@ def create_text_depthmap(message="Hello", width=1024, height=768):
     output   = Image.new('RGB', (width, height))
     font     = ImageFont.truetype(path, size)
     draw     = ImageDraw.Draw(output)
-    draw.text(position, message, font=font, fill="#FFFFFF")
+    draw.text(position, message, font=font, fill="#808080")
 
     return output
 
@@ -135,7 +135,6 @@ class SIRD(object):
     factor     = 0.55
     maximum    = dpi * 12
     minimum    = int((factor * maximum * distance) / ((1 - factor) * maximum + distance))
-    size       = (1024, 768)
 
     def __init__(self, depthmap):
         ''' Initialize a new instance of the SIRD generator
@@ -150,7 +149,7 @@ class SIRD(object):
         if isinstance(depthmap, str):
            self.depth = Image.open(depthmap)
         else: self.depth = depthmap
-        self.depth = ImageOps.grayscale(self.depth.resize(self.size))
+        self.depth = ImageOps.grayscale(self.depth)
 
     # ------------------------------------------------------------------------- #
     # Private Interface

@@ -43,7 +43,13 @@ but this is the one that I decided on implementing:
     would be a nice java applet, or you could save the results as a movie
     (mpeg or avi). 
 
-Solution
+3.  *Extension, Worth [6 points]*
+
+    Making *pretty* autostereograms. Random dot pictures are less compelling than
+    many magic eye pictures. Create and detail how you created several images that
+    are more compelling than random dot stereograms.
+
+Solutions
 ------------------------------------------------------------
 
 What follows is a quick psauedo-code description of the algorithm I used for
@@ -55,8 +61,18 @@ Continuing, the psauedo-code for the second part of the assignment is:
 
     some code example
 
-As already mentioned, this was implemented in Matlab and the full code for both solutions
-can be found in the following [repository][].
+General User Interface
+------------------------------------------------------------
+
+The entire project was presented as a python class with a collection of
+helper functions.  As such, the user really only had to create a new
+instance of the SIRD class with the depthmap to use and then call the
+method of the type of stereogram to create.
+
+The class simply loads the depthmap as well as any supplied texture
+files, performs any pre processing (making sure the texture file is
+large enough to cover the max seperation), and then uses the files
+to generate an autostereogram.
 
 Discussion
 ------------------------------------------------------------
@@ -64,23 +80,79 @@ Discussion
 Discussion. 2-3 paragraphs about what worked, what didn't work, and for what
 didn't work, why it didn't work. 
 
-Successful Image Conversion
+Demonstraction of Successful Autostereogram Creations
 ------------------------------------------------------------
 
-Since the following image contains a pretty consistent red eye color that
-maxes out the red spectrum, we can simply search for those points. After
-that, we only need two points, one for each eye, so we just choose the
-max and min of the columns. Next, since we only need to place two points,
-we only need one row. The result can be seen below:
+*What follows are a collection of autostereograms representing the various
+required solutions for the problem sets. Open any image in a new window to
+see it at full screen.*
 
-<img width="640" src="http://github.com/bashwork/school/raw/master/559/project1/input-result1.jpg" />
-<img width="640" src="http://github.com/bashwork/school/raw/master/559/project1/output-result1.jpg" />
+**Random Dot Stereogram**
 
-<img width="640" src="http://github.com/bashwork/school/raw/master/559/project1/input-result2.jpg" />
-<img width="640" src="http://github.com/bashwork/school/raw/master/559/project1/output-result2.jpg" />
+<img width="320" src="http://github.com/bashwork/school/raw/master/559/project1/images/boxes.jpg" />
+<img width="320" src="http://github.com/bashwork/school/raw/master/559/project1/images/boxes-rd-sird.jpg" />
 
-<img width="640" src="http://github.com/bashwork/school/raw/master/559/project1/input-result1.jpg" />
-<img width="640" src="http://github.com/bashwork/school/raw/master/559/project1/output-result2.jpg" />
+**Textured Stereogram**
 
+<img width="320" src="http://github.com/bashwork/school/raw/master/559/project1/images/dino.jpg" />
+<img width="320" src="http://github.com/bashwork/school/raw/master/559/project1/images/dino-textured-sird.jpg" />
+
+**Animated Stereogram**
+
+<img width="320" src="http://github.com/bashwork/school/raw/master/559/project1/images/human.gif" />
+<img width="320" src="http://github.com/bashwork/school/raw/master/559/project1/images/human-animated-sird.gif" />
+
+Code Used To Generate The Previous Images
+------------------------------------------------------------
+
+*The following is an example of creating a simple random dot stereogram*
+
+    from stereogram import SIRD
+    
+    sird  = SIRD("images/some-depth-map.jpg")
+    image = sird.create_random_dot()
+    image.show()
+
+*In order to create a textured stereogram, the user simply needs to supply
+the texture to use to hide the depthmap*
+
+    from stereogram import SIRD
+    
+    sird  = SIRD("images/some-depth-map.jpg")
+    image = sird.create_texture("images/some-texture.jpg")
+    image.show()
+
+*In order to create an animated SIRD, the user first had to create
+an image generator which they would then pass to the animated gif helper
+library:*
+
+    from stereogram import SIRD
+    import lib
+    
+    sird  = SIRD("images/some-depth-map.jpg")
+    images = sird.create_animated_random_dot()
+    lib.CreateAnimatedGif("output.gif", images)
 
   [repository]: http://github.com/bashwork/school/tree/master/559/project1/ "Master Repository"
+
+Complete Source Code
+------------------------------------------------------------
+
+As already mentioned, this project was implemented in python and the full
+code for all the solutions can be found in the following [repository][].
+As for support libraries, the following were used throughout the project:
+
+*  [Python Imageing Library(PIL)](http://www.pythonware.com/products/pil/)
+
+   This was used for all the low level image management and manipulation
+   like opening and saving image formats and getting and setting pixel
+   values
+
+*  [Numpy](http://numpy.scipy.org/)
+
+   This was used to operate on multi-dimensional matrices in python
+
+*  [VisVis](http://code.google.com/p/visvis/)
+
+   This was used to save a list of PIL Images into an animated GIF
+

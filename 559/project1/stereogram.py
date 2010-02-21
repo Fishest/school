@@ -22,10 +22,10 @@ v = SIRD("Boxes.jpg")
 j = v.create_random_dot()
 j.show()
 '''
-#try: # try for the free speedup
-#    import psyco
-#    psyco.full()
-#except ImportError: pass
+try: # try for the free speedup
+    import psyco
+    psyco.full()
+except ImportError: pass
 
 from random import randint
 from PIL import Image, ImageOps
@@ -161,6 +161,10 @@ class SIRD(object):
         correctly cover the supplied seperation. If not, we resize it in
         a scaled manner so that it will cover the max seperation.
 
+        .. note:: This only covers the case of a texture that can be tiled.
+           If it cannot without repeat edges, it must be as large as the
+           image otherwise the edges will create artificial depths.
+
         :param texture: The texture to correct
         :returns: The correct resized texture
         '''
@@ -263,10 +267,10 @@ class SIRD(object):
         :param texture: The texture map to use
         :returns: The resulting sird
         '''
-        output = Image.new('RGB', depth.size)
+        output   = Image.new('RGB', depth.size)
         (dw, dh) = output.size
         (tw, th) = texture.size
-        mapping = numpy.asarray(depth)
+        mapping  = numpy.asarray(depth)
         lastlink = -10
 
         for h in xrange(dh):
@@ -277,8 +281,7 @@ class SIRD(object):
                         output.putpixel((w,h), output.getpixel((w - 1, h)))
                     else:
                         height = (h + ((w / self.pattern) * self.yshift)) % th
-                        output.putpixel((w,h), texture.getpixel(
-                            (w % self.pattern, height)))
+                        output.putpixel((w,h), texture.getpixel((w % tw, height)))
                 else:
                     output.putpixel((w,h), output.getpixel((lookup[w],h)))
                     lastlink = w

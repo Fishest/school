@@ -113,8 +113,8 @@ The following utility functions were used in creating all the autostereograms:
     get_displacement(color)
       depth = using predetermined values, convert color value
               to a depth value for the given monitor.
-      # compute the seperation for the depth using similar triangles
-      return (eye-separation * depth) / (depth + distance to viewier)
+      # compute the separation for the depth using similar triangles
+      return (eye-separation * depth) / (depth + distance to viewer)
     end
 
     create_row_lookup(row)
@@ -128,7 +128,7 @@ The following utility functions were used in creating all the autostereograms:
     end
 
     validate_texture(texture)
-      if texture.width is less than the max seperation:
+      if texture.width is less than the max separation:
         resize the texture to be at least that and do so in a scaled
         manner (so height is increased in proportion to the width)
       return texture
@@ -164,11 +164,11 @@ worked and as such the animated random dot stereogram worked as well
 take a while to create and a good bit of disk space. The only problem I
 faced after this portion was getting the textured stereogram working.
 
-Since I had abstracted the seperation point mapping, I was able to reuse
+Since I had abstracted the separation point mapping, I was able to reuse
 all the existing code and I simply had to worry with pulling the correct
 pixel values from the texture.  At first this failed because my texture
-was not wide enough to cover the seperation needed to provide the correct
-depth. After creating some preflight code to make sure the texture was
+was not wide enough to cover the separation needed to provide the correct
+depth. After creating some pre-flight code to make sure the texture was
 acceptable for the image, this portion worked as well.  The only thing that
 remains is a bit of distortion in the resulting stereogram that can only
 really be seen when using a texture that isn't abstract enough to hide it.
@@ -256,10 +256,10 @@ Footnotes
     will keep the size of the image consistent during the rotation (so an image
     that is 1024x768 will stay 1024x768 when rotated 20 degrees) and pad the
     *excess* space with black (no depth information). However, this is not
-    the case when the image is rotated 90 degress.  This will cause the image
+    the case when the image is rotated 90 degrees.  This will cause the image
     to simply switch its width and height causing 2 frames of the video to
     be very distracting. Instead of skipping 90 degree rotations or resizing the
-    image, I simply required animated depthmaps to be square.
+    image, I simply required animated depth-maps to be square.
 
 2.  When I was reading William A. Steer's discussion on creating textured
     autostereograms, he mentioned a number of problems that he stumbled on

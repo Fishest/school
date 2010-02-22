@@ -18,7 +18,7 @@ student to tackle the problem on their own and simply do the one extra problem
 that they were on the hook for (which is the option I chose).
 
 We were allowed to chose from two projects (and a number of extra sub-projects),
-but this is the one that I decided on implementing:
+however this is the one that I decided to implement:
 
 **Autostereogram Generator**
 *(Not recommended if you can't see autostereograms)*
@@ -49,43 +49,136 @@ but this is the one that I decided on implementing:
     many magic eye pictures. Create and detail how you created several images that
     are more compelling than random dot stereograms.
 
+
 Solutions
 ------------------------------------------------------------
 
-What follows is a quick psauedo-code description of the algorithm I used for
-the first part of the assignment:
+What follows is a pseudo-code description of the various algorithms I used to
+generate the random dot autostereograms to complete the first part of the
+assignment:
 
-    some code example
+    create_random_dot(image)
+      result = create_new_image(image.size)
 
-Continuing, the psauedo-code for the second part of the assignment is:
+      foreach h:0 to image.height:
+        lookup = create_row_lookup(image[h])
+        foreach w:0 to image.width:
+          if point is not mapped in lookup map:
+            result(w,h) = get_random_color()
+          else if point is mapped in lookup:
+            wl = get the mapped width point for this point
+            result(w,h) = result(wl, h)
+      return result
+    end
 
-    some code example
+Next, in order to implement moving autostereograms, I took a simply shortcut.
+Since *movement* was not well defined in the problem description, I decided
+to simply rotate the image **(1)**:
+
+    images = []
+    depthmap = Image.open("images/some-depthmap.jpg")
+    for every 10 degrees in 360:
+      map = depthmap.rotate(degrees)
+      images.add(create_random_dot(map)
+    save_images_as_animated_gif(images)
+
+Finally, in order to use a texture to hide the depth information instead
+of using random dots, I simply reused the existing lookup map creation
+and then instead of using random colors to fill points, I just used
+the specified texture pixels **(2)**.
+
+    create_textured(image, texture)
+      result = create_new_image(image.size)
+      texture = validate_texture(texture)
+
+      foreach h:0 to image.height:
+        lookup = create_row_lookup(image[h])
+        foreach w:0 to image.width:
+          if point is not mapped in lookup map:
+            x,y = get modulus values from texture
+            result(w,h) = texture(x,y)
+          else if point is mapped in lookup:
+            wl = get the mapped width point for this point
+            result(w,h) = result(wl, h)
+      return result
+    end
+
+The following utility functions were used in creating all the autostereograms:
+
+    get_random_color()
+      r = random_integer_generator
+      return (r(255), r(255), r(255))
+    end
+
+    get_displacement(color)
+      depth = using predetermined values, convert color value
+              to a depth value for the given monitor.
+      # compute the seperation for the depth using similar triangles
+      return (eye-separation * depth) / (depth + distance to viewier)
+    end
+
+    create_row_lookup(row)
+      result = initialize with range from 0 to row width
+      foreach w:0 to row.width:
+        d = get_displacement(row[w])
+        left, right = (w - d/2, w + d/2)
+        if left and right are both in the image range:
+          result[right] = left
+      return result
+    end
+
+    validate_texture(texture)
+      if texture.width is less than the max seperation:
+        resize the texture to be at least that and do so in a scaled
+        manner (so height is increased in proportion to the width)
+      return texture
+    end
+
 
 General User Interface
 ------------------------------------------------------------
 
 The entire project was presented as a python class with a collection of
 helper functions.  As such, the user really only had to create a new
-instance of the SIRD class with the depthmap to use and then call the
+instance of the SIRD class with the depth-map to use and then call the
 method of the type of stereogram to create.
 
-The class simply loads the depthmap as well as any supplied texture
-files, performs any pre processing (making sure the texture file is
-large enough to cover the max seperation), and then uses the files
-to generate an autostereogram.
+The class simply loads the depth-map as well as any supplied texture
+files, performs any pre-processing (making sure the texture file is
+large enough to cover the max separation), and then uses the image
+data as simple matrices to generate an autostereogram.
 
 Discussion
 ------------------------------------------------------------
 
-Discussion. 2-3 paragraphs about what worked, what didn't work, and for what
-didn't work, why it didn't work. 
+For the first implementation, I used the rough algorithm that Dr. Pless
+had on the project description and quickly coded up a small script with
+a few guessed numbers--it didn't work. After that I decided to rework 
+the code into smaller methods and do some investigation on what kind
+of separation was needed for my monitor and how that would be calculated
+consistently.
 
-Demonstraction of Successful Autostereogram Creations
+After I had all the values pre-calculated, the random dot stereogram just
+worked and as such the animated random dot stereogram worked as well
+(since it was just creating N random dot stereograms). It did however
+take a while to create and a good bit of disk space. The only problem I
+faced after this portion was getting the textured stereogram working.
+
+Since I had abstracted the seperation point mapping, I was able to reuse
+all the existing code and I simply had to worry with pulling the correct
+pixel values from the texture.  At first this failed because my texture
+was not wide enough to cover the seperation needed to provide the correct
+depth. After creating some preflight code to make sure the texture was
+acceptable for the image, this portion worked as well.  The only thing that
+remains is a bit of distortion in the resulting stereogram that can only
+really be seen when using a texture that isn't abstract enough to hide it.
+
+Demonstration of Successful Autostereogram Creations
 ------------------------------------------------------------
 
 *What follows are a collection of autostereograms representing the various
 required solutions for the problem sets. Open any image in a new window to
-see it at full screen.*
+see it at full screen. It should be noted that the animated gif is 15 Mb*
 
 **Random Dot Stereogram**
 
@@ -100,7 +193,8 @@ see it at full screen.*
 **Animated Stereogram**
 
 <img width="320" src="http://github.com/bashwork/school/raw/master/559/project1/images/human.gif" />
-<img width="320" src="http://github.com/bashwork/school/raw/master/559/project1/images/human-animated-sird.gif" />
+<img width="320" src="http://students.cec.wustl.edu/~gbc1/human-rd.gif" />
+
 
 Code Used To Generate The Previous Images
 ------------------------------------------------------------
@@ -114,7 +208,7 @@ Code Used To Generate The Previous Images
     image.show()
 
 *In order to create a textured stereogram, the user simply needs to supply
-the texture to use to hide the depthmap*
+the texture to use to hide the depth-map*
 
     from stereogram import SIRD
     
@@ -133,8 +227,6 @@ library:*
     images = sird.create_animated_random_dot()
     lib.CreateAnimatedGif("output.gif", images)
 
-  [repository]: http://github.com/bashwork/school/tree/master/559/project1/ "Master Repository"
-
 Complete Source Code
 ------------------------------------------------------------
 
@@ -142,7 +234,7 @@ As already mentioned, this project was implemented in python and the full
 code for all the solutions can be found in the following [repository][].
 As for support libraries, the following were used throughout the project:
 
-*  [Python Imageing Library(PIL)](http://www.pythonware.com/products/pil/)
+*  [Python Imaging Library(PIL)](http://www.pythonware.com/products/pil/)
 
    This was used for all the low level image management and manipulation
    like opening and saving image formats and getting and setting pixel
@@ -156,3 +248,24 @@ As for support libraries, the following were used throughout the project:
 
    This was used to save a list of PIL Images into an animated GIF
 
+
+Footnotes
+------------------------------------------------------------
+
+1.  The only problems I had to worry about in this implementation is that PIL
+    will keep the size of the image consistent during the rotation (so an image
+    that is 1024x768 will stay 1024x768 when rotated 20 degrees) and pad the
+    *excess* space with black (no depth information). However, this is not
+    the case when the image is rotated 90 degress.  This will cause the image
+    to simply switch its width and height causing 2 frames of the video to
+    be very distracting. Instead of skipping 90 degree rotations or resizing the
+    image, I simply required animated depthmaps to be square.
+
+2.  When I was reading William A. Steer's discussion on creating textured
+    autostereograms, he mentioned a number of problems that he stumbled on
+    such as random pixels sticking out and unwanted artifacts. Long story short,
+    I took his word for it and implemented his error correcting ideas (copy
+    adjacent pixel to prevent pixels on edges to stand out, etc). For more
+    information [go to his page](http://www.techmind.org/stereo/stech.html).
+
+  [repository]: http://github.com/bashwork/school/tree/master/559/project1/ "Master Repository"

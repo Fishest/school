@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Homework 1 - Red Eye Detection
+category: school
 ---
 
 {{ page.title }}
@@ -22,7 +23,7 @@ The following is a summary of the solution I implemented:
 * Read the image into Matlab (imread).
 * Find the highest occurrences of red (255) in the image
 * Chose the single highest row and the highest and lowest columns
-* Draw a crosshair on each of those points ([r, cl] [r, ch])
+* Draw a cross-hair on each of those points ([r, cl] [r, ch])
 
 As already mentioned, this was implemented in Matlab and the code can be found in the following
 [repository](http://github.com/bashwork/school/tree/master/559/homework1/homework1.m).
@@ -43,7 +44,7 @@ we only need one row. The result can be seen below:
 
 Since the following image does not contain red eyes (especially red eyes that are
 in the same range as the previous image), we not only do not detect the subject's
-eyes, but we accidently detect random parts of the tunic instead:
+eyes, but we accidental detect random parts of the tunic instead:
 
 <img width="640" src="http://github.com/bashwork/school/raw/master/559/homework1/failing-input-result.jpg" />
 

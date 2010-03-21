@@ -1,11 +1,7 @@
 '''
 '''
-try: # try for the free speedup
-    import psyco
-    psyco.full()
-except ImportError: pass
 
-import os
+import os, time
 import numpy as np
 from PIL import Image, ImageOps
 
@@ -26,11 +22,11 @@ def CreateImagePyramid(image, scale=1.25):
     :param scale: The scale factor to reduce the image at each stage
     :returns: The image pyramid for the specified image
     '''
-    def next(si, sc):
+    def next(si):
         while min(si) >= 24:
             yield si
-            si = map(lambda n: int(n/sc), si)
-    return [image.resize(size) for size in next(image.size, scale)]
+            si = map(lambda n: int(n/scale), si)
+    return [image.resize(size) for size in next(image.size)]
 
 def CreateIntegralImagePyramid(image, scale=1.25):
     ''' Given a pil image, this returns an integral image
@@ -41,11 +37,32 @@ def CreateIntegralImagePyramid(image, scale=1.25):
     :param scale: The scale factor to reduce the image at each stage
     :returns: The image pyramid for the specified image
     '''
-    def next(si, sc):
+    def next(si):
         while min(si) >= 24:
             yield si
-            si = map(lambda n: int(n/sc), si)
-    return [CreateIntegralImage(image.resize(size)) for size in next(image.size, scale)]
+            si = map(lambda n: int(n/scale), si)
+    return [CreateIntegralImage(image.resize(size)) for size in next(image.size)]
+
+def CreateFeaturePyramid(feature, size, scale=1.25):
+    ''' Given a numpy array, this returns an feature pyramid with
+    each feature increased by the scale factor from the previous feature.
+
+    :param image: The feature to create an image pyramid for
+    :param size: The image size to peak at
+    :param scale: The scale factor to reduce the image at each stage
+    :returns: The feature pyramid for the specified feature
+    '''
+    def _nx(si):
+        _mul = lambda n: int(n*scale)
+        while max(si) <= max(size):
+            yield si
+            si = map(_mul, si)
+
+    def _im(ft, sz):
+        im = Image.fromarray(ft).resize(sz)
+        return np.asarray(im)
+
+    return [_im(feature, size) for size in _nx(feature.shape)]
 
 def CreateIntegralImage(image):
     ''' Given a PIL image, this computes the integral

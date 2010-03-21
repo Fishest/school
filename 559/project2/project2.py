@@ -16,9 +16,21 @@ logging.basicConfig()
 __log = logging.getLogger("project2")
 __log.setLevel(logging.DEBUG)
 
-# ------------------------------------------------------------------ #
-# Helper Utilities
-# ------------------------------------------------------------------ #
+def decode_matches(matches, size):
+    ''' Given a collection of matches and the image size
+    they were found at, convert all the matches to operate
+    on the scale of the original image.
+
+    :param matches: collection of [[size, pos]...]
+    :param size: The original size of the image
+    :returns: The match collection with the pixel locations scaled
+    '''
+    final = []
+    for match, msize in matches:
+        scale = size[0] / msize[0]
+        final.add([(match[0]*scale, match[1]*scale), msize])
+    return final
+
 def test_feature(feature, images):
     ''' Given a feature test, run it against the set
     of images and report back the score of the given
@@ -30,58 +42,33 @@ def test_feature(feature, images):
     '''
     score = 0
     for image in images:
-        pass
+        result = image * feature
+        score += np.multiply(result,result).sum()
     return score
 
-def test_ii_feature(feature, images):
-    ''' Given a feature test, run it against the set
-    of integral images and report back the score of
-    the given feature test.
-
-    :param feature: The feature to tests
-    :param images: The image set to test the feature against
-    :returns: The score for the feature test
-    '''
-    score = 0
-    for image in images:
-        pass
-    return score
-
-def train_features(path, count=20):
-    ''' Given a path to a collection of image features, train
+def train_features(images, count=20, rounds=10):
+    ''' Given a collection of image features, train
     the specified number of detectors against the set.
 
-    :param path: The path to the directory of images
+    This works by picking the best feature out of the specified
+    number of rounds, testing them all, and picking the top
+    count feature tests.
+
+    :param images: The collection of images to train with
     :param count: The number of features to generate
     :returns: The collection of trained detectors
     '''
     _start = time.time()
-    images = OpenImageDirectory(path)
-    initial = GenerateFeatures(count*10)
+    initial = GenerateFeatures(count*rounds)
     features = []
+    __log.debug("Total time to initialize features: %s ticks" % (time.time() - _start))
+    _start = time.time()
     for feature in initial:
         score = test_feature(feature, images)):
         features.add((score, feature))
     __log.debug("Total time to train features: %s ticks" % (time.time() - _start))
-    return [feature[1] for feature in features]
-
-def train_ii_features(path, count=200):
-    ''' Given a path to a collection of image features, train
-    the specified number of detectors against the set.
-
-    :param path: The path to the directory of images
-    :param count: The number of features to generate
-    :returns: The collection of trained detectors
-    '''
-    _start = time.time()
-    images = OpenImageDirectory(path)
-    initial = GenerateFeatures(count*10)
-    features = []
-    for feature in initial:
-        score = test_ii_feature(feature, images)):
-        features.add((score, feature))
-    __log.debug("Total time to train ii-features: %s ticks" % (time.time() - _start))
-    return [feature[1] for feature in features]
+    features.sort()
+    return features[:count]
 
 def process_image(image, features):
     ''' Given an image and a set of haar-features, we
@@ -97,19 +84,9 @@ def process_image(image, features):
     pyramid = CreateImagePyramid(image, scale=1.25)
     __log.debug("Total time to process and image: %s ticks" % (time.time() - _start))
 
-def process_ii_image(image, features):
-    ''' Given an image and a set of haar-features, we
-    apply the features against image and return the resulting
-    feature locations.
-
-    :param image: The image path to test
-    :param features: The rectangle features to test for features
-    :returns: The locations of each face in the image.
-    '''
-    _start = time.time()
-    if isinstance(image, str): image = OpenImage(image)
-    pyramid = CreateIntegralImagePyramid(image, scale=1.25)
-    __log.debug("Total time to process and ii-image: %s ticks" % (time.time() - _start))
+# ------------------------------------------------------------------ #
+# Project Logic
+# ------------------------------------------------------------------ #
 
 # ------------------------------------------------------------------ #
 # Main Entry Point

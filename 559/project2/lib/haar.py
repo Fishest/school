@@ -149,7 +149,7 @@ def GenerateFeature(size=(24,24)):
 
     # randomize the location of the positive areas
     if randint(0, 1): feat *= -1
-    return feat
+    return feat.flatten()
 
 def GenerateFeatures(count, size=(24,24)):
     ''' Generates the requested number of haar
@@ -159,5 +159,6 @@ def GenerateFeatures(count, size=(24,24)):
     :param size: The requested feature size (default (24,24))
     :returns: A list of the requested features
     '''
-    return [generate_feature(size) for _ in xrange(count)]
+    features = [GenerateFeature(size) for _ in xrange(count)]
+    return np.array(features, 'f')
 

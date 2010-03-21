@@ -31,44 +31,21 @@ def decode_matches(matches, size):
         final.add([(match[0]*scale, match[1]*scale), msize])
     return final
 
-def test_feature(feature, images):
-    ''' Given a feature test, run it against the set
+def test_region(features, image, zone):
+    ''' Given detector collection and a point for the upper
+    left corner of the feature test, check if the feature
+    exists in the specified image.
     of images and report back the score of the given
     feature test.
 
-    :param feature: The feature to tests
-    :param images: The image set to test the feature against
-    :returns: The score for the feature test
+    :param features: The features to test against the image region
+    :param image: The image to test the features against
+    :param zone: The upper left corner of the feature window
+    :returns: True if a feature exists, False otherwise
     '''
-    score = 0
-    for image in images:
-        result = image * feature
-        score += np.multiply(result,result).sum()
-    return score
-
-def train_features(images, count=20, rounds=10):
-    ''' Given a collection of image features, train
-    the specified number of detectors against the set.
-
-    This works by picking the best feature out of the specified
-    number of rounds, testing them all, and picking the top
-    count feature tests.
-
-    :param images: The collection of images to train with
-    :param count: The number of features to generate
-    :returns: The collection of trained detectors
-    '''
-    _start = time.time()
-    initial = GenerateFeatures(count*rounds)
-    features = []
-    __log.debug("Total time to initialize features: %s ticks" % (time.time() - _start))
-    _start = time.time()
-    for feature in initial:
-        score = test_feature(feature, images)):
-        features.add((score, feature))
-    __log.debug("Total time to train features: %s ticks" % (time.time() - _start))
-    features.sort()
-    return features[:count]
+    fsize  = 24 - 1
+    window = image[zone[0]:zone[0]+fsize,zone[1]:zone[1]+fsize]
+    result = np.multiply(features, window)
 
 def process_image(image, features):
     ''' Given an image and a set of haar-features, we

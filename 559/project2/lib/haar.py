@@ -1,7 +1,26 @@
 '''
+Haar Feature Generator
+----------------------------------------------------------------
+
+The following is a quick implementation of a haar like feature
+generator.  it can be used to generate for any given window size
+one of the following random feature types:
+
+- 2 box horizontal rectangle
+- 2 box vertical rectangle
+- 3 box horizontal rectangle
+- 3 box vertical rectangle
+- 4 box grid rectangle
+
 '''
 from random import randint, seed
 import numpy as np
+
+# ------------------------------------------------------------------ #
+# Logging Setup
+# ------------------------------------------------------------------ #
+import logging
+__log = logging.getLogger("project2.internal")
 
 # ------------------------------------------------------------------ #
 # Helper Methods
@@ -43,7 +62,6 @@ def __generate_2_horizontal(size):
     :param size: a tuple of (x size, y size)
     :returns: ((xmin, xmid, xmax), (ymin, ymid, ymax))
     '''
-    print "Generating 2-H"
     feat = __generate_blank_image(size)
     x, y = __get_random_bounds(size)
     feat[y[0]:y[2], x[0]:x[1]+x[0]] = -1 # left-box
@@ -57,7 +75,6 @@ def __generate_2_vertical(size):
     :param size: a tuple of (x size, y size)
     :returns: ((xmin, xmid, xmax), (ymin, ymid, ymax))
     '''
-    print "Generating 2-V"
     feat = __generate_blank_image(size)
     x, y = __get_random_bounds(size)
     feat[y[0]:y[1]+y[0], x[0]:x[2]] = -1 # top-box
@@ -71,7 +88,6 @@ def __generate_3_horizontal(size):
     :param size: a tuple of (x size, y size)
     :returns: ((xmin, xmid, xmax), (ymin, ymid, ymax))
     '''
-    print "Generating 3-H"
     feat = __generate_blank_image(size)
     x, y = __get_random_bounds(size, step=3)
     x1, x2 = (x[0]+x[1]), (x[0]+x[1]*2)
@@ -87,7 +103,6 @@ def __generate_3_vertical(size):
     :param size: a tuple of (x size, y size)
     :returns: ((xmin, xmid, xmax), (ymin, ymid, ymax))
     '''
-    print "Generating 3-V"
     feat = __generate_blank_image(size)
     x, y = __get_random_bounds(size, step=3)
     y1, y2 = (y[0]+y[1]), (y[0]+y[1]*2)
@@ -103,7 +118,6 @@ def __generate_4_boxes(size):
     :param size: a tuple of (x size, y size)
     :returns: ((xmin, xmid, xmax), (ymin, ymid, ymax))
     '''
-    print "Generating 4-B"
     feat = __generate_blank_image(size)
     x, y = __get_random_bounds(size)
     feat[y[0]:y[1]+y[0], x[0]:x[1]+x[0]] = -1 # upper-box
@@ -112,9 +126,6 @@ def __generate_4_boxes(size):
     feat[y[0]:y[1]+y[0], x[1]+x[0]:x[2]] =  1 # bottom-box
     return feat
 
-# ------------------------------------------------------------------ #
-# Public interface
-# ------------------------------------------------------------------ #
 __haar_features = (
         __generate_2_vertical, __generate_2_horizontal,
         __generate_3_vertical, __generate_3_horizontal,
@@ -122,7 +133,10 @@ __haar_features = (
   )
 __haar_feature_size = len(__haar_features) - 1
 
-def generate_haar_feature(size=(24,24)):
+# ------------------------------------------------------------------ #
+# Public interface
+# ------------------------------------------------------------------ #
+def GenerateFeature(size=(24,24)):
     ''' Given an image size, generate a random haar
     feature.
     
@@ -137,4 +151,13 @@ def generate_haar_feature(size=(24,24)):
     if randint(0, 1): feat *= -1
     return feat
 
+def GenerateFeatures(count, size=(24,24)):
+    ''' Generates the requested number of haar
+    features of the given size.
+
+    :param count: The number of features to generate
+    :param size: The requested feature size (default (24,24))
+    :returns: A list of the requested features
+    '''
+    return [generate_feature(size) for _ in xrange(count)]
 

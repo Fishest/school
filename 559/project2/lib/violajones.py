@@ -9,21 +9,43 @@ import os
 import numpy as np
 from PIL import Image, ImageOps
 
+# ------------------------------------------------------------------ #
+# Logging Setup
+# ------------------------------------------------------------------ #
+import logging
+__log = logging.getLogger("project2.internal")
+
 # ----------------------------------------------------------------- # 
 # Project Helper Methods
 # ----------------------------------------------------------------- # 
 def CreateImagePyramid(image, scale=1.25):
-    ''' Given a PIL image, this computes the integral
-    image and returns as a numpy array.
+    ''' Given a pil image, this returns an image pyramid with
+    each image reduced by the scale factor from the previous image.
 
-    :param image: The image to create an integral image for
-    :returns: The integral image for the specified image
+    :param image: The image to create an image pyramid for
+    :param scale: The scale factor to reduce the image at each stage
+    :returns: The image pyramid for the specified image
     '''
     def next(si, sc):
         while min(si) >= 24:
             yield si
             si = map(lambda n: int(n/sc), si)
     return [image.resize(size) for size in next(image.size, scale)]
+
+def CreateIntegralImagePyramid(image, scale=1.25):
+    ''' Given a pil image, this returns an integral image
+    image pyramid with each image reduced by the scale factor
+    from the previous image.
+
+    :param image: The image to create an image pyramid for
+    :param scale: The scale factor to reduce the image at each stage
+    :returns: The image pyramid for the specified image
+    '''
+    def next(si, sc):
+        while min(si) >= 24:
+            yield si
+            si = map(lambda n: int(n/sc), si)
+    return [CreateIntegralImage(image.resize(size)) for size in next(image.size, scale)]
 
 def CreateIntegralImage(image):
     ''' Given a PIL image, this computes the integral
@@ -32,9 +54,8 @@ def CreateIntegralImage(image):
     :param image: The image to create an integral image for
     :returns: The integral image for the specified image
     '''
-    gray = ImageOps.grayscale(image)
-    gray = np.asarray(gray).astype("double")
-    return np.cumsum(np.cumsum(gray, axis=1), axis=0)
+    result = np.asarray(image).astype("double")
+    return np.cumsum(np.cumsum(result, axis=1), axis=0)
 
 def RemoveMeanFromImages(images):
     ''' Given a numpy array of image, this computes the
@@ -60,6 +81,15 @@ def PerformPCA(images):
     v = v[:images.shape[0]]
     return v,s,mean
 
+def OpenImage(file):
+    ''' Given an image path, open it as a flat numpy array.
+
+    :param file: The path to the image to open
+    :returns: The image as a grayscale numpy array
+    '''
+    image = ImageOps.grayscale(Image.open(file))
+    return np.array(image).flatten()
+
 def OpenImageDirectory(path):
     ''' Given a path, open all the images in the directory
     and create an array of PIL images.
@@ -68,6 +98,6 @@ def OpenImageDirectory(path):
     :returns: A collection of PIL Images
     '''
     files  = (os.path.join(path, file) for file in os.listdir(path))
-    images = (ImageOps.grayscale(Image.open(file)) for file in files)
-    return np.array([np.array(image).flatten() for image in images], 'f')
+    images = [OpenImage(file) for file in files]
+    return np.array(images, 'f')
 

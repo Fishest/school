@@ -1,6 +1,4 @@
-#!/usr/bin/env pythonw
-# encoding: utf-8
-"""
+'''
 M = montage(I, colormap=cm.gist_gray)
  
 Generates a single "contact sheet" montage array and plots the result using the
@@ -17,8 +15,7 @@ http://ocw.mit.edu/OcwWeb/Brain-and-Cognitive-Sciences/9-641JSpring-2005/Assignm
 
 Created by Peter Skomoroch on 2008-02-28.
 Copyright (c) 2008 DataWrangling. All rights reserved.
-
-"""
+'''
 
 import sys
 import os
@@ -28,8 +25,9 @@ from numpy import array,flipud,shape,zeros,rot90,ceil,floor,sqrt
 from scipy import io,reshape,size
 import pylab
 
-
-def montage(I, colormap=pylab.cm.gist_gray):    
+def montage(I, colormap=pylab.cm.gist_gray):
+    '''
+    '''
     m,n,count = shape(I)    
     mm = int(ceil(sqrt(count)))
     nn = mm
@@ -49,6 +47,9 @@ def montage(I, colormap=pylab.cm.gist_gray):
     return M
     
 
+# ---------------------------------------------------------------------------- #
+# Example Usage
+# ---------------------------------------------------------------------------- #
 def __main():
     # This example loads greyscale face data which has been cropped into 
     # square matrices of length L.  The raw matlab data has one column
@@ -62,7 +63,6 @@ def __main():
     digits = digits_workspace['test']
     
     for j, D in enumerate([faces, digits]):
-    
         try:
             array_count = shape(D)[1]
             L = int(sqrt(shape(D)[0]))
@@ -74,12 +74,9 @@ def __main():
             pylab.figure(j)
             montage(I)      
             pylab.savefig('Fig%s.png' % j)
-
         except MemoryError, detail:
             print "MemoryError: ", detail
-    
     pylab.show()        
-        
 
 if __name__ == '__main__':
     __main()

@@ -1,16 +1,12 @@
 '''
 '''
-#try: # try for the free speedup
-#    import psyco
-#    psyco.full()
-#except ImportError: pass
 try:
     import cPickle as pickle
 except ImportError: import pickle
 
 import os
-from violajones import *
-from boosting import TrainFeatures
+from utility import *
+from boosting import Booster
 from haar import GenerateFeatures
 
 # ------------------------------------------------------------------ #
@@ -19,7 +15,7 @@ from haar import GenerateFeatures
 import logging
 logging.basicConfig()
 
-_log = logging.getLogger("project2.internal")
+_log = logging.getLogger("project.detector")
 
 # ------------------------------------------------------------------ #
 # Helper Utilities
@@ -47,6 +43,24 @@ def load_with_cache(path, callback):
             pickle.dump(result, handle)
     return result
 
+def get_trained_set(images, count):
+    ''' Given the desired classification results and
+    the actual classification results, this generates
+    a report of how well the detector performed
+
+    :param desired: The desired logic array
+    :param actual: The resulting logic array
+    :returns: (positive, negative, false-positive, false-negative)
+    '''
+    def _gen(_):
+        # as our implementation is ungodly slow, we are
+        # loading features generated from a much beefier
+        # box in matlab :D
+        booster = Booster(valid=images.valid, invalid=images.invalid)
+        return booster.train_features(count=200, rounds=10)
+    f,t = load_with_cache("../images/features", _gen)
+    return f[:,:,0:count], t[:,0:count]
+
 def compile_report(desired, actual):
     ''' Given the desired classification results and
     the actual classification results, this generates
@@ -69,7 +83,7 @@ def compile_report(desired, actual):
     _log.info(" Correctly detected features:\t\t[%4d][%3.2f%%]"     % ( p, 100.0* p/l))
     _log.info(" Incorrectly detected features:\t\t[%4d][%3.2f%%]"   % (fn, 100.0*fn/l))
     _log.info(" Incorrectly detected non-features:\t[%4d][%3.2f%%]" % (fp, 100.0*fp/l))
-    _log.info(" Correctly detected non-features:\t[%4d][%3.2f%%]"   % ( n, 100.0* n/l))
+    _log.info(" Correctly detected non-features:\t\t[%4d][%3.2f%%]" % ( n, 100.0* n/l))
     _log.info("----------------------------------------------------------------------")
     _log.info("\n\n")
 
@@ -121,7 +135,7 @@ class Detector(object):
         :param count: The number of detectors to generate
         '''
         self.initialized = False
-        self.features, self.thresholds = TrainFeatures(data, count)
+        self.features, self.thresholds = get_trained_set(data, count)
         self.features = self.features.reshape((24*24, count)) 
         self.initialized = True
 
@@ -180,8 +194,8 @@ class Detector(object):
             raise Exception("The detector must be initialized first!")
         _start = time.time()
         results = []
-        for x in xrange(0,image.shape[0] - self.size[0]):
-            for y in xrange(0,image.shape[1] - self.size[1]):
+        for x in xrange(0, image.shape[0] - self.size[0]):
+            for y in xrange(0, image.shape[1] - self.size[1]):
                 zone = (x,y)
                 if test_image_zone(image, zone):
                     results.append(zone)
@@ -221,7 +235,8 @@ class Detector(object):
 # ------------------------------------------------------------------ #
 if __name__ == "__main__":
     _log.setLevel(logging.DEBUG)
-    images = ImageManager(valid="../images/faces/faces/", invalid="../images/faces/nonfaces/")
+    images = ImageManager(valid="../images/faces/faces/",
+        invalid="../images/faces/nonfaces/")
     classify = Detector()
     classify.train(images.valid, 20)
 

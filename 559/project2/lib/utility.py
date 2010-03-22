@@ -9,7 +9,7 @@ from PIL import Image, ImageOps
 # Logging Setup
 # ------------------------------------------------------------------ #
 import logging
-__log = logging.getLogger("project2.internal")
+__log = logging.getLogger("project.utility")
 
 # ----------------------------------------------------------------- # 
 # Project Helper Methods
@@ -91,12 +91,12 @@ def PerformPCA(images):
     on the input and returns the relevant parameters.
 
     :param images: A numpy array of images
-    :returns: (v, s, mean-image)
+    :returns: (u,s,v, mean-image)
     '''
     mean = RemoveMeanFromImages(images)
     u,s,v = np.linalg.svd(images)
     v = v[:images.shape[0]]
-    return v,s,mean
+    return u,s,v,mean
 
 def OpenImage(file):
     ''' Given an image path, open it as a flat numpy array.

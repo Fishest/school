@@ -20,7 +20,7 @@ import numpy as np
 # Logging Setup
 # ------------------------------------------------------------------ #
 import logging
-__log = logging.getLogger("project2.internal")
+__log = logging.getLogger("project.feature")
 
 # ------------------------------------------------------------------ #
 # Helper Methods

@@ -2,10 +2,10 @@
 '''
 import time
 from optparse import OptionParser
-#import numpy as np
+import pylab
 
-from lib.violajones import *
-from lib.haar import GenerateFeatures
+from lib.utility import *
+from lib.detector import ImageManager, Detector
 
 # ------------------------------------------------------------------ #
 # Logging Setup
@@ -13,9 +13,11 @@ from lib.haar import GenerateFeatures
 import logging
 logging.basicConfig()
 
-__log = logging.getLogger("project2")
-__log.setLevel(logging.DEBUG)
+__log = logging.getLogger("project")
 
+# ------------------------------------------------------------------ #
+# Project Logic
+# ------------------------------------------------------------------ #
 def decode_matches(matches, size):
     ''' Given a collection of matches and the image size
     they were found at, convert all the matches to operate
@@ -31,21 +33,18 @@ def decode_matches(matches, size):
         final.add([(match[0]*scale, match[1]*scale), msize])
     return final
 
-def test_region(features, image, zone):
-    ''' Given detector collection and a point for the upper
-    left corner of the feature test, check if the feature
-    exists in the specified image.
-    of images and report back the score of the given
-    feature test.
+def overlay_results(image, results):
+    ''' Given an image and a collection of results,
+    put a box at every given match location.
 
-    :param features: The features to test against the image region
-    :param image: The image to test the features against
-    :param zone: The upper left corner of the feature window
-    :returns: True if a feature exists, False otherwise
+    :param image: The image to mark the matches
+    :param results: A list of matched features
+    :returns: The image with the features boxed
     '''
-    fsize  = 24 - 1
-    window = image[zone[0]:zone[0]+fsize,zone[1]:zone[1]+fsize]
-    result = np.multiply(features, window)
+    final = image.copy()
+    for result in results:
+        pass
+    return final
 
 def process_image(image, features):
     ''' Given an image and a set of haar-features, we
@@ -62,21 +61,64 @@ def process_image(image, features):
     __log.debug("Total time to process and image: %s ticks" % (time.time() - _start))
 
 # ------------------------------------------------------------------ #
-# Project Logic
-# ------------------------------------------------------------------ #
-
-# ------------------------------------------------------------------ #
 # Main Entry Point
 # ------------------------------------------------------------------ #
+def build_options():
+    ''' Helper to centralize the option parsing logic
+    '''
+    parser = OptionParser()
+
+    parser.add_option("-c", "--conf",
+        help="The configuration file to load",
+        dest="file")
+
+    parser.add_option("-v", "--debug",
+        help="Turn on to enable tracing",
+        action="store_true", dest="debug", default=False)
+    (opt, arg) = parser.parse_args()
+
+    # enable debugging information
+    if opt.debug:
+        try:
+            __log.setLevel(logging.DEBUG)
+        except Exception, e:
+    	    print "Logging is not supported on this system"
+    return arg
+
 def main():
+    ''' The following is the actual implementation of the project.
+    We simply take an image, classify it, and show the results.
     '''
-    '''
-    pass
+    args = build_options()
+
+    # Setup and train our detector
+    _start = time.time()
+    images = ImageManager(valid="images/faces/faces/", invalid="images/faces/nonfaces/")
+    classify = Detector()
+    classify.train(images, 20)
+    __log.debug("MAIN training run time: %s ticks" % (time.time() - _start))
+
+    # Optionally analyze the accuracy of our detector
+    #im, de = images.get_trainging_set(100)
+    #out = classify.analyze(im, de)
+
+    # Test it on a single image
+    _start = time.time()
+    image = OpenImage("images/example.jpg")
+    #pyramid = CreateImagePyramid(image, scale=1.25)
+    #results = classify.test_full_image_collection(image)
+    results = classify.test_full_image(image)
+    __log.debug("MAIN detection run time: %s ticks" % (time.time() - _start))
+
+    # Mark the result locations and display the image
+    print results
+    #final = overlay_results(image, results)
+    final = results
+    pylab.imshow(final, pylab.cm.gist_gray)
+    pylab.show()
 
 # ------------------------------------------------------------------ #
 # Main Jumper
 # ------------------------------------------------------------------ #
 if __name__ == "__main__":
-    _start = time.time()
     main()
-    __log.debug("Total application run time: %s ticks" % (time.time() - _start))

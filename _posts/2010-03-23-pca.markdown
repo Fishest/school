@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Project 2 - Viola Jones Face Detector
+title: Project 2 - PCA Face Recognition
 ---
 
 {{ page.title }}
@@ -11,78 +11,45 @@ title: Project 2 - Viola Jones Face Detector
 Problem Description
 ------------------------------------------------------------
 
-For this project we were allowed to form groups to work on one of the two problems
-together, however there was a catch.  For each added team member, the team would
-have to solve an extra problem.  As such, it really only made sense for each
-student to tackle the problem on their own and simply do the one extra problem
-that they were on the hook for (which is the option I chose).
-
 We were allowed to chose from two projects (and a number of extra sub-projects),
 however this is the one that I decided to implement:
 
-**Face Detection**
-*This option considers the Viola Jones Face Detector*
+**Face Recognition**
+*This option explores the use of PCA for recognition*
 
 1.  *Base Project, [14 points]*
 
-    The base option is to either start from scratch, or to complete the code that
-    we started from class. The extensions are to explore different facets of the
-    Viola Jones training process, exploring different features, different
-    boosting approaches, or characterizing performce. 
+    1. Acquire and make sure that you can read in the images from: the AT&T face
+       database
+
+    2. Create the PCA decomposition of this set of images (you may shrink the
+       images so that this process all fits into memory), leaving out one image per
+       person (for later testing).
+
+    3. For each test image, project it onto the PCA basis and compute its coefficients.
+
+    4. Find the training image with the most similar coefficients, and record if
+       this is an image of the same person.
+
+    5. Report recognition accuracy results for a) recognition by computing the mean
+       image for each person in the database, and (for each test image) finding
+       the closest mean face, and (b,c,d,e) when using 2 4 6 and 9 principle components. 
 
 2.  *Extension, Worth [6 points]* 
 
-    Explore the completeness of the feature set. The code from class chose N
-    features, and each feature was the best of M randomly generated features.
-    The code online uses N=100, and M=20, whereas the original Viola-Jones paper
-    exhaustively explored all features and included nearly 200 total features.
-    For this extension:
+    1. (This is probably *not* as easy as it seems). There are a large number of
+       data sets of labelled faces. My favority is the "aligned labelled faces in
+       the wild" which is drawn from faces in AP news photos, and the faces are
+       then warped and aligned into a common coordinate system.
 
-    1. Characterize the performance (on the set aside test data), for classifiers
-       trained with different settings for N,M.
+    2. Make reasonable choices for, and then report on (a) your choice of test
+       and training data set -- which is not as clear because there are different
+       numbers of faces for different people, (b) whether you get better performance
+       when using the entire 256 x 256 image, or by using just the "central" face
+       portion. Discuss your results, which results are better? Why?
 
-    2. Based on your results, discuss which is more important. Is it helpful to
-       have more overall features (larger N?) or to try many more possible
-       features when figuring out which feature to choose next (much larger M?). 
-
-3.  *Extension, Worth [6 points]*
-
-    For this extension, explore potential ways to speed up execution
-
-    1. Modify your base algorithm to use a cascade of filters (where you can
-       mostly reject possible rectangles after just a few features are evaluated).
-       Section 4 of the original Viola Jones paper discusses the original approach
-       to building the cascade, you are encouraged to use this as a starting point
-       to think about how to choose an ordered set of detectors, but are not required
-       to exactly follow their model.
-
-    2. Detail pseudo-code of your approach to building the cascade, running time to
-       create the cascade, and improvements to the running time when using the
-       cascade on sample images (versus not using the cascade). 
-
-4.  *Extension, Worth [6 points]*
-
-    Explore different learning approaches. My example code from class uses a naive
-    and partial implementation of boosted learning. In this extension, explore the
-    variants of "GentleBoost" and "AdaBoost" (or any other learning algorithm of
-    your choice). Present results in terms of training time and classification
-    accuracy based on this approach.
-
-5.  *Extension, Worth [6 points]*
-
-    Open ended exploration of features. Viola Jones uses particular features
-    defined on a 24 x 24 pixel face. Explore any other set of features for
-    face detection.
-
-    1. Give pseudocode for how you generate features
-
-    2. Give running time comparison using your features vs. the rectangular
-       features of Viola-Jones.
-
-    3. Give classification accuracy of your features vs. rectangular features of
-       Viola-Jones, for a complete classification system using the same number
-       of total features. 
-
+    3. Discuss your results on this data set versus the data set in the base option.
+       Which results are better? Why? 
 
 Solutions
 ------------------------------------------------------------

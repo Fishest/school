@@ -118,3 +118,33 @@ def OpenImageDirectory(path):
     images = [OpenImage(file) for file in files]
     return np.array(images, 'f')
 
+def ComputeIntegralFeature(feature, image):
+    ''' Given a feature and an integral image, compute the
+    value of the given box on the image.
+
+    :param feature: The feature array to calculate
+    :param image: The integral image to apply the feature against
+    :returns: The total value of that feature
+    '''
+    x,y = image.shape
+    fx, fy, fw, fh, fc = feature
+   
+    # ---------------------------------------------------------------
+    # To compute the integral image sum of a box, we simply do
+    # the following:
+    # sum = br - bl - ur + ul
+    # ---------------------------------------------------------------
+    total  = image[fx+fw, fy+fh] + image[fx, fy]
+    total -= image[fx, fy+fh] + image[fx+fw, fy]
+    return fc * total
+
+def ComputeIntegralFeatures(features, image):
+    ''' Given a set of features and an integral image,
+    compute the value of the given boxes on the image.
+
+    :param features: The colllection of features to calculate
+    :param image: The integral image to apply the features against
+    :returns: The total value of the features
+    '''
+    total = [ComputeIntegralFeature(feature, image) for feature in features]
+    return sum(total)

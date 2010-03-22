@@ -147,8 +147,8 @@ def __generate_integral_2_horizontal(size):
     x, y = __get_random_bounds(size)
     yw = y[2] - y[0]
 
-    left  = (x[0], y[0], x[1], yw)
-    right = (x[1], y[0], x[1], yw)
+    left  = (x[0], y[0], x[1], yw, -1)
+    right = (x[1], y[0], x[1], yw,  1)
     return [left, right]
 
 def __generate_integral_2_vertical(size):
@@ -161,8 +161,8 @@ def __generate_integral_2_vertical(size):
     x, y = __get_random_bounds(size)
     xw = x[2] - x[0]
 
-    top    = (x[0], y[0], xw, y[1])
-    bottom = (x[0], y[1], xw, y[1])
+    top    = (x[0], y[0], xw, y[1], -1)
+    bottom = (x[0], y[1], xw, y[1],  1)
     return [top, bottom]
 
 def __generate_integral_3_horizontal(size):
@@ -176,9 +176,9 @@ def __generate_integral_3_horizontal(size):
     x1, x2 = (x[0]+x[1]), (x[0]+x[1]*2)
     yw = y[2] - y[0]
 
-    left   = (x[0], y[0], x[1], yw)
-    middle = (  x1, y[0], x[1], yw)
-    right  = (  x2, y[0], x[1], yw)
+    left   = (x[0], y[0], x[1], yw, -1)
+    middle = (  x1, y[0], x[1], yw,  1)
+    right  = (  x2, y[0], x[1], yw, -1)
     return [left, middle, right]
 
 def __generate_integral_3_vertical(size):
@@ -192,9 +192,9 @@ def __generate_integral_3_vertical(size):
     y1, y2 = (y[0]+y[1]), (y[0]+y[1]*2)
     xw = x[2] - x[0]
 
-    top    = (x[0], y[0], xw, y[1])
-    middle = (x[0],   y1, xw, y[1])
-    bottom = (x[0],   y2, xw, y[1])
+    top    = (x[0], y[0], xw, y[1], -1)
+    middle = (x[0],   y1, xw, y[1],  1)
+    bottom = (x[0],   y2, xw, y[1], -1)
     return [top, middle, bottom]
 
 def __generate_integral_4_boxes(size):
@@ -207,10 +207,10 @@ def __generate_integral_4_boxes(size):
     x, y = __get_random_bounds(size)
     x1, y1 = x[0] + x[1], y[0] + y[1]
 
-    ul = (x[0], y[0], x[1], y[1])
-    ur = (  x1, y[0], x[1], y[1])
-    bl = (x[0],   y1, x[1], y[1])
-    br = (  x1,   y1, x[1], y[1])
+    ul = (x[0], y[0], x[1], y[1], -1)
+    ur = (  x1, y[0], x[1], y[1],  1)
+    bl = (x[0],   y1, x[1], y[1],  1)
+    br = (  x1,   y1, x[1], y[1], -1)
     return [ul, ur, bl, br]
 
 __haar_integral_features = (
@@ -228,7 +228,7 @@ def GenerateFeature(size=(24,24)):
     feature.
     
     :param size: a tuple of (x size, y size)
-    :returns: [(x-ul, y-ul, x-width, y-width) ... N]
+    :returns: [(x-ul, y-ul, x-width, y-width, coefficient) ... N]
     '''
     seed()
     index = randint(0, __haar_feature_size)

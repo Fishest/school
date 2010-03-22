@@ -99,30 +99,6 @@ def CreateIntegralImage(image):
     result = np.asarray(image).astype("double")
     return np.cumsum(np.cumsum(result, axis=1), axis=0)
 
-def RemoveMeanFromImages(images):
-    ''' Given a numpy array of image, this computes the
-    mean image and removes it from the collection of images.
-
-    :param images: A numpy array of images
-    :returns: The mean image of the input array
-    '''
-    mean = images.mean(axis=0)
-    for id in range(images.shape[0]):
-        images[id] -= mean
-    return mean
-
-def PerformPCA(images):
-    ''' Given a numpy array of image, this performs PCA
-    on the input and returns the relevant parameters.
-
-    :param images: A numpy array of images
-    :returns: (u,s,v, mean-image)
-    '''
-    mean = RemoveMeanFromImages(images)
-    u,s,v = np.linalg.svd(images)
-    #v = v[:images.shape[0]]
-    return u,s,v,mean
-
 def OpenImage(file, flat=True):
     ''' Given an image path, open it as a flat numpy array.
 

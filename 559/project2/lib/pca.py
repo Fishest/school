@@ -11,7 +11,7 @@ from utility import *
 import logging
 _log = logging.getLogger("project.pca")
 
-def _remove_images_mean(images):
+def remove_images_mean(images):
     ''' Given a numpy array of image, this computes the
     mean image and removes it from the collection of images.
 
@@ -93,9 +93,10 @@ class PCA(object):
         '''
         _start = time.time()
         if not self.initialized:
-            self.mean = _remove_images_mean(self.images)
-            self.U, self.S, self.V = LoadWithCache("../images/pca",
+            self.mean = remove_images_mean(self.images)
+            self.U, self.S, Vh = LoadWithCache("../images/pca",
                 lambda _: np.linalg.svd(self.images))
+            self.V = Vh.T # just the way it is
             self.initialized = True
         _log.info("Total time to initialize PCA: %s secs" % (time.time() - _start))
         return self.initialized
@@ -119,6 +120,7 @@ class PCA(object):
         '''
         if self.initialized:
             coefs = self.test_image(image)
+            import pdb;pdb.set_trace()
             index = np.argmin(find_distance(self.U, coefs))
             return self.images[index]
 

@@ -46,19 +46,26 @@ def overlay_results(image, results):
         pass
     return final
 
-def process_image(image, features):
+def process_image(path, classify):
     ''' Given an image and a set of haar-features, we
     apply the features against image and return the resulting
     feature locations.
 
-    :param image: The image path to test
-    :param features: The rectangle features to test for features
+    :param path: The path to the image to test
+    :param classify: The feature detector
     :returns: The locations of each face in the image.
     '''
     _start = time.time()
-    if isinstance(image, str): image = OpenImage(image)
-    pyramid = CreateImagePyramid(image, scale=1.25)
-    __log.debug("Total time to process and image: %s ticks" % (time.time() - _start))
+    image = OpenImage("images/example.jpg", flat=False)
+    results = classify.test_full_image(image)
+    __log.debug("MAIN detection run time: %s secs" % (time.time() - _start))
+
+    # Mark the result locations and display the image
+    import pdb; pdb.set_trace()
+    #final = overlay_results(image, results)
+    final = results
+    pylab.imshow(final, pylab.cm.gist_gray)
+    pylab.show()
 
 # ------------------------------------------------------------------ #
 # Main Entry Point
@@ -96,26 +103,9 @@ def main():
     images = ImageManager(valid="images/faces/faces/", invalid="images/faces/nonfaces/")
     classify = Detector()
     classify.train(images, 20)
-    __log.debug("MAIN training run time: %s ticks" % (time.time() - _start))
+    __log.debug("MAIN training run time: %s secs" % (time.time() - _start))
 
-    # Optionally analyze the accuracy of our detector
-    #im, de = images.get_trainging_set(100)
-    #out = classify.analyze(im, de)
-
-    # Test it on a single image
-    _start = time.time()
-    image = OpenImage("images/example.jpg")
-    #pyramid = CreateImagePyramid(image, scale=1.25)
-    #results = classify.test_full_image_collection(image)
-    results = classify.test_full_image(image)
-    __log.debug("MAIN detection run time: %s ticks" % (time.time() - _start))
-
-    # Mark the result locations and display the image
-    print results
-    #final = overlay_results(image, results)
-    final = results
-    pylab.imshow(final, pylab.cm.gist_gray)
-    pylab.show()
+    process_image("images/example.jpg")
 
 # ------------------------------------------------------------------ #
 # Main Jumper

@@ -98,14 +98,14 @@ def PerformPCA(images):
     v = v[:images.shape[0]]
     return u,s,v,mean
 
-def OpenImage(file):
+def OpenImage(file, flat=True):
     ''' Given an image path, open it as a flat numpy array.
 
     :param file: The path to the image to open
     :returns: The image as a grayscale numpy array
     '''
     image = ImageOps.grayscale(Image.open(file))
-    return np.array(image).flatten()
+    return np.array(image).flatten() if flat else np.array(image)
 
 def OpenImageDirectory(path):
     ''' Given a path, open all the images in the directory

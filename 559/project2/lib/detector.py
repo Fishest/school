@@ -52,6 +52,7 @@ def get_trained_set(images, count):
     :param actual: The resulting logic array
     :returns: (positive, negative, false-positive, false-negative)
     '''
+    base = 400
     def _gen(_):
         # as our implementation is ungodly slow, we are
         # loading features generated from a much beefier
@@ -59,7 +60,7 @@ def get_trained_set(images, count):
         booster = Booster(valid=images.valid, invalid=images.invalid)
         return booster.train_features(count=200, rounds=10)
     f,t = load_with_cache("../images/features", _gen)
-    return f[:,:,0:count], t[:,0:count]
+    return f[:,:,base:count+base], t[:,base:count+base]
 
 def compile_report(desired, actual):
     ''' Given the desired classification results and
@@ -70,7 +71,7 @@ def compile_report(desired, actual):
     :param actual: The resulting logic array
     :returns: (positive, negative, false-positive, false-negative)
     '''
-    l  = len(desired)
+    l  = len(desired) / 2 # half good half bad
     p  = sum((desired == True) & (actual == True))
     n  = sum((desired == False) & (actual == False))
     fp = sum((desired == False) & (actual == True))
@@ -148,10 +149,8 @@ class Detector(object):
         '''
         if not self.initialized:
             raise Exception("The detector must be initialized first!")
-        _start = time.time()
         score  = np.dot(self.features.T, image.T);
         actual = np.sum((score.T - self.thresholds), axis=1) > 0
-        _log.debug("Total time to scan single feature: %s secs" % (time.time() - _start))
         return actual
 
     def test_image_collection(self, images):
@@ -161,7 +160,7 @@ class Detector(object):
         :param images: The images to test as features
         :returns: A logical list of the test results
         '''
-        return [test_image(image) for image in images]
+        return [self.test_image(image) for image in images]
 
     def test_image_zone(self, image, zone):
         ''' Helper function to generate a trained feature set off
@@ -173,11 +172,9 @@ class Detector(object):
         '''
         if not self.initialized:
             raise Exception("The detector must be initialized first!")
-        _start = time.time()
-        fsize  = self.size[0] - 1
-        window = image[zone[0]:zone[0]+fsize, zone[1]:zone[1]+fsize]
-        result = test_image(window)
-        _log.debug("Total time to scan single feature: %s secs" % (time.time() - _start))
+        fsize  = self.size[0]
+        window = image[zone[0]:zone[0]+fsize, zone[1]:zone[1]+fsize].reshape(fsize*fsize)
+        result = self.test_image(window)
         return result
 
     def test_full_image(self, image):
@@ -197,8 +194,9 @@ class Detector(object):
         for x in xrange(0, image.shape[0] - self.size[0]):
             for y in xrange(0, image.shape[1] - self.size[1]):
                 zone = (x,y)
-                if test_image_zone(image, zone):
+                if self.test_image_zone(image, zone):
                     results.append(zone)
+            print "\033[2J Current image scanning status: %s%% done" % (100*x/image.shape[0])
         _log.info("Total time to scan full image: %s secs" % (time.time() - _start))
         return results
 
@@ -214,7 +212,7 @@ class Detector(object):
         '''
         if not self.initialized:
             raise Exception("The detector must be initialized first!")
-        return [(image, test_full_image(image)) for image in images]
+        return [(image, self.test_full_image(image)) for image in images]
 
     def test_accuracy(self, images, desired):
         ''' Test the accuracy of the current detector set
@@ -225,7 +223,8 @@ class Detector(object):
         if not self.initialized:
             raise Exception("The detector must be initialized first!")
         _start = time.time()
-        score = np.dot(self.features.T, images.T);
+        score  = np.dot(self.features.T, images.T);
+        import pdb; pdb.set_trace()
         actual = (np.sum((score.T - self.thresholds), axis=1) > 0)
         _log.info("Total time to test detector accuracy: %s secs" % (time.time() - _start))
         return compile_report(desired, actual)
@@ -238,8 +237,8 @@ if __name__ == "__main__":
     images = ImageManager(valid="../images/faces/faces/",
         invalid="../images/faces/nonfaces/")
     classify = Detector()
-    classify.train(images.valid, 20)
+    classify.train(images.valid, 100)
 
-    im, de = images.get_training_set(100)
+    im, de = images.get_training_set(200)
     classify.test_accuracy(im, de)
 

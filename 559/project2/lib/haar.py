@@ -134,6 +134,93 @@ __haar_features = (
 __haar_feature_size = len(__haar_features) - 1
 
 # ------------------------------------------------------------------ #
+# Haar Integral Feature Generators
+# ------------------------------------------------------------------ #
+
+def __generate_integral_2_horizontal(size):
+    ''' Given an image size, generate a random
+    integral window on the image.
+    
+    :param size: a tuple of (x size, y size)
+    :returns: [left, right]
+    '''
+    x, y = __get_random_bounds(size)
+    yw = y[2] - y[0]
+
+    left  = (x[0], y[0], x[1], yw)
+    right = (x[1], y[0], x[1], yw)
+    return [left, right]
+
+def __generate_integral_2_vertical(size):
+    ''' Given an image size, generate a random
+    integral window on the image.
+    
+    :param size: a tuple of (x size, y size)
+    :returns: [top, bottom]
+    '''
+    x, y = __get_random_bounds(size)
+    xw = x[2] - x[0]
+
+    top    = (x[0], y[0], xw, y[1])
+    bottom = (x[0], y[1], xw, y[1])
+    return [top, bottom]
+
+def __generate_integral_3_horizontal(size):
+    ''' Given an image size, generate a random
+    integral window on the image.
+    
+    :param size: a tuple of (x size, y size)
+    :returns: [left, middle, right]
+    '''
+    x, y = __get_random_bounds(size, step=3)
+    x1, x2 = (x[0]+x[1]), (x[0]+x[1]*2)
+    yw = y[2] - y[0]
+
+    left   = (x[0], y[0], x[1], yw)
+    middle = (  x1, y[0], x[1], yw)
+    right  = (  x2, y[0], x[1], yw)
+    return [left, middle, right]
+
+def __generate_integral_3_vertical(size):
+    ''' Given an image size, generate a random
+    integral window on the image.
+    
+    :param size: a tuple of (x size, y size)
+    :returns: [top, middle, bottom]
+    '''
+    x, y = __get_random_bounds(size, step=3)
+    y1, y2 = (y[0]+y[1]), (y[0]+y[1]*2)
+    xw = x[2] - x[0]
+
+    top    = (x[0], y[0], xw, y[1])
+    middle = (x[0],   y1, xw, y[1])
+    bottom = (x[0],   y2, xw, y[1])
+    return [top, middle, bottom]
+
+def __generate_integral_4_boxes(size):
+    ''' Given an image size, generate a random
+    integral window on the image.
+    
+    :param size: a tuple of (x size, y size)
+    :returns: [ul, ur, bl, br]
+    '''
+    x, y = __get_random_bounds(size)
+    x1, y1 = x[0] + x[1], y[0] + y[1]
+
+    ul = (x[0], y[0], x[1], y[1])
+    ur = (  x1, y[0], x[1], y[1])
+    bl = (x[0],   y1, x[1], y[1])
+    br = (  x1,   y1, x[1], y[1])
+    return [ul, ur, bl, br]
+
+__haar_integral_features = (
+        __generate_integral_2_vertical, __generate_integral_2_horizontal,
+        __generate_integral_3_vertical, __generate_integral_3_horizontal,
+        __generate_integral_4_boxes,
+  )
+__haar_integral_feature_size = len(__haar_integral_features) - 1
+
+# ------------------------------------------------------------------ #
 # Public interface
 # ------------------------------------------------------------------ #
 def GenerateFeature(size=(24,24)):
@@ -141,15 +228,16 @@ def GenerateFeature(size=(24,24)):
     feature.
     
     :param size: a tuple of (x size, y size)
-    :returns: The random haar feature for the given window size
+    :returns: [(x-ul, y-ul, x-width, y-width) ... N]
     '''
     seed()
     index = randint(0, __haar_feature_size)
-    feat  = __haar_features[index](size)
+    feature = __haar_features[index](size)
 
     # randomize the location of the positive areas
-    if randint(0, 1): feat *= -1
-    return feat.flatten()
+    if randint(0, 1):
+        feature *= -1
+    return feature.flatten()
 
 def GenerateFeatures(count, size=(24,24)):
     ''' Generates the requested number of haar
@@ -162,3 +250,25 @@ def GenerateFeatures(count, size=(24,24)):
     features = [GenerateFeature(size) for _ in xrange(count)]
     return np.array(features, 'f')
 
+def GenerateIntegralFeature(size=(24,24)):
+    ''' Given an image size, generate a random haar
+    integral feature.
+    
+    :param size: a tuple of (x size, y size)
+    :returns: The random haar feature for the given window size
+    '''
+    seed()
+    index = randint(0, __haar_integral_feature_size)
+    feature = __haar_integral_features[index](size)
+    return feature
+
+def GenerateIntegralFeatures(count, size=(24,24)):
+    ''' Generates the requested number of haar
+    integral features of the given size.
+
+    :param count: The number of features to generate
+    :param size: The requested feature size (default (24,24))
+    :returns: A list of the requested features
+    '''
+    features = [GenerateIntegralFeature(size) for _ in xrange(count)]
+    return features

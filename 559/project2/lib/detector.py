@@ -1,9 +1,5 @@
 '''
 '''
-try:
-    import cPickle as pickle
-except ImportError: import pickle
-
 import os
 from utility import *
 from boosting import Booster
@@ -20,29 +16,6 @@ _log = logging.getLogger("project.detector")
 # ------------------------------------------------------------------ #
 # Helper Utilities
 # ------------------------------------------------------------------ #
-def load_with_cache(path, callback):
-    ''' Helper to load/store the image sets from/to
-    a pickle cache to speed-up the initialization process
-
-    :param path: The path to the directory of images
-    :param callback: What to do if the cache doesn't exist
-    :return: The initialized collection of data
-    '''
-    cache = "pickle.cache"
-    pathc = os.path.join(path, cache)
-    result = None
-
-    if os.path.exists(pathc):
-        _log.debug("Loading Cache from %s" % pathc)
-        with file(pathc, 'r') as handle:
-            result = pickle.load(handle)
-    else:
-        result = callback(path)
-        _log.debug("Storing Cache at %s" % pathc)
-        with file(pathc, 'w') as handle:
-            pickle.dump(result, handle)
-    return result
-
 def get_trained_set(images, count):
     ''' Given the desired classification results and
     the actual classification results, this generates
@@ -59,7 +32,7 @@ def get_trained_set(images, count):
         # box in matlab :D
         booster = Booster(valid=images.valid, invalid=images.invalid)
         return booster.train_features(count=200, rounds=10)
-    f,t = load_with_cache("../images/features", _gen)
+    f,t = LoadWithCache("../images/features", _gen)
     return f[:,:,base:count+base], t[:,base:count+base]
 
 def compile_report(desired, actual):
@@ -101,8 +74,8 @@ class ImageManager(object):
         ''' Intializes a new instance of the ImageManager
         '''
         callback = lambda path: OpenImageDirectory(path)
-        self.valid = load_with_cache(kwargs.get('valid'), callback)
-        self.invalid  = load_with_cache(kwargs.get('invalid'), callback)
+        self.valid = LoadWithCache(kwargs.get('valid'), callback)
+        self.invalid  = LoadWithCache(kwargs.get('invalid'), callback)
 
     def get_training_set(self, count):
         ''' Retrieves a training set of valid and invalid

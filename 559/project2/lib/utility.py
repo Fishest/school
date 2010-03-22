@@ -1,5 +1,8 @@
 '''
 '''
+try:
+    import cPickle as pickle
+except ImportError: import pickle
 
 import os, time
 import numpy as np
@@ -9,11 +12,33 @@ from PIL import Image, ImageOps
 # Logging Setup
 # ------------------------------------------------------------------ #
 import logging
-__log = logging.getLogger("project.utility")
+_log = logging.getLogger("project.utility")
 
 # ----------------------------------------------------------------- # 
 # Project Helper Methods
 # ----------------------------------------------------------------- # 
+def LoadWithCache(path, callback):
+    ''' Helper to load/store the image sets from/to
+    a pickle cache to speed-up the initialization process
+
+    :param path: The path to the directory of images
+    :param callback: What to do if the cache doesn't exist
+    :return: The initialized collection of data
+    '''
+    pathc = "%s.cache" % os.path.realpath(path)
+    result = None
+
+    if os.path.exists(pathc):
+        _log.debug("Loading Cache from %s" % pathc)
+        with file(pathc, 'r') as handle:
+            result = pickle.load(handle)
+    else:
+        result = callback(path)
+        _log.debug("Storing Cache at %s" % pathc)
+        with file(pathc, 'w') as handle:
+            pickle.dump(result, handle)
+    return result
+
 def CreateImagePyramid(image, scale=1.25):
     ''' Given a pil image, this returns an image pyramid with
     each image reduced by the scale factor from the previous image.
@@ -95,7 +120,7 @@ def PerformPCA(images):
     '''
     mean = RemoveMeanFromImages(images)
     u,s,v = np.linalg.svd(images)
-    v = v[:images.shape[0]]
+    #v = v[:images.shape[0]]
     return u,s,v,mean
 
 def OpenImage(file, flat=True):

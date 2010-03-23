@@ -17,6 +17,22 @@ _log = logging.getLogger("project.utility")
 # ----------------------------------------------------------------- # 
 # Project Helper Methods
 # ----------------------------------------------------------------- # 
+
+def method_timer(func):
+    '''
+    The following is a simple decorator to time how long
+    it takes the decorated function to run.
+    '''
+    def _call(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        finish = time.time() - start
+        name = "%s" % (func.__name__)
+        _log.debug("Total Time[%.4f secs] for action[%s]" % (finish, name))
+        return result
+    _call.__name__ = func.__name__
+    return _call
+        
 def LoadWithCache(path, callback):
     ''' Helper to load/store the image sets from/to
     a pickle cache to speed-up the initialization process

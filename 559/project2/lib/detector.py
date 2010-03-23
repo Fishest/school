@@ -150,6 +150,7 @@ class Detector(object):
         result = self.test_image(window)
         return result
 
+    @method_timer
     def test_full_image(self, image):
         ''' This tests all possible windows of a given image for
         the requested feature type and returns all matching
@@ -162,7 +163,6 @@ class Detector(object):
         '''
         if not self.initialized:
             raise Exception("The detector must be initialized first!")
-        _start = time.time()
         results = []
         for x in xrange(0, image.shape[0] - self.size[0]):
             for y in xrange(0, image.shape[1] - self.size[1]):
@@ -170,7 +170,6 @@ class Detector(object):
                 if self.test_image_zone(image, zone):
                     results.append(zone)
             print "\033[2J Current image scanning status: %s%% done" % (100*x/image.shape[0])
-        _log.info("Total time to scan full image: %s secs" % (time.time() - _start))
         return results
 
     def test_full_image_collection(self, images):
@@ -187,6 +186,7 @@ class Detector(object):
             raise Exception("The detector must be initialized first!")
         return [(image, self.test_full_image(image)) for image in images]
 
+    @method_timer
     def test_accuracy(self, images, desired):
         ''' Test the accuracy of the current detector set
 
@@ -195,11 +195,9 @@ class Detector(object):
         '''
         if not self.initialized:
             raise Exception("The detector must be initialized first!")
-        _start = time.time()
         score  = np.dot(self.features.T, images.T);
         import pdb; pdb.set_trace()
         actual = (np.sum((score.T - self.thresholds), axis=1) > 0)
-        _log.info("Total time to test detector accuracy: %s secs" % (time.time() - _start))
         return compile_report(desired, actual)
 
 # ------------------------------------------------------------------ #

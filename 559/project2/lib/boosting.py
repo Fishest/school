@@ -8,7 +8,6 @@
 import time, operator
 import numpy as np
 import numpy.matlib as M
-import scipy.weave
 
 from haar import GenerateFeatures
 

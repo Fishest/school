@@ -1,7 +1,6 @@
 '''
 '''
 
-import os, time
 import numpy as np
 from utility import *
 
@@ -9,20 +8,13 @@ from utility import *
 # Logging Setup
 # ------------------------------------------------------------------ #
 import logging
-_log = logging.getLogger("project.pca")
+_log = logging.getLogger("project")
 
-def remove_images_mean(images):
-    ''' Given a numpy array of image, this computes the
-    mean image and removes it from the collection of images.
+# ------------------------------------------------------------------ #
+# Helper Functions
+# ------------------------------------------------------------------ #
 
-    :param images: A numpy array of images
-    :returns: The mean image of the input array
-    '''
-    mean = images.mean(axis=0)
-    for id in range(images.shape[0]):
-        images[id] -= mean
-    return mean
-
+@method_timer
 def nipals_algorithm(images):
     ''' Given a numpy array of image, this performs the
     nipals algorithm to retrieve the eigenfaces.
@@ -30,34 +22,44 @@ def nipals_algorithm(images):
     :param images: A numpy array of images
     :returns: The mean image of the input array
     '''
-    imaget = image.T
-    covar = np.dot(images, imaget)
-    eval, evec = linalg.eigh(covar)
-    V = np.dot(imaget, evec).T[::-1] # sorted
-    S = sqrt(eval)[::-1] # sorted
+    vcovar = np.dot(images, images.T)
+    #ucovar = np.dot(images.T, images)
+    veval, vevec = np.linalg.eigh(vcovar)
+    #ueval, uevec = np.linalg.eigh(ucovar)
 
-    return [V, S]
+    V = np.dot(image.T, vevec).T[::-1] # sorted
+    S = np.sqrt(veval)[::-1] # sorted
 
-def compute_distance(a, b):
+@method_timer
+def svds(images):
+    ''' Computes the sparse svd of the given image
+    collection
+
+    :param images: The input images to perform the svd on
+    :returns: [U, S, V]
+    '''
+    Uh, S, Vh = np.linalg.svd(images, full_matrices=False)
+    return (Uh, (Vh.T * S))
+
+def compute_distance(n, v):
     ''' Compute the linear distance between the
     two data sets.
 
-    :param a: The first dataset to compare
-    :param b: The second dataset to compare
+    :param n: The first dataset to compare
+    :param v: The second dataset to compare
     :returns: The distance between the two datasets
     '''
-    # abs(a - b).sum()
-    return ((a - b)**2).sum()
+    return ((n - v)**2).sum()
 
-def find_distance(vector, n):
+def find_distance(n, vector):
     ''' Compute the linear distance between the
     two data sets.
 
-    :param vector: The collection of arrays to compare with
     :param n: The value to compare against the collection
+    :param vector: The collection of arrays to compare with
     :returns: The collected distances
     '''
-    handle  = [int(compute_distance(v, n)) for v in vector]
+    handle = [int(compute_distance(n, v)) for v in vector]
     return handle
 
 def _default_labels(count):
@@ -73,7 +75,7 @@ def _default_labels(count):
 # Project Helper Methods
 # ----------------------------------------------------------------- # 
 class PCA(object):
-    '''
+    ''' Facade around working with PCA
     '''
 
     def __init__(self, **kwargs):
@@ -85,23 +87,29 @@ class PCA(object):
             self.labels = _default_labels(self.images.shape[0])
         self.initialized = False
 
+    @method_timer
     def initialize(self):
         ''' Initializes the values neccessary for performing
         PCA on a set of data.
 
         :returns: The result of the operation
         '''
-        _start = time.time()
         if not self.initialized:
-            self.mean = remove_images_mean(self.images)
-            self.U, self.S, Vh = LoadWithCache("../images/pca",
-                lambda _: np.linalg.svd(self.images))
-            self.V = Vh.T # just the way it is
+            self.intialize_mean_images()
+            self.U, self.V = svds(self.mimages.T)
             self.initialized = True
-        _log.info("Total time to initialize PCA: %s secs" % (time.time() - _start))
         return self.initialized
 
-    def test_image(self, image):
+    @method_timer
+    def intialize_mean_images(self):
+        ''' Create the mean image of the class and
+        create the mean images array.
+        '''
+        self.mean = self.images.mean(axis=0)
+        self.mimages = self.images - self.mean
+
+    @method_timer
+    def get_eigenface(self, image):
         ''' Test an image against the underlying pca structures
 
         :param image: The image to perform pca on
@@ -109,8 +117,9 @@ class PCA(object):
         '''
         if self.initialized:
             compare = image - self.mean
-            return np.dot(self.V, compare)
+            return np.dot(self.U.T, compare)
 
+    @method_timer
     def get_nearest_image(self, image):
         ''' Retrieve the closest image in the set to the
         requested image.
@@ -119,11 +128,11 @@ class PCA(object):
         :returns: The closest matching image
         '''
         if self.initialized:
-            coefs = self.test_image(image)
-            import pdb;pdb.set_trace()
-            index = np.argmin(find_distance(self.U, coefs))
+            coefs = self.get_eigenface(image)
+            index = np.argmin(find_distance(coefs, self.V))
             return self.images[index]
 
+    @method_timer
     def _reconstruct_image(self, index):
         ''' Given an index into the image coefficients,
         try and recreate the image from the svd components.
@@ -131,20 +140,29 @@ class PCA(object):
         :param index: The index into the coefficient table
         :returns: The reconstructed image
         '''
-        handle = self.V[index]
-        # and some magic occurs here
-        return handle
+        handle = np.dot(self.U, self.V)
+        handle = self.mean + handle
+        return handle[index, :]
 
 # ------------------------------------------------------------------ #
 # Test Code
 # ------------------------------------------------------------------ #
-if __name__ == "__main__":
+def _main():
+    import pylab, time
     from detector import ImageManager
 
+    id = 7
     _log.setLevel(logging.DEBUG)
-    images = ImageManager(valid="../images/faces/faces/",
-        invalid="../images/faces/nonfaces/")
-    pca = PCA(images = images.valid)
+    images = OpenImageDirectory("../images/att-faces/s1")
+    pca = PCA(images = images)
     pca.initialize()
-    pca.get_nearest_image(images.valid[0])
+    result = pca.get_nearest_image(images[id])
+
+    pylab.gray()
+    pylab.subplot(1,2,1);pylab.imshow(images[id].reshape((112,92)))
+    pylab.subplot(1,2,2);pylab.imshow(result.reshape((112,92)))
+    pylab.show()
+
+if __name__ == "__main__":
+    _main()
 

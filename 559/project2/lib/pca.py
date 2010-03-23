@@ -88,17 +88,20 @@ class PCA(object):
         self.initialized = False
 
     @method_timer
-    def initialize(self):
+    def initialize(self, pcs=None):
         ''' Initializes the values neccessary for performing
         PCA on a set of data.
 
-        :returns: The result of the operation
+        :param pcs: The number of principal components to use
         '''
-        if not self.initialized:
-            self.intialize_mean_images()
-            self.U, self.V = svds(self.mimages.T)
-            self.initialized = True
-        return self.initialized
+        self.initialized = False
+        self.intialize_mean_images()
+        self.U, self.V = svds(self.mimages.T)
+
+        if pcs: # if we want to limit the number of components
+            self.U, self.V = self.U[:pcs], self.V[:pcs]
+
+        self.initialized = True
 
     @method_timer
     def intialize_mean_images(self):
@@ -108,7 +111,6 @@ class PCA(object):
         self.mean = self.images.mean(axis=0)
         self.mimages = self.images - self.mean
 
-    @method_timer
     def get_eigenface(self, image):
         ''' Test an image against the underlying pca structures
 
@@ -119,7 +121,6 @@ class PCA(object):
             compare = image - self.mean
             return np.dot(self.U.T, compare)
 
-    @method_timer
     def get_nearest_image(self, image):
         ''' Retrieve the closest image in the set to the
         requested image.
@@ -128,11 +129,20 @@ class PCA(object):
         :returns: The closest matching image
         '''
         if self.initialized:
-            coefs = self.get_eigenface(image)
-            index = np.argmin(find_distance(coefs, self.V))
+            index = self.get_nearest_image_index(image)
             return self.images[index]
 
-    @method_timer
+    def get_nearest_image_index(self, image):
+        ''' Retrieve the closest image in the set to the
+        requested image.
+
+        :param image: The image to find a match for
+        :returns: The closest matching image
+        '''
+        if self.initialized:
+            coefs = self.get_eigenface(image)
+            return np.argmin(find_distance(coefs, self.V))
+
     def _reconstruct_image(self, index):
         ''' Given an index into the image coefficients,
         try and recreate the image from the svd components.
@@ -148,12 +158,17 @@ class PCA(object):
 # Test Code
 # ------------------------------------------------------------------ #
 def _main():
-    import pylab, time
-    from detector import ImageManager
+    import pylab, time, pickle
+    import logging.handlers
 
-    id = 7
-    _log.setLevel(logging.DEBUG)
-    images = OpenImageDirectory("../images/att-faces/s1")
+    logging.basicConfig(level=logging.DEBUG)
+    handler = logging.handlers.RotatingFileHandler("pca-report.log")
+    logging.getLogger("project").addHandler(handler)
+
+    id = 9
+    with file("../images/att-image-set.pickle", 'r') as f:
+        images = pickle.load(f)
+    #images = OpenImageDirectory("../images/att-faces/s1")
     pca = PCA(images = images)
     pca.initialize()
     result = pca.get_nearest_image(images[id])

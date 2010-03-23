@@ -8,6 +8,7 @@ title: Project 2 - PCA Face Recognition
 
 <p class="meta"/>11 Feb 2010 - St. Louis</p>
 
+
 Problem Description
 ------------------------------------------------------------
 
@@ -51,6 +52,7 @@ however this is the one that I decided to implement:
     3. Discuss your results on this data set versus the data set in the base option.
        Which results are better? Why? 
 
+
 Solutions
 ------------------------------------------------------------
 
@@ -92,6 +94,7 @@ following functions:
 The vast majority of code was created in the test runner scripts
 which are discussed later in this posting.
 
+
 AT&T Dataset Classification Accuracy
 ------------------------------------------------------------
 
@@ -130,6 +133,7 @@ AT&T dataset:
     * test image against full image set:  92.50%
     * mean image against full image set: 100.00%
     * test image against mean image set: 100.00%
+
 
 Labeled Faces in the Wild Dataset Discussion
 ------------------------------------------------------------
@@ -171,6 +175,7 @@ at some of the images included in the set, it was immediately clear
 (after using the AT&T set) that the real problem was with the
 training data.  After removing only 33 from the set of 530, I was
 able to detect Bush in a collection of 5 other people.
+
 
 Performance Results
 ------------------------------------------------------------
@@ -218,6 +223,7 @@ or possibly run on a better tuned interpreter (pysco, pypy, unladen, etc).
 It should also be noted that projecting the new image to test and comparing
 its resulting vector took milliseconds across the board.
 
+
 Example Result Sets
 ------------------------------------------------------------
 
@@ -244,6 +250,7 @@ logs from my testing*
    are 40 sets of people with ten images each of slightly different orientation
    (looking straight, looking up, etc). It is a high quality set that made it
    easy for your tests to run well.
+
 
 Code Used To Generate The Result Sets
 ------------------------------------------------------------
@@ -273,6 +280,7 @@ examine the following test runners*
 
 *  [runner 1](http://github.com/bashwork/school/blob/master/559/project2/pca-section1.py)
 *  [runner 2](http://github.com/bashwork/school/blob/master/559/project2/pca-section2.py)
+
 
 Complete Source Code
 ------------------------------------------------------------
@@ -305,8 +313,6 @@ As for support libraries, the following were used throughout the project:
    I used its graphing capabilities (wrappers around Matplotlib and
    a number of GUI tool-kits).
 
-Footnotes
-------------------------------------------------------------
 
   [repository]: http://github.com/bashwork/school/tree/master/559/project2/ "Master Repository"
   [numpy]: http://numpy.scipy.org/ "Numpy"

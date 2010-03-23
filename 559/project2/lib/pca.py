@@ -98,8 +98,9 @@ class PCA(object):
         self.intialize_mean_images()
         self.U, self.V = svds(self.mimages.T)
 
+        #import pdb;pdb.set_trace()
         if pcs: # if we want to limit the number of components
-            self.U, self.V = self.U[:pcs], self.V[:pcs]
+            self.U, self.V = self.U[:, :pcs], self.V[:, :pcs]
 
         self.initialized = True
 
@@ -159,18 +160,13 @@ class PCA(object):
 # ------------------------------------------------------------------ #
 def _main():
     import pylab, time, pickle
-    import logging.handlers
-
-    logging.basicConfig(level=logging.DEBUG)
-    handler = logging.handlers.RotatingFileHandler("pca-report.log")
-    logging.getLogger("project").addHandler(handler)
 
     id = 9
     with file("../images/att-image-set.pickle", 'r') as f:
         images = pickle.load(f)
     #images = OpenImageDirectory("../images/att-faces/s1")
     pca = PCA(images = images)
-    pca.initialize()
+    pca.initialize(5)
     result = pca.get_nearest_image(images[id])
 
     pylab.gray()

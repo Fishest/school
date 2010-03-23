@@ -48,13 +48,22 @@ mindexes = [pca.get_nearest_image_index(image) for image in means]
 # ------------------------------------------------------------------ #
 # Record results
 # ------------------------------------------------------------------ #
+stat = []
 for idx in xrange(len(tindexes)):
     r = (9*idx) <= tindexes[idx] <= (((idx+1) * 9) - 1)
     _log.info("FullTestSet: test image[%d][%d] result[%s]" % (idx, tindexes[idx], r))
+    stat.append(r)
+stat = 100.0*stat.count(True) / len(stat)
+_log.info("FullTestSet: final result[%.2f%%]" % (stat))
 
+
+stat = []
 for idx in xrange(len(mindexes)):
     r = (9*idx) <= mindexes[idx] <= (((idx+1) * 9) - 1)
     _log.info("FullTestSet: mean image[%d][%d] result[%s]" % (idx, mindexes[idx], r))
+    stat.append(r)
+stat = 100.0*stat.count(True) / len(stat)
+_log.info("FullTestSet: final result[%.2f%%]" % (stat))
 
 # ------------------------------------------------------------------ #
 # start testing our results
@@ -66,6 +75,10 @@ tmindexes = [pcb.get_nearest_image_index(image) for image in tests]
 # ------------------------------------------------------------------ #
 # Record results
 # ------------------------------------------------------------------ #
+stat = []
 for idx in xrange(len(tmindexes)):
     r = tmindexes[idx] == idx
     _log.info("MeanTestSet: test image[%d][%d] result[%s]" % (idx, tmindexes[idx], r))
+    stat.append(r)
+stat = 100.0*stat.count(True) / len(stat)
+_log.info("MeanTestSet: final result[%.2f%%]" % (stat))

@@ -135,6 +135,30 @@ def OpenImageDirectory(path):
     images = [OpenImage(file) for file in files]
     return np.array(images, 'f')
 
+def OpenAlteredImage(file, size=None, window=None):
+    ''' Given an image path, open it as a flat numpy array.
+
+    :param file: The path to the image to open
+    :returns: The image as a grayscale numpy array
+    '''
+    image = ImageOps.grayscale(Image.open(file))
+    if window is not None:
+        image = image.crop(window)
+    if size is not None:
+        image = image.resize(size)
+    return np.array(image).flatten()
+
+def OpenAlteredImageDirectory(path, size=(90,90), window=(50, 50, 200, 200)):
+    ''' Given a path, open all the images in the directory
+    and create an array of PIL images.
+
+    :param path: The directory path to open
+    :returns: A collection of PIL Images
+    '''
+    files  = (os.path.join(path, file) for file in os.listdir(path))
+    images = [OpenAlteredImage(file, size, window) for file in files]
+    return np.array(images, 'f')
+
 def ComputeIntegralFeature(feature, image):
     ''' Given a feature and an integral image, compute the
     value of the given box on the image.

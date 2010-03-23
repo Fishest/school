@@ -1,0 +1,257 @@
+-------------------------------------------------------------------
+- Test Results With all pcs
+- Window: (50, 50, 200, 200)
+- Size:   (80, 80)
+-------------------------------------------------------------------
+index counts [236, 530]
+Total Time[0.1596 secs] for action[intialize_mean_images]
+Total Time[33.5918 secs] for action[svds]
+Total Time[33.7524 secs] for action[initialize]
+FullTestSet: test image[0][228] result[True]
+FullTestSet: test image[1][493] result[True]
+FullTestSet: final result[100.00%]
+FullTestSet: mean image[0][221] result[True]
+FullTestSet: mean image[1][408] result[True]
+FullTestSet: final result[100.00%]
+Total Time[0.0006 secs] for action[intialize_mean_images]
+Total Time[0.0019 secs] for action[svds]
+Total Time[0.0029 secs] for action[initialize]
+MeanTestSet: test image[0][0] result[True]
+MeanTestSet: test image[1][0] result[False]
+MeanTestSet: final result[50.00%]
+
+-------------------------------------------------------------------
+- Test Results With all pcs
+- Window: (50, 50, 200, 200)
+- Size:   (80, 80)
+-------------------------------------------------------------------
+index counts [109, 121, 144, 236, 530]
+Total Time[0.2156 secs] for action[intialize_mean_images]
+Total Time[58.6586 secs] for action[svds]
+Total Time[58.8751 secs] for action[initialize]
+FullTestSet: test image[0][635] result[False]
+FullTestSet: test image[1][127] result[False]
+FullTestSet: test image[2][270] result[False]
+FullTestSet: test image[3][599] result[False]
+FullTestSet: test image[4][864] result[True]
+FullTestSet: final result[20.00%]
+FullTestSet: mean image[0][6] result[True]
+FullTestSet: mean image[1][779] result[False]
+FullTestSet: mean image[2][779] result[False]
+FullTestSet: mean image[3][592] result[False]
+FullTestSet: mean image[4][779] result[True]
+FullTestSet: final result[40.00%]
+Total Time[0.0010 secs] for action[intialize_mean_images]
+Total Time[0.0035 secs] for action[svds]
+Total Time[0.0050 secs] for action[initialize]
+MeanTestSet: test image[0][0] result[True]
+MeanTestSet: test image[1][1] result[True]
+MeanTestSet: test image[2][2] result[True]
+MeanTestSet: test image[3][3] result[True]
+MeanTestSet: test image[4][3] result[False]
+MeanTestSet: final result[80.00%]
+
+-------------------------------------------------------------------
+- Test Results With all pcs
+- Window: (50, 50, 200, 200)
+- Size:   (90, 90)
+-------------------------------------------------------------------
+index counts [109, 121, 144, 236, 530]
+Total Time[0.2241 secs] for action[intialize_mean_images]
+Total Time[71.1967 secs] for action[svds]
+Total Time[71.4218 secs] for action[initialize]
+FullTestSet: test image[0][635] result[False]
+FullTestSet: test image[1][127] result[False]
+FullTestSet: test image[2][270] result[False]
+FullTestSet: test image[3][599] result[False]
+FullTestSet: test image[4][864] result[True]
+FullTestSet: final result[20.00%]
+FullTestSet: mean image[0][353] result[False]
+FullTestSet: mean image[1][779] result[False]
+FullTestSet: mean image[2][779] result[False]
+FullTestSet: mean image[3][592] result[False]
+FullTestSet: mean image[4][779] result[True]
+FullTestSet: final result[20.00%]
+Total Time[0.0015 secs] for action[intialize_mean_images]
+Total Time[0.0045 secs] for action[svds]
+Total Time[0.0066 secs] for action[initialize]
+MeanTestSet: test image[0][0] result[True]
+MeanTestSet: test image[1][1] result[True]
+MeanTestSet: test image[2][2] result[True]
+MeanTestSet: test image[3][3] result[True]
+MeanTestSet: test image[4][3] result[False]
+MeanTestSet: final result[80.00%]
+
+
+-------------------------------------------------------------------
+- Test Results With all pcs
+- Window: (50, 50, 200, 200)
+- Size:   (45, 45)
+-------------------------------------------------------------------
+index counts [109, 121, 144, 236, 530]
+Total Time[0.0679 secs] for action[intialize_mean_images]
+Total Time[30.8903 secs] for action[svds]
+Total Time[30.9595 secs] for action[initialize]
+FullTestSet: test image[0][635] result[False]
+FullTestSet: test image[1][127] result[False]
+FullTestSet: test image[2][270] result[False]
+FullTestSet: test image[3][599] result[False]
+FullTestSet: test image[4][864] result[True]
+FullTestSet: final result[20.00%]
+FullTestSet: mean image[0][592] result[False]
+FullTestSet: mean image[1][779] result[False]
+FullTestSet: mean image[2][779] result[False]
+FullTestSet: mean image[3][592] result[False]
+FullTestSet: mean image[4][779] result[True]
+FullTestSet: final result[20.00%]
+Total Time[0.0003 secs] for action[intialize_mean_images]
+Total Time[0.0015 secs] for action[svds]
+Total Time[0.0022 secs] for action[initialize]
+MeanTestSet: test image[0][0] result[True]
+MeanTestSet: test image[1][1] result[True]
+MeanTestSet: test image[2][2] result[True]
+MeanTestSet: test image[3][3] result[True]
+MeanTestSet: test image[4][3] result[False]
+MeanTestSet: final result[80.00%]
+
+
+-------------------------------------------------------------------
+- Test Results With all pcs
+- Window: (50, 50, 200, 200)
+- Size:   (45, 45)
+-------------------------------------------------------------------
+index counts [236, 530]
+Total Time[0.0438 secs] for action[intialize_mean_images]
+Total Time[11.3167 secs] for action[svds]
+Total Time[11.3615 secs] for action[initialize]
+FullTestSet: test image[0][228] result[True]
+FullTestSet: test image[1][493] result[True]
+FullTestSet: final result[100.00%]
+FullTestSet: mean image[0][221] result[True]
+FullTestSet: mean image[1][408] result[True]
+FullTestSet: final result[100.00%]
+Total Time[0.0002 secs] for action[intialize_mean_images]
+Total Time[0.0007 secs] for action[svds]
+Total Time[0.0012 secs] for action[initialize]
+MeanTestSet: test image[0][0] result[True]
+MeanTestSet: test image[1][0] result[False]
+MeanTestSet: final result[50.00%]
+
+
+-------------------------------------------------------------------
+- Test Results With all pcs
+- Window: full
+- Size:   (45, 45)
+-------------------------------------------------------------------
+index counts [236, 530]
+Total Time[0.0376 secs] for action[intialize_mean_images]
+Total Time[11.1101 secs] for action[svds]
+Total Time[11.1487 secs] for action[initialize]
+FullTestSet: test image[0][228] result[True]
+FullTestSet: test image[1][375] result[True]
+FullTestSet: final result[100.00%]
+FullTestSet: mean image[0][221] result[True]
+FullTestSet: mean image[1][445] result[True]
+FullTestSet: final result[100.00%]
+Total Time[0.0002 secs] for action[intialize_mean_images]
+Total Time[0.0007 secs] for action[svds]
+Total Time[0.0012 secs] for action[initialize]
+MeanTestSet: test image[0][0] result[True]
+MeanTestSet: test image[1][0] result[False]
+MeanTestSet: final result[50.00%]
+
+
+-------------------------------------------------------------------
+- Test Results With all pcs
+- Window: full
+- Size:   (45, 45)
+-------------------------------------------------------------------
+index counts [109, 121, 144, 236, 530]
+Total Time[0.0605 secs] for action[intialize_mean_images]
+Total Time[30.9211 secs] for action[svds]
+Total Time[30.9845 secs] for action[initialize]
+FullTestSet: test image[0][747] result[False]
+FullTestSet: test image[1][331] result[False]
+FullTestSet: test image[2][276] result[False]
+FullTestSet: test image[3][599] result[False]
+FullTestSet: test image[4][170] result[False]
+FullTestSet: final result[0.00%]
+FullTestSet: mean image[0][816] result[False]
+FullTestSet: mean image[1][816] result[False]
+FullTestSet: mean image[2][816] result[False]
+FullTestSet: mean image[3][151] result[False]
+FullTestSet: mean image[4][816] result[True]
+FullTestSet: final result[20.00%]
+Total Time[0.0003 secs] for action[intialize_mean_images]
+Total Time[0.0014 secs] for action[svds]
+Total Time[0.0021 secs] for action[initialize]
+MeanTestSet: test image[0][0] result[True]
+MeanTestSet: test image[1][3] result[False]
+MeanTestSet: test image[2][2] result[True]
+MeanTestSet: test image[3][3] result[True]
+MeanTestSet: test image[4][3] result[False]
+MeanTestSet: final result[60.00%]
+
+
+-------------------------------------------------------------------
+- Test Results With all pcs
+- Window: full
+- Size:   (45, 45)
+-------------------------------------------------------------------
+index counts [109, 121, 144, 236, 497]
+Total Time[0.0685 secs] for action[intialize_mean_images]
+Total Time[25.6456 secs] for action[svds]
+Total Time[25.7151 secs] for action[initialize]
+FullTestSet: test image[0][738] result[False]
+FullTestSet: test image[1][331] result[False]
+FullTestSet: test image[2][276] result[False]
+FullTestSet: test image[3][599] result[False]
+FullTestSet: test image[4][170] result[False]
+FullTestSet: final result[0.00%]
+FullTestSet: mean image[0][802] result[False]
+FullTestSet: mean image[1][802] result[False]
+FullTestSet: mean image[2][802] result[False]
+FullTestSet: mean image[3][151] result[False]
+FullTestSet: mean image[4][802] result[True]
+FullTestSet: final result[20.00%]
+Total Time[0.0003 secs] for action[intialize_mean_images]
+Total Time[0.0016 secs] for action[svds]
+Total Time[0.0023 secs] for action[initialize]
+MeanTestSet: test image[0][0] result[True]
+MeanTestSet: test image[1][3] result[False]
+MeanTestSet: test image[2][2] result[True]
+MeanTestSet: test image[3][3] result[True]
+MeanTestSet: test image[4][3] result[False]
+MeanTestSet: final result[60.00%]
+
+
+-------------------------------------------------------------------
+- Test Results With all pcs
+- Window: (50, 50, 200, 200)
+- Size:   (45, 45)
+-------------------------------------------------------------------
+index counts [109, 121, 144, 236, 497]
+Total Time[0.1026 secs] for action[intialize_mean_images]
+Total Time[40.2386 secs] for action[svds]
+Total Time[40.3422 secs] for action[initialize]
+FullTestSet: test image[0][632] result[False]
+FullTestSet: test image[1][127] result[False]
+FullTestSet: test image[2][270] result[False]
+FullTestSet: test image[3][599] result[False]
+FullTestSet: test image[4][847] result[True]
+FullTestSet: final result[20.00%]
+FullTestSet: mean image[0][592] result[False]
+FullTestSet: mean image[1][767] result[False]
+FullTestSet: mean image[2][767] result[False]
+FullTestSet: mean image[3][592] result[False]
+FullTestSet: mean image[4][767] result[True]
+FullTestSet: final result[20.00%]
+Total Time[0.0003 secs] for action[intialize_mean_images]
+Total Time[0.0014 secs] for action[svds]
+Total Time[0.0022 secs] for action[initialize]
+MeanTestSet: test image[0][0] result[True]
+MeanTestSet: test image[1][1] result[True]
+MeanTestSet: test image[2][2] result[True]
+MeanTestSet: test image[3][3] result[True]
+MeanTestSet: test image[4][3] result[False]
+MeanTestSet: final result[80.00%]

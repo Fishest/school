@@ -101,8 +101,7 @@ AT&T Dataset Classification Accuracy
 In the first section, it is quite evident that increasing the
 number of principal components generated assists in accurate
 facial recognition. Except for one case at ten components
-(which I cannot really explain) every result went up for the
-AT&T dataset:
+every result went up for the AT&T dataset:
 
 *   **400 Images with 2 Principal Components**
 
@@ -134,6 +133,8 @@ AT&T dataset:
     * mean image against full image set: 100.00%
     * test image against mean image set: 100.00%
 
+*I cannot really explain why the accuracy of the the test
+images went down in the final test*
 
 Labeled Faces in the Wild Dataset Discussion
 ------------------------------------------------------------
@@ -168,6 +169,13 @@ I decided to reduce my image sizes back down to 45,45 so I
 could try a few things faster, namely removing bad images from
 the dataset.
 
+The images I chose to remove included profile images, images that
+were out of focus, multiple subjects in the image, and expressions
+or postures that were radically different than the rest of the
+image set.  Obviously, the images that worked the best were the
+ones that were well focused, centrally aligned, and with as
+symmetric of a face as possible.
+
 After removing 33 images from the Bush set, I tried the detector
 with no face window filter and all the the detectors failed. When
 I added it back, I was able to detect Mr. Bush again. While looking
@@ -176,6 +184,16 @@ at some of the images included in the set, it was immediately clear
 training data.  After removing only 33 from the set of 530, I was
 able to detect Bush in a collection of 5 other people.
 
+I then repeated this manual image thining process with the other
+four people (Tony Blair, Colin Powell, Donald Rumsfeld, and
+Gerhard Schroeder). In this way I was able to reproduce the
+success I had with Bush, but only for Powell and Rumsfeld.
+
+I tried using a number of different window sizes and image
+sizes, however, regardless of what I did, I was never able
+to get consistent results using all five image sets.  I was
+able to get consistent results if I used the following sets:
+Bush, Powell, Rumsfeld and Blair, Schroeder.
 
 Performance Results
 ------------------------------------------------------------

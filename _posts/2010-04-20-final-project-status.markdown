@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Project 3 - Final Project Proposal
+title: Project 4 - Final Project Status
 ---
 
 {{ page.title }}

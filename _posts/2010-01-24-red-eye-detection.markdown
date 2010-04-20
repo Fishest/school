@@ -1,7 +1,6 @@
 ---
 layout: post
 title: Homework 1 - Red Eye Detection
-category: school
 ---
 
 {{ page.title }}

@@ -18,6 +18,7 @@ re-implementation should meet the requirements for this task. As far as I am abl
 implementing the algorithm from scratch while using [numpy][] and [pylab][] to provide equivalent
 base Matlab functionality.
 
+
 Current Status
 ------------------------------------------------------------
 
@@ -40,11 +41,12 @@ Finally, the test data that I will be using to test my implementation will be dr
 the processed images presented in the paper (which were found in the [bsdb][]) as these
 are the only results of their algorithm I could find:
 
-* http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/BSDS300/html/dataset/images/gray/42049.html
-* http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/BSDS300/html/dataset/images/gray/54082.html
-* http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/BSDS300/html/dataset/images/gray/271035.html
-* http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/BSDS300/html/dataset/images/gray/208001.html
-* http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/BSDS300/html/dataset/images/color/295087.html
+* [Image  42049](http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/BSDS300/html/dataset/images/gray/42049.html)
+* [Image  54082](http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/BSDS300/html/dataset/images/gray/54082.html)
+* [Image 271035](http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/BSDS300/html/dataset/images/gray/271035.html)
+* [Image 208001](http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/BSDS300/html/dataset/images/gray/208001.html)
+* [Image 295087](http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/BSDS300/html/dataset/images/color/295087.html)
+
 
 External Links
 ------------------------------------------------------------

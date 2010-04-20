@@ -32,10 +32,10 @@ def label2rgb(sp):
 def hsv(value=64):
     ''' http://www.math.ufl.edu/help/matlab/hsv.html
     '''
-    x = np.double(np.arange(0, value-1)) / value
-    r = (    6 * abs(x - (1.0/2) - 1).clip(0,1)
-    g = (2 - 6 * abs(x - (1.0/3)    ).clip(0,1)
-    b = (2 - 6 * abs(x - (2.0/3)    ).clip(0,1)
+    x = np.double(np.arange(0, value)) / value
+    r = (    6 * abs(x - (1.0/2) - 1)).clip(0,1)
+    g = (2 - 6 * abs(x - (1.0/3)    )).clip(0,1)
+    b = (2 - 6 * abs(x - (2.0/3)    )).clip(0,1)
     return np.array([r,g,b])
 
 def cmap(value):
@@ -55,11 +55,11 @@ def visual_one(image, sp, paths):
     ''' red boundaries over original image
     '''
     nRows, mCols = image.shape
-    pylab.figure; pylab.imshow(image)
+    pylab.figure(); pylab.imshow(image)
     pylab.hold(True)
     for path in paths:
         y, x = ind2sub(image.shape, path)
-        pylab.plot(x, y, 'Color', [1 0 0], 'LineWidth', 3)
+        pylab.plot(x, y, color='red', linewidth=3)
     pylab.title('Red Superpixel Boundaries - Original Image')
     pylab.show()
 
@@ -67,14 +67,15 @@ def visual_two(image, sp, paths):
     ''' display cost map with randomly coloured greedy regular lattice
     '''
     image = (image - image.min()) / (image.max() - image.min())
-    pylab.figure; pylab.imshow(image)
+    pylab.figure(); pylab.imshow(image)
     nRows, mCols = image.shape
     cmap = hsv(len(paths))
     idx = randperm(len(paths))
     pylab.hold(True)
+
     for path in paths:
         y, x = ind2sub(image.shape, path)
-        pylab.plot(x, y, 'Color', cmap(idx(i), :), 'LineWidth', 3)
+        pylab.plot(x, y, 'Color', cmap(idx[i]), linewidth=3)
     pylab.title('Randomly Coloured Greedy Regular Lattice')
     pylab.show()
 
@@ -82,13 +83,13 @@ def visual_three(image, sp, paths):
     ''' stain glass' display mean of each superpixel 'jet' colour map
     with black boundaries.
     '''
-
     nRows, mCols = image.shape
-    pylab.figure; pylab.imshow(label2rgb(sp))
+    pylab.figure(); pylab.imshow(label2rgb(sp))
     pylab.hold(True)
+
     for path in paths:
         y, x = ind2sub(image.shape, path)
-        pylab.plot(x, y, 'Color', [0 0 0], 'LineWidth', 3)
+        pylab.plot(x, y, color='black', linewidth=3)
     pylab.title('Black Superpixel Boundaries - Random Superpixel Colur')
     pylab.show()
 
@@ -97,17 +98,18 @@ def visual_four(image, sp, paths):
     '''
     nRows, mCols = image.shape
     spMean = np.zeros(image.shape)
-    for i = 1:sp(end)   
+
+    for i in np.unique(sp):   
         pixList = sp == i
         meanPix = image[pixList].mean()
         spMean[pixList] = meanPix
     spMean = (spMean - spMean.min()) / (spMean.max() - spMean.min())
-    pylab.figure; pylab.imshow(spMean)
+    pylab.figure(); pylab.imshow(spMean)
     pylab.hold(True)
 
     for path in paths:
         y, x = ind2sub(image.shape, path)
-        pylab.plot(x, y, 'Color', [0 0 1], 'LineWidth', 3)
+        pylab.plot(x, y, color='blue', linewidth=3)
     pylab.title('Blue Superpixel Boundaries - Mean Superpixel Value')
     pylab.show()
 

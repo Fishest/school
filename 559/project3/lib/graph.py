@@ -8,6 +8,9 @@ Papers
 * http://www.cs.sfu.ca/~mori/research/superpixels/
 * http://people.cs.uchicago.edu/~pff/segment/
 
+Modules to remember
+-------------------------------------------------------------------------
+scipy.spatial.distance
 '''
 import scipy
 import numpy as np

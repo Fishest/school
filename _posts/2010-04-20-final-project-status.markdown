@@ -6,7 +6,7 @@ title: Project 4 - Final Project Status
 {{ page.title }}
 ============================================================
 
-<p class="meta"/>06 Apr 2010 - St. Louis</p>
+<p class="meta"/>20 Apr 2010 - St. Louis</p>
 
 
 Description
@@ -18,25 +18,33 @@ re-implementation should meet the requirements for this task. As far as I am abl
 implementing the algorithm from scratch while using [numpy][] and [pylab][] to provide equivalent
 base Matlab functionality.
 
-description of algorithm
+Current Status
+------------------------------------------------------------
 
-The final goal for this project will be to create a library that can be called with any image
-type and return a processed super pixel image. In order to evaluate the result of the library,
-a simple command line (or GUI driven) application will be created around the library that will
-take in an image and show a side-by-side before and after screen. The application will also
-provide the ability to tune the various parameters of the system and see the results reflected;
-these include: the super pixel resolution, the path tortuosity, and the path width constraint.
-I will also use the human labeled images along with a simple distance function to produce
-quantitative accuracy results of my implementation.
+As of now, I have traversed the paper as well, a majority of the referenced literature,
+and a collection of related material to get a better understanding of the problem to solve.
+Furthermore, I have reproduced the test runner in python, created code to generate the boundary
+cost maps from input images, and created a graph framework to use for determining the
+separation paths across the image.
 
-In order to test the algorithm, I will use a collection of images ranging in their degree
-of complexity (i.e. a simple object on a constant background to a city scene with a large
-number of features). Using the test applications I will write, I will examine the resulting
-super pixel images and observe the result of the tuning on the result of the images.
+The problems that I have run into is are as follows:
 
-I will be obtaining all my image data from the [bsdb][] which has a large collection of images
-that have been hand segmented by a collection of users. As such I will have no need for any
-special photography equipment.
+*   I do not have a full grasp on the s-t min cuts algorithm to be used in creating paths
+*   The paper doesn't decently explain how the algorithm uses the constraining weights
+    for crossing a path, moving perpendicular to the source/sink, and distancing neighboring
+    paths.
+*   The paper doesn't make clear exactly how the authors choose each path and boundary grid
+    aside from the fact that they are added incrementally. 
+
+Finally, the test data that I will be using to test my implementation will be drawn from
+the processed images presented in the paper (which were found in the [bsdb][]) as these
+are the only results of their algorithm I could find:
+
+* http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/BSDS300/html/dataset/images/gray/42049.html
+* http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/BSDS300/html/dataset/images/gray/54082.html
+* http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/BSDS300/html/dataset/images/gray/271035.html
+* http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/BSDS300/html/dataset/images/gray/208001.html
+* http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/BSDS300/html/dataset/images/color/295087.html
 
 External Links
 ------------------------------------------------------------
@@ -46,12 +54,6 @@ External Links
    This is the paper that was presented at the CVPR 2008 conference. It will be the main reference
    for this project.
   
-*  [Project Page](http://web4.cs.ucl.ac.uk/research/vis/pvl/index.php?option=com_content&view=article&id=78%3Asuperpixel-lattices&Itemid=60)
-
-   This page contains a brief project description as well as the projects implementation in Matalab.
-   Although the code will not be used in my re-implementation (which will be in python), it may be used
-   as a guide.
-
   [superpix]: http://www.cs.ucl.ac.uk/staff/s.prince/Papers/SuperpixelLattices.pdf "Superpixel Lattice"
   [python]: http://www.python.org "Python Programming Language"
   [repository]: http://github.com/bashwork/school/tree/master/559/project2/ "Master Repository"

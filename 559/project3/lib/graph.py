@@ -149,9 +149,9 @@ class ImageGraph(object):
         self.graph.del_node(self.source)
         self.graph.del_node(self.sink)
 
-    # ----------------------------------------------------------------------- # 
+    #--------------------------------------------------------------------------#
     # Methods dealing with finding paths
-    # ----------------------------------------------------------------------- # 
+    #--------------------------------------------------------------------------#
 
     @method_timer
     def perform_min_cut(self, source, sink):
@@ -172,9 +172,9 @@ class ImageGraph(object):
         self._add_source_and_sink()
         self._remove_source_and_sink()
 
-    # ----------------------------------------------------------------------- # 
+    #-------------------------------------------------------------------------# 
     # Methods dealing with managing path weights / flow
-    # ----------------------------------------------------------------------- # 
+    #-------------------------------------------------------------------------# 
 
     def update_edge_weight(self, edge, value):
         ''' Update the weights for the newly found path
@@ -203,6 +203,7 @@ class ImageGraph(object):
         :param count: How many steps away to search
         :returns: The neighbors of the given node
         '''
+        # TODO this should return verticies not nodes
         if count <= 0: return [node]
         neighbors = self.graph.neighbors(node)
         result = set(neighbors)
@@ -223,9 +224,9 @@ class ImageGraph(object):
             neighbors.update(self.get_neighbors(node, self.band_width))
         return neighbors
 
-#--------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
 # Main implementation class
-#--------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
 class GreedyLattice(object):
     '''
     '''
@@ -261,9 +262,9 @@ class GreedyLattice(object):
         self._add_image_strips()
         self.graph = build_graph(self.costm)
 
-    #--------------------------------------------------------------------------------#
+    #--------------------------------------------------------------------------#
     # Private Implementation 
-    #--------------------------------------------------------------------------------#
+    #--------------------------------------------------------------------------#
  
     def _add_path(self):
         '''
@@ -280,45 +281,20 @@ class GreedyLattice(object):
         self.costm[0:x:xw,:] = Weight.STRIP
         self.costm[:,0:y:yw] = Weight.STRIP
 
-    #--------------------------------------------------------------------------------#
+    #--------------------------------------------------------------------------#
     # Update weight values
-    #--------------------------------------------------------------------------------#
-
-    def _update_cost_map_path(self, path, direction):
-        ''' Update the cost map by adding the newly discovered
-        path and band weights.
-
-        :param path: The new path to add
-        :param direction: The direction the path is moving
+    #--------------------------------------------------------------------------#
+    def _update_path_weight(self, path):
         '''
-        for pix in path:
-            self.costm[pix] = Weight.PATH
-            _update_cost_map_band(pix, direction)
-
-    def _update_cost_map_band(self, point, direction):
-        ''' Update the cost map by adding the newly discovered
-        path and band weights.
-
-        :param path: The new path to add
-        :param direction: The direction the path is moving
         '''
-        x, y = point
-        xm, ym = self.costm.shape
+        self.graph.update_edges_weights(path, Weight.PATH)
+        nodes = self.graph.get_path_band(path)
+        self.graph.update_edges_weights(path, Weight.BAND)
 
-        # if we are going e/w add the band above and below
-        if direction == Compass.EAST or direction == Compass.WEST:
-            yl, yh = max(0, y - self._band_width), max(ym, y + self._band_width)
-            self.costm[x,yl:yh] = Weight.BAND
 
-        # if we are going n/s add the band left and right
-        elif direction == Compass.NORTH or direction == Compass.SOUTH:
-            self.costm[pix] = Weight.PATH
-            xl, xh = max(0, x - self._band_width), max(xm, x + self._band_width)
-            self.costm[xl:xh,y] = Weight.BAND
-
-#--------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
 # Main tester
-#--------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
 def main():
     ''' Main test script
     '''

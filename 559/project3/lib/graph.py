@@ -14,161 +14,224 @@ scipy.spatial.distance
 '''
 import scipy
 import numpy as np
+from utility import *
 from pygraph.classes.graph import graph as pygraph
 
 # ------------------------------------------------------------------ #
 # Logging Setup
 # ------------------------------------------------------------------ #
 import logging
-_log = logging.getLogger("project.utility")
+_log = logging.getLogger("project.graph")
 logging.basicConfig(filename="%s.log" % __file__, level=logging.DEBUG)
-
-#--------------------------------------------------------------------------------#
-# Helper Utility Methods 
-#--------------------------------------------------------------------------------#
-import os, time
-try:
-    import cPickle as pickle
-except ImportError: import pickle
-
-def method_timer(func):
-    '''
-    The following is a simple decorator to time how long
-    it takes the decorated function to run.
-    '''
-    def _call(*args, **kwargs):
-        start = time.time()
-        result = func(*args, **kwargs)
-        finish = time.time() - start
-        name = "%s" % (func.__name__)
-        _log.debug("Total Time[%.4f secs] for action[%s]" % (finish, name))
-        return result
-    _call.__name__ = func.__name__
-    return _call
-
-def _load_from_cache(path, callback):
-    ''' Helper to load/store the image sets from/to
-    a pickle cache to speed-up the initialization process
-
-    :param path: The path to the directory of images
-    :param callback: What to do if the cache doesn't exist
-    :return: The initialized collection of data
-    '''
-    pathc = "%s.cache" % os.path.realpath(path)
-    result = None
-
-    if os.path.exists(pathc):
-        _log.debug("Loading Cache from %s" % pathc)
-        with file(pathc, 'r') as handle:
-            result = pickle.load(handle)
-    else:
-        result = callback(path)
-        _log.debug("Storing Cache at %s" % pathc)
-        with file(pathc, 'w') as handle:
-            pickle.dump(result, handle)
-    return result
-
-def _open_image(path, flatten=False):
-    ''' Open the supplied path as an image
-    '''
-    from PIL import Image,ImageOps
-    if not isinstance(image, str):
-        image = path
-    else:
-        image = Image.open(path)
-        image = ImageOps.grayscale(image)
-        image = np.array(image)
-    if flatten: image = image.flatten()
-    return image
 
 #--------------------------------------------------------------------------------#
 # Graph Utility Methods 
 #--------------------------------------------------------------------------------#
-def _add_edges(image, graph, x, y):
-    ''' Adds the edges for the specified pixels
-
-    :param image: The image to get the weights from
-    :param graph: The graph to add the edges to
-    :param x: The x pixel coordinate
-    :param y: The y pixel coordinate
+class GraphUtility(object):
+    ''' Graph helper utility methods
     '''
-    if x - 1 >= 0:
-        w1, w2 = image[x,y], image[x-1,y]
-        weight = abs(w1 - w2)
-        graph.add_edge(((x,y),(x-1,y)), wt=weight)
-    if y - 1 >= 0:
-        w1, w2 = image[x,y], image[x,y-1]
-        weight = abs(w1 - w2)
-        graph.add_edge(((x,y),(x,y-1)), wt=weight)
-
-@method_timer
-def build_graph(image):
-    ''' Builds a weighted graph from the specified image
-
-    :param image: The image or path to build a graph for
-    :returns: The resulting graph
-    '''
-    image = _open_image(image)
-    graph = pygraph()
-    ix,iy = image.shape
-    for x in xrange(0, ix):
-        for y in xrange(0, iy):
-            graph.add_node((x, y))
-            _add_edges(image, graph, x, y)
-    return graph
-
-@method_timer
-def build_cache_graph(path):
-    ''' Builds a weighted graph from the specified image
-
-    :param image: The image or path to build a graph for
-    :returns: The resulting graph
-    '''
-    return _load_from_cache(path, build_graph)
-
-def _get_direction(source, dest):
-    ''' Get the direction of the move between two points
-
-    :param source: The source point
-    :param dest: The destination point
-    :returns: The resulting direction of the move
-    '''
-    ax, ay = source
-    bx, by = dest
-
-    if ax == bx and ay == by + 1:
-        return Compass.SOUTH
-    elif ax == bx and ay + 1 == by:
-        return Compass.NORTH
-    elif ax == bx + 1 and ay == by:
-        return Compass.EAST
-    elif ax + 1 == bx and ay == by:
-        return Compass.WEST
-
+    
+    @staticmethod
+    def add_edges(image, graph, x, y):
+        ''' Adds the edges for the specified pixels
+    
+        :param image: The image to get the weights from
+        :param graph: The graph to add the edges to
+        :param x: The x pixel coordinate
+        :param y: The y pixel coordinate
+        '''
+        def get_weight(ln, rn):
+            return abs(ln - rn)
+        if x - 1 >= 0:
+            weight = _get_weight(image[x,y], image[x-1,y])
+            graph.add_edge(((x,y),(x-1,y)), wt=weight)
+        if y - 1 >= 0:
+            weight = _get_weight(image[x,y], image[x,y-1])
+            graph.add_edge(((x,y),(x,y-1)), wt=weight)
+    
+    @staticmethod
+    def image_to_graph(path):
+        ''' Builds a weighted graph from the specified image
+    
+        :param path: The image or path to build a graph for
+        :returns: The resulting graph
+        '''
+        image = open_image(path)
+        graph = pygraph()
+        ix,iy = image.shape
+        for x in xrange(0, ix):
+            for y in xrange(0, iy):
+                graph.add_node((x, y))
+                GraphUtility.add_edges(image, graph, x, y)
+        return graph
+    
+    @staticmethod
+    def cache_image_to_graph(path):
+        ''' Builds a weighted graph from the specified image
+    
+        :param image: The image or path to build a graph for
+        :returns: The resulting graph
+        '''
+        return try_load_from_cache(path, GraphUtility.image_to_graph)
 
 #--------------------------------------------------------------------------------#
 # Helper Classes
 #--------------------------------------------------------------------------------#
-class Compass(object):
-    ''' An enumeration for the different directions of
-    pixel movements.  This is used to calculate the tortuosity
+
+class Weight(object):
+    ''' A constant class representing the different weights
+    for each constraint.
+
+    :param PATH: The weight to be added for a segmentation path
+    :param BAND: The weight to be added as a path buffer
+    :param TURN: The weight to be added for moving against the flow
+    :param FLOW: The weight to be added for a flow from sink/source to node
+    :param STRIP: The weight to be added for a boundary strip
+    :param BOUNDARY: The weight to be added for an image edge boundary
     '''
-    NORTH      = 1
-    NORTHEAST  = 2
-    EAST       = 3
-    SOUTHEAST  = 4
-    SOUTH      = 5
-    SOUTHWEST  = 6
-    WEST       = 7
-    NORTHWEST  = 8
+    PATH     = 80
+    BAND     = 40
+    TURN     = 40
+    FLOW     = 500
+    STRIP    = 65000
+    BOUNDARY = 255
+
+#--------------------------------------------------------------------------------#
+# Graph abstraction class
+#--------------------------------------------------------------------------------#
+class ImageGraph(object):
+    '''
+    :param h_source_node: A unique node representing the source node
+    :param h_sink_node: A unique node representing the sink node
+    '''
+    source   = (-1,-1)
+    sink     = (-2,-2)
+    band_width = 5
+
+    def __init__(self, image):
+        ''' Initializes a new instance of the image graph
+        '''
+        self.shape = image.shape
+        self.graph = GraphUtility.image_to_graph(image)
+
+    # ----------------------------------------------------------------------- # 
+    # Methods dealing with the source/sink and band
+    # ----------------------------------------------------------------------- # 
+
+    @method_timer
+    def add_source_and_sink(self, band, direction):
+        ''' Add the source and sink nodes and connect them across the
+        image to simulate a band region.
+
+        :param band: ((sx,sy),(ex,ey))
+        :param direction: The compass direction the bad should be applied
+        '''
+        x,y = self.shape
+        (sx,sy),(ex,ey) = band
+        self.graph.add_node(self.source)
+        self.graph.add_node(self.sink)
+
+        if direction == Compass.EAST:
+            for xs in xrange(0,x):
+                hp,lp = (xs,ey), (xs,sy)
+                self.graph.add_edge((self.source, lp), wt=Weight.FLOW)
+                self.graph.add_edge((self.sink, hp), wt=Weight.FLOW)
+        elif direction == Compass.SOUTH:
+            for ys in xrange(0,y):
+                hp,lp = (ex,ys), (sx,ys)
+                self.graph.add_edge((self.source, lp), wt=Weight.FLOW)
+                self.graph.add_edge((self.sink, hp), wt=Weight.FLOW)
+
+    @method_timer
+    def remove_source_and_sink(self):
+        ''' Remove the previously added source and sink.
+        '''
+        self.graph.del_node(self.source)
+        self.graph.del_node(self.sink)
+
+    # ----------------------------------------------------------------------- # 
+    # Methods dealing with finding paths
+    # ----------------------------------------------------------------------- # 
+
+    @method_timer
+    def perform_min_cut(self, source, sink):
+        ''' Remove the source and sink from their current location
+        in the graph.
+        '''
+        self._add_source_and_sink()
+        self._remove_source_and_sink()
+
+    @method_timer
+    def find_path(self, source, sink, path):
+        ''' Find a path from start to end
+        '''
+        # maybe plug in pygraph bfs?
+        if source == sink:
+            return path
+
+        self._add_source_and_sink()
+        self._remove_source_and_sink()
+
+    # ----------------------------------------------------------------------- # 
+    # Methods dealing with managing path weights / flow
+    # ----------------------------------------------------------------------- # 
+
+    def update_edge_weight(self, edge, value):
+        ''' Update the weights for the newly found path
+        in the graph.
+        '''
+        weight = self.graph.edge_weight(edge) + value
+        self.graph.set_edge_weight(point, wt=weight)
+
+    @method_timer
+    def update_edges_weights(self, edges, value):
+        ''' Update the weights for the newly found path
+        in the graph.
+        '''
+        for edge in edges:
+            self.update_edge_weight(edge, value)
+
+    #--------------------------------------------------------------------------#
+    # Methods dealing with the band path
+    #--------------------------------------------------------------------------#
+
+    def get_neighbors(self, node, count):
+        ''' Get all the neighbors of a given node count steps
+        away as a unique set.
+
+        :param node: The node to get the neighbors for
+        :param count: How many steps away to search
+        :returns: The neighbors of the given node
+        '''
+        if count <= 0: return [node]
+        neighbors = self.graph.neighbors(node)
+        result = set(neighbors)
+        for neighbor in neighbors:
+            result.update(get_neighbors(neighbor, count - 1)
+        return result
+
+    @method_timer
+    def get_path_band(self, path):
+        ''' Given a path of nodes, return the set of neighbors at
+        the predefined band width step away.
+
+        :param path: The path to get the neighbor band for
+        :returns: The neighbors on the path band
+        '''
+        neighbors = set()
+        for node in path:
+            neighbors.update(self.get_neighbors(node, self.band_width))
+        return neighbors
 
 #--------------------------------------------------------------------------------#
 # Main implementation class
 #--------------------------------------------------------------------------------#
 class GreedyLattice(object):
+    '''
+    '''
 
     _defaults = {
-        'pixels'      : (25,25),
+        'pixels'      : (11,11),
         'borderWidth' : 1,
         'tortuosity'  : 80,
         'overlap'     : 0.4,
@@ -182,17 +245,21 @@ class GreedyLattice(object):
         :param image: The cost map to create a lattice for
         :param kwargs: The tuning parameters of the lattice
         '''
-        self.costm = 255 - _open_image(image)
-        self.graph = _build_graph(self.costm) 
+        self.costm = 255 - open_image(image)
         self.param = self._defaults.copy()
         self.param.update(kwargs)
         self.hpaths = []
         self.vpaths = []
 
-    def process(self):
+    @method_timer
+    def initialize_cost_map(self):
+        ''' Performs all the neccessary initialization
+        and creation of the cost map graph.
         '''
-        '''
-        pass
+        self.params['stripWidth'] = np.uint(np.double(self.costm.shape) \
+            / self.params['pixels'])
+        self._add_image_strips()
+        self.graph = build_graph(self.costm)
 
     #--------------------------------------------------------------------------------#
     # Private Implementation 
@@ -202,6 +269,52 @@ class GreedyLattice(object):
         '''
         '''
         pass
+
+    def _add_image_strips(self):
+        ''' Add the constant image strip barriers evenly
+        throughout the cost map. The number of strips is based
+        on the number of pixels requested in the final image.
+        '''
+        x,y   = self.costm.shape
+        xw,yw = self.param['stripWidth']
+        self.costm[0:x:xw,:] = Weight.STRIP
+        self.costm[:,0:y:yw] = Weight.STRIP
+
+    #--------------------------------------------------------------------------------#
+    # Update weight values
+    #--------------------------------------------------------------------------------#
+
+    def _update_cost_map_path(self, path, direction):
+        ''' Update the cost map by adding the newly discovered
+        path and band weights.
+
+        :param path: The new path to add
+        :param direction: The direction the path is moving
+        '''
+        for pix in path:
+            self.costm[pix] = Weight.PATH
+            _update_cost_map_band(pix, direction)
+
+    def _update_cost_map_band(self, point, direction):
+        ''' Update the cost map by adding the newly discovered
+        path and band weights.
+
+        :param path: The new path to add
+        :param direction: The direction the path is moving
+        '''
+        x, y = point
+        xm, ym = self.costm.shape
+
+        # if we are going e/w add the band above and below
+        if direction == Compass.EAST or direction == Compass.WEST:
+            yl, yh = max(0, y - self._band_width), max(ym, y + self._band_width)
+            self.costm[x,yl:yh] = Weight.BAND
+
+        # if we are going n/s add the band left and right
+        elif direction == Compass.NORTH or direction == Compass.SOUTH:
+            self.costm[pix] = Weight.PATH
+            xl, xh = max(0, x - self._band_width), max(xm, x + self._band_width)
+            self.costm[xl:xh,y] = Weight.BAND
 
 #--------------------------------------------------------------------------------#
 # Main tester

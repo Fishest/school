@@ -145,6 +145,18 @@ class Compass(object):
         elif ax == bx + 1 and ay + 1 == by:
             return Compass.NORTHEAST
 
+import math
+def weight(a, b):
+    base = abs(a - b)**2 / -4000.0
+    return math.e ** base
+
+def weight_image(image):
+    xs,ys = image.shape
+    for x in xrange(0, xs):
+        for y in xrange(0, ys):
+            if x + 1 < xs:
+                image[x,y] = weight(image[x,y], image[x + 1,y])
+
 #--------------------------------------------------------------------------------#
 # Main tester
 #--------------------------------------------------------------------------------#

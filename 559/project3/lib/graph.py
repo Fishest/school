@@ -16,6 +16,7 @@ import scipy
 import numpy as np
 from utility import *
 from pygraph.classes.graph import graph as pygraph
+from pygraph.algorithms import minmax
 
 # ------------------------------------------------------------------ #
 # Logging Setup
@@ -27,10 +28,11 @@ logging.basicConfig(filename="%s.log" % __file__, level=logging.DEBUG)
 #--------------------------------------------------------------------------------#
 # Graph Utility Methods 
 #--------------------------------------------------------------------------------#
+import math
 class GraphUtility(object):
     ''' Graph helper utility methods
     '''
-    
+
     @staticmethod
     def add_edges(image, graph, x, y):
         ''' Adds the edges for the specified pixels
@@ -41,12 +43,13 @@ class GraphUtility(object):
         :param y: The y pixel coordinate
         '''
         def get_weight(ln, rn):
-            return abs(ln - rn)
+            base = abs(ln - rn)**2 / -600.0
+            return math.e**base
         if x - 1 >= 0:
-            weight = _get_weight(image[x,y], image[x-1,y])
+            weight = get_weight(image[x,y], image[x-1,y])
             graph.add_edge(((x,y),(x-1,y)), wt=weight)
         if y - 1 >= 0:
-            weight = _get_weight(image[x,y], image[x,y-1])
+            weight = get_weight(image[x,y], image[x,y-1])
             graph.add_edge(((x,y),(x,y-1)), wt=weight)
     
     @staticmethod
@@ -154,23 +157,14 @@ class ImageGraph(object):
     #--------------------------------------------------------------------------#
 
     @method_timer
-    def perform_min_cut(self, source, sink):
+    def perform_min_cut(self):
         ''' Remove the source and sink from their current location
         in the graph.
         '''
-        self._add_source_and_sink()
-        self._remove_source_and_sink()
-
-    @method_timer
-    def find_path(self, source, sink, path):
-        ''' Find a path from start to end
-        '''
-        # maybe plug in pygraph bfs?
-        if source == sink:
-            return path
-
-        self._add_source_and_sink()
-        self._remove_source_and_sink()
+        self.add_source_and_sink(((0,0),(0,100)), Compass.EAST)
+        o = minmax.maximum_flow(self.graph, self.source, self.sink)
+        self.remove_source_and_sink()
+        return o;
 
     #-------------------------------------------------------------------------# 
     # Methods dealing with managing path weights / flow
@@ -208,7 +202,7 @@ class ImageGraph(object):
         neighbors = self.graph.neighbors(node)
         result = set(neighbors)
         for neighbor in neighbors:
-            result.update(get_neighbors(neighbor, count - 1)
+            result.update(get_neighbors(neighbor, count - 1))
         return result
 
     @method_timer
@@ -259,7 +253,7 @@ class GreedyLattice(object):
         '''
         self.params['stripWidth'] = np.uint(np.double(self.costm.shape) \
             / self.params['pixels'])
-        self._add_image_strips()
+        #self._add_image_strips()
         self.graph = build_graph(self.costm)
 
     #--------------------------------------------------------------------------#
@@ -303,6 +297,9 @@ def main():
         psyco.full()
     except ImportError:
         pass
+    costm = 255 - open_image("../images/42049.bmp")
+    graph = ImageGraph(costm);
+    print graph.perform_min_cut()
 
 if __name__ == "__main__":
     main()

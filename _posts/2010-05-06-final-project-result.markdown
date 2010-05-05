@@ -12,9 +12,9 @@ title: Project 4 - Final Project Result
 Introduction
 ------------------------------------------------------------
 
-For the final project I was tasked with reimplementing the algorithm discussed in the
-[superpixel][] paper. I attempted to reproduce the results found in the paper individually
-in C# with a few helper libraries.
+For the final project [assignment][] I was tasked with reimplementing the algorithm discussed
+in the [superpixel][] paper. I attempted to reproduce the results found in the paper
+individually in C# with a few helper libraries.
 
 Related Work and References
 ------------------------------------------------------------
@@ -60,7 +60,7 @@ is then inverted, normalized, and converted to a directed graph:
       e ^ abs(a - b) ^ 2 / -normalize
 
 The edge weight is some form of binary distance function such that pixel differences
-above and below a constant threshold become 1 and 0 repectively. In terms of the cost
+above and below a constant threshold become 1 and 0 respectively. In terms of the cost
 map, we use 0 to be strong evidence for a natural boundary while 1 indicates no evidence
 of a boundary.
 
@@ -111,44 +111,58 @@ Experimental Results
 
 <img width="320" src="http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/BSDS300/html/images/plain/normal/gray/42049.jpg" />
 <img width="320" src="http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/bench/gray/gPb_gray/42049.bmp" />
-<img width="320" src="http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/bench/gray/gPb_gray/42049.bmp" />
+<img width="320" src="http://image-segment.googlecode.com/svn/trunk/Images/output-42049.jpg" />
 
 ** Example 2 **
 
 <img src="http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/BSDS300/html/images/plain/normal/gray/54082.jpg" />
 <img src="http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/bench/gray/gPb_gray/54082.bmp" />
-<img src="http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/bench/gray/gPb_gray/54082.bmp" />
+<img width="320" src="http://image-segment.googlecode.com/svn/trunk/Images/output-54082.jpg" />
 
 ** Example 3 **
 
 <img src="http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/BSDS300/html/images/plain/normal/gray/271035.jpg" />
 <img src="http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/bench/gray/gPb_gray/271035.bmp" />
-<img src="http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/bench/gray/gPb_gray/271035.bmp" />
+<img width="320" src="http://image-segment.googlecode.com/svn/trunk/Images/output-271035.jpg" />
 
 ** Example 4 **
 
 <img src="http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/BSDS300/html/images/plain/normal/gray/208001.jpg" />
 <img src="http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/bench/gray/gPb_gray/208001.bmp" />
-<img src="http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/bench/gray/gPb_gray/208001.bmp" />
+<img width="320" src="http://image-segment.googlecode.com/svn/trunk/Images/output-208001.jpg" />
 
 ** Example 5 **
 
 <img width="320" src="http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/BSDS300/html/images/plain/normal/gray/295087.jpg" />
 <img width="320" src="http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/bench/gray/gPb_gray/295087.bmp" />
-<img width="320" src="http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/bench/gray/gPb_gray/295087.bmp" />
+<img width="320" src="http://image-segment.googlecode.com/svn/trunk/Images/output-295087.jpg" />
 
 Discussion of Results
 ------------------------------------------------------------
-
-I was generally satisfied with the results of the program as for the most part
-selected paths that not only matched the papers results but offered usable
-segmentation regions of the input image.
 
 Although the implementation was fairly trivial (in description and implementation),
 the major crux of the problem was implementing, providing scaffolding around, and
 constraining the maximum flow algorithm. Even when using a packaged implementation
 I still had a number of problems, the most of which was actually retrieving the
 correct path out of the maximum flow result set.
+
+The major problem with my implementation was the speed of processing.  This is due
+to the fact that I am working in a managed environment, constantly modifying the
+graph, and dealing with a graph library that may or may not be the most efficient.
+As a result, most non-trivial operations took a very long time, especially the
+maximum flow algorithm.  As an example, it takes my algorithm about an hour to
+segment an 241x161 pixel image into 9 superpixels.
+
+In trying to speed up the process, I simply reduced the size of the input cost maps
+by half, however, artifacts resulting from the resizing would be interpreted as possible
+edge points and would cause the lattice paths to slightly meander.
+
+As a whole, I was somewhat satisfied with the results of the program as they
+did seem to follow the image and create semantic pixels. However in comparing
+to the results suggested by the authors, my results appear to be far from ideal.
+Furthermore, the speed offered by my implementation is downright abysmal compared
+to the speed promised by the authors (2fps to convert a 321x481 image to a 20x20
+superpixel lattice).
 
 Future Work
 ------------------------------------------------------------
@@ -160,7 +174,7 @@ to my program:
 *   Use a tuned minimum-cuts graph algorithm instead of solving for maximum flow.
     There are a number of algorithms that do not need to solve exhaustively for
     the max flow in order to find the global minimum cut. Also, there are algorithms
-    that will quickly find a cut that is *good enough* (guranteed to be in the upper
+    that will quickly find a cut that is *good enough* (guaranteed to be in the upper
     **N** percent of possible cuts).
     
 *   Use a lighter representation of the image graph
@@ -168,9 +182,9 @@ to my program:
     * Use a graph wrapper around a sparse array of edges for O(1) access time
     * Only present pieces of the graph to be solved at a time
     
-*   Implement tortuosity weighting of the paths. This is a simple feature that
-    was eliminated for now to speed up the algorithm.
-*   Implement the algorithm in c++ with bgl to increase speed.
+*   Implement a better tortuosity weighting of the paths as mine doesn't appear
+    to work all that well.
+*   Implement the algorithm in c++ with BGL to increase speed.
 
 External Links
 ------------------------------------------------------------
@@ -196,6 +210,7 @@ External Links
    max-flow-image.bmp located in the same directory.
   
   [superpixel]: http://www.cs.ucl.ac.uk/staff/s.prince/Papers/SuperpixelLattices.pdf "Superpixel Lattice"
+  [assignment]: http://research.engineering.wustledu/~pless/559/projects/finalProject.htm "Assignment Details"
   [repository]: http://code.google.com/p/image-segment/ "Master Repository"
   [quickgraph]: http://quickgraph.codeplex.com/ "QuickGraph"
   [log4net]: http://logging.apache.org/log4net/index.html "Log4net"

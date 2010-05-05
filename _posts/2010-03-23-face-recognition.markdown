@@ -61,13 +61,16 @@ most of the code I had to write was simply scaffolding around it
 and helpers to get data into it. The following is the actual
 implementation of svd that I used (*note the T method is transpose*):
 
+{% highlight python %}
     def svds(images):
         U, S, Vh = numpy.linalg.svd(images, full_matrices=False)
         return (U, (Vh.T * S)) 
+{% endhighlight %}
 
 The hardest coding part was in computing the eigenface for a new
 image and finding which training image it looked the most like:
 
+{% highlight python %}
     def get_eigenface(self, image):
         compare = image - self.mean
         return numpy.dot(self.U.T, compare)
@@ -80,16 +83,19 @@ image and finding which training image it looked the most like:
         coefs = self.get_eigenface(image)
         # argmin returns the index of the min element
         return numpy.argmin(find_distance(coefs, self.V))
+{% endhighlight %}
 
 To find the distance between a new image's coefficients and
 the coefficients of the training set, I simply used the
 following functions:
 
+{% highlight python %}
     def compute_distance(n, v):
         return ((n - v)**2).sum()
          
     def find_distance(n, vector):
         return [int(compute_distance(n, v)) for v in vector]
+{% endhighlight %}
 
 The vast majority of code was created in the test runner scripts
 which are discussed later in this posting.
@@ -277,6 +283,7 @@ The following is an example of creating a system that can recognize
 a face from the trained data set. It then displays the two images
 side by side so the user can evaluate the results:
 
+{% highlight python %}
     import pylab
     from lib.pca import PCA
     from lib.utility import *
@@ -292,6 +299,7 @@ side by side so the user can evaluate the results:
     pylab.imshow(result.reshape((112,92)))
     pylab.gray()
     pylab.show()
+{% endhighlight %}
 
 *For more complex examples of image testing with this code,
 examine the following test runners*

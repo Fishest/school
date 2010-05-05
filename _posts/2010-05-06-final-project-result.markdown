@@ -49,6 +49,7 @@ cost map** that contains meaningful boundaries between neighboring pixels. The a
 state that an edge detection output will suffice for the majority of cases. This mapping
 is then inverted, normalized, and converted to a directed graph:
 
+{% highlight python %}
     def build_graph(image):
       for y in image.pixels.y:
         for x in image.pixels.x:
@@ -58,6 +59,7 @@ is then inverted, normalized, and converted to a directed graph:
       
     def edge_weight(a,b):
       e ^ abs(a - b) ^ 2 / -normalize
+{% endhighlight %}
 
 The edge weight is some form of binary distance function such that pixel differences
 above and below a constant threshold become 1 and 0 respectively. In terms of the cost
@@ -71,6 +73,7 @@ These are used to constrain the segmentation paths to a semi-regular lattice sha
 program then iterates through each band attaching the source and sink to each side of
 the guard band:
 
+{% highlight python %}
     def setup_guard_band(band):
       source, sink = (-1,-1), (-2,-2)
       graph.add_nodes(source, sink)
@@ -82,6 +85,7 @@ the guard band:
     def cleanup_guard_band(band):
       source, sink = (-1,-1), (-2,-2)
       graph.remove_nodes(source, sink)
+{% endhighlight %}
 
 The program then solves for the maximum flow between the source and sink nodes and
 then uses the duality between maximum flow and minimum cut to solve for the cheapest
@@ -90,6 +94,7 @@ the weights of those nodes to prevent paths that would cross and destroy the lat
 Also, to prevent paths from being to close to each other, a band around each path
 is given an increased weight:
 
+{% highlight python %}
     def update_path_weight(path):
       for node in path:
         graph.update_weight(node, path_weight)
@@ -98,6 +103,7 @@ is given an increased weight:
       for node in path:
         for neighbor in graph.neighbors(node):
           graph.update_weight(neighbor, band_weight)
+{% endhighlight %}
 
 This has the added benefit that perpendicular paths will not double back on themselves
 as it is simply too expensive to cross an existing path twice (although it is forced

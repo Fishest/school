@@ -57,7 +57,8 @@ What follows is a pseudo-code description of the various algorithms I used to
 generate the random dot autostereograms to complete the first part of the
 assignment:
 
-    create_random_dot(image)
+{% highlight python %}
+    def create_random_dot(image):
       result = create_new_image(image.size)
 
       foreach h:0 to image.height:
@@ -69,25 +70,28 @@ assignment:
             wl = get the mapped width point for this point
             result(w,h) = result(wl, h)
       return result
-    end
+{% endhighlight %}
 
 Next, in order to implement moving autostereograms, I took a simply shortcut.
 Since *movement* was not well defined in the problem description, I decided
 to simply rotate the image **(1)**:
 
+{% highlight python %}
     images = []
     depthmap = Image.open("images/some-depthmap.jpg")
     for every 10 degrees in 360:
       map = depthmap.rotate(degrees)
       images.add(create_random_dot(map)
     save_images_as_animated_gif(images)
+{% endhighlight %}
 
 Finally, in order to use a texture to hide the depth information instead
 of using random dots, I simply reused the existing lookup map creation
 and then instead of using random colors to fill points, I just used
 the specified texture pixels **(2)**.
 
-    create_textured(image, texture)
+{% highlight python %}
+    def create_textured(image, texture):
       result = create_new_image(image.size)
       texture = validate_texture(texture)
 
@@ -101,23 +105,22 @@ the specified texture pixels **(2)**.
             wl = get the mapped width point for this point
             result(w,h) = result(wl, h)
       return result
-    end
+{% endhighlight %}
 
 The following utility functions were used in creating all the autostereograms:
 
-    get_random_color()
+{% highlight python %}
+    def get_random_color():
       r = random_integer_generator
       return (r(255), r(255), r(255))
-    end
 
-    get_displacement(color)
+    def get_displacement(color):
       depth = using predetermined values, convert color value
               to a depth value for the given monitor.
       # compute the separation for the depth using similar triangles
       return (eye-separation * depth) / (depth + distance to viewer)
-    end
 
-    create_row_lookup(row)
+    def create_row_lookup(row):
       result = initialize with range from 0 to row width
       foreach w:0 to row.width:
         d = get_displacement(row[w])
@@ -125,14 +128,13 @@ The following utility functions were used in creating all the autostereograms:
         if left and right are both in the image range:
           result[right] = left
       return result
-    end
 
-    validate_texture(texture)
+    def validate_texture(texture):
       if texture.width is less than the max separation:
         resize the texture to be at least that and do so in a scaled
         manner (so height is increased in proportion to the width)
       return texture
-    end
+{% endhighlight %}
 
 
 General User Interface
@@ -201,31 +203,37 @@ Code Used To Generate The Previous Images
 
 *The following is an example of creating a simple random dot stereogram*
 
+{% highlight python %}
     from stereogram import SIRD
     
     sird  = SIRD("images/some-depth-map.jpg")
     image = sird.create_random_dot()
     image.show()
+{% endhighlight %}
 
 *In order to create a textured stereogram, the user simply needs to supply
 the texture to use to hide the depth-map*
 
+{% highlight python %}
     from stereogram import SIRD
     
     sird  = SIRD("images/some-depth-map.jpg")
     image = sird.create_texture("images/some-texture.jpg")
     image.show()
+{% endhighlight %}
 
 *In order to create an animated SIRD, the user first had to create
 an image generator which they would then pass to the animated gif helper
 library:*
 
+{% highlight python %}
     from stereogram import SIRD
     import lib
     
     sird  = SIRD("images/some-depth-map.jpg")
     images = sird.create_animated_random_dot()
     lib.CreateAnimatedGif("output.gif", images)
+{% endhighlight %}
 
 Complete Source Code
 ------------------------------------------------------------

@@ -113,6 +113,12 @@ paths successfully found in the specified image.
 Experimental Results
 ------------------------------------------------------------
 
+What follows is a collection of the result sets from running my program. As
+the runtime was quite slow, most of the images are segmented to 3x3 superpixels.
+The first image in each set is the input grayscale image, followed by the input
+boundary cost map, and finally the segmented output of running the cost map
+through my program.
+
 ** Example 1 **
 
 <img width="320" src="http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/BSDS300/html/images/plain/normal/gray/42049.jpg" />

@@ -12,7 +12,7 @@ title: Project 4 - Final Project Result
 Introduction
 ------------------------------------------------------------
 
-For the final project [assignment][] I was tasked with reimplementing the algorithm
+For the final project [assignment][] I was tasked with re-implementing the algorithm
 discussed in the [superpixel][] paper. In this paper the authors propose a novel system
 for segmenting an image given only a feature map of the image. Their implementation
 differs from traditional image segmentation techniques in that they attempt to preserve
@@ -52,14 +52,11 @@ are listed below:
    *This is an in depth overview of most of the maximum-flow algorithms approaches as well
    as a comparison to their performance and trade-offs.*
 
-*  TODO More efficient s.t. min cuts implementations
-*  Any other papers?
-
 Technical Description
 ------------------------------------------------------------
 
-Before starting the segmentation algorithm, the user is expected to supply a **boundary
-cost map** that contains meaningful boundaries between neighboring pixels. The authors
+Before starting the segmentation algorithm, the user is expected to supply a *boundary
+cost map* that contains meaningful boundaries between neighboring pixels. The authors
 state that an edge detection output will suffice for the majority of cases. This mapping
 is then inverted, normalized, and converted to a directed graph where each pixel is
 represented by a node in the graph. To facilitate the s.t. min-cuts algorithm, I only
@@ -137,9 +134,9 @@ direction from crossing and destroying the lattice:
 
 It should be noted that the algorithm takes turns between finding a vertical and horizontal
 path to hopefully add additional constraints to the winding of the paths. Furthermore, to
-prevent paths from being to close to each other (and producing useless superpixels), a band
+prevent paths from being too close to each other (and producing useless superpixels), a band
 around the discovered path is given additional weight. The size of the band is based on a
-tuneable input parameter:
+tunable input parameter:
 
 {% highlight python %}
     def update_band_weight(path):
@@ -248,7 +245,7 @@ to my program:
     * Use a graph wrapper around a sparse array of edges for O(1) access time
     * Break the graph into pieces to be solved one at a time
     
-*   Implement the algorithm in c++ with BGL, or at least the main portions and
+*   Implement the algorithm in C++ with BGL, or at least the main portions and
     call down from a higher level language.
 
 External Links
@@ -281,15 +278,15 @@ External Links
     The following represents a few intermediary representations of the program process
     that were recorded in debug sessions that may assist in understanding the workflow:
 
-    *  The *.dot files are the graphviz serialization format of the image graph
-    *  The *.dot.png are the processed graphviz files to produce examples of the graph
+    *  The *dot* files are the graphviz serialization format of the image graph
+    *  The *dot.png* files are the processed graphviz files to produce examples of the graph
        minimum cut at various bands.
-    *  The max-flow-image.bmp is the example processed image that the previous two
+    *  The *max-flow-image.bmp* file is the example processed image that the previous two
        formats were generated from.
-    *  The *.xml files are the serialized output paths that were generated from the program
+    *  The *xml* files are the serialized output paths that were generated from the program
        for the specified images. They were processed to create the path overlays on the final
        result images.
-    *  The *.log files are the processing logs that show about how long each step in the process
+    *  The *log* files are the processing logs that show about how long each step in the process
        took for my implementation.
   
   [stoer-wagner]: http://www.cs.dartmouth.edu/~ac/Teach/CS105-Winter05/Handouts/stoerwagner-mincut.pdf "Stoer Wagner"

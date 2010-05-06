@@ -55,10 +55,10 @@ are listed below:
 Technical Description
 ------------------------------------------------------------
 
-Before starting the segmentation algorithm, the user is expected to supply a *boundary
+Before starting the segmentation algorithm, the user was expected to supply a *boundary
 cost map* that contains meaningful boundaries between neighboring pixels. The authors
 state that an edge detection output will suffice for the majority of cases. This mapping
-is then inverted, normalized, and converted to a directed graph where each pixel is
+is then inverted, normalized, and converted to a directed graph where each pixel was
 represented by a node in the graph. To facilitate the s.t. min-cuts algorithm, I only
 supplied edges to nodes below and to the right (which followed the direction from source
 to sink).
@@ -77,7 +77,7 @@ training edge maps from the [bsdb][] database that matched the input the author'
 
 The edge weight function could be any form of binary distance function such that
 differences between neighboring pixels above and below a constant threshold become 1
-and 0 respectively. Relating this to the cost map, 0 indicates that there is strong
+and 0 respectively. Relating this to the cost map, 0 indicates that there was strong
 evidence for a natural boundary while 1 indicates no such evidence.
 
 {% highlight python %}
@@ -135,7 +135,7 @@ direction from crossing and destroying the lattice:
 It should be noted that the algorithm takes turns between finding a vertical and horizontal
 path to hopefully add additional constraints to the winding of the paths. Furthermore, to
 prevent paths from being too close to each other (and producing useless superpixels), a band
-around the discovered path is given additional weight. The size of the band is based on a
+around the discovered path was given additional weight. The size of the band was based on a
 tunable input parameter:
 
 {% highlight python %}
@@ -146,7 +146,7 @@ tunable input parameter:
 {% endhighlight %}
 
 This has the added benefit that perpendicular paths will not double back on themselves
-as it is simply too expensive to cross an existing path twice (although it is forced
+as it was simply too expensive to cross an existing path twice (although it was forced
 to cross at least once). The program terminates by returning a list of the segmentation
 paths successfully found in the specified image which can then be used to generate any
 number of overlays on the final result image.
@@ -155,7 +155,7 @@ Experimental Results
 ------------------------------------------------------------
 
 What follows is a collection of the result sets from running my program.
-The first image in each set is the input gray-scale image, followed by the input
+The first image in each set was the input gray-scale image, followed by the input
 boundary cost map, and finally the segmented output of running the cost map
 through my program and post-processing the resulting path output:
 
@@ -197,13 +197,13 @@ into 9x9 superpixels:
 Discussion of Results
 ------------------------------------------------------------
 
-Although the implementation was fairly trivial (in description and implementation),
-the major crux of the problem was implementing, providing scaffolding around, and
-constraining the maximum flow algorithm. Even when using a packaged implementation
-I still had a number of problems, the most of which was actually retrieving the
-correct path out of the maximum flow result set.
+Although the overall algorithm was fairly trivial (in description and implementation),
+the major work was in providing the scaffolding around working with an image in
+graph format and implementing the s.t. min-cuts algorithm. Even when using a
+a third-party max-flow algorithm, I was still faced with the task of finding the
+correct minimum path from the residual edge result set.
 
-The major problem with my implementation was the speed of processing. This is due
+The major problem with my implementation was the speed of processing. This was due
 to the fact that I am working in a managed environment, constantly modifying the
 graph, and dealing with a graph library that may or may not be the most efficient
 for the number of nodes and edges I am dealing with (~40k nodes and ~100k edges).
@@ -281,7 +281,7 @@ External Links
     *  The *dot* files are the graphviz serialization format of the image graph
     *  The *dot.png* files are the processed graphviz files to produce examples of the graph
        minimum cut at various bands.
-    *  The *max-flow-image.bmp* file is the example processed image that the previous two
+    *  The *max-flow-image.bmp* file was the example processed image that the previous two
        formats were generated from.
     *  The *xml* files are the serialized output paths that were generated from the program
        for the specified images. They were processed to create the path overlays on the final

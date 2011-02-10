@@ -1,0 +1,12 @@
+abstract loader trait
+- file loader (local, remote)
+- jdbc loader
+- web service
+- redis/memcached
+
+convertors
+- json
+- xml
+- yaml
+- csv/excel
+- serialized java

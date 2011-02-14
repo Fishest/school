@@ -9,8 +9,13 @@ import java.io.Serializable
  * @param confidence The confidence of this item
  * @param support The support of this item
  */
-class Item(var value:String, val frequencey:Int, val confidence:Double, val support:Double)
+class Item private (val value:String, val frequencey:Int, val confidence:Double, val support:Double)
     extends Serializable {
 
-    def this(value:String) = this(value, 1, 1, 1)
+}
+
+object Item {
+    def apply(value:String) = new Item(value, 1, 1, 0)
+    def apply(value:String, frequency:Int, confidence:Double, support:Double)
+        = new Item(value, frequency, confidence, support)
 }

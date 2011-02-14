@@ -1,12 +1,12 @@
-package org.school.association
+package org.school.sequential
 
 import java.io.Serializable
 import org.school.core.Item
 
 /**
- * Represents an association rule derived from the dataset
+ * Represents an sequential rule derived from the dataset
  */
-class AssociationRule(var premise:List[Item], var consequence : List[Item])
+class SequentialRule(var premise:List[Item], var consequence : List[Item])
     extends Serializable {
 
     var confidence : Double = _

@@ -2,24 +2,30 @@ package org.school.association
 
 import org.school.core.{Item, ItemSet}
 
-class Apriori(val database:List[Item]) {
+class Apriori(val database:List[Item], var minsup:Double, var minconf:Double) {
 
     def process() : List[AssociationRule] {
 
-        val frequent = generateFrequents1(database)
-        do
+        var frequents  = List[ItemSet]()
+        var candidates = generateCanidates(database)
+        while (candidates.nonEmpty) {
+
+            for 
+            frequents = frequents :+ candidates
+        }
+        frequents
     }
 
-    private def generateCandidate(rules:List[AssociationRule])
-        : List[AssociationRule] {
+    private def generateCandidates(items:List[Item])
+        : List[ItemSet] {
+        items.filter { _.support >= minsup }.map { ItemSet(_) }
     }
 
-    private def generateFrequents1(items:List[Item])
-        : List[AssociationRule] {
-        items.filter { _.support > support }
+    private def generateCandidates(items:List[ItemSet], count:Int)
+        : List[ItemSet] {
     }
 
-    private def generateFrequentsN(items:List[ItemSet], count:Int)
+    private def generateSubsets(items:List[ItemSet])
         : List[ItemSet] {
     }
 }

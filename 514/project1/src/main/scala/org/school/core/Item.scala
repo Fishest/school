@@ -12,6 +12,10 @@ import java.io.Serializable
 class Item private (val value:String, val frequencey:Int, val confidence:Double, val support:Double)
     extends Serializable {
 
+   override def equals(input:Any) =
+       input.isInstanceOf[Item] &&
+       input.asInstanceOf[Item].value == this.value
+
 }
 
 object Item {

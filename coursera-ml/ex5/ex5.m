@@ -164,7 +164,7 @@ pause;
 %  lambda to see how the fit and learning curve change.
 %
 
-lambda = 0;
+lambda = 1;
 [theta] = trainLinearReg(X_poly, y, lambda);
 
 % Plot training data and fit
@@ -218,3 +218,32 @@ end
 
 fprintf('Program paused. Press enter to continue.\n');
 pause;
+
+% ------------------------------------------------------------
+% Calculating the learning error for the optimal
+% lambda discovered above.
+% ------------------------------------------------------------
+fprintf('plotting learning curve for lambda\n');
+[min_lev, min_lam] = min(error_val);
+[error_train, error_val] = ...
+    learningCurve(X_poly, y, X_poly_val, yval, lambda_vec(min_lam));
+plot(1:m, error_train, 1:m, error_val);
+
+fprintf('Program paused. Press enter to continue.\n');
+pause;
+
+% ------------------------------------------------------------
+% Calculating the learning error with many randomized
+% feature selections
+% ------------------------------------------------------------
+m = size(X_poly, 1);
+lambda = 0.01;
+iterations = 50;
+[error_train, error_valid] = learningRandomCurve(X_poly, y, X_poly_val, yval, lambda, iterations)
+plot(1:m, error_train, 1:m, error_valid);
+title('Learning curve for linear regression')
+legend('Train', 'Cross Validation')
+xlabel('Number of training examples')
+ylabel('Error')
+axis([0 13 0 150])
+

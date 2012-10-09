@@ -33,7 +33,7 @@ How to use a factory to provide generic type inferrence::
 
 * equal objects must have equal hash codes
 * if object is immutable, hashed a lot, etc memoize the hashCode
-*
+
 ------------------------------------------------------------
 10. Always override toString (64)
 ------------------------------------------------------------
@@ -86,7 +86,7 @@ power out of the java platform libraries::
 
 Since they cannot be changed, they are thread safe. You can
 create static final versions of commonly used values and you
-can also create a factory to cache and share instances.
+can also create a factory to cache and share instances:
 
 * don't provide any mutators
 * mark the class as final to prevent extension
@@ -129,6 +129,7 @@ can also create a factory to cache and share instances.
 ------------------------------------------------------------
 
 * don't write constant interfaces
+
   - instead use a static utility class
   - can import from that like `import static come.Something.ClassName.*;`
 
@@ -272,11 +273,18 @@ Here is how it is defined::
 
 ------------------------------------------------------------
 44. Write doc comments for all exposed api methods
+------------------------------------------------------------
+
+------------------------------------------------------------
 45. Minimize the scope of local variables
+------------------------------------------------------------
+
+------------------------------------------------------------
 46. Prefer for each loops to traditional for loops
 ------------------------------------------------------------
 
 The old way::
+
     for (Iterator i = c.iterator(); i.hasNext(); )
         doSomething((Element) i.next()); // (No generics before 1.5)
 
@@ -288,13 +296,17 @@ The new way::
     for (Element e : elements)
         doSomething(e);
 
-* cases where you have to revert to the old way
+Cases where you have to revert to the old way:
+
   1. filtering (need iterator.remove)
   2. transforming (so you can set that value)
   3. parallel iteration (two iterators at once)
 
 ------------------------------------------------------------
 47. Know and use the libraries
+------------------------------------------------------------
+
+------------------------------------------------------------
 48. Avoid float and double if you need exact answers
 ------------------------------------------------------------
 
@@ -306,7 +318,9 @@ The new way::
 ------------------------------------------------------------
 
 * == on boxed primitives does not unbox and will compare instance
+
   - unbox manually with local variables to be sure.
+
 * must use the boxed primitives for elements, values, and keys in
   collections.
 * unboxing can throw a null pointer exception if the reference is
@@ -314,6 +328,9 @@ The new way::
 
 ------------------------------------------------------------
 50. Avoid strings where other types are appropriate
+------------------------------------------------------------
+
+------------------------------------------------------------
 51. Beware string concatenation performance
 ------------------------------------------------------------
 
@@ -321,5 +338,8 @@ The new way::
 
 ------------------------------------------------------------
 52. Refer to objects by their interfaces
+------------------------------------------------------------
+
+------------------------------------------------------------
 53. Prefer interfaces to reflection
 ------------------------------------------------------------

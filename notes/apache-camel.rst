@@ -32,6 +32,7 @@ Messaging
 --------------------------------------------------------------------------------
 
 * org.apache.camel.Message - The fundamental data transfer entity
+
   - unique by protocol generate string or by default UID generator
   - camel attaches headers to message as needed for transport (String -> Object)
   - can also include attachments
@@ -39,7 +40,9 @@ Messaging
   - sender and receiver should understand how to interperet the content
   - a number of conversions happen automatically behind the scenes
   - a fault flag is also included
+
 * org.apache.camel.Exchange - The abstract camel message exhange with in and out
+
   - basically the container for messages during routing
   - has a unique exchange id
   - identifies the message exchange patterns in use (InOnly, InOut)
@@ -53,16 +56,22 @@ CamelContext
 
 * The runtime container of camel
 * Contains the components currently in use
+
   - can load on the fly, auto-discover, etc
   - these are the basic extension points of camel
+
 * Contains the endpoints that have been created
+
   - these are the end of the message channel abstraction for camel
   - area neutral interface allowing systems to integrate
   - endpoints are specified by the uri dsl element
+
 * Contains the routes that have been added
+
   - each route is unique and has a single input for messages
   - logging, debugging, monitoring, starting, stopping
   - route can be thought of as a graph of Processor nodes
+
 * Contains the loaded type convertors
 * Contains the loaded data formats
 * Contains a registry to look up java beans (spring, osgi, jndi)
@@ -85,16 +94,22 @@ The endpoint URI is disected as follows::
     Producers, and Consumers.
 
 * The Producer is an entity cabable of creating and sending a message to the endpoint
+
   - when a message needs to be sent, creates an exchange
   - populates the exchange with compatible data from the supplied endpoint
+
     * a FileProducer will write the message to a file
     * a JmsProducer will map the message to a javax.jms.Message
+
   - sends the message along to be processed
+
 * The Consumer is an entity cabable of receiving a message from the endpoint
+
   - when a message is received, wraps it in an exchange
   - populates the exchange with compatible data from the supplied endpoint
   - sends the message along to be processed
   - There are event driven and polling consumers (async and sync)
+
     * tcp/ip , jms queue are event driven consumers
     * file, ftp, and email are polling consumers
 
@@ -103,21 +118,22 @@ The endpoint URI is disected as follows::
 Routing with Camel
 ================================================================================
 
-* A message router consumes messages from an input channel and depending on
-  a set of conditions is sent to one or more output queues.  The conditions
-  and processing steps between them are decoupled.
-
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
+* A message router consumes messages from an input channel
+* Depending on a set of conditions is sent to one or more output queues
+* The conditions and processing steps between them are decoupled.
 
 ================================================================================
 Transforming Data with Camel
 ================================================================================
 
 * Data format transformation - the data format of the message is converted
+
   - csv record converted to xml
+
 * Data type transformation - The data type of the message body is transformed
+
   - java.lang.String is transformed to a javax.jms.TextMessage
+
 * This all occurs in the following typical six ways:
 
   - Data transformation in routes (Content Enricher EIPs)
@@ -134,16 +150,23 @@ Message Translator EIP (adapter pattern)
 Can perform this using a Processor, beans, or <transform>
 
 * xslt -> chain.to("xslt://transform.xslt").to("jms:nextHop");
+
   - this searches in the classpath for the xslt file
   - can overload by specifying the prefix (file, http, etc)
+
 * can marshall xml
+
   - chain.marshal().xstream().to("jms:nextHop");
   - chain.unmarshal().xstream().to("jms:nextHop");
+
 * can also use the jaxb system
+
   - chain.marshal().jaxb().to("jms:nextHop");
   - chain.unmarshal().jaxb().to("jms:nextHop");
   - need to add a special file jaxb.index containing classes (one per line)
+
 * Can add and use other data formats by implementing DataFormat (marshal, unmarshal)
+
   - crypto, csv, flatpack, gzip, jaxb, json, protobuf, soap
   - bindy maps csv to models (also FIX)
     
@@ -179,17 +202,21 @@ Camel with Beans
 
 * Functions by using the Service Activator EIP (pg 98)
 * The bean registry is pluggable (Spring is one such framework)
+
   - ApplicationContextRegistry (spring)
   - SimpleRegistry (used during unit testing or limited environments GAE)
   - JndiRegistry (can configure with spring)
   - OsgiServiceRegistry (can use with Spring Dynamic Modules)
+
 * The camel registry is simple an adapter between the requester and the registry
+
   - A Service Provider Interface (SPI) at org.apache.camel.spi.Registry
 
 * To select which method on the bean to call, camel goes through a semi-compilcated
   lookup algorithm with a number of rules. Long story short, either specify the
   bean method name, or decorate the bean method with a @Handler attribute.
 * To select the parameters to bind to:
+
   - The camel core types will be automatically bound
   - Exchange, Message, CamelContext, TypeConverter, Registry, and Exception
   - The first method is bound to the message body
@@ -197,7 +224,9 @@ Camel with Beans
   - @Body, @Header(name), @Property(name), @Properties, @Attachments
   - @Headers <for request InOnly>, @OutHeaders <for request response InOut>
   - The @OutHeaders Map is empty on the method invocation (save needed headers)
+
 * Can also use language annotations (@XPath to @Groovy)
+
   - These can be used to specify how input parameters are created
 
 ================================================================================
@@ -207,8 +236,10 @@ Handling Exceptions in Camel (pg 120)
 * based on if the error is recoverable, camel willl retry, propagate the error to
   the client, fail immediately, or something else.
 * recoverable errors are Throwable or Exception and are accessed from the Exchange
+
   - void setException(Throwable cause);
   - Exception getExceptoin();
+
 * irrecoverable errors set the message as faulted::
 
     Message message = Exchange.getOut();
@@ -216,18 +247,24 @@ Handling Exceptions in Camel (pg 120)
     message.setBody("Invalid customer id");
 
 * Error handling really only occurs in the exhange portion (not the transports)
+
   - some transports handle there errors in a number of different ways
   - PollingConsumerPollStrategy has a tempalte for handling errors in transport
+
 * Camel supplies a number of error handler strategies (The first three extend
   RedeliveryErrorHandler, the last two don't):
+
   - DefaultErrorHandler - automatically enabled error handler
   - DeadLetterChanel - Implements the dead letter channel EIP
   - TransactionErrorHandler - transaction aware error handler
   - NoErrorHandler - disables error handling
   - LoggingErrorHandler - sents the errors to the logging handler
+
 * Error handling is performed in the channel that is between each route component
+
   - error handling, message tracing, interceptors, etc are implemented here
   - by default, errors are not redelivered and exceptions are proagated back to callee
+
 * The dead letter queue can route error messages to any endpoint::
 
     errorHandler(deadLetterChannel("log:dead?level=ERROR"));
@@ -237,11 +274,13 @@ Handling Exceptions in Camel (pg 120)
     Exception ex = exchange.getProperty(Exchange.CAUSED_EXCEPTION, Exception.class);
 
 * Error Handler features
+
   - Redelivery Policies - a number of options to control how to retry
   - can redeliver sync (on same thread) or async (on another thread)
   - Scope
   - Exception Policies
   - Error Handling
+
 * To handle faults, you have to explicitly enable them `chain.handleFault()`
 * To handle specific exceptions use `onException` (it walks the chain from
   bottom to top to find the best candidate for processing)::
@@ -295,6 +334,7 @@ Handling Exceptions in Camel (pg 120)
     }
 
 * Other error handling utilities:
+
   - onWhen - a bean to check a precondition before handling
   - onRedeliver - a processor to operate with before redelivery
   - retryWhile - build customized retry logic for messages
@@ -304,6 +344,7 @@ Testing with Camel
 ================================================================================
 
 * The following are a number of helper test classes:
+
   - org.apache.camel.test.TestSupport - junit 3 abstraction
   - org.apache.camel.test.CamelTestSupport - junit 3 abstraction
   - org.apache.camel.test.CamelSpringTestSupport - junit 3 abstraction

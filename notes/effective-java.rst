@@ -343,3 +343,535 @@ Cases where you have to revert to the old way:
 ------------------------------------------------------------
 53. Prefer interfaces to reflection
 ------------------------------------------------------------
+
+------------------------------------------------------------
+2. Use a builder for lots of parameters
+------------------------------------------------------------
+
+* better than telescoping constructors
+* can make defaults, and immutable final
+
+example::
+
+    public class Something {
+      private final int example;
+
+      public static class Builder {
+        private int example;
+
+        public Builder() {}
+        public Builder example(int val) {
+          example = val; return this;
+        }
+        public Something build() {
+          return new Something(this);
+        }
+      }
+
+      private Something(Builder builder) {
+        example = builder.example;
+      }
+    }
+
+    Something handle = Something.Builder()
+      .example(22).build();
+
+------------------------------------------------------------
+3. Singletons a la Java
+------------------------------------------------------------
+
+The classical version::
+
+    public class Example {
+      public static final Example Instance = new Example();
+      private Example() {}
+      private Object readResolve() {
+        return Instance;
+      }
+
+      public void someMethod() { }
+    }
+   }
+
+A new interesting version in 1.5::
+
+    public enum Example {
+      Instance;
+
+      public void someMethod() { }
+    }
+
+------------------------------------------------------------
+4. Force a class to be noninstantiable
+------------------------------------------------------------
+
+In case you don't want the class to be an instance and also
+prevent the class from being subclassed::
+
+    public class Example {
+      private Example() { }
+    }
+
+------------------------------------------------------------
+5. Don't create extra instances
+------------------------------------------------------------
+
+Immutable objects can always be reused (say factory methods
+that return the same intances). Mutable objects can as well
+if we know they won't be modified. You can do things once
+like this::
+
+    public class Example {
+      private final Date birthday;
+      private static final Date start;
+      private static final Date end;
+
+      static {
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        cal.set(1946, Calendar.JANUARY, 1, 0, 0, 0);
+        _start = cal.getTime();
+        cal.set(1964, Calendar.JANUARY, 1, 0, 0, 0);
+        _end = cal.getTime();
+      }
+
+      public boolean isInRange() {
+        return birthday.compare(start) >= 0 &&
+               birthday.compare(end)   <  0;
+      }
+    }
+
+------------------------------------------------------------
+6. Don't hold on to unused references
+------------------------------------------------------------
+
+You can help by assigning them to null so they can be
+garbage collected. Do this only when you need to though, as
+otherwise you are wasting your time. The best way to manage
+references is to give them the smallest scope needed and let
+them fall out and be collected. In short, if your code is
+managing its own memory, help the GC out.
+
+* WeakHashMap for caches
+* Register events and callbacks wrapped in WeakReference
+
+------------------------------------------------------------
+7. Avoid Finalizers
+------------------------------------------------------------
+
+Instead, just make sure you provide a cleanup method for the
+instance in question and have it run in a finally block.
+
+Here is a way to guarantee a subclassed finalizer is called::
+
+    // ideally you should do this
+    public class SubFoo : Foo {
+      @Override protected void finalize throws Throwable {
+        try {
+          ... cleanup here
+       } finally {
+         super.finalze();
+       }
+      }
+      ...
+    }
+
+    // however this forces the cleanup with a finalizer guard
+    public class Foo {
+      // Sole purpose of this object is to finalize outer Foo object
+      private final Object finalizerGuardian = new Object() {
+        @Override protected void finalize() throws Throwable {
+        ... // Finalize outer Foo object
+        }
+      };
+    }
+
+------------------------------------------------------------
+23. Don't use raw types in new code
+------------------------------------------------------------
+
+How to iterate through java collections::
+
+    for (Item it : collection) {
+        ... do something
+    }
+
+    for (Iterator<Item> t = collection.iterator(); t.hasNext();) {
+         Item it = i.next();
+         ... do something
+    }
+
+* unbounded wildcard lets you ignore generic type `List<?>`
+
+------------------------------------------------------------
+25. Prefer lists to arrays
+------------------------------------------------------------
+
+* arrays are covariant, lists are invariant
+* arrays are reified (runtime type check), lists use type
+  erasure (compile time check)
+* arrays and generics don't mix
+
+------------------------------------------------------------
+28. Use bounded wildcards to increase flexability
+------------------------------------------------------------
+
+* generics are invariant (List<String> != List<Object>)
+* note, every type is a subtype of itself...
+* do not use wildcard types for returns
+* we can force this using ?::
+
+    public class Stack<E> {
+        public void pushAll(Iterable<? extends E> source) {
+            for (E el : source) {   // producer extends
+                push(el);
+            }
+        }
+
+        public void popAll(Collection<? super E> destination) {
+            while (!isEmpty()) {    // consumer super
+                destination.add(pop());
+            }
+        }
+        ...
+    }
+
+    // to force the type instead of type inferrence
+    Set<Number> numbers = Union.<Number>union(integers, doubles);
+
+* use this with producer/consumer code
+* if a type parameter appears only once in a method declaration,
+  replace it with a wildcard
+
+* <? extends T> - has to be a subtype of some type (upper bound)
+* <? super T> - has to be an ancestor of some type (lower bound)
+* <?> (<? extends Object>) - can be any type
+
+------------------------------------------------------------
+29. Use typesafe heterogeneous containers
+------------------------------------------------------------
+
+Example::
+
+    public class Favorite {
+        private Map<Class<?>, Object> favorites = new HashMap<Class<?>, Object>();
+
+        public <T> void put(Class<T> type, T instance) {
+            if (type == null)
+                throw new NullPointerException("arg can't be null");
+            favorites.put(type, type.cast(instance)); // forces type safety
+        }
+
+        public <T> T get(Class<T> type) {
+            return type.cast(favorites.get(type));
+        }
+    }
+
+ * this trick is used by the checkedX collections (useful for
+   mixing legacy and new code)
+ * can't be used with non-reifiable types (super type tokens?)
+
+------------------------------------------------------------
+30. Use enums instead of int constants
+------------------------------------------------------------
+
+* constants are substituted at compile time (libraries need to recompile
+  if a change occurs). Not type safe.
+* enum is a singleton that exposes a public final field for each enum
+  entry. They are classes that cannot be extended.
+* they impelemnt all object methods correctly, serializable, comparable
+* can contain methods!
+* can enumerate all entries with `Planet.values()`
+
+You can provide a constructor for each element in the enum, make fields
+final though as this is a singleton::
+
+     public enum Planet {
+         MERCURY(3.302e+23, 2.439e6),
+         VENUS (4.869e+24, 6.052e6),
+         EARTH (5.975e+24, 6.378e6),
+         MARS (6.419e+23, 3.393e6),
+         JUPITER(1.899e+27, 7.149e7),
+         SATURN (5.685e+26, 6.027e7),
+         URANUS (8.683e+25, 2.556e7),
+         NEPTUNE(1.024e+26, 2.477e7);
+
+         private final double mass; // In kilograms
+         private final double radius; // In meters
+         private final double surfaceGravity; // In m / s^2
+         // Universal gravitational constant in m^3 / kg s^2
+         private static final double G = 6.67300E-11;
+
+         // Constructor
+         Planet(double mass, double radius) {
+             this.mass = mass;
+             this.radius = radius;
+             surfaceGravity = G * mass / (radius * radius);
+         }
+
+         public double mass() { return mass; }
+         public double radius() { return radius; }
+         public double surfaceGravity() { return surfaceGravity; }
+         public double surfaceWeight(double mass) {
+             return mass * surfaceGravity; // F = ma
+         }
+     }
+
+ Can define behavior for each element by using an abstract method
+ (constant specific method implementations)::
+
+    public enum Operation {
+        PLUS { double apply(double x, double y){return x + y;} },
+        MINUS { double apply(double x, double y){return x - y;} },
+        TIMES { double apply(double x, double y){return x * y;} },
+        DIVIDE { double apply(double x, double y){return x / y;} };
+
+        abstract double apply(double x, double y);
+    }
+
+* if you override the toString, consider writing a fromString to
+  convert it back (say with a static final HashMap for speed).
+* for semi common implementations, can implememnt an inner
+  private class (possibly with private enum) to select behavior
+  as opposed to defaulting to a concrete method or using a
+  switch on the current value type.
+
+------------------------------------------------------------
+31. Use a backing field instead of the enum ordinal value
+------------------------------------------------------------
+
+------------------------------------------------------------
+32. Use EnumSet instead of bit fields
+------------------------------------------------------------
+
+* if you have less than 64 elements, the storage is a single
+  long value.
+
+Example of usage::
+
+    public class Text {
+        public enum Style { BOLD, ITALIC, UNDERLINE }
+        public void applyStyles(Set<Style> styles);
+    }
+    ...
+    text.applyStyles(EnumSet.of(Style.BOLD, style.UNDERLINE));
+
+------------------------------------------------------------
+33. Use EnumMap instead of ordinal ordering
+------------------------------------------------------------
+
+------------------------------------------------------------
+34. Emulate extensible enums with interface
+------------------------------------------------------------
+
+This can be used to allow for clients to specify their own
+opcode mappings for a framework::
+
+    public interface Operation {
+         double apply(double x, double y);
+    }
+
+    public enum BasicOperation implements Operation {
+    ...
+    }
+
+    // can do logical generic constraint operations
+    private static <T extends Enum<T> & Operation> void test(
+        Class<T> opSet, double x, double y)
+    {
+        // can get all the enumerations of a class type
+        for (Operation op : opSet.getEnumConstants())
+            System.out.printf("%f %s %f = %f%n", x, op, y, op.apply(x, y));
+    }
+
+------------------------------------------------------------
+35. Prefer annotations to naming patterns
+------------------------------------------------------------
+
+Example annotation with meta-annotations::
+
+    // Marker annotation type declaration
+    import java.lang.annotation.*;
+
+    /**
+    * Indicates that the annotated method is a test method.
+    * Use only on parameterless static methods.
+    */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.METHOD)
+    public @interface Test { }
+
+------------------------------------------------------------
+53. Prefer interfaces to reflection
+------------------------------------------------------------
+
+* don't use reflection in normal operation
+* if you have a parameterless constructor, you can use
+  Classname.newInstance to get an instance.
+
+------------------------------------------------------------
+54. Use native methods judiciously
+55. Optimize judiciously
+56. Adhere to naming conventions
+57. Use exceptions for exceptional cases
+58. Use the correct exception for the job
+------------------------------------------------------------
+
+* three types of exceptions: checked exceptions,
+  runtime exceptions, and errors.
+* use checked excepetions for cases where the client can recover
+* use runtime exceptions to indicate programming errors
+  - make these subclass RuntimeException directly or indirectly
+
+------------------------------------------------------------
+59. Avoid unnecessary checked exceptions
+60. Favor the use of standard exceptions
+61. Throw exceptions appropriate to the abstraction
+------------------------------------------------------------
+
+* higher level code should catch and translate lower level
+  exceptions.
+* can then get inner exception with getCause (make the
+  constructor take the throwable to wrap and base to base)
+
+------------------------------------------------------------
+62. Document all exceptions thrown by code
+------------------------------------------------------------
+
+* with javadoc @throws and the throws clause
+  - use javadoc for checked and unchecked
+  - use throws clause for checked
+
+------------------------------------------------------------
+63. Include relevant data in exception
+------------------------------------------------------------
+
+* including parameters that caused the exception
+
+------------------------------------------------------------
+64. Strive for failure atomicity
+65. Don't ignore exceptions 
+------------------------------------------------------------
+
+* if an instance throws, it should revert back to the state
+  it was in before it threw.
+
+------------------------------------------------------------
+66. Synchronize access to shared mutable data
+------------------------------------------------------------
+
+* ensures that changes in one thread are viewed from another
+  thread and that the thread doesn't read in an inconsistent
+  state.
+* reading a writing a variable is atomic unless it is of
+  type long or doulbe.
+* even though these operations are atomic, the volatile state
+  may not be observed without the synchronize statement (the
+  value could be optimized away or hoisted)::
+
+    // using synchronized (slower)
+    private static boolean stopRunning;
+    private static synchronized void doStop() {
+        stopRunning = true;
+    }
+    private static synchronized bool isStopped() {
+        return stopRunning;
+    }
+
+    // using volatile
+    private static volatile boolean stopRunning;
+
+ * use the java.util.concurrent.atomic types if needed instead
+   of synchronized.
+ * do as little work as possible in a syncronized block
+
+------------------------------------------------------------
+68. Prefer executors to threads
+------------------------------------------------------------
+
+Here is an example::
+
+    ExecutorService executor = Executors.newFixedThreadPool();
+    ExecutorService executor = Executors.newCachedThreadPool();
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    executor.execute(runnable);
+    executor.shutdown();
+
+* two types of tasks:
+  1. Runnable(does not return a value)
+  2. Callable(returns a value).
+
+* can use ScheduledThreadPoolExecutor instead of Timer
+
+------------------------------------------------------------
+69. Prefer concurrency utilities to wait and notify
+------------------------------------------------------------
+
+* use executor framework, concurrent collections, and
+  synchronizers::
+
+    public static long time(Executor executor, int concurrency,
+        final Runnable action) throws InterruptedException {
+        final CountDownLatch ready = new CountDownLatch(concurrency);
+        final CountDownLatch start = new CountDownLatch(1);
+        final CountDownLatch done  = new CountDownLatch(concurrency);
+        for (int i = 0; i < concurrency; i++) {
+            executor.execute(new Runnable() {
+                public void run() {
+                    ready.countDown(); // Tell timer we're ready
+                    try {
+                        start.await(); // Wait till peers are ready
+                        action.run();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    } finally {
+                        done.countDown(); // Tell timer we're done
+                    }
+                }
+            });
+        }
+        ready.await(); // Wait for all workers to be ready
+        long startNanos = System.nanoTime();
+        start.countDown(); // And they're off!
+        done.await(); // Wait for all workers to finish
+        return System.nanoTime() - startNanos;
+    }
+
+    // The standard idiom for using the wait method
+    synchronized (obj) {
+        while (<condition does not hold>)
+            obj.wait(); // (Releases lock, and reacquires on wakeup)
+        ... // Perform action appropriate to condition
+    }
+
+------------------------------------------------------------
+70. Always document thread safety
+71. Use lazy initialization judicuosly
+------------------------------------------------------------
+
+The following will not be initialized unless the class is
+initialized::
+
+    // Lazy initialization holder class idiom for static fields
+    private static class FieldHolder {
+        static final FieldType field = computeFieldValue();
+    }
+    static FieldType getField() { return FieldHolder.field; }
+
+* use the double check pattern for lazy initialization
+
+------------------------------------------------------------
+72. Don't use non-portable thread facilities
+------------------------------------------------------------
+
+* The following are not portable and are not guranteed to do
+  anything across JVM impelemntations:
+
+  - Thread.yield
+  - Thread.sleep(0)
+  - Thread priorities
+
+------------------------------------------------------------
+73. Don't use thread groups
+74. Implement serializeable judiciously
+------------------------------------------------------------

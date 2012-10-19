@@ -14,17 +14,18 @@ from two building blocks:
 
 Example::
 
-    trait List[T] {
+    trait List[+T] {
       def isEmpty: Boolean
       def head: T
       def tail: List[T]
+      def prepend [U >: T](elem: U): List[U] = new Cons(elem, this)
     }
 
     class Cons[T](val head: Int, val tail: List[T]) extends List[T] {
       def isEmpty: Boolean = false
     }
 
-    class Nil[T] extends List[T] {
+    object Nil extends List[Nothing] {
       def isEmpty: Boolean = true
       def head: Nothing = throw NoSuchElementException("Nil.head")
       def tail: Nothing = throw NoSuchElementException("Nil.tail")
@@ -143,6 +144,7 @@ When types are wrapped, we have to consider variance:
 
 * List[S] <: List[T] covariance
 * List[S] >: List[T] contravariance
+* otherwise is nonvariant
 
 Liskov says that if A <: B, then everything one can do with
 a type of B one should be able to do with a type of A (so
@@ -155,14 +157,109 @@ IEnumerable <: List):
 4.5 Variance
 ------------------------------------------------------------
 
-------------------------------------------------------------
-4.5 Decomposition
-------------------------------------------------------------
+Can specify the variance of types in scala:
+
+* class C[+A] is covariant
+* class C[-A] is contravariant
+* class C[A]  is nonvariant
+
+Mutable types should not be covariant, immutable can be::
+
+Functions are contravaiant in their agrument types and
+covariant in their result type. Invariant types can
+appear anywhere::
+
+    package scala;
+    trait Function[-T, +U] {
+      def apply(x: T): U
+    }
+  A2 <: A1 and B1 <: B2
+  A1 => B1  <: A2 => B2
+
 
 ------------------------------------------------------------
-4.5 Pattern Matching
+4.6 Decomposition
 ------------------------------------------------------------
 
-============================================================
-Chapter 5
-============================================================
+Expression example::
+
+    trait Expression {
+      def isNumber: Boolean
+      def isSum: Boolean
+      def numValue: Int
+      def leftOp: Expr
+      def rightOp: Expr
+    }
+
+    class Number(n: Int) extends Expr {
+      def isNumber: true
+      def isSum: false
+      def numValue: n
+      def leftOp: throw new Error()
+      def rightOp: throw new Error()
+    }
+
+    class Sum(e1: Expr, e2: Expr) extends Expr {
+      def isNumber: false
+      def isSum: true
+      def numValue: throw new Error()
+      def leftOp: e1
+      def rightOp: e2
+    }
+
+    def eval(e: Expr): Int = {
+      if (e.isNumber) e.numValue
+      else if (e.isSum) eval(e.leftOp) eval(e.rightOp)
+      else throw new Error()
+    }
+
+    val result = eval(new Sum(new Number(1), new Number(2)))
+
+How can we make eval lighter::
+
+    // java style test and cast
+    type.isInstanceOf[T]: Boolean
+    type.asInstanceOf[T]: T
+
+    // easier
+    trait Expression {
+      def eval: Int
+      def show: String
+    }
+
+    class Number(n: Int) extends Expr {
+      def eval: Int = n
+    }
+
+    class Sum(a: Expr, b: Expr) extends Expr {
+      def eval: Int = a.eval + b.eval
+    }
+
+------------------------------------------------------------
+4.7 Pattern Matching
+------------------------------------------------------------
+
+The sole purpose of test and access methods is to reverse
+the construction process. This is a common problem, so fp
+languages automate it with pattern matching.
+
+This is facilited with case classes, which are used like::
+
+    val nval = Number(1) // implicit companion factory
+    def eval(e: Expr): Int = e match { // expression problem
+      case Number(n) => n
+      case Sum(e1, e2) => eval(e1) + eval(e2)
+    }
+
+    def show(e: Expr): String = e match {
+      case Number(n) => n.toString
+      case Sum(e1, e2) => show(e1) + " + " + show(e2)
+    }
+
+Can pattern match on the following:
+
+* constructors: Number(n)
+* variables: a,b,c
+* wildcard: _
+* constants: (1, true, 'a')
+* combined: case Sum(Number(1), Number(n)) => n

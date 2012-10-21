@@ -245,15 +245,25 @@ languages automate it with pattern matching.
 
 This is facilited with case classes, which are used like::
 
+    trait Expression
+    case class Number(n: Int) extends Expression
+    case class Sum(a: Expression, b: Expression) extends Expression
+    case class Product(a: Expression, b: Expression) extends Expression
+    case class Variable(name: String, value: Int) extends Expression
+
     val nval = Number(1) // implicit companion factory
     def eval(e: Expr): Int = e match { // expression problem
       case Number(n) => n
       case Sum(e1, e2) => eval(e1) + eval(e2)
+      case Product(e1, e2) => eval(e1) * eval(e2)
+      case Variable(n, v) => v
     }
 
     def show(e: Expr): String = e match {
       case Number(n) => n.toString
       case Sum(e1, e2) => show(e1) + " + " + show(e2)
+      case Product(e1, e2) => show(e1) + " * " + show(e2)
+      case Variable(n, v) => n
     }
 
 Can pattern match on the following:

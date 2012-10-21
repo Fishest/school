@@ -40,8 +40,27 @@ Theta_grad = zeros(size(Theta));
 %                     partial derivatives w.r.t. to each element of Theta
 %
 
+SJ = (X * Theta' .- Y).^2 .* R;
+rt = (lambda/2) * sum(Theta(:).^2);
+rx = (lambda/2) * sum(X(:).^2);
+J = (1/2) * sum(SJ(:)) + rt + rx;
 
+for i = 1:size(R, 1)
+  rx = find(R(i, :) == 1);
+  yt = Y(i, rx);    %  1 x nu
+  tt = Theta(rx, :);% nu x nf
+  xt = X(i, :);     %  1 x nf
+  X_grad(i, :) = (xt * tt' .- yt) * tt + lambda.*xt;
+end
 
+for j = 1:size(R, 2)
+  rx = find(R(:, j) == 1);
+  yt = Y(rx, j);    % nm x 1
+  tt = Theta(j, :); %  1 x nf
+  xt = X(rx, :);    % nm x nf
+  Theta_grad(j, :) = (xt * tt' .- yt)' * xt + lambda.*tt;
+end
+  
 
 
 

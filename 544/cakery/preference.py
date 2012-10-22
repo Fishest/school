@@ -1,5 +1,3 @@
-'''
-'''
 
 class Preference(object):
     ''' Represents the preferences of a given user
@@ -14,45 +12,76 @@ class Preference(object):
     (or slightly less, but never more).
     '''
 
-    def __init__(self, user, values, resolution=100):
+    def __init__(self, user, values, resolution=100, tolerance=0.05):
         ''' Initialize a new preference class
 
         :param user: The name or id of the participant
         :param values: The preference values of the user
         :param resolution: The fixed point max resolution (default 100)
+        :param tolerance: The amount we are allowed to be off from unit value
         '''
         self.user = user
-        self.values = values
+        self.values = values or {}
         self.resolution = resolution
+        self.tolerance = int(resolution * tolerance)
 
-    def update(self, resources):
+    def update(self, resources, remove=False):
         ''' Given a list of resources, update the preferences
         by removing preferences for any non-existant resource,
         adding new resources with value of 0, and scaling the
-        current resources to be valid.
+        current resources to be valid (by calling normalize).
 
-        :param resources: The resources to update with
+        :param resources: Any resources to update with
+        :param remove: Set to True to remove values not in resources
 
         .. note::
 
            To keep this in fixed point, the total sum may be
            slightly less than 100, but never more.
         '''
-        current = dict((k, 0) for k in resources)
-        current.update(dict((k,v) for k,v in self.values.items() if k in resources))
-        total = sum(current.values())
+        updated = dict((k, 0) for k in resources)
+        for key, value in self.values.items():
+            if (key in resources) or (not remove):
+                updated[key] = value
+        self.values = updated
+        self.normalize()
+
+    def normalize(self):
+        ''' Noramlize the current preferences to match
+        the current resolution.
+
+        .. note::
+
+           To keep this in fixed point, the total sum may be
+           slightly less than 100, but never more.
+        '''
+        total = sum(self.values.values())
         if (total != self.resolution) and (total != 0):
+            fixed = {}
             scale = (float(self.resolution) - total) / total
-            for k,v in current.items():
-                current[k] = int(v * scale) + v
-        self.values = current # atomic assign
+            for k,v in self.values.items():
+                fixed[k] = int(v * scale) + v
+            self.values = fixed
 
     def is_valid(self):
         ''' A check to see if the user preferences are valid
 
         :returns: True if valid, false otherwise
         '''
-        return (sum(self.values.values()) == self.resolution)
+        total = sum(self.values.values())
+        return ((total <= self.resolution)
+            and (total + self.tolerance >= self.resolution))
+
+    def value_of(self, items):
+        ''' Given one or more items, return the total value
+        to this user.
+
+        :params items: The item(s) to get the value of
+        :returns: The total value of the items
+        '''
+        if not hasattr(items, '__iter__'):
+            return self.values.get(items, 0)
+        return sum(v for k,v in self.values.items() if k in items)
 
     def __str__(self):
         ''' Returns a string representation of the preference

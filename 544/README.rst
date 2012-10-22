@@ -24,4 +24,17 @@ Utilties
   - unit value of resouce
   - check if valid preferences
   - value_of_resource
-  - 
+
+------------------------------------------------------------
+Todo
+------------------------------------------------------------
+
+* abstract preference to work with:
+  - discrete set
+  - discrete list with count
+  - real resource
+
+* abstract resource into abc
+  - refactor preference with this
+  - discrete with count (5 open class slots)
+  - real (with fixed point resolution)

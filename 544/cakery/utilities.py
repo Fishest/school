@@ -49,3 +49,18 @@ def create_pieces(resources, pref, count=2, weight=None):
         resources = resources.difference(piece[1])
     pieces.append(resources) # the rest is a single slice
     return pieces
+
+def integrate(fx, xa, xb, ns):
+    ''' Approximates the integral of the supplied
+    function by using the trapezoidal rule.
+
+    :param fx: The function to integrate
+    :param xa: The starting point of the integral
+    :param xb: The ending point of the integral
+    :param ns: The number of subinterval steps to take
+    '''
+    h = (xb - xa) / ns
+    s = fx(xa) + fx(xb)
+    for i in xrange(1, ns):
+        s += 2 * fx(xa + i * h)
+    return s * h / 2

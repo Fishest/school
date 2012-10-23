@@ -2,6 +2,7 @@
 import unittest
 from cakery.preference import Preference
 from cakery.utilities import find_piece, create_pieces
+from cakery.utilities import integrate
 
 class UtilitiesTest(unittest.TestCase):
     '''
@@ -27,6 +28,12 @@ class UtilitiesTest(unittest.TestCase):
     def test_create_pieces(self):
         ''' test that the creating n pieces works correctly '''
         pass
+
+    def test_integrate(self):
+        ''' test that integrate method works correctly '''
+        self.assertEqual( 5, int(integrate(lambda x:   1, 0.0, 5.0, 100)))
+        self.assertEqual(25, int(integrate(lambda x: 2*x, 0.0, 5.0, 100)))
+        self.assertEqual(41, int(integrate(lambda x: x*x, 0.0, 5.0, 100)))
 
 #---------------------------------------------------------------------------#
 # Main

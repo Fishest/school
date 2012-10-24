@@ -139,8 +139,9 @@ class Preference(BasePreference):
                 fixed[k] = int(v * scale) + v
             self.values = fixed
 
-    def is_valid(self):
-        ''' A check to see if the user preferences are valid
+    def sees_unit_value(self):
+        ''' A check to see if the user sees unit value on the
+        supplied resource.
 
         :returns: True if valid, false otherwise
         '''

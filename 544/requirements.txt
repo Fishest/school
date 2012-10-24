@@ -1,4 +1,7 @@
-Jinja2==2.6
-Pygments==1.5
-Sphinx==1.1.3
-docutils==0.9.1
+argparse==1.2.1
+cakery==0.1.0
+coverage==3.5.3
+distribute==0.6.24
+ipython==0.13.1
+nose==1.2.1
+wsgiref==0.1.2

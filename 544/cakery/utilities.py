@@ -9,18 +9,18 @@ def powerset(iterable):
     s = list(iterable)
     return chain.from_iterable(combinations(s, r) for r in range(len(s)+1))
 
-def find_piece(resources, pref, weight):
+def find_piece(resource, user, weight):
     ''' Given a collection of items and a user preference,
     propose an allocation meeting the specified weight.
 
-    :param resources: The resource we can choose from
-    :param pref: The user preferences to weight with
+    :param resource: The resource we can choose from
+    :param user: The user preferences to weight with
     :param weight: The weight we are attempting to hit
     :returns: (weight, allocation dict)
     '''
-    piece = (0, []) # a proposed slice in the resources
-    items = dict((k, pref.value_of(k)) for k in resources
-        if 0 < pref.value_of(k) <= weight)
+    piece = (0, []) # a proposed slice in the resource
+    items = dict((k, user.value_of(k)) for k in resource
+        if 0 < user.value_of(k) <= weight)
     cakes = sorted(items, key=lambda k: items[k], reverse=True)
 
     for possible in powerset(cakes):
@@ -30,24 +30,24 @@ def find_piece(resources, pref, weight):
         elif value  < weight: piece = max(piece, check)
     return piece
 
-def create_pieces(resources, pref, count=2, weight=None):
+def create_pieces(resource, user, count=2, weight=None):
     ''' Given a resource, split it into count many pieces
     with the specified weight (or user.resolution / count)
     depending on the supplied user preference.
 
-    :param resources: The resource to split
-    :param pref: The preference to split by
+    :param resource: The resource to split
+    :param user: The user preference to split by
     :param count: The number of pieces to split
     :param weight: The weight to split into
     '''
     pieces = []
-    weight = weight or int(pref.resolution / count)
-    resources = set(resources)
+    weight = weight or int(user.resolution / count)
+    resource = set(resource)
     for n in range(count - 1):
-        piece = find_piece(resources, pref, weight)
+        piece = find_piece(resource, user, weight)
         pieces.append(piece[1])
-        resources = resources.difference(piece[1])
-    pieces.append(resources) # the rest is a single slice
+        resource = resource.difference(piece[1])
+    pieces.append(list(resource)) # the rest is a single slice
     return pieces
 
 def integrate(fx, xa, xb, ns):

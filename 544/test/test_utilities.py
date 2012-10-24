@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import unittest
-from cakery.preference import Preference
+from cakery.preference import CollectionPreference as Preference
 from cakery.utilities import find_piece, create_pieces
 from cakery.utilities import integrate
 

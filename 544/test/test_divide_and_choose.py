@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import unittest
-from cakery.preference import Preference
+from cakery.preference import CollectionPreference as Preference
 from cakery.algorithm import DivideAndChoose
 
 class DivideAndChooseTest(unittest.TestCase):

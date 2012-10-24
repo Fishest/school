@@ -32,9 +32,9 @@ Todo
 * abstract preference to work with:
   - discrete set
   - discrete list with count
+    - with and without repeats
   - real resource
 
-* abstract resource into abc
+* abstract resources
+  - can we make this generic for the algorithms?
   - refactor preference with this
-  - discrete with count (5 open class slots)
-  - real (with fixed point resolution)

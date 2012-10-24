@@ -1,5 +1,8 @@
 
-class BasePreference(object):
+#------------------------------------------------------------
+# interface
+#------------------------------------------------------------
+class Preference(object):
     ''' Represents the preferences of a given user
     about a given abstract resource.
     '''
@@ -31,7 +34,11 @@ class BasePreference(object):
         '''
         raise NotImplementedError("value_of")
 
-class ContinuousPreference(BasePreference):
+
+#------------------------------------------------------------
+# implementations
+#------------------------------------------------------------
+class ContinuousPreference(Preference):
     ''' Represents the preference of a given user about a continuous
     resource. This preference is supplied by a function over a given
     interval.
@@ -75,7 +82,51 @@ class ContinuousPreference(BasePreference):
         # integrate over the resource range
         raise NotImplementedError("value_of")
 
-class Preference(BasePreference):
+class CountedPreference(Preference):
+    ''' Represents the preference of a given user about a continuous
+    resource. This preference is supplied by a function over a given
+    interval.
+    '''
+
+    def __init__(self, user, items, resolution=100, tolerance=0.05):
+        ''' Initialize a new preference class
+
+        :param user: The name or id of the participant
+        :param function: The function that describes the user's preference
+        :param resolution: The number of steps we will take in the integral
+        :param tolerance: The amount we are allowed to be off from unit value
+        '''
+        self.user = user
+        self.function = function
+        self.resolution = resolution
+        self.tolerance = int(resolution * tolerance)
+
+    def normalize(self):
+        ''' Noramlize the current preferences to match
+        the current resolution.
+        '''
+        # we need to scale the function?
+        pass
+
+    def is_valid(self):
+        ''' A check to see if the user preferences are valid
+
+        :returns: True if valid, false otherwise
+        '''
+        # is the resource unit value
+        raise NotImplementedError("is_valid")
+
+    def value_of(self, resource):
+        ''' Given a resource, return its total value
+        to this user.
+
+        :params resource: The resource to get the value of
+        :returns: The total value of the items
+        '''
+        # integrate over the resource range
+        raise NotImplementedError("value_of")
+
+class CollectionPreference(Preference):
     ''' Represents the discrete preferences of a given user
     about a supplied resource(s). The preferences are
     represented as a dictionary of resource -> preference

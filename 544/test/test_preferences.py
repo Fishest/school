@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 import unittest
-from cakery.preference import Preference
+from cakery.preference import CollectionPreference
 
-class PreferenceTest(unittest.TestCase):
+class CollectionPreferenceTest(unittest.TestCase):
     '''
-    This is the unittest for the cakery.preference.Preference
+    This is the unittest for the cakery.preference.CollectionPreference
     '''
 
     def test_initializes(self):
         ''' test that the preference initializes correctly '''
         keys = ['red', 'blue', 'green', 'yello', 'orange']
         vals = dict((k, 100/len(keys)) for k in keys)
-        pref = Preference('mark', vals) # uniform
+        pref = CollectionPreference('mark', vals) # uniform
         self.assertEqual(str(pref), repr(pref))
         self.assertEqual(pref.sees_unit_value(), True)
 
@@ -19,7 +19,7 @@ class PreferenceTest(unittest.TestCase):
         ''' test that the preference normalizes correctly '''
         keys = ['red', 'blue', 'green', 'yello', 'orange']
         vals = dict((k, 100/len(keys)) for k in keys)
-        pref = Preference('mark', vals, 1000)
+        pref = CollectionPreference('mark', vals, 1000)
         self.assertEqual(pref.sees_unit_value(), False)
         pref.normalize()
         self.assertEqual(pref.sees_unit_value(), True)
@@ -28,7 +28,7 @@ class PreferenceTest(unittest.TestCase):
         ''' test that the preference updates correctly '''
         keys = ['red', 'blue', 'green', 'yello', 'orange']
         vals = dict((k, 100/len(keys)) for k in keys)
-        pref = Preference('mark', vals, 100)
+        pref = CollectionPreference('mark', vals, 100)
         self.assertEqual(pref.sees_unit_value(), True)
 
         pref.update(keys + ['purple', 'black'])
@@ -43,7 +43,7 @@ class PreferenceTest(unittest.TestCase):
         ''' test that the preference gets the resource(s) value correctly '''
         keys = ['red', 'blue', 'green', 'yello', 'orange']
         vals = dict((k, 100/len(keys)) for k in keys)
-        pref = Preference('mark', vals, 100)
+        pref = CollectionPreference('mark', vals, 100)
         self.assertEqual(pref.value_of('red'), 20)
         self.assertEqual(pref.value_of(['red']), 20)
         self.assertEqual(pref.value_of(['red', 'blue']), 40)

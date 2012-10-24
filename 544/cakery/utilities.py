@@ -64,3 +64,17 @@ def integrate(fx, xa, xb, ns):
     for i in xrange(1, ns):
         s += 2 * fx(xa + i * h)
     return s * h / 2
+
+def frange(start, stop, step=1):
+    ''' Generates a range from the starting
+    value to the stopping value with the supplied
+    step size.
+
+    :param start: The start of the range
+    :param stop: The stop of the range
+    :param step: The step size of the range
+    '''
+    current = start
+    while current < stop:
+        yield current
+        current += step

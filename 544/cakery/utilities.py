@@ -30,45 +30,25 @@ def find_piece(resource, user, weight):
         elif value  < weight: piece = max(piece, check)
     return piece
 
-def create_pieces(resource, user, count=2, weight=None):
-    ''' Given a resource, split it into count many pieces
-    with the specified weight (or user.resolution / count)
-    depending on the supplied user preference.
-
-    :param resource: The resource to split
-    :param user: The user preference to split by
-    :param count: The number of pieces to split
-    :param weight: The weight to split into
-    '''
-    pieces = []
-    weight = weight or int(user.resolution / count)
-    resource = set(resource)
-    for n in range(count - 1):
-        piece = find_piece(resource, user, weight)
-        pieces.append(piece[1])
-        resource = resource.difference(piece[1])
-    pieces.append(list(resource)) # the rest is a single slice
-    return pieces
-
-def integrate(fx, xa, xb, ns):
+def integrate(fx, x0, x1, ns):
     ''' Approximates the integral of the supplied
     function by using the trapezoidal rule.
 
     :param fx: The function to integrate
-    :param xa: The starting point of the integral
-    :param xb: The ending point of the integral
+    :param x0: The starting point of the integral
+    :param x1: The ending point of the integral
     :param ns: The number of subinterval steps to take
     '''
-    h = (xb - xa) / ns
-    s = fx(xa) + fx(xb)
+    h = (x1 - x0) / ns
+    s = fx(x0) + fx(x1)
     for i in xrange(1, ns):
-        s += 2 * fx(xa + i * h)
+        s += 2 * fx(x0 + i * h)
     return s * h / 2
 
-def frange(start, stop, step=1):
+def any_range(start, stop, step=1):
     ''' Generates a range from the starting
     value to the stopping value with the supplied
-    step size.
+    step size of any numeric type.
 
     :param start: The start of the range
     :param stop: The stop of the range

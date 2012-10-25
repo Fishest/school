@@ -1,38 +1,35 @@
+from cakery.utilities import integrate
 
 #------------------------------------------------------------
 # interface
 #------------------------------------------------------------
 class Preference(object):
     ''' Represents the preferences of a given user
-    about a given abstract resource.
+    about a given resource.
+    
+    It should be noted, that the implementation of each
+    preference type is strongly coupled to the underlying
+    resource type. Trying to use mismatched types (Counted
+    with Collection for example) will result in runtime errors.
     '''
 
-    def normalize(self):
-        ''' Noramlize the current preferences to match
-        the current resolution.
+    def value_of(self, resource):
+        ''' Given a resource, return the total value
+        of this resource to the current user.
 
-        .. note::
-
-           To keep this in fixed point, the total sum may be
-           slightly less than 100, but never more.
-        '''
-        raise NotImplementedError("normalize")
-
-    def is_valid(self):
-        ''' A check to see if the user preferences are valid
-
-        :returns: True if valid, false otherwise
-        '''
-        raise NotImplementedError("is_valid")
-
-    def value_of(self, items):
-        ''' Given one or more items, return the total value
-        to this user.
-
-        :params items: The item(s) to get the value of
+        :params resource: The resource to get the value of
         :returns: The total value of the items
         '''
         raise NotImplementedError("value_of")
+
+    def is_unit_value(self, resource):
+        ''' Quickly check if this user sees the given
+        resource as unit value (1).
+
+        :params resource: The resource to get the value of
+        :returns: True if unit value, false otherwise
+        '''
+        return self.value_of(resource) == 1
 
 
 #------------------------------------------------------------
@@ -44,87 +41,51 @@ class ContinuousPreference(Preference):
     interval.
     '''
 
-    def __init__(self, user, function, resolution=100, tolerance=0.05):
+    def __init__(self, user, function, resolution=1000):
         ''' Initialize a new preference class
 
         :param user: The name or id of the participant
         :param function: The function that describes the user's preference
         :param resolution: The number of steps we will take in the integral
-        :param tolerance: The amount we are allowed to be off from unit value
         '''
         self.user = user
         self.function = function
         self.resolution = resolution
-        self.tolerance = int(resolution * tolerance)
-
-    def normalize(self):
-        ''' Noramlize the current preferences to match
-        the current resolution.
-        '''
-        # we need to scale the function?
-        pass
-
-    def is_valid(self):
-        ''' A check to see if the user preferences are valid
-
-        :returns: True if valid, false otherwise
-        '''
-        # is the resource unit value
-        raise NotImplementedError("is_valid")
 
     def value_of(self, resource):
-        ''' Given a resource, return its total value
-        to this user.
+        ''' Given a resource, return the total value
+        of this resource to the current user.
 
         :params resource: The resource to get the value of
         :returns: The total value of the items
         '''
-        # integrate over the resource range
-        raise NotImplementedError("value_of")
+        (x0, x1) = resource.value
+        return integrate(self.function, x0, x1, self.resolution)
+
 
 class CountedPreference(Preference):
-    ''' Represents the preference of a given user about a continuous
-    resource. This preference is supplied by a function over a given
-    interval.
+    ''' Represents the preference of a given user about a collection
+    of items that can be requested more than once.
     '''
 
-    def __init__(self, user, items, resolution=100, tolerance=0.05):
+    def __init__(self, user, values):
         ''' Initialize a new preference class
 
         :param user: The name or id of the participant
-        :param function: The function that describes the user's preference
-        :param resolution: The number of steps we will take in the integral
-        :param tolerance: The amount we are allowed to be off from unit value
+        :param values: The preference values of the user
         '''
         self.user = user
-        self.function = function
-        self.resolution = resolution
-        self.tolerance = int(resolution * tolerance)
-
-    def normalize(self):
-        ''' Noramlize the current preferences to match
-        the current resolution.
-        '''
-        # we need to scale the function?
-        pass
-
-    def is_valid(self):
-        ''' A check to see if the user preferences are valid
-
-        :returns: True if valid, false otherwise
-        '''
-        # is the resource unit value
-        raise NotImplementedError("is_valid")
+        self.values = values or {}
 
     def value_of(self, resource):
-        ''' Given a resource, return its total value
-        to this user.
+        ''' Given a resource, return the total value
+        of this resource to the current user.
 
         :params resource: The resource to get the value of
         :returns: The total value of the items
         '''
-        # integrate over the resource range
-        raise NotImplementedError("value_of")
+        return sum(count * self.values.get(item, 0) for item, count in resource.value)
+
 
 class CollectionPreference(Preference):
     ''' Represents the discrete preferences of a given user
@@ -139,77 +100,24 @@ class CollectionPreference(Preference):
     (or slightly less, but never more).
     '''
 
-    def __init__(self, user, values, resolution=100, tolerance=0.05):
+    def __init__(self, user, values):
         ''' Initialize a new preference class
 
         :param user: The name or id of the participant
         :param values: The preference values of the user
-        :param resolution: The fixed point max resolution (default 100)
-        :param tolerance: The amount we are allowed to be off from unit value
         '''
         self.user = user
         self.values = values or {}
-        self.resolution = resolution
-        self.tolerance = int(resolution * tolerance)
 
-    def update(self, resources, remove=False):
-        ''' Given a list of resources, update the preferences
-        by removing preferences for any non-existant resource,
-        adding new resources with value of 0, and scaling the
-        current resources to be valid (by calling normalize).
-
-        :param resources: Any resources to update with
-        :param remove: Set to True to remove values not in resources
-
-        .. note::
-
-           To keep this in fixed point, the total sum may be
-           slightly less than 100, but never more.
-        '''
-        updated = dict((k, 0) for k in resources)
-        for key, value in self.values.items():
-            if (key in resources) or (not remove):
-                updated[key] = value
-        self.values = updated
-        self.normalize()
-
-    def normalize(self):
-        ''' Noramlize the current preferences to match
-        the current resolution.
-
-        .. note::
-
-           To keep this in fixed point, the total sum may be
-           slightly less than 100, but never more.
-        '''
-        total = sum(self.values.values())
-        if (total != self.resolution) and (total != 0):
-            fixed = {}
-            scale = (float(self.resolution) - total) / total
-            for k,v in self.values.items():
-                fixed[k] = int(v * scale) + v
-            self.values = fixed
-
-    def sees_unit_value(self):
-        ''' A check to see if the user sees unit value on the
-        supplied resource.
-
-        :returns: True if valid, false otherwise
-        '''
-        total = sum(self.values.values())
-        return ((total <= self.resolution)
-            and (total + self.tolerance >= self.resolution))
-
-    def value_of(self, items):
-        ''' Given one or more items, return the total value
+    def value_of(self, resource):
+        ''' Given a resource, return its total value
         to this user.
 
-        :params items: The item(s) to get the value of
+        :params resource: The resource to get the value of
         :returns: The total value of the items
         '''
-        if not hasattr(items, '__iter__'):
-            return self.values.get(items, 0)
-        return sum(v for k,v in self.values.items() if k in items)
+        return sum(value for item, value in self.values.items()
+            if item in resource.value)
 
     def __str__(self):
         ''' Returns a string representation of the preference

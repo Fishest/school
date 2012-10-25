@@ -3,7 +3,6 @@ Handle the version information here; you should only have to
 change the version tuple.
 '''
 
-
 class Version(object):
 
     def __init__(self, package, major, minor, micro):
@@ -31,6 +30,7 @@ class Version(object):
         :returns: A string representation of this object
         '''
         return '[%s, version %s]' % (self.package, self.short())
+
 
 version = Version('cakery', 0, 1, 0)
 version.__name__ = 'cakery'  # fix epydoc error

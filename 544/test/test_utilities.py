@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import unittest
 from cakery.preference import CollectionPreference as Preference
-from cakery.utilities import find_piece, create_pieces
+from cakery.utilities import find_piece
 from cakery.utilities import integrate
 
 class UtilitiesTest(unittest.TestCase):
@@ -13,21 +13,17 @@ class UtilitiesTest(unittest.TestCase):
         ''' test that the finding a single piece works correctly '''
         vals = {'red':10, 'blue':20, 'green':30, 'yello':15, 'orange':25}
         keys = vals.keys()
-        pref = Preference('mark', vals, 100)
+        pref = Preference('mark', vals)
         self.assertEqual(50, find_piece(keys, pref, 50)[0])
         self.assertEqual(60, find_piece(keys, pref, 60)[0])
         self.assertEqual(70, find_piece(keys, pref, 70)[0])
 
         vals = {'red':10, 'blue':20, 'green':30, 'orange':40}
         keys = vals.keys()
-        pref = Preference('mark', vals, 100)
+        pref = Preference('mark', vals)
         self.assertEqual(50, find_piece(keys, pref, 50)[0])
         self.assertEqual(60, find_piece(keys, pref, 60)[0])
         self.assertEqual(70, find_piece(keys, pref, 70)[0])
-        
-    def test_create_pieces(self):
-        ''' test that the creating n pieces works correctly '''
-        pass
 
     def test_integrate(self):
         ''' test that integrate method works correctly '''

@@ -31,7 +31,33 @@ class CollectionResourceTest(unittest.TestCase):
             CollectionResource(['green', 'yellow']),
             CollectionResource(['orange', 'purple'])
         ]
-        self.assertEqual(pieces, actual)
+        for this,that in zip(pieces, actual):
+            self.assertEqual(this.value, that.value)
+
+    def test_resource_find_pieces(self):
+        keys = ['red', 'blue', 'green', 'yellow', 'orange', 'purple']
+        vals = dict((k, Fraction(1)) for k in keys)
+        cake = CollectionResource(keys)
+        user = CollectionPreference('mark', vals)
+        piece = cake.find_piece(user, 3)
+        actual = CollectionResource(['blue', 'purple', 'yellow'])
+        self.assertEqual(piece, actual)
+
+        vals = {'red':10, 'blue':20, 'green':30, 'yello':15, 'orange':25}
+        keys = vals.keys()
+        cake = CollectionResource(keys)
+        user = CollectionPreference('mark', vals)
+        self.assertEqual(50, user.value_of(cake.find_piece(user, 50)))
+        self.assertEqual(60, user.value_of(cake.find_piece(user, 60)))
+        self.assertEqual(70, user.value_of(cake.find_piece(user, 70)))
+
+        vals = {'red':10, 'blue':20, 'green':30, 'orange':40}
+        keys = vals.keys()
+        cake = CollectionResource(keys)
+        user = CollectionPreference('mark', vals)
+        self.assertEqual(50, user.value_of(cake.find_piece(user, 50)))
+        self.assertEqual(60, user.value_of(cake.find_piece(user, 60)))
+        self.assertEqual(70, user.value_of(cake.find_piece(user, 70)))
 
 #---------------------------------------------------------------------------#
 # Main

@@ -7,28 +7,7 @@ def powerset(iterable):
     :returns: A powerset iterator
     '''
     s = list(iterable)
-    return chain.from_iterable(combinations(s, r) for r in range(len(s)+1))
-
-def find_piece(resource, user, weight):
-    ''' Given a collection of items and a user preference,
-    propose an allocation meeting the specified weight.
-
-    :param resource: The resource we can choose from
-    :param user: The user preferences to weight with
-    :param weight: The weight we are attempting to hit
-    :returns: (weight, allocation dict)
-    '''
-    piece = (0, []) # a proposed slice in the resource
-    items = dict((k, user.value_of(k)) for k in resource
-        if 0 < user.value_of(k) <= weight)
-    cakes = sorted(items, key=lambda k: items[k], reverse=True)
-
-    for possible in powerset(cakes):
-        value = sum(items[k] for k in possible)
-        check = (value, list(possible))
-        if   value == weight: return check
-        elif value  < weight: piece = max(piece, check)
-    return piece
+    return chain.from_iterable(combinations(s, r) for r in range(1, len(s)+1))
 
 def integrate(fx, x0, x1, ns):
     ''' Approximates the integral of the supplied
@@ -47,8 +26,8 @@ def integrate(fx, x0, x1, ns):
 
 def any_range(start, stop, step=1):
     ''' Generates a range from the starting
-    value to the stopping value with the supplied
-    step size of any numeric type.
+    value to the stopping value (exclusive) with the
+    supplied step size of any numeric type.
 
     :param start: The start of the range
     :param stop: The stop of the range

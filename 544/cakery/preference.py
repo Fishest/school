@@ -29,6 +29,7 @@ class Preference(object):
         :params resource: The resource to get the value of
         :returns: True if unit value, false otherwise
         '''
+        # TODO how can the be standard for all numerics
         return self.value_of(resource) == 1
 
 

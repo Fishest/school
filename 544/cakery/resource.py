@@ -231,15 +231,12 @@ class CountedResource(Resource):
 
         :param piece: The piece to remove from this
         '''
-        if not isinstance(piece, dict):
-            piece = dict((item, 1) for item in piece)
-
-        for key, value in piece:
+        for key, value in piece.value.items():
             if self.value.get(key, -1) - value < 0:
                 raise ValueError("not enough supply to remove")
             self.value[key] -= value
 
-        for key, value in self.value:
+        for key, value in self.value.items():
             if self.value[key] == 0:
                 del self.value[key]
 

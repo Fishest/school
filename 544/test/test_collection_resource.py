@@ -11,7 +11,7 @@ class CollectionResourceTest(unittest.TestCase):
     '''
 
     def test_resource_clone(self):
-        ''' test that the resource clones correctly '''
+        ''' test that the resource clone works correctly '''
         keys = ['red', 'blue', 'green', 'yellow', 'orange']
         vals = dict((k, Fraction(1)) for k in keys)
         cake = CollectionResource(keys)
@@ -19,6 +19,16 @@ class CollectionResourceTest(unittest.TestCase):
         copy = cake.clone()
         self.assertEqual(str(cake), str(copy))
         self.assertEqual(repr(cake), repr(copy))
+
+    def test_resource_remove(self):
+        ''' test that the resource remove works correctly '''
+        keys = ['red', 'blue', 'green', 'yellow', 'orange']
+        vals = dict((k, Fraction(1)) for k in keys)
+        cake = CollectionResource(keys)
+        item = CollectionResource(keys[2:])
+        cake.remove(item)
+        actual = CollectionResource(keys[:2])
+        self.assertEqual(actual, cake)
 
     def test_resource_create_pieces(self):
         ''' test that we can create n pieces of the cake '''

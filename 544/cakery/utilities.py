@@ -9,6 +9,15 @@ def powerset(iterable):
     s = list(iterable)
     return chain.from_iterable(combinations(s, r) for r in range(1, len(s)+1))
 
+def all_same(iterable):
+    ''' Given an iterable, check if all the values
+    in that iterable are the same value.
+
+    :param iterable: The iterable to check for equality
+    :returns: True if all the values are the same, False otherwise
+    '''
+    return len(set(iterable)) == 1
+
 def integrate(fx, x0, x1, ns):
     ''' Approximates the integral of the supplied
     function by using the trapezoidal rule.

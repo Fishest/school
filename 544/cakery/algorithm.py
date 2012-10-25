@@ -1,4 +1,5 @@
 import random
+from cakery.utilities import all_same
 
 
 # ------------------------------------------------------------ 
@@ -89,9 +90,8 @@ class FairDivider(object):
         if settings['users'] != 'n':
             if len(self.users) != settings['users']:
                 raise ValueError("algorithm only works for % users" % settings['users'])
-        # TODO how to check unit value generically for all numerics
-        #if not all(u.is_unit_value(self.cake) for u in self.users):
-        #    raise ValueError("users don't see unit value on the resource")
+        if not all_same(u.value_of(self.cake) for u in self.users):
+            raise ValueError("users don't all see unit value on the resource")
         return True
 
     def settings(self):
@@ -111,7 +111,7 @@ class FairDivider(object):
 
 
 # ------------------------------------------------------------ 
-# algorithms
+# fair division algorithms
 # ------------------------------------------------------------ 
 class DivideAndChoose(FairDivider):
     ''' This is an implementation of the divide and choose
@@ -161,6 +161,50 @@ class DivideAndChoose(FairDivider):
         return slices
 
 
+class DubinsAndSpanier(FairDivider):
+    '''
+    '''
+
+    def __init__(self, users, cake):
+        ''' Initializes a new instance of the algorithm
+
+        :param users: The users to operate with
+        :param cake: The cake to divide
+        '''
+        self.users = users
+        self.cake = cake
+
+    def settings(self):
+        ''' Retieves a capability listing of this algorithm
+
+        :returns: A dictionary of the algorithm features
+        '''
+        return {
+            'users':        'n',
+            'envy-free':    True,
+            'proportional': True,
+            # equitable, stable
+        }
+
+    def divide(self):
+        ''' Run the algorithm to perform a suggested
+        division.
+
+        :returns: A dictionary of divisions of {user: piece}
+        '''
+        slices = {}
+        users  = list(self.users)
+        cake = self.cake.clone()
+        while len(users) > 1:
+            (cutter, piece) = choose_next_piece(users, cake)
+            slices[cutter]  = piece
+        slices[users[0]] = cake # last user gets last
+        return slices
+
+
+# ------------------------------------------------------------ 
+# chore division algorithms
+# ------------------------------------------------------------ 
 class InverseDivideAndChoose(FairDivider):
     ''' This is an implementation of the divide and choose
     algorithm that can be used to divide chores and it
@@ -207,45 +251,4 @@ class InverseDivideAndChoose(FairDivider):
         pieces = create_equal_pieces(cutter, self.cake, 2)
         slices[picker] = choose_worst_piece(picker, pieces)
         slices[cutter] = choose_and_remove(pieces)
-        return slices
-
-
-class DubinsAndSpanier(FairDivider):
-    '''
-    '''
-
-    def __init__(self, users, cake):
-        ''' Initializes a new instance of the algorithm
-
-        :param users: The users to operate with
-        :param cake: The cake to divide
-        '''
-        self.users = users
-        self.cake = cake
-
-    def settings(self):
-        ''' Retieves a capability listing of this algorithm
-
-        :returns: A dictionary of the algorithm features
-        '''
-        return {
-            'users':        'n',
-            'envy-free':    True,
-            'proportional': True,
-            # equitable, stable
-        }
-
-    def divide(self):
-        ''' Run the algorithm to perform a suggested
-        division.
-
-        :returns: A dictionary of divisions of {user: piece}
-        '''
-        slices = {}
-        users  = list(self.users)
-        cake = self.cake.clone()
-        while len(users) > 1:
-            (cutter, piece) = choose_next_piece(users, cake)
-            slices[cutter]  = piece
-        slices[users[0]] = cake # last user gets last
         return slices

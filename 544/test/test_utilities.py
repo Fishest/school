@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 import unittest
 from fractions import Fraction
-from cakery.utilities import integrate, powerset, any_range
+from cakery.utilities import integrate, powerset
+from cakery.utilities import all_same, any_range
 
 class UtilitiesTest(unittest.TestCase):
     '''
@@ -25,6 +26,13 @@ class UtilitiesTest(unittest.TestCase):
         actual = list(any_range(Fraction(0), Fraction(4,3), Fraction(1,3)))
         expect = [Fraction(0,1), Fraction(1,3), Fraction(2,3), Fraction(3,3)]  
         self.assertEqual(actual, expect)
+
+    def test_all_same(self):
+        ''' test that the all_same method works correctly '''
+        self.assertTrue(all_same([1,1,1,1,1,1]))
+        self.assertTrue(all_same(1 for _ in range(10)))
+        self.assertFalse(all_same([1,1,1,2,1,1]))
+        self.assertFalse(all_same(range(10)))
 
 #---------------------------------------------------------------------------#
 # Main

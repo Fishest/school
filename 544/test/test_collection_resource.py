@@ -21,6 +21,7 @@ class CollectionResourceTest(unittest.TestCase):
         self.assertEqual(repr(cake), repr(copy))
 
     def test_resource_create_pieces(self):
+        ''' test that we can create n pieces of the cake '''
         keys = ['red', 'blue', 'green', 'yellow', 'orange', 'purple']
         vals = dict((k, Fraction(1)) for k in keys)
         cake = CollectionResource(keys)
@@ -35,6 +36,7 @@ class CollectionResourceTest(unittest.TestCase):
             self.assertEqual(this.value, that.value)
 
     def test_resource_find_pieces(self):
+        ''' test that we can find a piece in the cake '''
         keys = ['red', 'blue', 'green', 'yellow', 'orange', 'purple']
         vals = dict((k, Fraction(1)) for k in keys)
         cake = CollectionResource(keys)

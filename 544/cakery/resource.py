@@ -1,5 +1,6 @@
 '''
 '''
+from fractions import Fraction
 from cakery.utilities import any_range, powerset
 
 #------------------------------------------------------------
@@ -51,6 +52,18 @@ class Resource(object):
         '''
         raise NotImplementedError("find_piece")
 
+    def compare(this, that):
+        ''' A utility method used to provide rich
+        comparison operations on the resource.
+
+        :param that: The other resource to compare
+        :returns: -1: less than, 0: equal to, 1: greater than
+        '''
+        raise NotImplementedError("compare")
+
+    #------------------------------------------------------------
+    # common methods
+    #------------------------------------------------------------
     def create_pieces(self, user, count=2, weight=None):
         ''' Split the current resource it into count many pieces
         with the specified weight depending on the supplied user
@@ -60,16 +73,15 @@ class Resource(object):
         :param count: The number of pieces to split
         :param weight: The weight to split into
         '''
-        raise NotImplementedError("value_of")
-
-    def compare(this, that):
-        ''' A utility method used to provide rich
-        comparison operations on the resource.
-
-        :param that: The other resource to compare
-        :returns: -1: less than, 0: equal to, 1: greater than
-        '''
-        raise NotImplementedError("compare")
+        pieces = []
+        weight = weight or user.value_of(self) / count
+        cake = self.clone()
+        for n in range(count - 1):
+            piece = cake.find_piece(user, weight)
+            pieces.append(piece)
+            cake.remove(piece)
+        pieces.append(cake) # the rest is a single slice
+        return pieces
 
     #------------------------------------------------------------
     # the magic methods
@@ -92,18 +104,18 @@ class ContinuousResource(Resource):
     over a range from 0 to 1 (beach front property
     for example).
 
-    This is represented internally as a
-    range(start, end).
+    This is represented internally as a (start, span).
+    Also, all math is internally performed using
+    rational values (fractions.Fraction).
     '''
 
-    def __init__(self, start, stop):
+    def __init__(self, start, span):
         ''' Initializes a new instance of the resource
 
-        :param items: The items representing this resource
+        :param start: The starting point on the x-axis
+        :param span: The span from the starting point
         '''
-        if start > stop:
-            raise ValueError("start value is greater than stop value")
-        self.value = (start, stop)
+        self.value = (start, span)
 
     def actual_value(self):
         ''' Return an actual value that we can use for
@@ -111,8 +123,7 @@ class ContinuousResource(Resource):
 
         :returns: The actual value of the object
         '''
-        (start, stop) = self.value
-        return stop - start
+        return self.value[1]
 
     def clone(self):
         ''' Return a clone of this resource that is
@@ -120,8 +131,8 @@ class ContinuousResource(Resource):
 
         :returns: A clone of the current resource
         '''
-        (start, stop) = self.value
-        return ContinuousResource(start, stop)
+        (start, span) = self.value
+        return ContinuousResource(start, span)
 
     def remove(self, piece):
         ''' Update this resource by removing the
@@ -133,38 +144,43 @@ class ContinuousResource(Resource):
 
         :param piece: The piece to remove from this
         '''
-        (this_x0, this_x1) = self.value
-        (that_x0, that_x1) = piece.value
-        if   that_x0 > this_x0: this_x0 = that_x0
-        elif that_x1 < this_x1: this_x1 = that_x1
-        self.value = (this_x0, this_x1)
+        (this_x0, this_span) = self.value
+        (that_x0, that_span) = piece.value
+   
+        # we are removing from the front
+        # (0/1, 1/1) - (0/1, 1/4) = (1/4, 3/4)
+        if this_x0 == that_x0:
+            this_x0   += that_span
+            this_span -= that_span
+        # we are removing from the front
+        # (0/1, 1/1) - (3/4, 1/4) = (0/1, 3/4)
+        else: this_span -= that_span
+        self.value = (this_x0, this_span)
 
     def find_piece(self, user, weight):
         ''' Attempt to find a piece of the current resource
         that meets the requested weight according to the
         given user.
 
+        This is implemented with a Stern-Brocot tree.
+
         :param user: The user preferences to weight with
         :param weight: The weight we are attempting to hit
         :returns: The first piece matching that weight
         '''
-        raise NotImplementedError("find_piece")
+        shift = 1.0 / user.resolution
+        cake, value = self.clone(), user.value_of(self)
+        if value < weight:
+            raise ValueError("cannot find a piece with this weight")
 
-    def create_pieces(self, user, count=2, weight=None):
-        ''' Split the current resource it into count many pieces
-        with the specified weight depending on the supplied user
-        preference (or user.value_of(resource) / count).
-
-        :param user: The user preference to split by
-        :param count: The number of pieces to split
-        :param weight: The weight to split into
-        '''
-        # TODO this is not right, it assumes unit value
-        weight = weight or user.value_of(self) / count
-        (x0, x1) = self.value
-        x0s = list(any_range(x0, x1, weight))
-        x1s = x0s[1:] + [x1] # remove start, add ending
-        return [ContinuousResource(a, b) for a,b in zip(x0s, x1s)]
+        l, h = Fraction(0,1), cake.value[1]
+        while (value < weight - shift) or (value > weight + shift):
+            m = Fraction(l.numerator + h.numerator, l.denominator + h.denominator)
+            cake.value = (cake.value[0], m)
+            value = user.value_of(cake)
+            if   value > weight: h = m
+            elif value < weight: l = m
+        return cake
 
     def compare(this, that):
         ''' A utility method used to provide rich
@@ -173,9 +189,7 @@ class ContinuousResource(Resource):
         :param that: The other resource to compare
         :returns: -1: less than, 0: equal to, 1: greater than
         '''
-        if this.value  < that.value: return -1
-        if this.value == that.value: return 0
-        if this.value  > that.value: return 1
+        return cmp(this.value[1], that.value[1])
 
 
 class CountedResource(Resource):
@@ -240,24 +254,6 @@ class CountedResource(Resource):
         '''
         raise NotImplementedError("find_piece")
 
-    def create_pieces(self, user, count=2, weight=None):
-        ''' Split the current resource it into count many pieces
-        with the specified weight depending on the supplied user
-        preference (or user.value_of(resource) / count).
-
-        :param user: The user preference to split by
-        :param count: The number of pieces to split
-        :param weight: The weight to split into
-        '''
-        pieces = []
-        weight = weight or user.value_of(self) / count
-        cake = self.clone()
-        for n in range(count - 1):
-            piece = cake.find_piece(user, weight)
-            pieces.append(piece)
-            cake.remove(piece)
-        pieces.append(cake) # the rest is a single slice
-        return pieces
 
     def compare(this, that):
         ''' A utility method used to provide rich
@@ -342,26 +338,6 @@ class CollectionResource(Resource):
             if   value == weight: piece = check; break
             elif value  < weight: piece = max(piece, check)
         return CollectionResource(piece[1])
-
-    def create_pieces(self, user, count=2, weight=None):
-        ''' Split the current resource it into count many pieces
-        with the specified weight depending on the supplied user
-        preference (or user.value_of(resource) / count).
-
-        :param user: The user preference to split by
-        :param count: The number of pieces to split
-        :param weight: The weight to split into
-        '''
-        pieces = []
-        weight = weight or user.value_of(self) / count
-        #resource = set(self.value)
-        cake = self.clone()
-        for _ in range(count - 1):
-            piece = cake.find_piece(user, weight)
-            pieces.append(piece)
-            cake.remove(piece)
-        pieces.append(cake) # the rest is a single slice
-        return pieces
 
     def compare(this, that):
         ''' A utility method used to provide rich

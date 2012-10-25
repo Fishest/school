@@ -22,16 +22,6 @@ class Preference(object):
         '''
         raise NotImplementedError("value_of")
 
-    def is_unit_value(self, resource):
-        ''' Quickly check if this user sees the given
-        resource as unit value (1).
-
-        :params resource: The resource to get the value of
-        :returns: True if unit value, false otherwise
-        '''
-        # TODO how can the be standard for all numerics
-        return self.value_of(resource) == 1
-
 
 #------------------------------------------------------------
 # implementations
@@ -60,8 +50,8 @@ class ContinuousPreference(Preference):
         :params resource: The resource to get the value of
         :returns: The total value of the items
         '''
-        (x0, x1) = resource.value
-        return integrate(self.function, x0, x1, self.resolution)
+        (x0, span) = resource.value
+        return integrate(self.function, x0, x0 + span, self.resolution)
 
 
 class CountedPreference(Preference):

@@ -89,6 +89,7 @@ class FairDivider(object):
         if settings['users'] != 'n':
             if len(self.users) != settings['users']:
                 raise ValueError("algorithm only works for % users" % settings['users'])
+        # TODO how to check unit value generically for all numerics
         #if not all(u.is_unit_value(self.cake) for u in self.users):
         #    raise ValueError("users don't see unit value on the resource")
         return True

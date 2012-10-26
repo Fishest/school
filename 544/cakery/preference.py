@@ -1,4 +1,4 @@
-import math
+import math, sys
 from cakery.utilities import integrate
 
 #------------------------------------------------------------
@@ -22,6 +22,15 @@ class Preference(object):
         :returns: The total value of the items
         '''
         raise NotImplementedError("value_of")
+
+    def __str__(self):
+        ''' Returns a string representation of the preference
+
+        :returns: The string representation of this preference
+        '''
+        return "Preference(%s)" % self.user
+
+    __repr__ = __str__
 
 
 #------------------------------------------------------------
@@ -58,16 +67,23 @@ class ContinuousPreference(Preference):
 class CountedPreference(Preference):
     ''' Represents the preference of a given user about a collection
     of items that can be requested more than once.
+
+    Here, a value is given to each item and a count filter can
+    optionally be specified that suggests how many of each item
+    we care to retrieve (defaults to as many as possible).
     '''
 
-    def __init__(self, user, values):
+    def __init__(self, user, values, counts=None):
         ''' Initialize a new preference class
 
         :param user: The name or id of the participant
         :param values: The preference values of the user
+        :param counts: Listing of how many of each item is wanted
         '''
         self.user = user
         self.values = values or {}
+        self.counts = counts or dict((k, 1) for k in self.values)
+        #self.counts = counts or dict((k, sys.maxint) for k in self.values)
 
     def value_of(self, resource):
         ''' Given a resource, return the total value
@@ -76,7 +92,12 @@ class CountedPreference(Preference):
         :params resource: The resource to get the value of
         :returns: The total value of the items
         '''
-        return sum(count * self.values.get(item, 0) for item, count in resource.value)
+        total = 0
+        for item, count in resource.value.items():
+            value = self.values.get(item, 0)
+            wants = self.counts.get(item, 0)
+            total += value * min(wants, count)
+        return total
 
 
 class CollectionPreference(Preference):
@@ -110,12 +131,3 @@ class CollectionPreference(Preference):
         '''
         return sum(value for item, value in self.values.items()
             if item in resource.value)
-
-    def __str__(self):
-        ''' Returns a string representation of the preference
-
-        :returns: The string representation of this preference
-        '''
-        return "Preference(%s, %s)" % (self.user, str(self.values))
-
-    __repr__ = __str__

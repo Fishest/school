@@ -20,6 +20,11 @@ class CollectionResourceTest(unittest.TestCase):
         self.assertEqual(str(cake), str(copy))
         self.assertEqual(repr(cake), repr(copy))
 
+        self.assertEqual(5, cake.actual_value(),)
+        self.assertEqual(cake.actual_value(), copy.actual_value())
+
+        self.assertEqual(CollectionResource('a'), CollectionResource(['a']))
+
     def test_resource_remove(self):
         ''' test that the resource remove works correctly '''
         keys = ['red', 'blue', 'green', 'yellow', 'orange']
@@ -52,10 +57,10 @@ class CollectionResourceTest(unittest.TestCase):
         cake = CollectionResource(keys)
         user = CollectionPreference('mark', vals)
         piece = cake.find_piece(user, 3)
-        actual = CollectionResource(['blue', 'purple', 'yellow'])
-        self.assertEqual(piece, actual)
+        actual = CollectionResource(['red', 'blue', 'green'])
+        self.assertEqual(piece.value, actual.value)
 
-        vals = {'red':10, 'blue':20, 'green':30, 'yello':15, 'orange':25}
+        vals = {'red':10, 'blue':20, 'green':30, 'yellow':15, 'orange':25}
         keys = vals.keys()
         cake = CollectionResource(keys)
         user = CollectionPreference('mark', vals)

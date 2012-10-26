@@ -249,8 +249,25 @@ class CountedResource(Resource):
         :param weight: The weight we are attempting to hit
         :returns: The first piece matching that weight
         '''
-        raise NotImplementedError("find_piece")
+        piece = (0, []) # a proposed slice in the resource
+        cake, items = self.clone(), {}
 
+        # sort the values by weight to make the least amount of
+        # cuts possible. TODO how to deal with N items?
+        for item in self.value:
+            cake.value = {item: 1}
+            value = user.value_of(cake)
+            if 0 < value <= weight: items[item] = value
+        cakes = sorted(items, key=lambda k: items[k], reverse=True)
+
+        # try all possible combinations of resources until we
+        # find one that matches the weight we are looking for
+        for possible in powerset(cakes):
+            value = sum(items[k] for k in possible)
+            check = (value, list(possible))
+            if   value == weight: piece = check; break
+            elif value  < weight: piece = max(piece, check)
+        return CountedResource(piece[1])
 
     def compare(this, that):
         ''' A utility method used to provide rich
@@ -314,13 +331,13 @@ class CollectionResource(Resource):
         :returns: The first piece matching that weight
         '''
         piece = (0, []) # a proposed slice in the resource
-        items = []
+        cake, items = self.clone(), []
 
         # sort the values by weight to make the least amount of
         # cuts possible, otherwise keep them ordered by the 
         # original resource ordering
         for item in self.value:
-            cake = CollectionResource([item])
+            cake.value = [item]
             value = user.value_of(cake)
             if 0 < value <= weight: items.append((item, value))
         cakes = sorted(items, key=lambda k: k[1], reverse=True)

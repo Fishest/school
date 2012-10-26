@@ -16,6 +16,8 @@ class ContinuousResourceTest(unittest.TestCase):
         copy = cake.clone()
         self.assertEqual(str(cake), str(copy))
         self.assertEqual(repr(cake), repr(copy))
+        self.assertEqual(100, cake.actual_value(),)
+        self.assertEqual(cake.actual_value(), copy.actual_value())
 
     def test_resource_create_pieces(self):
         ''' test that we can create n pieces of the cake '''
@@ -36,6 +38,8 @@ class ContinuousResourceTest(unittest.TestCase):
         piece = cake.find_piece(user, Fraction(1,3))
         actual = ContinuousResource(Fraction(0, 1), Fraction(1, 3))
         self.assertEqual(piece, actual)
+
+        self.assertRaises(ValueError, lambda: cake.find_piece(user, Fraction(10)))
 
 #---------------------------------------------------------------------------#
 # Main

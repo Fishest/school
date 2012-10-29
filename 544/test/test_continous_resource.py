@@ -19,6 +19,38 @@ class ContinuousResourceTest(unittest.TestCase):
         self.assertEqual(100, cake.actual_value(),)
         self.assertEqual(cake.actual_value(), copy.actual_value())
 
+    def test_resource_remove(self):
+        ''' test that the resource remove works correctly '''
+        cake = ContinuousResource(Fraction(0,1), Fraction(1,1))
+        item = ContinuousResource(Fraction(1,2), Fraction(1,2))
+        cake.remove(item)
+        actual = ContinuousResource(Fraction(0, 1), Fraction(1,2))
+        self.assertEqual(actual.value, cake.value)
+
+        cake = ContinuousResource(Fraction(0,1), Fraction(1,1))
+        item = ContinuousResource(Fraction(0,1), Fraction(1,2))
+        cake.remove(item)
+        actual = ContinuousResource(Fraction(1, 2), Fraction(1,2))
+        self.assertEqual(actual.value, cake.value)
+
+        cake = ContinuousResource(Fraction(0,1), Fraction(1,1))
+        item = ContinuousResource(Fraction(0,1), Fraction(2,1))
+        self.assertRaises(ValueError, lambda: cake.remove(item))
+
+    def test_resource_append(self):
+        ''' test that the resource append works correctly '''
+        cake = ContinuousResource(Fraction(1,2), Fraction(1,2))
+        item = ContinuousResource(Fraction(0,1), Fraction(1,2))
+        cake.append(item)
+        actual = ContinuousResource(Fraction(0, 1), Fraction(1,1))
+        self.assertEqual(actual.value, cake.value)
+
+        cake = ContinuousResource(Fraction(0,1), Fraction(1,2))
+        item = ContinuousResource(Fraction(1,2), Fraction(1,2))
+        cake.append(item)
+        actual = ContinuousResource(Fraction(0, 1), Fraction(1,1))
+        self.assertEqual(actual.value, cake.value)
+
     def test_resource_create_pieces(self):
         ''' test that we can create n pieces of the cake '''
         user = ContinuousPreference('mark', lambda x: Fraction(1))

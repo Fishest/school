@@ -39,6 +39,15 @@ class CountedResourceTest(unittest.TestCase):
         item = CountedResource('cyan')
         self.assertRaises(ValueError, lambda: cake.remove(item))
 
+    def test_resource_append(self):
+        ''' test that the resource append works correctly '''
+        vals = {'red':2, 'blue':3, 'green':4, 'yellow':5, 'orange':6}
+        cake = CountedResource({'blue':3, 'green':2, 'yellow':5})
+        item = CountedResource({'red': 2, 'orange':6, 'green':2})
+        cake.append(item)
+        actual = CountedResource(vals)
+        self.assertEqual(cake.value, actual.value)
+
     def test_resource_create_pieces(self):
         ''' test that we can create n pieces of the cake '''
         vals = {'red':2, 'blue':3, 'green':4, 'yellow':5, 'orange':6}
@@ -51,7 +60,6 @@ class CountedResourceTest(unittest.TestCase):
             CountedResource({'green':1, 'yellow':1}),
             CountedResource({'orange':1, 'purple':1})
         ]
-        import pdb;pdb.set_trace()
         for this,that in zip(pieces, actual):
             self.assertEqual(this.value, that.value)
 

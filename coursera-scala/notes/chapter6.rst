@@ -206,6 +206,107 @@ map, flatMap, and withFilter for these types:
 6.6 Maps
 ------------------------------------------------------------
 
+Maps are both iterables and functors::
+
+    val romanNumerals : Map[String, Int]
+    val romanNumerals = Map('I' -> 1, 'V' -> 5, 'X' -> 10)
+    romanNumerals("I")       // 1
+    romanNumerals("II")      // no such element
+    romanNumerals.get("I")   // Some(1)
+    romanNumerals.get("II")  // None
+
+    // the monad supports other high order operations
+    // like: map, flatmap, etc
+    def showNumeral(key: String) = romanN"umeral.get(key) match {
+      case None        => "missing data"
+      case Some(value) => value
+    }
+
+What are options::
+
+    trait Option[+A]
+    case class Some[+A](value: A) extends Option[A]
+    object None extends Option[Nothing]
+
+    None    // no value for option
+    Some(x) // some value in option
+
+Sorting lists::
+
+    val fruit = List("apple", "pear", "orange", "pineapple")
+    fruit.sortWith(_.length < _.length)
+    fruit.sorted
+    fruit.groupBy(_.head) // group by first letter in fruit
+
+Let's represent polynomials with maps::
+
+    // 3x^2 + 2x + 1 -> Map(2 -> 3.0, 1 -> 2, 0 -> 1)
+    class Polynomial(val terms0: Map[Int, Double]) {
+      def this(bindings: (Int, Double)*) = this(bindings.toMap)
+      val terms = terms0 withDefaultValue 0.0
+      def adjust(term: (Int, Double)): (Int, Double) = {
+        val (exp, coeff) = term
+        exp -> (coeff + terms(exp))
+      }
+        
+      def +(other: Polynomial) =
+        new Polynomial(terms ++ (other.terms map adjust))
+      ovveride def toString = for {
+        (exp, coef) <- terms.toList.sorted.reverse
+      } yield coef + "x^" + exp) mkString " + "
+    }
+
+    val p1 = new Polynomial(1 -> 2.0, 3 -> 4.0, 5 -> 6.2)
+    val p2 = new Polynomial(0 -> 3.0, 3 -> 7.0)
+    p1 + p2
+
+    def addTerm(terms: Map[Int, Double], term: (Int, Double))
+      : Map[Int, Double] = {
+      val (exp, coeff) = term
+      terms + (exp -> (coeff + terms(exp)))
+    }
+    def +(other: Polynomial) =
+      new Polynomial((other.terms foldLeft terms)(addTerm))
+
+Can convert a map from a partial function into a total
+function like::
+
+    val capitals = capitalOfCountry withDefaultValue "<unknown>"
+    capitals("andorra") // "<unknown>"
+
 ------------------------------------------------------------
 6.6 Putting the Pieces Together
 ------------------------------------------------------------
+
+Solving phone mnemonics::
+
+    val input = source.fromURL("http://lamp.epfl.ch/files/content/sites/"
+      + "lamp/files/teaching/progfun/linuxwords")
+    val words = input.getLines.toList filter(word =>
+      word forall(chr => chr.isLetter))
+
+    val mnemonics = Map(
+      '2' -> "ABC", '3' -> "DEF",  '4' -> "GHI", '5' -> "JKL",
+      '6' -> "MNO", '7' -> "PQRS", '8' -> "TUV", '9' -> "WXYZ")
+    val charCode = for ((d, cs) <- mnemonics; c <- cs) yield c -> d
+
+    def wordCode(word: String): String =
+      word.toUpperCase map CharCode
+
+    val wordsForNum: Map[String, Seq[String]] =
+      words groupBy wordCode withDefaultValue Seq()
+
+    def encode(number: String): Set[List[String]] =
+      if (number.isEmpty) Set(List())
+      else { for {
+        split <- 1 to number.length
+        word  <- wordsForNum(number take split)
+        rest  <- encode(number drop split)
+      } yield word :: rest }.toSet
+
+    def translate(number: String): Set[String] =
+      encode(number) map(_ mkstring " ")
+    
+    wordCode("java")
+    encode("7225247386")
+    translate("7225247386")

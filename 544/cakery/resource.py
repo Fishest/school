@@ -41,6 +41,14 @@ class Resource(object):
         '''
         raise NotImplementedError("value_of")
 
+    def append(self, piece):
+        ''' Update this resource by adding the
+        specified piece.
+
+        :param piece: The piece to append to this
+        '''
+        raise NotImplementedError("append")
+
     def find_piece(self, user, weight):
         ''' Attempt to find a piece of the current resource
         that meets the requested weight according to the
@@ -75,7 +83,7 @@ class Resource(object):
         '''
         pieces = []
         weight = weight or user.value_of(self) / count
-        cake = self.clone()
+        cake   = self.clone()
         for n in range(count - 1):
             piece = cake.find_piece(user, weight)
             pieces.append(piece)
@@ -155,6 +163,26 @@ class ContinuousResource(Resource):
         # we are removing from the front
         # (0/1, 1/1) - (3/4, 1/4) = (0/1, 3/4)
         else: this_span -= that_span
+
+        if this_span < 0:
+            raise ValueError("cannot have a negative resource")
+        self.value = (this_x0, this_span)
+
+    def append(self, piece):
+        ''' Update this resource by adding the
+        specified piece.
+
+        :param piece: The piece to append to this
+        '''
+        (this_x0, this_span) = self.value
+        (that_x0, that_span) = piece.value
+
+        # we are adding to the front
+        if this_x0 > that_x0:
+            this_x0    = that_x0
+            this_span += that_span
+        # we are adding to the back
+        else: this_span += that_span
         self.value = (this_x0, this_span)
 
     def find_piece(self, user, weight):
@@ -240,6 +268,16 @@ class CountedResource(Resource):
             if self.value[key] == 0:
                 del self.value[key]
 
+    def append(self, piece):
+        ''' Update this resource by adding the
+        specified piece.
+
+        :param piece: The piece to append to this
+        '''
+        for key, value in piece.value.items():
+            current = self.value.get(key, 0)
+            self.value[key] = current + value
+
     def find_piece(self, user, weight):
         ''' Attempt to find a piece of the current resource
         that meets the requested weight according to the
@@ -251,6 +289,9 @@ class CountedResource(Resource):
         '''
         piece = (0, []) # a proposed slice in the resource
         cake, items = self.clone(), {}
+        value = user.value_of(cake)
+        if value < weight:
+            raise ValueError("cannot find a piece with this weight")
 
         # sort the values by weight to make the least amount of
         # cuts possible. TODO how to deal with N items?
@@ -321,6 +362,14 @@ class CollectionResource(Resource):
         '''
         self.value = [v for v in self.value if v not in piece.value]
 
+    def append(self, piece):
+        ''' Update this resource by adding the
+        specified piece.
+
+        :param piece: The piece to append to this
+        '''
+        self.value.extend(piece.value)
+
     def find_piece(self, user, weight):
         ''' Attempt to find a piece of the current resource
         that meets the requested weight according to the
@@ -332,6 +381,9 @@ class CollectionResource(Resource):
         '''
         piece = (0, []) # a proposed slice in the resource
         cake, items = self.clone(), []
+        value = user.value_of(cake)
+        if value < weight:
+            raise ValueError("cannot find a piece with this weight")
 
         # sort the values by weight to make the least amount of
         # cuts possible, otherwise keep them ordered by the 

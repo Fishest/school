@@ -5,13 +5,23 @@ from cakery.utilities import all_same
 # ------------------------------------------------------------ 
 # helpers
 # ------------------------------------------------------------ 
+def randomize_items(items):
+    ''' Given a collection, create a clone of it and
+    randomize the elements before returning it.
+
+    :param items: The items to randomly choose from
+    :returns: The randomized collection
+    '''
+    items = list(items)
+    random.shuffle(items)
+    return items
+
 def choose_and_remove(items):
     ''' Given a collection, randomly choose a value
     from that collection and then remove it from the
     collection so it can't be selected again.
 
     :param items: The items to randomly choose from
-    :param filters: Optional filters to apply to the items
     :returns: A random value from the collection
     '''
     choice = random.choice(items)
@@ -69,6 +79,20 @@ def choose_next_piece(users, cake):
     (piece, user) = min(pieces) # random choice
     cake.remove(piece)
     return (user, piece)
+
+def trim_and_replace(user, cake, piece, weight):
+    ''' Given a resource and a user, trim the given
+    piece to be of the supplied value and reattach the
+    trimming to the total cake.
+
+    :param user: The user to split the resource with
+    :param cake: The cake to re-attach trimmings to
+    :param piece: The piece to trim with the given user
+    :returns: The newly trimmed piece
+    '''
+    (piece, trimming) = piece.create_pieces(user, weight=weight)
+    cake.append(trimming)
+    return piece
 
 # ------------------------------------------------------------ 
 # interfaces
@@ -151,8 +175,8 @@ class DivideAndChoose(FairDivider):
 
         :returns: A dictionary of divisions of {user: piece}
         '''
-        users  = list(self.users) # defensive copy
         slices = {}
+        users  = randomize_items(self.users)
         cutter = choose_and_remove(users)
         picker = choose_and_remove(users)
         pieces = create_equal_pieces(cutter, self.cake, 2)
@@ -193,12 +217,125 @@ class DubinsAndSpanier(FairDivider):
         :returns: A dictionary of divisions of {user: piece}
         '''
         slices = {}
-        users  = list(self.users)
-        cake = self.cake.clone()
-        while len(users) > 1:
+        users  = randomize_items(self.users)
+        cake   = self.cake.clone()
+        while len(users) > 1:               # single user shouldn't divide
             (cutter, piece) = choose_next_piece(users, cake)
-            slices[cutter]  = piece
-        slices[users[0]] = cake # last user gets last
+            slices[cutter]  = piece         # user that said stop gets the piece
+        slices[users[0]] = cake             # last user gets remainder
+        return slices
+
+
+class AustinMovingKnife(FairDivider):
+    '''
+    '''
+
+    def __init__(self, users, cake, value):
+        ''' Initializes a new instance of the algorithm
+
+        :param users: The users to operate with
+        :param cake: The cake to divide
+        :param value: The agreed value to find
+        '''
+        self.users = users
+        self.cake = cake
+        self.value = value
+
+        if value < 0:
+            raise ValueError("cannot split resource to less than 0 value")
+
+    def settings(self):
+        ''' Retieves a capability listing of this algorithm
+
+        :returns: A dictionary of the algorithm features
+        '''
+        return {
+            'users':        2,
+            'envy-free':    True,
+            'proportional': True,
+            # equitable, stable
+        }
+
+    def divide(self):
+        ''' Run the algorithm to perform a suggested
+        division.
+
+        If a piece of the requesed value cannot be found,
+        this will throw.
+
+        :returns: A dictionary of divisions of {user: piece}
+        '''
+        slices = {}
+        users  = randomize_items(self.users)
+        cake   = self.cake.clone()
+        cutter = choose_and_remove(users)
+        picker = choose_and_remove(users)
+        while cake.actual_value() > 0:
+            piece = cutter.find_piece(cake)
+            value = picker.value_of(item)
+            if value == self.value:
+                slices[cutter] = piece
+                slices[picker] = piece
+                break
+            elif value > self.value:
+                value = value - self.value
+                trimming = picker.find_value(trim)
+                cake.remove(trimming)
+            # elif value < self.value: swap and let other try
+            cutter, picker = picker, cutter
+        return slices
+
+
+class BanachKnaster(FairDivider):
+    '''
+    '''
+
+    def __init__(self, users, cake):
+        ''' Initializes a new instance of the algorithm
+
+        :param users: The users to operate with
+        :param cake: The cake to divide
+        '''
+        self.users = users
+        self.cake = cake
+
+    def settings(self):
+        ''' Retieves a capability listing of this algorithm
+
+        :returns: A dictionary of the algorithm features
+        '''
+        return {
+            'users':        'n',
+            'envy-free':    True,
+            'proportional': True,
+            # equitable, stable
+        }
+
+    def divide(self):
+        ''' Run the algorithm to perform a suggested
+        division.
+
+        If a piece of the requesed value cannot be found,
+        this will throw.
+
+        :returns: A dictionary of divisions of {user: piece}
+        '''
+        slices = {}
+        users  = randomize_items(self.users)
+        cake   = self.cake.clone()
+        weight = cake.actual_value() / len(users) # TODO not right for collection
+        while len(users) > 1:                   # single user shouldn't divide
+            cutter = users[0]                   # create the initial trimming
+            piece  = cake.find_piece(cutter, weight)
+            for user in users[1:]:              # skip initial cutter
+                value = user.value_of(piece)    # what this users thinks is 1/n
+                if value > weight:              # user thinks piece is too big
+                    piece  = trim_and_replace(user, cake, piece, weight)
+                    cutter = user               # update last trimmer
+            cake.remove(piece)                  # remove piece from cake
+            users.remove(cutter)                # remove assigned user
+            slices[cutter] = piece              # give the last trimmer their piece
+        slices[users[0]] = cake                 # last user gets remainder
         return slices
 
 
@@ -244,8 +381,8 @@ class InverseDivideAndChoose(FairDivider):
 
         :returns: A dictionary of divisions of {user: piece}
         '''
-        users  = list(self.users) # defensive copy
         slices = {}
+        users  = randomize_items(self.users)
         cutter = choose_and_remove(users)
         picker = choose_and_remove(users)
         pieces = create_equal_pieces(cutter, self.cake, 2)

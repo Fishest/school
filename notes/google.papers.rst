@@ -12,25 +12,36 @@ Dapper: Systems Tracing Infrastructure
 * opensource version is zookeeper
 * pinpoint, magpie, and x-trace are similar systems
 * requirements: ubiquitous deployment, continuous monitoring
+
   - monitoring should always be running
   - low overhead (low performance impact)(sampling)
   - application level transparency (programmer not aware)
   - scalability
   - data available for analysis quickly
+
 * can make transparent by integrating into core libraries
+
   - threading, control flow, rpc, etc
+
 * the total tracing packge has a few deliverables
+
   - code to collect traces
   - tools to visualize them
   - api to analyze large collections of traces
+
 * black box based monitoring scheme
+
   - no additional tagging of data
   - infer relationships with statistical analysis
+
 * annotation based
+
   - add extra annotations to make links explicit
   - say with global identifier tags
   - dapper uses trees, spans, and annotations
+
 * the dapper trace tree
+
   - nodes are units of work (spans)
   - spans are log of start and end time of event, plus data
   - can add extra annotations to the span
@@ -38,10 +49,13 @@ Dapper: Systems Tracing Infrastructure
   - spans without a parent are root spans (say start of rpc)
   - span ids are probabilisticly unique 64 bit integers
   - edges are causual relationship b/t span and parent span
+
 * arbitrary content is allowed to be traced
+
   - all traces are timestamped
   - can limit total logging with an upper bound (config)
   - also allow key/value traces for counters, binary messages, etc
+
 * example of adding tracing to a trace::
 
     Tracer t = Tracer.getCurrentTracer();
@@ -51,6 +65,7 @@ Dapper: Systems Tracing Infrastructure
     } else { t.record("cache miss for " + request); }
 
 * the following describes the tracing pipeline:
+
  - span data is writting to local log files
  - a dapper daemon pulls data from log files
  - daemon pushes data to a dapper collector
@@ -59,13 +74,17 @@ Dapper: Systems Tracing Infrastructure
  - total median time is less than 15 seconds
  - dapper provides a simple api to read this data
  - data is traced and collected out of band (not with request)
+
 * logging can be turned on and off dynamicaly
 * annotations usage:
+
   - distributed debug log file
   - log bigtable requests with table being accessed
   - custom information near frontend
   - opt in security model (very few services don't trace)
+
 * performance of the system
+
   - most expensive operation is writing to log file
   - is async and batches many writes at once
   - creating root span is expensive because of the guid
@@ -77,19 +96,27 @@ Dapper: Systems Tracing Infrastructure
   - sample every request for 12 rps
   - can the system manually adapt to the service usage
   - record this dynamic fx with the trace
+
 * secondary filtering of data at collector
+
   - hash global trace id (all spans have this to 0 < z < 1
   - can set a global configuration value of the logging level
   - if less than global value, drop, otherwise log
+
 * dapper api supplies the following:
+
   - retrieve trace by id
   - map/reduce on key of trace id
   - indexes to common values (service, host, timestamp)
+
 * other monitoring services used
+
   - dapper real time metrics
-   - centralized logging
+  - centralized logging
   - centralized exception monitoring (metadata included with dapper)
+
 * advanced uses of dapper
+
   - qa functional testing (fingerprinting)
   - debugging critical paths
   - dependency tracing and mapping (between clusters)
@@ -100,8 +127,9 @@ Dapper: Systems Tracing Infrastructure
   - service security accounting and rpc patterns checker
   - open api allowed new use cases to be created
   - how to add kernel tracing parameters to traces
-* **adaptive sampling**
-  - 1 request out of 1000 to be sampled gives correct data
+
+* **adaptive sampling** - 1 request out of 1000 to be sampled
+  gives correct data
 
 ------------------------------------------------------------
 Chubby: 
@@ -109,29 +137,37 @@ Chubby:
 
 * opensource version is zookeeper
 * purpose of the lock service is to allow clients to
+
   - synchronize thier activities
   - agree on basic information about their environment
   - reliability and availability were first concerns
   - performance was secondary
+
 * interface is similar to a simple file system
 * initial goal was for leader election (GFS, bigtable, etc)
+
   - distributed consensus problem (paxos)(synced clocks)
   - allow clients to find master
   - allow master to find servers it controls
   - store small amounts of metadata
   - use as distributed work lock
+
 * lock service vs a paxos client library
+
   - service is easier to add after the fact
   - simpler to participate in service consensus
   - consistent client caching vs time based caching
   - has a similar feel to traditional locks
   - lock service needs 3 servers for consensus and 5 to be safe
   - client only needs one server for consensus
+
 * intended for coarse (long held) locks instead of fine grained.
+
   - have event notification system for watching changes
   - can create fine grain locks with monotonic counters
 
 * architecture is rpc server and client library
+
   - all communication is through client library
   - servers are organized into cells of 5 replicas
   - each cell votes for a master that does all reading/writing
@@ -142,12 +178,15 @@ Chubby:
   - clients find the master via dns query for replicas
   - replicas return current master identity
   - client directs all requests to master until
+
     * it fails to respond in a timely fashion
 	* it indicates that a new master has been elected
+
   - database writes are distributed by the consensus protocal
-    * data is written when a consensus is reached
+  - data is written when a consensus is reached
   - database reads are only served by the master
   - when a replica fails and does not recover say in a few hours
+
     * a simple replacement process is started
     * the old machine is stopped and a fresh machine is started
 	* the machine starts a new chubby binary
@@ -160,28 +199,36 @@ Chubby:
 	* once it has processed a master commit request, it can vote
 
 * The data is a simple unix style file system interface
+
   - /ls/cellname/path/value (root is always ls)
   - the cellname is resolved to a chubby server via dns
   - local indicates that the local chubby cell should be used
   - no semantics to move files, modified times, or links
   - file only acls, no path dependent semantics
   - file/directory is known as nodes
+
 * nodes can be permanent or ephemeral
+
   - nodes can be deleted explicitly
   - nodes are auto deleted if ephemeral and no client has them open
   - can be used as temporary files to indicate a client is alive
   - can be used for reader/writer locks
+
 * there is various meta-data attached to the file
+
   - three acl lists: read, write, acl control
   - unless overwritten, inherits from parent
   - acls are stored as files in another directory (other services can use)
   - also includes four monotonically increasing 64 bit numbers
   - instance, content generation, lock generation, and acl generation number
   - also includes a 64 bit file-content checksum
+
 * file handles are created by client and include:
+
   - check digits, sequence number, and mode information
 
 * Files and directories can function as reader writer locks:
+
   - one client holds one in writier mode
   - many clients hold the lock in reader mode
   - can specify a lock delay to deal with faulty held locks (deadlock)
@@ -189,6 +236,7 @@ Chubby:
   - other services can validate that the sequencer is still valid
 
 * Clients can register for chubby events via the library:
+
   - file contents modified (monitor service registered location)
   - child node added, removed, or modified (implement mirroring)
   - chubby master failover
@@ -199,6 +247,7 @@ Chubby:
     * user is guranteed to see result of operation
 
 * The client library exposes the following API:
+
   - open() / close() - standard unix file handling
   - Poison() - allow the client to virtually operate (no data is sent)
   - GetContentsAndStat() - returns contents and metadata of a file
@@ -211,6 +260,7 @@ Chubby:
   - SetACL() - changes ACLs on a file
 
 * What follows is a leader election process:
+
   1. All potential primaries open the specified lock file
   2. They all attempt to aquire the lock, only one succeeds
   3. It becomes the primaries, the rest become replicas
@@ -220,6 +270,7 @@ Chubby:
   7. Communicates with servers with new token, they check with CheckSequencer
 
 * To stay performant, chubby clients keep a write through cache in memory
+
   - of file data and fiel metadata
   - master sends file change events to clients who may be caching data
   - they flush the cache and respond with an ack (sits on keep alive rpc)
@@ -227,7 +278,8 @@ Chubby:
   - can also cache locks and file handles (if they can be reused)
 
 * Cubby client sessions are maintained by a keep alive system:
-  - engages in period keep alive handshakes
+
+  - engages in periodic keep alive handshakes
   - handles, locks, and cached data all remain valid while session is valid
   - session is automatically acquired on connetion
   - is terminated on close() or session idle (no handles and no work in a minute)
@@ -239,15 +291,19 @@ Chubby:
   - jeopardy, safe, and expired are events that the library informs of
 
 * used Berkeley DB, but later wrote their own to simplify needs and get tested record logs
+
   - every hour, the chubby master writes a snapshot of its db to GFS (in rotating buildings)
 
 * Google uses a number of techniques to scale the chubby cluster
+
   - one master per 1000 machines
   - increase timeouts if under heavy load (less keep alive requests)
   - clients cache any data they can (a read is a cache miss)
-  - protocol conversion servers to reduce protocol complexity
+  - protocol conversion servers to reduce protocol complexity:
+
     * one for java client -> chubbly client 
 	* one to convert chubby dns requests
+
   - trusted proxy server to a chubby cell (consume keep alive traffic 93%)
   - partition data based on the cell
   - chubby data fits in system ram
@@ -256,6 +312,7 @@ Chubby:
   - maximum size 256kb per file
 
 * primary uses:
+
   - most popular was as a name server
 
 ------------------------------------------------------------
@@ -327,18 +384,25 @@ A typical Tenzing query goes through the following steps:
 
 * supports all major SQL92 and some SQL99 constructs
 * also embeds the sawzall language for advanced usage
+
   - other languages like lua and R can easily be added
+
 * hash table based aggregation rdbms (hash key is group by)
 * joins search for best table to pull in memory (if able)
+
   - otherwise reverert to a serialized disk scheme
   - apply filters before load, to reduce rows
   - only load columns that are needed
   - create a single copy for multiple threads
   - join is cached to disk on the worker
+
 * is not acid, but does allow isolation
+
   - inserts are batch appends
   - allows but does not enforce primary and foreign keys
+
 * adapted mapreduce to use worker and master pooling
+
   - don't need to spin up new processes for each request
   - binaries are always loaded
   - tasks are processed froma fifo work queue
@@ -375,23 +439,29 @@ Sawzall
 * opensource is apache pig
 * can we make awk distributed?
 * find operations that are commutative and associative
+
   - order doesn't matter, can split work arbitrarily
 
 * sawzall proccessing steps:
+
   - interpreter is started for each piece of data
   - each data record is operated on individually
   - output is primitive type or tuple of primitives types
   - this data is passed to aggregators
   - the aggregator output files are then collapsed to one file
   - smaller amount of machines run aggregators then sawzall
+
 * depends on the following google infrastructure:
+
   - protocol buffers
   - gfs
   - workqueue (like condor)
   - mapreduce (sawzall is map phase, aggregate is reduce)
+
 * language is type safe
 * has code to parse various input formats
 * aggregation is not allowed in the language
+
   - there are predefined aggregations allowed
   - collection -> `c: table collection of string;` 
   - sample -> `s: table sample(100) of string;` 
@@ -400,23 +470,33 @@ Sawzall
   - quantile -> `s: table quantile(101) of response_in_ms: int;`
   - top -> `s: table top(10) of language: string;`
   - unique -> `s: table unique(100) of string;`
+
 * after validating, saw and dump programs are run
+
   - command line with flags
   - number of workqueue machines is determined from input/output
+
 * sawzall is a conventional compiler written in c++
+
   - takes input source and compiles to byte code
   - byte code is then interpreted by same binary
   - starts one mapreduce job to get job parameters/info
   - second mapreduce job actually runs sawzall
+
 * no memory between sawzall runs (arena memory)
+
   - only data that has been emitted is available
   - can create static instances that are shared (for init)
   - only value types, no references
+
 * undefined values can be tested for with def(v)
+
   - can set a run time flag that causes undefined values to be skipped
   - these will be stored in a collected log
   - if the number of values in that log is low, computation will continue
+
 * can define quantifiers of values
+
   - `when (i: some int; B(a[i])) function(i);`
   - `when (i: each int; j some int; query[i] == keywords[j]) emit keyword[j];`
   - also have some, each, all quantifiers

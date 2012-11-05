@@ -40,7 +40,7 @@ Quick overview:
 * lambda => list.ForEach do(i): print i
 * lambda (no arguments) => list.ForEach: print "nothing"
 * statement modifiers (ruby: return nil if test)
-  - if, unless, and while can be used like this
+* if, unless, and while can be used like this
 * extension methods/properties
 * IQuackFu -> dynamic dispatch (method_missing)
 
@@ -48,7 +48,7 @@ DSL Tips:
 
 * Choose names appropriately and make sure the make sense
 * Use underscores instead of PascalCase
-*
+
 ------------------------------------------------------------
 Chapter 3: The Drive Towards DSLs (39)
 ------------------------------------------------------------

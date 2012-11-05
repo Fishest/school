@@ -57,35 +57,38 @@
 * type variable == generic
 * functions that take type variables are polymorphic functions
 * class constraint (==) :: (Eq a) => a -> a -> Bool
+
   - Eq a type that tests for equality (==)
   - Ord a type that has some kind of ordering (>, <)
   - Show a type that can be converted to a string -> show True
-  - Read a type that can be converted from a string to a type::
-    
+  - Read a type that can be converted from a string to a type
+  - Enum a type that is a sequentiall ordered type
+  - Bounded a type that has an upper and lower bound
+  - Num a type that can act like a number
+  - Integral (Int, Integer), Floating (Float, Double)
+  - Use fromIntegral to convert Integral to Num
+
+Here are some examples of the class constraints in action::
+
+    ; read
     read "True" || False
     read "1" :: Int
     read "(3, 'a')" :: (Int, Char)
 
-  - Enum a type that is a sequentiall ordered type::
-
+    ; enum
     [LT .. GT]
     pred (succ LT)
 
-  - Bounded a type that has an upper and lower bound::
-
+    ; bounded
     minBound :: Int
     maxBound :: Int
-	maxBound :: (Bool, Int, Char)
-
-  - Num a type that can act like a number
-  - Integral (Int, Integer), Floating (Float, Double)
-  - Use fromIntegral to convert Integral to Num
+    maxBound :: (Bool, Int, Char)
 
 --------------------------------------------------------------------------------
  Syntax in Functions
 --------------------------------------------------------------------------------
 
-  - pattern matching::
+Examples of pattern matching::
 
     lucky :: (Integral a) => a -> String
     lucky 7 = "lucky number"
@@ -104,15 +107,13 @@
     third  :: (a,b,c) -> c
     third     (_,_,c)  = c
 
-  - lookup order is defined as top to bottom
-  - always define a catch all, otherwise you are going to throw
-  - in list comprehensions, a failure will just skip the element::
+Can pattern match on many things in haskell::
 
+    -- list comprehensions
     xs = [(1,2), (3, 4), (5,6)]
     [a + b | (a, b) <- xs]
 
-  - Can match lists on any pattern of `:`::
-
+    ; lists
     head :: [a] -> a
     head []         = error "Empty list"
     head (x:_)      = x # first:ignore the rest
@@ -124,9 +125,7 @@
     length' [] = 0  
     length' (_:xs) = 1 + length' xs  
 
-  - to split a patten and keep the original `all@(x:xs)`
-  - guards are basically cond statements (scala style)::
-
+    ; guard statements
     tester1 :: (RealFloat a) => a -> String
     tester1 value
       | value <= 10.0 = "small value"
@@ -136,6 +135,7 @@
     max' :: (Ord a) => a -> a -> a
     max' a b | a > b = a | otherwise = b
 
+    -- where statements
     tester2 :: (RealFloat a) => a -> b -> String
     tester2 weight height
       | value <= small  = "small value"
@@ -156,11 +156,19 @@
     calcBmi :: (RealFloat a) => [(a, a)] -> [a]
     calcBmi xs = [bmi | (w, h) <- xs, let bmi = w / h ^ 2, bmi >= 25.0]
 
+  - Can match lists on any pattern of `:`
+  - lookup order is defined as top to bottom
+  - always define a catch all, otherwise you are going to throw
+  - in list comprehensions, a failure will just skip the element
+  - to split a patten and keep the original `all@(x:xs)`
+  - guards are basically cond statements (scala style)
   - if no otherwise is defined and no match is made, an error is thrown
   - where clauses are local to the guard (not global namespace)
   - where clauses can be nested
-  - let bindings are expressions give immediate scope (not across guards)::
 
+Let bindings are expressions give immediate scope (not across guards)::
+
+    ; let bindings
     let <bindings> in <expression>
     cylinder :: (RealFloat a) => a -> a -> a ->
     cylinder r h = 
@@ -168,7 +176,7 @@
           toparea  = pi * 2 ^ 2
       in  sidearea + 2 * toparea
 
-  - case (expressions) are basically pattern matchers::
+Case (expressions) are basically pattern matchers::
 
     case expression of pattern -> result
                        pattern -> result
@@ -184,7 +192,7 @@
  Recursion
 --------------------------------------------------------------------------------
 
-  - in haskell, describe what something is and not how to get it::
+In haskell, describe what something is and not how to get it::
 
     replicate' :: (Num i, Ord i) => i -> a -> [a]  -- multiple interfaces for i
     replicate' n x  
@@ -221,13 +229,14 @@
  Higher Order Functions
 --------------------------------------------------------------------------------
 
-  - functions in haskell take a maximum of one argument (the rest is curried)
-  - function application / partially applied functions (currying)::
+Functions in haskell take a maximum of one argument (the rest are curried).
+Here is a quick example of function application / partially applied functions
+(currying)::
   
     let minOf4 = max 4
     minOf4 2
 
-  - higher order functions == functions as data::
+Higher order functions == functions as data::
 
     apply2 :: (a -> a) -> a -> a -- function -> input -> return
     apply2 f x = f (f x)
@@ -240,8 +249,8 @@
     flip' :: (a -> b -> c) -> (b -> a -> c)
     flip' f x y = f y x
 
-  - map takes a function and a list and applies that function to each
-    element in the list::
+`map` function takes a function and a list and applies that function to each
+element in the list::
 
     map :: (a -> b) [a] -> [b]
     map _ [] = []
@@ -249,8 +258,8 @@
 
     [f x | x <- xs] -- essentially map
 
-  - filter takes a predicate and a list and extracts the elements
-    where the predicate is true::
+`filter` takes a predicate and a list and extracts the elements
+where the predicate is true::
 
     filter :: (a -> Bool) -> [a] -> [a]
     filter _ [] = []
@@ -260,13 +269,13 @@
 
     [x | x <- xs, f x] -- essentially filter
 
-  - takeWhile lets you consume an infinite list until a predicate
-    evaluates to false. Also, interesting::
+`takeWhile` lets you consume an infinite list until a predicate
+evaluates to false. Also, interesting::
 
     let listofFuncs = map (*) [0..] -- [(0*), (1*), (2*)...]
     ((listofFuncs !! 4) 5)  -- (4*) 5
 
-  - anonymous functions with lambdas::
+Here are examples of anonymous functions with lambdas::
 
     (\xs -> length xs > 15) [1,2,3,4,5]
 
@@ -279,7 +288,7 @@
     example x y z = x + y + z
     example = \x -> \y -> \z -> x + y + z
 
-  - folds::
+Here be folds::
  
     -- fold left folds from the left
     sum' :: (Num a) => [a] -> a
@@ -298,7 +307,7 @@
     -- foldl1 foldr1 use the first or last value as the starting accumulator
     -- make sure there is at least one element though or they will throw
 
-  - rebuilding the world with folds::
+You can rebuild the world with folds::
 
     max :: (Ord a) => [a] -> a
     max = foldr1 (\x acc -> if x > acc then x else acc)
@@ -323,13 +332,13 @@
 
     foldl f a xs = foldr (\x g a -> g(f x a)) id xs a
 
-  - scanning records the intermediate accumulator states::
+Scanning records the intermediate accumulator states::
 
     scanl (+) 0 [3,5,2,1] -- [0,1,3,8,11]
     scanr (+) 0 [3,5,2,1] -- [11,8,3,1,0]
     -- scanl1 and scanr1 also exist
 
-  - can change the function application to right associative with $::
+Can change the function application to right associative with $::
 
     sum (map sqrt [1..130])
     sum $ map sqrt [1..130] -- same effect
@@ -341,7 +350,7 @@
     -- so we can map the application on to other functions
     map ($ 3) [(4+), (10*), (^2), sqrt]
 
-  - function composition operator (.)::
+Can also do function composition with this operator (.)::
 
     (.) :: (b -> c) -> (a -> b) -> a -> c
     f . g = \x -> f $ g x
@@ -366,8 +375,8 @@
  Modules
 --------------------------------------------------------------------------------
 
-  - Prelude module is imported by default and contains all common methods
-  - Modules must be imported before defining any functions::
+The Prelude module is imported by default and contains all common methods.
+Modules must be imported before defining any functions::
 
     import <module name>                        -- import all of module
     import <module name> (function1, function2) -- only import fx1 and fx2
@@ -375,7 +384,7 @@
     import qualified <module name>              -- import with fq name
     import qualified <module name> as M         -- import with fq name of M
 
-  - Data.List::
+Contents of Data.List::
 
     intersperse '.' "name"          -- "n.a.m.e"
     intercalate [1,1] [[2,2],[3,3]] -- [2,2,1,1,3,3]
@@ -428,15 +437,14 @@
     
     sortBy (compare `on` sum) [[1,2,3],[4,5,6], [7,8,9]]
 
-  - Data.Char is fully of methods to test if the char is X::
+Data.Char is full of methods to test if the char is X::
 
     any isSpace "my name is" -- True
     all isSpace "my name is" -- False
     generalCategory ' '      -- Space
     generalCategory 'a'      -- LowercaseLetter
 
-  - Example of using some utilities to create the caesar cypher::
-
+    -- example of using some utilities to create the caesar cypher::
     encode :: Int -> String -> String
     encode shift msg =
       let ords   = map ord msg
@@ -445,32 +453,32 @@
 
     decode :: Int -> String -> String
     decode shift msg = encode (negate shift) msg
- 
-  - To import fully qualified, `import qualified Data.Map as Map`
-  - Data.Map (also known as a dictionary...or an ordered tuple tree)::
+
+Contents of Data.Map (also known as a dictionary...or an ordered tuple tree)::
     
-	fromList                         -- converts a list of tuples to a map
-	empty                            -- generates an empty map
-	insert "key" "value"  Map.empty  -- inserts a tuple into the map
-	null Map.empty                   -- True, checks if map is empty
-	size Map.empty                   -- 0, reports size of the map
-	singleton 3 9                    -- insert 3 9 Map.empty
-	lookup key                       -- looks for value by key
-	member key                       -- checks to see if key is in the map
-	map,filter                       -- much the same
-	toList                           -- the inverse of from list
-	keys                             -- map fst . toList
-	elems                            -- map snd . toList
-	fromListWith                     -- from list with a combining function (for dups)
-	insertWith                       -- insert with a combining function (for dups)
-	
-	fromList' = foldr (\(k, v) acc -> Map.insert k v acc) Map.empty
-	fromListWith max [(1,0), (1,9)]  -- [(1,9)]
-	fromListWith (+) [(1,4), (1,5)]  -- [(1,9)]
+    -- to import fully qualified, `import qualified Data.Map as Map`
+    fromList                         -- converts a list of tuples to a map
+    empty                            -- generates an empty map
+    insert "key" "value"  Map.empty  -- inserts a tuple into the map
+    null Map.empty                   -- True, checks if map is empty
+    size Map.empty                   -- 0, reports size of the map
+    singleton 3 9                    -- insert 3 9 Map.empty
+    lookup key                       -- looks for value by key
+    member key                       -- checks to see if key is in the map
+    map,filter                       -- much the same
+    toList                           -- the inverse of from list
+    keys                             -- map fst . toList
+    elems                            -- map snd . toList
+    fromListWith                     -- from list with a combining function (for dups)
+    insertWith                       -- insert with a combining function (for dups)
+    
+    fromList' = foldr (\(k, v) acc -> Map.insert k v acc) Map.empty
+    fromListWith max [(1,0), (1,9)]  -- [(1,9)]
+    fromListWith (+) [(1,4), (1,5)]  -- [(1,9)]
+    
+Contents of Data.Set::
 
-  - To import fully qualified, `import qualified Data.Set as Set`
-  - Data.Set::
-
+    -- to import fully qualified, `import qualified Data.Set as Set`
     fromList "hello world"           -- "dehlorw"
     intersection                     -- perform the set intersection
     difference                       -- perform the set difference
@@ -480,11 +488,10 @@
     isSubsetOf, isProperSubsetOf     -- proper means has more values
     map, filter
 
-  - it is faster to get a unique list by converted to and from a set than by using nub::
-
+    -- it is faster to get a unique list by converted to and from a set than by using nub
     setNub xs = Set.toList $ Set.fromList xs -- however this breaks the original ordering
 
-  - To define your own module::
+To define your own module, simply do the following::
 
     module Geometry.Sphere -- located in Geometry/Sphere.hs
     ( sphereVolume  -- specifically define which functions are exported
@@ -501,7 +508,7 @@
  Making Types and Typeclasses
 --------------------------------------------------------------------------------
 
-  - can define new data types quickly with the data keyword::
+One can define new data types quickly with the data keyword::
 
     data Bool = False | True
     data Point = Point Float Float deriving (Show)
@@ -511,15 +518,13 @@
     nudge (Circle (Point x y) r) (Point a b) = Circle (Point (x + a) (y + b)) r
     nudge (Rectangle (Point x1 y1) (Point x2 y2) ) (Point a b) = Rectangle (Point (x1 + a) (y1 + b)) (Point (x2 + a) (y2 + b))
 
-  - can export value constructors like the following::
-
+    -- can export value constructors like the following
     modules Shapes
     ( Point(..)
     , Shape(..) -- import all Shape, or just Circle, or Rectangle
     ) where     -- if you hide the constructor, users cannot pattern match
 
-  - the record syntax of describing a type::
-
+    -- the record syntax of describing a type
     data Person = Person { firstName :: String
                          , lastName  :: String
                          , age :: Int
@@ -527,16 +532,14 @@
                          , phoneNumber :: String
                          } deriving (Show)
 
-  - Type constructor is basically a generic::
-
+    -- type constructor is basically a generic::
     data Maybe a = Nothing | Just a -- Maybe is not a type
     Maybe Int                       -- Maybe Int is though
 
     data (Ord K) => Map k v = ...   -- type class constraint, however
                                     -- don't do this as you will have to specify everywhere
                           
-  - Some typeclasses give us automatic candy::
-
+    -- Some typeclasses give us automatic candy::
     data Person = Person { firstName :: String
                          , lastName  :: String
                          , age :: Int
@@ -546,15 +549,15 @@
     data Day = Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | Sunday   
                deriving (Eq, Ord, Show, Read, Bounded, Enum)  
 
-  - Use maybe if you know why it failed (one error condition). Use either
-    if there are multiple reasons why the failure occurred and we need to
-    know why::
+Use maybe if you know why it failed (one error condition). Use either
+if there are multiple reasons why the failure occurred and we need to
+know why::
     
     data Either a b = Left a | Right b deriving (Eq, Ord, Read, Show)
     Left  "this is the error condition"
     Right "this is the success result"
 
-  - type snyonyms give us a better name (typedef), are not ctors, just types::
+Type synonyms give us a better name (typedef), are not ctors, just types::
 
     type String = [Char]
     type PhoneNumber = String  
@@ -567,7 +570,7 @@
     type AssocList k v = [(k,v)]   -- parameterized types
     type IntMap v = Map Int v      -- partially applied types
 
-  - let's make a tree::
+We can use these to make a tree type::
 
     data Tree a = EmptyTree | Node a (Tree a) (Tree a) deriving (Show, Read, Eq)
     
@@ -591,7 +594,7 @@
     let numbers = [1,5,6,7,4,6,78,56,0]
     foldr treeInsert EmptyTree numbers -- build a tree with fold!
     
-  - typeclasses (mixins), lets learn how to make them::
+There are also typeclasses (mixins), lets learn how to make them::
 
     class Eq a where  
         (==) :: a -> a -> Bool  
@@ -624,7 +627,7 @@
  Input / Output
 --------------------------------------------------------------------------------
 
-  - Doing input::
+Example of performing input::
 
     putStrLn "something"
     :t putStrLn :: IO ()                    -- IO that returns an empty tuple
@@ -632,7 +635,7 @@
     name <- getLine                         -- binds result of IO to name
     :t getLine getline :: IO String
 
-  - main functions are placed in a do block::
+All main functions are placed in a do block::
 
     main = do
       foo  <- putStrLn "Insert your name "  -- foo contains ()
@@ -715,7 +718,7 @@
  Reverse Polish
 --------------------------------------------------------------------------------
 
-Hey look a calculator::
+Here is a simple calculator example::
 
     import Data.List
 
@@ -730,7 +733,7 @@ Hey look a calculator::
               folder ys      "sum" = [sum ys]
               folder xs number     = read number:ys
 
-clever things::
+Here are some clever examples::
 
     groupsOf :: Int -> [a] -> [[a]]
     groupsOf 0 _  = undefined
@@ -741,23 +744,22 @@ clever things::
  Fmap and functors
 --------------------------------------------------------------------------------
 
-  - Included in Control.Monad.Instances
-  - fmap is basically bind that maps over the monad internals::
+These are included in Control.Monad.Instances.  The primary interface is fmap
+which is basically bind that maps over the monad internals::
 
     fmap reverse getline
     fmap 2+ [1,2,3,4,5]
     fmap (\x -> x ++ "!") (Just "hello")
 
-  - functor is a partially applied (r -> a)::
-
+    -- functor is a partially applied (r -> a)::
     instance Functor ((->) r) where             -- this is basically function composition
         fmap f g = (\x -> f (g x))              -- think of like fmap = (.)
 
+    -- so fmap lifts the value inside the functor
     :m + Control.Monad.Instances
     fmap (*3) (+100) 4
 
-  - so fmap lifts the value inside the functor
-  - Rules::
+  - These are the rules that govern functors::
 
     fmap id (Just 3) == id (Just 3)
     fmap (f . g) == fmap f . fmap g
@@ -766,14 +768,14 @@ clever things::
  Applicative functors
 --------------------------------------------------------------------------------
 
-  - Included in Control.Applicative
-  - Basically mapping a partially applied function into a functor. A function can
-    then be applied to this that takes said function as a parameter::
+These are included in Control.Applicative and are basically mapping a partially
+applied function into a functor. A function can then be applied to this that
+takes said function as a parameter::
 
       let a = fmap (*) [1,2,3,4]    -- [Integer -> Integer]
       fmap (\f -> f 9) a            -- [9, 18, 27, 36]
 
-  - Applicative defines two methods: pure and <*>::
+Applicative defines two methods: pure and <*>::
 
     -- pure is the simplest context value (Just for Maybe)
     Just (+3) <*> Just 9            -- Just 12
@@ -786,13 +788,13 @@ clever things::
     pure f <*> x <*> y == fmap f x <*> y
     f <$> x <*> y      == fmap f x <*> y
 
-  - The list applicative functor applies every function in fs to every element
-    in xs. They can also be partially applied::
+The list applicative functor applies every function in fs to every element
+in xs. They can also be partially applied::
 
     [(+), (*)] <$> [1,2] <*> [3,4] -- [4,5,5,6,3,4,6,8]
     (+) <$> (+3) <*> (*100) $ 5 -- 508
 
-  - ZipList can be used to apply a list of applicative functors to a list of elements::
+ZipList can be used to apply a list of applicative functors to a list of elements::
 
     -- ZipList doesn't implement show, so getZipList is used
     -- (,) == \x y -> (x,y)
@@ -803,11 +805,10 @@ clever things::
     zipWith (\a b -> (a,b)) [1,2,3] ['a', 'b', 'c'] -- [(1,'a'),(2,'b'),(3,'c')]
     -- also zipWith3...zipWith7
 
-  - liftA2 converts a binary function to an applicative function::
-
+    -- liftA2 converts a binary function to an applicative function
     liftA2 (:) (Just 3) (Just [4]) -- Just [3,4]
 
-  - how could we apply a list of applicatives (say [Just 1, Just 2, Just 3]::
+How could we apply a list of applicatives (say [Just 1, Just 2, Just 3]::
 
     sequenceA :: (Applicative f) => [f a] -> f [a]  
     sequenceA [] = pure []  
@@ -815,7 +816,7 @@ clever things::
     -- or with a fold
     sequenceA = foldr (liftA2 (:)) (pure [])  
 
-  - Check a value against a list of predictes::
+An example of checking a value against a list of predictes::
 
     map (\f -> f 7) [(>4),(<10),odd]		-- [True,True,True]  
     and $ map (\f -> f 7) [(>4),(<10),odd]	-- True
@@ -829,11 +830,11 @@ clever things::
  newtype
 --------------------------------------------------------------------------------
 
-  - can define new types that are simple wrappers with `newtype`, helpful because
-    it is faster on the runtime than using data::
+One can define new types that are simple wrappers with `newtype`, which is
+helpful because it is faster on the runtime than using data::
 
-	  newtype ZipList a = ZipList { getZipList :: [a] }
-	  newtype ZipList a = ZipList { getZipList :: [a] } deriving (Eq, Show)
+    newtype ZipList a = ZipList { getZipList :: [a] }
+    newtype ZipList a = ZipList { getZipList :: [a] } deriving (Eq, Show)
 
   - newtype only supports one value constructor and one field
   - type can be thought of as a type synonym
@@ -845,8 +846,8 @@ clever things::
  monoid
 --------------------------------------------------------------------------------
 
-* A monoid is when you have an associative binary function and a value which
-  acts as an identity with respect to that function::
+A monoid is when you have an associative binary function and a value which
+acts as an identity with respect to that function::
 
     -- defined in import Data.Monoid
     mempty			-- polymorphic constant for identity value

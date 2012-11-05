@@ -319,31 +319,31 @@ Namespaces
 
 * the repl displays the current namespace you are in::
 
-  user => (ns my.cool.thing)        ; $CLASSPATH/my/cool/thing.clj    
-  my.cool.thing => ...
-
-  (ns my.cool.thing-doer)           ; $CLASSPATH/my/cool/thing_doer.clj    
-
-  (foo.bar/hello)                   ; namespace qualified symbol
-
-  (ns name references*)
-  (ns name
-    (:require [name :as foo]))      ; namespace aliasing
-  (foo/function-in-foo)
-
-  (ns name
-    (:use [name :only (A B)]))      ; unqualified includes
-  (A)                               ; don't need namespaces
-  (B)
-
-  (ns name
-    (:use name))                    ; unqualified * include
-
-  (ns name
-    (:import (java.io File Writer))); import java classes
-
-  (use 'clojure.string)             ; in repl, arguments must be quoted
-  (require '[clojure.set :as set])
+    user => (ns my.cool.thing)        ; $CLASSPATH/my/cool/thing.clj    
+    my.cool.thing => ...
+    
+    (ns my.cool.thing-doer)           ; $CLASSPATH/my/cool/thing_doer.clj    
+    
+    (foo.bar/hello)                   ; namespace qualified symbol
+    
+    (ns name references*)
+    (ns name
+      (:require [name :as foo]))      ; namespace aliasing
+    (foo/function-in-foo)
+    
+    (ns name
+      (:use [name :only (A B)]))      ; unqualified includes
+    (A)                               ; don't need namespaces
+    (B)
+    
+    (ns name
+      (:use name))                    ; unqualified * include
+    
+    (ns name
+      (:import (java.io File Writer))); import java classes
+    
+    (use 'clojure.string)             ; in repl, arguments must be quoted
+    (require '[clojure.set :as set])
 
 ------------------------------------------------------------
 Concurrency

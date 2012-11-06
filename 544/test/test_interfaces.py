@@ -41,6 +41,7 @@ class InterfacesTest(unittest.TestCase):
         cake = Resource()
         self.assertRaises(NotImplementedError, lambda: cake.actual_value())
         self.assertRaises(NotImplementedError, lambda: cake.clone())
+        self.assertRaises(NotImplementedError, lambda: cake.append(item))
         self.assertRaises(NotImplementedError, lambda: cake.remove(item))
         self.assertRaises(NotImplementedError, lambda: cake.find_piece(user, size))
         self.assertRaises(NotImplementedError, lambda: cake.compare(item))

@@ -31,7 +31,10 @@ class DivideAndChoose(FairDivider):
             'users':        2,
             'envy-free':    True,
             'proportional': True,
-            # equitable, stable
+            'equitable':    True,
+            'optimal':      True,
+            'discrete':     True,
+            'continuous':   True,
         }
 
     def divide(self):

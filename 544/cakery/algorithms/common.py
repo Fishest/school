@@ -25,6 +25,53 @@ class FairDivider(object):
             raise ValueError("users don't all see unit value on the resource")
         return True
 
+    def is_proportional(self, slices):
+        ''' Test that the proposed division is proportional
+
+        :param slices: The proposed division of the resource
+        :returns: True if proportional, False otherwise
+        '''
+        share  = 1.0 / len(self.users)
+        pieces = slices.values()
+        for user, piece in slices:
+            if not all(user.value_of(p) >= share for p in pieces):
+                return False
+        return True
+
+    def is_equitable(self, slices):
+        ''' Test that the proposed division is equitable
+
+        :param slices: The proposed division of the resource
+        :returns: True if equitable, False otherwise
+        '''
+        pieces = slices.values()
+        for user, piece in slices:
+            value = user.value_of(piece)
+            if not all(user.value_of(p) == share for p in pieces):
+                return False
+        return True
+
+    def is_envy_free(self, slices):
+        ''' Test that the proposed division is envy-free
+
+        :param slices: The proposed division of the resource
+        :returns: True if envy-free, False otherwise
+        '''
+        pieces = slices.values()
+        for user, piece in slices:
+            envied = max(user.value_of(p) for p in pieces)
+            if envied > user.value_of(piece):
+                return False
+        return True
+
+    def is_optimal(self, slices):
+        ''' Test that the proposed division is optimal
+
+        :param slices: The proposed division of the resource
+        :returns: True if envy-free, False otherwise
+        '''
+        return False # TODO
+
     def settings(self):
         ''' Retieves a capability listing of this algorithm
 

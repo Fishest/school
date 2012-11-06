@@ -2,7 +2,7 @@ from cakery.algorithms.utilities import *
 from cakery.algorithms.common import FairDivider
 
 
-class DutchAuction(FairDivider):
+class SealedBidAuction(FairDivider):
     '''
     '''
 

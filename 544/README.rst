@@ -28,3 +28,14 @@ Utilties
 ------------------------------------------------------------
 Todo
 ------------------------------------------------------------
+
+* add settings for algorithms
+  - test them with the utility methods
+  - test with non-trivial parameters
+* 
+* Wrap Ron's implementation in a preference
+  - does this need a new resource?
+* Algorithms
+  - lone divider
+  - sealed bids
+  - dutch auction

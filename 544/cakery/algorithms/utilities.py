@@ -37,7 +37,7 @@ def choose_and_remove(items):
     return choice
 
 
-def choose_largest_bid(users, item):
+def choose_largest_bidder(users, item):
     ''' Given an item, return the user that bid
     the largest amount for said item.
 
@@ -45,7 +45,7 @@ def choose_largest_bid(users, item):
     :param item: The item to be bid upon
     :returns: The user with the highest bid
     '''
-    return max((user.value_of(cake), user) for user in users)[1]
+    return max((user.value_of(item), user) for user in users)[1]
 
 
 def choose_best_piece(user, pieces):

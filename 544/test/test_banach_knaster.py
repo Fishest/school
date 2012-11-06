@@ -3,7 +3,7 @@ import unittest
 from fractions import Fraction
 from cakery.preference import ContinuousPreference
 from cakery.resource import ContinuousResource
-from cakery.algorithm import BanachKnaster
+from cakery.algorithms import BanachKnaster
 
 class BanachKnasterTest(unittest.TestCase):
     '''

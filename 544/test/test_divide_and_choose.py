@@ -2,7 +2,7 @@
 import unittest
 from cakery.preference import CollectionPreference
 from cakery.resource import CollectionResource
-from cakery.algorithm import DivideAndChoose, InverseDivideAndChoose
+from cakery.algorithms import DivideAndChoose, InverseDivideAndChoose
 
 class DivideAndChooseTest(unittest.TestCase):
     '''

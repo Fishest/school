@@ -2,7 +2,7 @@
 import unittest
 from cakery.preference import Preference
 from cakery.resource import Resource
-from cakery.algorithm import FairDivider
+from cakery.algorithms.common import FairDivider
 
 class InterfacesTest(unittest.TestCase):
     '''

@@ -84,6 +84,15 @@ class CollectionResourceTest(unittest.TestCase):
         self.assertEqual(60, user.value_of(cake.find_piece(user, 60)))
         self.assertEqual(70, user.value_of(cake.find_piece(user, 70)))
 
+    def test_resource_as_collection(self):
+        ''' test that we can convert a resource to a collection '''
+        keys = ['red', 'blue', 'green']
+        cake = CollectionResource(keys)
+        pieces = cake.as_collection()
+        actual = [CollectionResource(key) for key in keys]
+        for this,that in zip(pieces, actual):
+            self.assertEqual(this.value, that.value)
+
 #---------------------------------------------------------------------------#
 # Main
 #---------------------------------------------------------------------------#

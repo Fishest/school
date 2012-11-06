@@ -16,6 +16,7 @@ def randomize_items(items):
     random.shuffle(items)
     return items
 
+
 def choose_and_remove(items):
     ''' Given a collection, randomly choose a value
     from that collection and then remove it from the
@@ -27,6 +28,18 @@ def choose_and_remove(items):
     choice = random.choice(items)
     items.remove(choice)
     return choice
+
+
+def choose_largest_bidder(users, item):
+    ''' Given an item, return the user that bid
+    the largest amount for said item.
+
+    :param users: The users bidding on the item
+    :param item: The item to be bid upon
+    :returns: The user with the highest bid
+    '''
+    return max((user.value_of(item), user) for user in users)[1]
+
 
 def choose_best_piece(user, pieces):
     ''' Given a collection of resources, choose the 
@@ -41,6 +54,7 @@ def choose_best_piece(user, pieces):
     pieces.remove(choice)
     return choice
 
+
 def choose_worst_piece(user, pieces):
     ''' Given a collection of resources, choose the 
     one that is the least preferred by the supplied
@@ -54,6 +68,7 @@ def choose_worst_piece(user, pieces):
     pieces.remove(choice)
     return choice
 
+
 def create_equal_pieces(user, cake, count):
     ''' Given a resource, split it into count many
     pieces equal in value to the supplied user.
@@ -64,6 +79,7 @@ def create_equal_pieces(user, cake, count):
     :returns: A list of the split pieces
     '''
     return cake.create_pieces(user, count)
+
 
 def choose_next_piece(users, cake):
     ''' Given a resource and a collection of users,
@@ -80,6 +96,7 @@ def choose_next_piece(users, cake):
     cake.remove(piece)
     return (user, piece)
 
+
 def trim_and_replace(user, cake, piece, weight):
     ''' Given a resource and a user, trim the given
     piece to be of the supplied value and reattach the
@@ -93,6 +110,7 @@ def trim_and_replace(user, cake, piece, weight):
     (piece, trimming) = piece.create_pieces(user, weight=weight)
     cake.append(trimming)
     return piece
+
 
 # ------------------------------------------------------------ 
 # interfaces
@@ -336,6 +354,45 @@ class BanachKnaster(FairDivider):
             users.remove(cutter)                # remove assigned user
             slices[cutter] = piece              # give the last trimmer their piece
         slices[users[0]] = cake                 # last user gets remainder
+        return slices
+
+
+class DutchAuction(FairDivider):
+    '''
+    '''
+
+    def __init__(self, users, cake):
+        ''' Initializes a new instance of the algorithm
+
+        :param users: The users to operate with
+        :param cake: The cake to divide
+        '''
+        self.users = users
+        self.cake  = cake
+
+    def settings(self):
+        ''' Retieves a capability listing of this algorithm
+
+        :returns: A dictionary of the algorithm features
+        '''
+        return {
+            'users':        'n',
+            'envy-free':    True,
+            'proportional': True,
+            # equitable, stable
+        }
+
+    def divide(self):
+        ''' Run the algorithm to perform a suggested
+        division.
+
+        :returns: A dictionary of divisions of {user: piece}
+        '''
+        slices = {}
+        users  = randomize_items(self.users)
+        for cake in self.cake.as_collection():
+            cutter = choose_largest_bidder(users, cake)
+            slices[cutter] = cake  # user that bid the most, gets the cake
         return slices
 
 

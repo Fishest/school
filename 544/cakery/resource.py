@@ -11,7 +11,7 @@ class Resource(object):
     divided among a number of users.
 
     .. attribute:: value
-    
+
        The current value of this resource in which
        the type may be unique to the resource in
        question.
@@ -32,6 +32,15 @@ class Resource(object):
         :returns: A clone of the current resource
         '''
         raise NotImplementedError("value_of")
+
+    def as_collection(self):
+        ''' Return the underlying resource as a
+        collection of resources (one for each
+        discrete item
+
+        :returns: The collection of resources
+        '''
+        raise NotImplementedError("as_collection")
 
     def remove(self, piece):
         ''' Update this resource by removing the
@@ -154,7 +163,7 @@ class ContinuousResource(Resource):
         '''
         (this_x0, this_span) = self.value
         (that_x0, that_span) = piece.value
-   
+
         # we are removing from the front
         # (0/1, 1/1) - (0/1, 1/4) = (1/4, 3/4)
         if this_x0 == that_x0:
@@ -201,7 +210,7 @@ class ContinuousResource(Resource):
         if value < weight:
             raise ValueError("cannot find a piece with this weight")
 
-        l, h = Fraction(0,1), cake.value[1]
+        l, h = Fraction(0, 1), cake.value[1]
         while (value < weight - shift) or (value > weight + shift):
             m = Fraction(l.numerator + h.numerator, l.denominator + h.denominator)
             cake.value = (cake.value[0], m)
@@ -337,6 +346,15 @@ class CollectionResource(Resource):
         if not hasattr(items, '__iter__'):
             items = [items]
         self.value = list(items)
+
+    def as_collection(self):
+        ''' Return the underlying resource as a
+        collection of resources (one for each
+        discrete item
+
+        :returns: The collection of resources
+        '''
+        return [CollectionResource([v]) for v in self.value]
 
     def actual_value(self):
         ''' Return an actual value that we can use for

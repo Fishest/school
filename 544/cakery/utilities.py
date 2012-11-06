@@ -7,7 +7,7 @@ def powerset(iterable):
     :returns: A powerset iterator
     '''
     s = list(iterable)
-    return chain.from_iterable(combinations(s, r) for r in range(1, len(s)+1))
+    return chain.from_iterable(combinations(s, r) for r in range(1, len(s) + 1))
 
 def all_same(iterable):
     ''' Given an iterable, check if all the values

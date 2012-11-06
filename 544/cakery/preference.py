@@ -7,7 +7,7 @@ from cakery.utilities import integrate
 class Preference(object):
     ''' Represents the preferences of a given user
     about a given resource.
-    
+
     It should be noted, that the implementation of each
     preference type is strongly coupled to the underlying
     resource type. Trying to use mismatched types (Counted
@@ -106,7 +106,7 @@ class CollectionPreference(Preference):
     represented as a dictionary of resource -> preference
     where the preference value is a fixed point value (no
     decimals).
-    
+
     The preferences should be assigned as a percentage
     of the defined resolution (integers). We assume the
     preferences collectively add up to specified resolution

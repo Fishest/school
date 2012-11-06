@@ -28,13 +28,3 @@ Utilties
 ------------------------------------------------------------
 Todo
 ------------------------------------------------------------
-
-* abstract preference to work with:
-  - discrete set
-  - discrete list with count
-    - with and without repeats
-  - real resource
-
-* abstract resources
-  - can we make this generic for the algorithms?
-  - refactor preference with this

@@ -31,9 +31,9 @@ class FairDivider(object):
         :param slices: The proposed division of the resource
         :returns: True if proportional, False otherwise
         '''
-        share  = 1.0 / len(self.users)
+        share  = slices.keys()[0].value_of(self.cake) / len(self.users)
         pieces = slices.values()
-        for user, piece in slices:
+        for user, piece in slices.items():
             if not all(user.value_of(p) >= share for p in pieces):
                 return False
         return True
@@ -45,9 +45,9 @@ class FairDivider(object):
         :returns: True if equitable, False otherwise
         '''
         pieces = slices.values()
-        for user, piece in slices:
+        for user, piece in slices.items():
             value = user.value_of(piece)
-            if not all(user.value_of(p) == share for p in pieces):
+            if not all(user.value_of(p) == value for p in pieces):
                 return False
         return True
 
@@ -58,7 +58,7 @@ class FairDivider(object):
         :returns: True if envy-free, False otherwise
         '''
         pieces = slices.values()
-        for user, piece in slices:
+        for user, piece in slices.items():
             envied = max(user.value_of(p) for p in pieces)
             if envied > user.value_of(piece):
                 return False

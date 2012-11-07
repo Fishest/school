@@ -18,7 +18,7 @@ class Functions(object):
         return lambda x: (x * slope) + shift
 
     @staticmethod
-    def unit(value=1)
+    def unit(value=1):
         ''' A function with unit value along the x-axis
 
         :param value: The value to at each point (default 1)
@@ -27,7 +27,7 @@ class Functions(object):
         return lambda x: value
 
     @staticmethod
-    def log(base=2)
+    def log(base=2):
         ''' A function with log value along the x-axis
 
         :param base: The base of the logarithm
@@ -36,7 +36,7 @@ class Functions(object):
         return lambda x: math.log(x, base)
 
     @staticmethod
-    def exp(base=2)
+    def exp(base=2):
         ''' A function with exponential value along
         the x-axis
 
@@ -46,7 +46,7 @@ class Functions(object):
         return lambda x: math.pow(base, x)
 
     @staticmethod
-    def polynomial(power=2)
+    def polynomial(power=2):
         ''' A function with polynomial value along
         the x-axis
 

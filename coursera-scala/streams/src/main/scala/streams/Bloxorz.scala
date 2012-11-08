@@ -29,7 +29,6 @@ object Bloxorz extends App {
         |--oo--
         |------""".stripMargin
   }
-
   println(Level0.solution)
 
   /**
@@ -44,6 +43,38 @@ object Bloxorz extends App {
         |-----ooToo
         |------ooo-""".stripMargin
   }
-
   println(Level1.solution)
+
+  /**
+   * Level 3 of the official Bloxorz game
+   */
+  object Level3 extends Level {
+      val level = 
+       """------ooooooo--
+         |oooo--ooo--oo--
+         |ooooooooo--oooo
+         |oSoo-------ooTo
+         |oooo-------oooo
+         |------------ooo""".stripMargin
+  }
+  println(Level3.solution)
+
+  /**
+   * Level 6 of the official Bloxorz game
+   */
+  object Level6 extends Level {
+    val level = 
+      """-----oooooo----
+        |-----o--ooo----
+        |-----o--ooooo--
+        |Sooooo-----oooo
+        |----ooo----ooTo
+        |----ooo-----ooo
+        |------o--oo----
+        |------ooooo----
+        |------ooooo----
+        |-------ooo-----
+        |---------------""".stripMargin
+  }
+  println(Level6.solution)
 }

@@ -46,3 +46,77 @@ def any_range(start, stop, step=1):
     while current < stop:
         yield current
         current += step
+
+
+class Interval(object):
+    ''' Represents a single linear interval
+    '''
+
+    @staticmethod
+    def create(points):
+        ''' Given a list of points, create a collection
+        of intervals.
+
+        :param points: The points to create intervals for
+        :returns: The collection of intervals
+        '''
+        intervals = []
+        ox, oy = 0, 0
+        for x, y in points:
+            if x != 0:
+                interval = Interval((ox, oy), (x, y))
+                intervals.append(interval)
+                ox, oy = x, y
+            else: oy = y
+        if ox < 1:
+            intervals.append(Interval((ox, oy), (1, 0)))
+        return intervals
+    
+    def __init__(self, start, stop):
+        '''
+        :param start: The starting (x1, y1)
+        :param stop: The ending (x2, y2)
+        '''
+        self.x1, self.y1 = start
+        self.x2, self.y2 = stop
+
+        if self.x1 >= self.x2:
+            raise ValueError("invalid interval range")
+
+        # constants for y = mx + b
+        self.m  = (self.y2 - self.y1) / (self.x2 - self.x1)
+        self.b  = (self.y1 - (self.m * self.x1))
+
+    def _integrate(self, x):
+        ''' Integrate based on the linear equation
+        y = mx + b
+
+        :param x: The x point to integrate with
+        :returns: The integral of this interval
+        '''        
+        return self.m * x * x / 2 + self.b * x
+    
+    def area(self, a, b):
+        ''' Calculate the area of this interval from a to b.
+        The area is valid only between the left and right boundaries
+        of this interval.
+
+        :param a: The starting point of the area
+        :param b: The ending point of the area
+        :returns: The area of the specified range
+        '''    
+        l, r = max(self.x1, a), min(self.x2, b)
+        if (l > self.x2) or (r < self.x1):
+            return 0
+        return self._integrate(r) - self._integrate(l)
+        
+    def __str__(self):
+        ''' Returns a string representation of this interval
+
+        :returns: The string representation
+        '''
+        return "%s - %s" % ((self.x1, self.y1), (self.x2, self.y2))
+            
+
+
+        

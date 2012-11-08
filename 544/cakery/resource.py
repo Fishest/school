@@ -404,7 +404,7 @@ class CollectionResource(Resource):
             raise ValueError("cannot find a piece with this weight")
 
         # sort the values by weight to make the least amount of
-        # cuts possible, otherwise keep them ordered by the 
+        # cuts possible, otherwise keep them ordered by the
         # original resource ordering
         for item in self.value:
             cake.value = [item]

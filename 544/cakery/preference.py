@@ -1,4 +1,5 @@
 import math, sys
+from random import random
 from cakery.utilities import integrate
 
 #------------------------------------------------------------
@@ -131,3 +132,63 @@ class CollectionPreference(Preference):
         '''
         return sum(value for item, value in self.values.items()
             if item in resource.value)
+
+class IntervalPreference(Preference):
+    ''' Represents the preference of a given user about a continuous
+    resource over a collection of intervals.
+    '''
+
+    def __init__(self, user, intervals, resolution=1000):
+        ''' Initialize a new preference class
+
+        :param user: The name or id of the participant
+        :param inervals: The intervals to initialize with
+        :param resolution: The number of steps we will take in the integral
+        '''
+        self.user = user
+        self.function = function
+        self.intervals = Interval.create(intervals)
+
+    def value_of(self, resource):
+        ''' Given a resource, return the total value
+        of this resource to the current user.
+
+        :params resource: The resource to get the value of
+        :returns: The total value of the items
+        '''
+        (x0, x1) = resource.value
+        piece, total = 0, 0
+        for interval in self.intervals:
+            total += interval.area(0, 1)
+            piece += interval.area(a, b)
+        return piece / total
+
+    @classmethod
+    def random(klass, intervals):
+        ''' A factory method to create a random
+        preference collection.
+
+        :param intervals: The number intervals to use
+        :returns: An initialized Preference
+        '''
+        cx, points = 0,0, []
+        while cx < 1.0:
+            points.append((cx, random()))
+            cx += random() / intervals
+        points.append((1.0, random()))
+        return klass(points)
+        
+    @classmethod
+    def fromFile(klass, filename):
+        ''' A factory method to create a preference
+        collection from a settings file.
+
+        :param filename: The file to read preferences from
+        :returns: An initialized Preference
+        '''
+        points = []
+        with open(filename) as handle:
+            for line in handle:
+                x, y = [float(x) for x in line.split()]
+                points.append((x, y))
+        return klass(points)

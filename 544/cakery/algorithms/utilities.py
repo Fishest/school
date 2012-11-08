@@ -9,9 +9,9 @@ the code easier to read (basically a simple DSL).
 import random
 
 
-# ------------------------------------------------------------ 
+# ------------------------------------------------------------
 # helpers
-# ------------------------------------------------------------ 
+# ------------------------------------------------------------
 def randomize_items(items):
     ''' Given a collection, create a clone of it and
     randomize the elements before returning it.
@@ -49,7 +49,7 @@ def choose_largest_bidder(users, item):
 
 
 def choose_best_piece(user, pieces):
-    ''' Given a collection of resources, choose the 
+    ''' Given a collection of resources, choose the
     one that is the most preferred by the supplied
     user.
 
@@ -63,7 +63,7 @@ def choose_best_piece(user, pieces):
 
 
 def choose_worst_piece(user, pieces):
-    ''' Given a collection of resources, choose the 
+    ''' Given a collection of resources, choose the
     one that is the least preferred by the supplied
     user.
 

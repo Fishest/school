@@ -56,7 +56,7 @@ class LoneChooser(FairDivider):
                 pieces = create_equal_pieces(cutter, piece, count)
                 piece  = choose_best_piece(picker, pieces)  # picker finds the best piece for them
                 slices[cutter].remove(piece)        # remove that piece from their share
-                if not slices.has_key(picker):      # and add it to the picker's share
+                if not picker in slices:            # and add it to the picker's share
                     slices[picker] = piece
                 else: slices[picker].append(piece)
         return slices

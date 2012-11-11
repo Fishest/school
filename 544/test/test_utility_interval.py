@@ -13,8 +13,8 @@ class IntervalTest(unittest.TestCase):
         ''' test that the utility initializes correctly '''
         self.assertRaises(ValueError, lambda: Interval((1,1), (0,0)))
 
-        interval = Interval((0,0), (1, 1.0))
-        self.assertEqual("(0, 0) - (1, 1.0)", str(interval))
+        interval = Interval((0.0, 0.0), (1.0, 1.0))
+        self.assertEqual("(0.0, 0.0) - (1.0, 1.0)", str(interval))
         self.assertEqual(1, interval.m)
         self.assertEqual(0, interval.b)
         self.assertEqual(0.5, interval.area(0, 1))

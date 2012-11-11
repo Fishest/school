@@ -100,6 +100,35 @@ class CountedPreference(Preference):
             total += value * min(wants, count)
         return total
 
+    @classmethod
+    def random(klass, resource):
+        ''' A factory method to create a random
+        preference collection.
+
+        :param resource: The resource to build values for
+        :returns: An initialized Preference
+        '''
+        pieces = resource.value
+        values = dict((p, random()) for p in pieces)
+        total  = sum(v for v in values.values())
+        values = dict((k, v / total) for k, v in values.items())
+        return klass(values)
+
+    @classmethod
+    def fromFile(klass, filename):
+        ''' A factory method to create a preference
+        collection from a settings file.
+
+        :param filename: The file to read preferences from
+        :returns: An initialized Preference
+        '''
+        values = {}
+        with open(filename) as handle:
+            for line in handle:
+                name, value = line.split()
+                values[name] = float(value)
+        return klass(values)
+
 
 class CollectionPreference(Preference):
     ''' Represents the discrete preferences of a given user
@@ -132,6 +161,35 @@ class CollectionPreference(Preference):
         '''
         return sum(value for item, value in self.values.items()
             if item in resource.value)
+
+    @classmethod
+    def random(klass, resource):
+        ''' A factory method to create a random
+        preference collection.
+
+        :param resource: The resource to build values for
+        :returns: An initialized Preference
+        '''
+        pieces = resource.value
+        values = dict((p, random()) for p in pieces)
+        total  = sum(v for v in values.values())
+        values = dict((k, v / total) for k, v in values.items())
+        return klass(values)
+
+    @classmethod
+    def fromFile(klass, filename):
+        ''' A factory method to create a preference
+        collection from a settings file.
+
+        :param filename: The file to read preferences from
+        :returns: An initialized Preference
+        '''
+        values = {}
+        with open(filename) as handle:
+            for line in handle:
+                name, value = line.split()
+                values[name] = float(value)
+        return klass(values)
 
 class IntervalPreference(Preference):
     ''' Represents the preference of a given user about a continuous
@@ -171,7 +229,7 @@ class IntervalPreference(Preference):
         :param intervals: The number intervals to use
         :returns: An initialized Preference
         '''
-        cx, points = 0,0, []
+        cx, points = (0.0, 0.0), []
         while cx < 1.0:
             points.append((cx, random()))
             cx += random() / intervals

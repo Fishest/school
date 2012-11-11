@@ -432,3 +432,115 @@ class CollectionResource(Resource):
         '''
         if this.value == that.value: return 0
         return cmp(len(this.value), len(that.value))
+
+
+class IntervalResource(Resource):
+    ''' Represents a continuous resource that exists
+    over a collection of intervals.
+
+    This is represented internally as a list of ranges
+    [(start, stop)].
+    '''
+
+    def __init__(self, points):
+        ''' Initializes a new instance of the resource
+
+        :param points: The collection of points
+        '''
+        if not isinstance(points, list):
+            points = [points]
+        self.value = points
+
+    def actual_value(self):
+        ''' Return an actual value that we can use for
+        comparison for the algorithm.
+
+        :returns: The actual value of the object
+        '''
+        return sum(e - b for b, e in self.value)
+
+    def clone(self):
+        ''' Return a clone of this resource that is
+        identical to the original.
+
+        :returns: A clone of the current resource
+        '''
+        value = list(self.value)
+        return IntervalResource(value)
+
+    def remove(self, piece):
+        ''' Update this resource by removing the
+        specified piece.
+
+        :param piece: The piece to remove from this
+        '''
+        this = list(self.value)
+        for s, e in piece.value:
+            i = 0
+            while True:
+                if i > len(this):
+                    raise ValueError("cannot remove this piece")
+                x1, x2 = this[i]
+                if s == x1:                 # [s.........x2]
+                    if   e == x2:           # [s..........e]
+                        this.remove(i)      # []
+                        break
+                    elif e  < x2:           # [s....e....x2]
+                        this[i] = (e, x2)   #      [e....x2]
+                        break
+                    else:                   # [s...x2][...e]
+                        this.remove(i)      # []      [...e]
+                        s = x2              #         [s..e]
+                elif s > x1 and s < x2:     # [x1....s.....]
+                    if   e == x2:           # [x1....s....e]
+                        this[i] = (x1, s)   # [x1....s]
+                        break
+                    elif e  < x2:           # [x1..s..e..x2]
+                        this[i] = (x1, s)   # [x1..s]
+                        this.insert(i + 1, (e, x2)) # [e.x2]
+                        break;
+                    else:                   # [x1.s.x2][..e]
+                        this[i] = (x1, s)   # [x1.s]
+                        s = x2
+                else: pass                  # [x1.x2][.s..e]
+        self.value = this
+
+    def append(self, piece):
+        ''' Update this resource by adding the
+        specified piece. This also merges adjacent
+        pieces to create the minimal amount of
+        intervals.
+
+        :param piece: The piece to append to this
+        '''
+        i, values = 0, sorted(self.value + piece.value)
+        while i < len(values) - 1:
+            a1, a2 = values[i]
+            b1, b2 = values[i + 1]
+            if b1 <= a2:
+                values[i] = (a1, b2)
+                values.pop(i + 1)
+            else: i += 1
+        self.value = values
+
+    def find_piece(self, user, weight):
+        ''' Attempt to find a piece of the current resource
+        that meets the requested weight according to the
+        given user.
+
+        This is implemented with a Stern-Brocot tree.
+
+        :param user: The user preferences to weight with
+        :param weight: The weight we are attempting to hit
+        :returns: The first piece matching that weight
+        '''
+        pass
+
+    def compare(this, that):
+        ''' A utility method used to provide rich
+        comparison operations on the resource.
+
+        :param that: The other resource to compare
+        :returns: -1: less than, 0: equal to, 1: greater than
+        '''
+        return cmp(this.value, that.value)

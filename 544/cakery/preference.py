@@ -14,6 +14,7 @@ class Preference(object):
     resource type. Trying to use mismatched types (Counted
     with Collection for example) will result in runtime errors.
     '''
+    __id = 1
 
     def value_of(self, resource):
         ''' Given a resource, return the total value
@@ -23,6 +24,15 @@ class Preference(object):
         :returns: The total value of the items
         '''
         raise NotImplementedError("value_of")
+
+    def _get_user(self):
+        ''' A helper method to return a unique
+        username for undefined users.
+
+        :returns: A unique username
+        '''
+        Preference.__id, value = Preference.__id + 1, Preference.__id
+        return "user%d" % value
 
     def __str__(self):
         ''' Returns a string representation of the preference
@@ -50,7 +60,7 @@ class ContinuousPreference(Preference):
         :param function: The function that describes the user's preference
         :param resolution: The number of steps we will take in the integral
         '''
-        self.user = user
+        self.user = user or self._get_user()
         self.function = function
         self.resolution = resolution
 
@@ -63,6 +73,19 @@ class ContinuousPreference(Preference):
         '''
         (x0, span) = resource.value
         return integrate(self.function, x0, x0 + span, self.resolution)
+
+    @classmethod
+    def random(klass):
+        ''' A factory method to create a random
+        preference collection.
+
+        :returns: An initialized Preference
+        '''
+        negat = -1 if random() > 0.5 else 1
+        slope = random() * negat
+        shift = 1 - 0.5 * slope
+        function = lambda x: x * slope + shift
+        return klass(None, function)
 
 
 class CountedPreference(Preference):
@@ -81,7 +104,7 @@ class CountedPreference(Preference):
         :param values: The preference values of the user
         :param counts: Listing of how many of each item is wanted
         '''
-        self.user = user
+        self.user = user or self._get_user()
         self.values = values or {}
         self.counts = counts or dict((k, 1) for k in self.values)
         #self.counts = counts or dict((k, sys.maxint) for k in self.values)
@@ -112,7 +135,7 @@ class CountedPreference(Preference):
         values = dict((p, random()) for p in pieces)
         total  = sum(v for v in values.values())
         values = dict((k, v / total) for k, v in values.items())
-        return klass(values)
+        return klass(None, values)
 
     @classmethod
     def fromFile(klass, filename):
@@ -127,7 +150,7 @@ class CountedPreference(Preference):
             for line in handle:
                 name, value = line.split()
                 values[name] = float(value)
-        return klass(values)
+        return klass(None, values)
 
 
 class CollectionPreference(Preference):
@@ -149,7 +172,7 @@ class CollectionPreference(Preference):
         :param user: The name or id of the participant
         :param values: The preference values of the user
         '''
-        self.user = user
+        self.user = user or self._get_user()
         self.values = values or {}
 
     def value_of(self, resource):
@@ -174,7 +197,7 @@ class CollectionPreference(Preference):
         values = dict((p, random()) for p in pieces)
         total  = sum(v for v in values.values())
         values = dict((k, v / total) for k, v in values.items())
-        return klass(values)
+        return klass(None, values)
 
     @classmethod
     def fromFile(klass, filename):
@@ -189,7 +212,7 @@ class CollectionPreference(Preference):
             for line in handle:
                 name, value = line.split()
                 values[name] = float(value)
-        return klass(values)
+        return klass(None, values)
 
 class IntervalPreference(Preference):
     ''' Represents the preference of a given user about a continuous
@@ -203,7 +226,7 @@ class IntervalPreference(Preference):
         :param inervals: The intervals to initialize with
         :param resolution: The number of steps we will take in the integral
         '''
-        self.user = user
+        self.user = user or self._get_user()
         self.function = function
         self.intervals = Interval.create(intervals)
 
@@ -234,7 +257,7 @@ class IntervalPreference(Preference):
             points.append((cx, random()))
             cx += random() / intervals
         points.append((1.0, random()))
-        return klass(points)
+        return klass(None, points)
         
     @classmethod
     def fromFile(klass, filename):
@@ -249,4 +272,4 @@ class IntervalPreference(Preference):
             for line in handle:
                 x, y = [float(x) for x in line.split()]
                 points.append((x, y))
-        return klass(points)
+        return klass(None, points)

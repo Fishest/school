@@ -62,6 +62,7 @@ supplied algorithms:
 * as_collection()
 * create_pieces(user, count, weight)
 * rich comparison methods
+* __str__
 
 ------------------------------------------------------------
 Preferences
@@ -103,9 +104,5 @@ Todo
   - put them in the algorithm file in question
   - make more generic and not one off
   - find 1/n of value for a resource
-* wrap Ron's implementation in a preference
-  - does this need a new resource?
 * algorithms
-  - lone divider
-  - sealed bids
-  - dutch auction
+  - fixed budget divider (budget based on bid count)

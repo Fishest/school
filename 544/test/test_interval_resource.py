@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import os
 import unittest
 from fractions import Fraction as F
 from cakery.resource import IntervalResource
@@ -9,6 +10,19 @@ class IntervalResourceTest(unittest.TestCase):
     This is the unittest for the ContinuousResource
     code utilities.
     '''
+
+    def test_resource_create(self):
+        ''' test that the resource factory methods work '''
+        path  = os.path.join(os.path.abspath('data'), 'interval')
+        path  = os.path.join(path, 'uniform')
+        user1 = IntervalPreference.from_file(path)
+        user2 = IntervalPreference('user2', [(0.0, 1.0), (1.0, 1.0)])
+        cake  = IntervalResource((F(0,1), F(1,1)))
+        self.assertEqual(user1.value_of(cake), user2.value_of(cake))
+
+        users = [IntervalPreference.random(10) for i in range(5)]
+        for user in users:
+            self.assertEqual(1.0, user.value_of(cake))
 
     def test_resource_clone(self):
         ''' test that the resource clones correctly '''

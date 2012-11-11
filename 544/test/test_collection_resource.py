@@ -1,6 +1,7 @@
 #!/usr/bin/env python
+import os
 import unittest
-from fractions import Fraction
+from fractions import Fraction as F
 from cakery.resource import CollectionResource
 from cakery.preference import CollectionPreference
 
@@ -10,10 +11,25 @@ class CollectionResourceTest(unittest.TestCase):
     code utilities.
     '''
 
+    def test_resource_create(self):
+        ''' test that the resource factory methods work '''
+        path  = os.path.join(os.path.abspath('data'), 'collection')
+        path  = os.path.join(path, 'uniform')
+        user1 = CollectionPreference.from_file(path)
+        keys  = user1.values.keys()
+        prefs = dict((p, 0.25) for p in keys)
+        user2 = CollectionPreference('user2', prefs)
+        cake  = CollectionResource(keys)
+        self.assertEqual(user1.value_of(cake), user2.value_of(cake))
+
+        users = [CollectionPreference.random(cake) for i in range(5)]
+        for user in users:
+            self.assertTrue(0.95 <= user.value_of(cake) <= 1.05)
+
     def test_resource_clone(self):
         ''' test that the resource clone works correctly '''
         keys = ['red', 'blue', 'green', 'yellow', 'orange']
-        vals = dict((k, Fraction(1)) for k in keys)
+        vals = dict((k, F(1,1)) for k in keys)
         cake = CollectionResource(keys)
         user = CollectionPreference('mark', vals)
         copy = cake.clone()
@@ -46,7 +62,7 @@ class CollectionResourceTest(unittest.TestCase):
     def test_resource_create_pieces(self):
         ''' test that we can create n pieces of the cake '''
         keys = ['red', 'blue', 'green', 'yellow', 'orange', 'purple']
-        vals = dict((k, Fraction(1)) for k in keys)
+        vals = dict((k, F(1,1)) for k in keys)
         cake = CollectionResource(keys)
         user = CollectionPreference('mark', vals)
         pieces = cake.create_pieces(user, 3)
@@ -61,7 +77,7 @@ class CollectionResourceTest(unittest.TestCase):
     def test_resource_find_pieces(self):
         ''' test that we can find a piece in the cake '''
         keys = ['red', 'blue', 'green', 'yellow', 'orange', 'purple']
-        vals = dict((k, Fraction(1)) for k in keys)
+        vals = dict((k, F(1,1)) for k in keys)
         cake = CollectionResource(keys)
         user = CollectionPreference('mark', vals)
         piece = cake.find_piece(user, 3)

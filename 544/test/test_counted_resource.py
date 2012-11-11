@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import os
 import unittest
 from cakery.resource import CountedResource
 from cakery.preference import CountedPreference
@@ -8,6 +9,21 @@ class CountedResourceTest(unittest.TestCase):
     This is the unittest for the CountedResource
     code utilities.
     '''
+
+    def test_resource_create(self):
+        ''' test that the resource factory methods work '''
+        path  = os.path.join(os.path.abspath('data'), 'collection')
+        path  = os.path.join(path, 'uniform')
+        user1 = CountedPreference.from_file(path)
+        keys  = user1.values.keys()
+        prefs = dict((p, 0.25) for p in keys)
+        user2 = CountedPreference('user2', prefs)
+        cake  = CountedResource(dict((k, 1) for k in keys))
+        self.assertEqual(user1.value_of(cake), user2.value_of(cake))
+
+        users = [CountedPreference.random(cake) for i in range(5)]
+        for user in users:
+            self.assertTrue(0.95 <= user.value_of(cake) <= 1.05)
 
     def test_resource_clone(self):
         ''' test that the resource clones correctly '''

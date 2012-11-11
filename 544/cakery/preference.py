@@ -1,6 +1,7 @@
 import math, sys
 from random import random
 from cakery.utilities import integrate
+from cakery.utilities import Interval
 
 #------------------------------------------------------------
 # interface
@@ -138,7 +139,7 @@ class CountedPreference(Preference):
         return klass(None, values)
 
     @classmethod
-    def fromFile(klass, filename):
+    def from_file(klass, filename):
         ''' A factory method to create a preference
         collection from a settings file.
 
@@ -200,7 +201,7 @@ class CollectionPreference(Preference):
         return klass(None, values)
 
     @classmethod
-    def fromFile(klass, filename):
+    def from_file(klass, filename):
         ''' A factory method to create a preference
         collection from a settings file.
 
@@ -219,15 +220,13 @@ class IntervalPreference(Preference):
     resource over a collection of intervals.
     '''
 
-    def __init__(self, user, intervals, resolution=1000):
+    def __init__(self, user, intervals):
         ''' Initialize a new preference class
 
         :param user: The name or id of the participant
         :param inervals: The intervals to initialize with
-        :param resolution: The number of steps we will take in the integral
         '''
         self.user = user or self._get_user()
-        self.function = function
         self.intervals = Interval.create(intervals)
 
     def value_of(self, resource):
@@ -237,11 +236,11 @@ class IntervalPreference(Preference):
         :params resource: The resource to get the value of
         :returns: The total value of the items
         '''
-        (x0, x1) = resource.value
         piece, total = 0, 0
-        for interval in self.intervals:
-            total += interval.area(0, 1)
-            piece += interval.area(a, b)
+        for x0, x1 in resource.value:
+            for interval in self.intervals:
+                total += interval.area(0, 1)
+                piece += interval.area(x0, x1) 
         return piece / total
 
     @classmethod
@@ -252,7 +251,7 @@ class IntervalPreference(Preference):
         :param intervals: The number intervals to use
         :returns: An initialized Preference
         '''
-        cx, points = (0.0, 0.0), []
+        cx, points = 0.0, []
         while cx < 1.0:
             points.append((cx, random()))
             cx += random() / intervals
@@ -260,7 +259,7 @@ class IntervalPreference(Preference):
         return klass(None, points)
         
     @classmethod
-    def fromFile(klass, filename):
+    def from_file(klass, filename):
         ''' A factory method to create a preference
         collection from a settings file.
 

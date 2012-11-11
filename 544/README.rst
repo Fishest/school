@@ -94,6 +94,24 @@ implemented in this collection are:
 * sealed_bid_auction
 
 ------------------------------------------------------------
+Class Interface
+------------------------------------------------------------
+
+The interface to the class project includes two things:
+
+* preference files
+
+  These are stored in the data directory and are specified
+  as linear functions of `x-point y-value` that are
+  monotonically increasing.
+
+* algorithm listing
+
+  This is listed in the algs file which is of the format
+  `algorithm-file num-of-users` where num-of-users is the
+  max supported number of users allowed in this algorithm.
+
+------------------------------------------------------------
 Todo
 ------------------------------------------------------------
 

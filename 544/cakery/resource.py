@@ -478,18 +478,18 @@ class IntervalResource(Resource):
         for s, e in piece.value:
             i = 0
             while True:
-                if i > len(this):
+                if i >= len(this):
                     raise ValueError("cannot remove this piece")
                 x1, x2 = this[i]
                 if s == x1:                 # [s.........x2]
                     if   e == x2:           # [s..........e]
-                        this.remove(i)      # []
+                        this.pop(i)         # []
                         break
                     elif e  < x2:           # [s....e....x2]
                         this[i] = (e, x2)   #      [e....x2]
                         break
                     else:                   # [s...x2][...e]
-                        this.remove(i)      # []      [...e]
+                        this.pop(i)         # []      [...e]
                         s = x2              #         [s..e]
                 elif s > x1 and s < x2:     # [x1....s.....]
                     if   e == x2:           # [x1....s....e]
@@ -502,7 +502,8 @@ class IntervalResource(Resource):
                     else:                   # [x1.s.x2][..e]
                         this[i] = (x1, s)   # [x1.s]
                         s = x2
-                else: pass                  # [x1.x2][.s..e]
+                        i += 1
+                else: i += 1                # [x1.x2][.s..e]
         self.value = this
 
     def append(self, piece):

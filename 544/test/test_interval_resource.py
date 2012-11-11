@@ -23,23 +23,47 @@ class IntervalResourceTest(unittest.TestCase):
         self.assertEqual(1, cake.actual_value(),)
         self.assertEqual(cake.actual_value(), copy.actual_value())
 
-    #def test_resource_remove(self):
-    #    ''' test that the resource remove works correctly '''
-    #    cake = ContinuousResource(Fraction(0,1), Fraction(1,1))
-    #    item = ContinuousResource(Fraction(1,2), Fraction(1,2))
-    #    cake.remove(item)
-    #    actual = ContinuousResource(Fraction(0, 1), Fraction(1,2))
-    #    self.assertEqual(actual.value, cake.value)
+    def test_resource_remove(self):
+        ''' test that the resource remove works correctly '''
+        cake = IntervalResource((F(0,1), F(1,1)))
+        item = IntervalResource((F(0,1), F(1,2)))
+        cake.remove(item)
+        actual = IntervalResource((F(1,2), F(1,1)))
+        self.assertEqual(actual.value, cake.value)
 
-    #    cake = ContinuousResource(Fraction(0,1), Fraction(1,1))
-    #    item = ContinuousResource(Fraction(0,1), Fraction(1,2))
-    #    cake.remove(item)
-    #    actual = ContinuousResource(Fraction(1, 2), Fraction(1,2))
-    #    self.assertEqual(actual.value, cake.value)
+        cake = IntervalResource([(F(0,1), F(1,2)), (F(1,2), F(1,1))])
+        item = IntervalResource((F(0,1), F(1,2)))
+        cake.remove(item)
+        actual = IntervalResource((F(1,2), F(1,1)))
+        self.assertEqual(actual.value, cake.value)
 
-    #    cake = ContinuousResource(Fraction(0,1), Fraction(1,1))
-    #    item = ContinuousResource(Fraction(0,1), Fraction(2,1))
-    #    self.assertRaises(ValueError, lambda: cake.remove(item))
+        cake = IntervalResource([(F(0,1), F(1,2)), (F(1,2), F(1,1))])
+        item = IntervalResource((F(0,1), F(3,4)))
+        cake.remove(item)
+        actual = IntervalResource((F(3,4), F(1,1)))
+        self.assertEqual(actual.value, cake.value)
+
+        cake = IntervalResource([(F(0,1), F(1,2)), (F(1,2), F(1,1))])
+        item = IntervalResource((F(1,4), F(1,2)))
+        cake.remove(item)
+        actual = IntervalResource([(F(0,1), F(1,4)), (F(1,2), F(1,1))])
+        self.assertEqual(actual.value, cake.value)
+
+        cake = IntervalResource([(F(0,1), F(1,1))])
+        item = IntervalResource((F(1,4), F(2,4)))
+        cake.remove(item)
+        actual = IntervalResource([(F(0, 1), F(1,4)), (F(1,2), F(1,1))])
+        self.assertEqual(actual.value, cake.value)
+
+        cake = IntervalResource([(F(0,1), F(1,2)), (F(1,2), F(1,1))])
+        item = IntervalResource((F(1,4), F(3,4)))
+        cake.remove(item)
+        actual = IntervalResource([(F(0, 4), F(1,4)), (F(3,4), F(1,1))])
+        self.assertEqual(actual.value, cake.value)
+
+        cake = IntervalResource([(F(0,1), F(1,2))])
+        item = IntervalResource((F(3,4), F(1,1)))
+        self.assertRaises(ValueError, lambda: cake.remove(item))
 
     def test_resource_append(self):
         ''' test that the resource append works correctly '''

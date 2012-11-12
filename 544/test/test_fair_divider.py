@@ -55,9 +55,9 @@ class DivideAndChooseTest(unittest.TestCase):
 
     def test_is_not_envy_free(self):
         ''' test that the is_envy_free method works correctly '''
-        self.cakes[2].value = (F(0,1), F(1,4))
+        self.cakes[2].value = (F(0,1), F(1,9))
         result = self.fair.is_envy_free(self.shares)
-        self.assertTrue(result)
+        self.assertFalse(result)
 
 #---------------------------------------------------------------------------#
 # Main

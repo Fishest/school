@@ -15,6 +15,7 @@ class InterfacesTest(unittest.TestCase):
         self.assertRaises(NotImplementedError, lambda: fair.settings())
         self.assertRaises(NotImplementedError, lambda: fair.divide())
         self.assertRaises(NotImplementedError, lambda: fair.is_valid())
+        self.assertRaises(NotImplementedError, lambda: fair.is_optimal(None))
 
         fair.settings = lambda: {'users': 'n'}
         fair.users = [None]

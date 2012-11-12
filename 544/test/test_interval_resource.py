@@ -99,27 +99,37 @@ class IntervalResourceTest(unittest.TestCase):
         self.assertEqual(actual.value, cake.value)
         self.assertEqual(F(1, 2), cake.actual_value())
 
-    #def test_resource_create_pieces(self):
-    #    ''' test that we can create n pieces of the cake '''
-    #    user = ContinuousPreference('mark', lambda x: Fraction(1))
-    #    cake = ContinuousResource(Fraction(0), Fraction(1))
-    #    pieces = cake.create_pieces(user, 3)
-    #    actual = [
-    #        ContinuousResource(Fraction(0, 1), Fraction(1, 3)),
-    #        ContinuousResource(Fraction(1, 3), Fraction(1, 3)),
-    #        ContinuousResource(Fraction(2, 3), Fraction(1, 3))
-    #    ]
-    #    self.assertEqual(pieces, actual)
+    def test_resource_create_pieces(self):
+        ''' test that we can create n pieces of the cake '''
+        user = IntervalPreference('user', [(0.0, 1.0), (1.0, 1.0)])
+        cake = IntervalResource((F(0,1), F(1,1)))
+        pieces = cake.create_pieces(user, 3)
+        actual = [
+            IntervalResource((F(0,3), F(1,3))),
+            IntervalResource((F(1,3), F(2,3))),
+            IntervalResource((F(2,3), F(3,3))),
+        ]
+        self.assertEqual(pieces, actual)
 
-    #def test_resource_find_piece(self):
-    #    ''' test that we can find a piece in the cake '''
-    #    user = ContinuousPreference('mark', lambda x: Fraction(1))
-    #    cake = ContinuousResource(Fraction(0), Fraction(1))
-    #    piece = cake.find_piece(user, Fraction(1,3))
-    #    actual = ContinuousResource(Fraction(0, 1), Fraction(1, 3))
-    #    self.assertEqual(piece, actual)
+    def test_resource_find_piece(self):
+        ''' test that we can find a piece in the cake '''
+        user = IntervalPreference('user', [(0.0, 1.0), (1.0, 1.0)])
+        cake = IntervalResource((F(0,1), F(1,1)))
+        piece = cake.find_piece(user, F(1,2))
+        actual = IntervalResource((F(0,1), F(1,2)))
+        self.assertEqual(piece, actual)
 
-    #    self.assertRaises(ValueError, lambda: cake.find_piece(user, Fraction(10)))
+        cake = IntervalResource([(F(0,1), F(1,4)), (F(1,4), F(3,4))])
+        piece = cake.find_piece(user, F(1,2))
+        actual = IntervalResource([(F(0,1), F(1,4)), (F(1,4), F(2,4))])
+        self.assertEqual(piece, actual)
+
+        cake = IntervalResource([(0.0, 0.25), (0.5, 0.75), (0.80, 1.0)])
+        piece = cake.find_piece(user, 0.6)
+        actual = IntervalResource([(0.0, 0.25), (0.5, 0.75), (0.80, 0.9)])
+        self.assertEqual(piece, actual)
+
+        self.assertRaises(ValueError, lambda: cake.find_piece(user, F(10)))
 
 #---------------------------------------------------------------------------#
 # Main

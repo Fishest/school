@@ -23,3 +23,6 @@ API Documentation
 
 .. autoclass:: CollectionPreference
    :members:
+
+.. autoclass:: IntervalPreference
+   :members:

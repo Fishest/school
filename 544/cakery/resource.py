@@ -210,7 +210,7 @@ class ContinuousResource(Resource):
         if value < weight:
             raise ValueError("cannot find a piece with this weight")
 
-        l, h = Fraction(0, 1), cake.value[1]
+        l, h = Fraction(0, 1), Fraction(cake.value[1])
         while (value < weight - shift) or (value > weight + shift):
             m = Fraction(l.numerator + h.numerator, l.denominator + h.denominator)
             cake.value = (cake.value[0], m)
@@ -535,7 +535,42 @@ class IntervalResource(Resource):
         :param weight: The weight we are attempting to hit
         :returns: The first piece matching that weight
         '''
-        pass
+        shift = 1.0 / user.resolution
+        cake, value = self.clone(), user.value_of(self)
+        if value < weight:
+            raise ValueError("cannot find a piece with this weight")
+
+        l, h = Fraction(cake.value[0][0]), Fraction(cake.value[-1][-1])
+        while (value < weight - shift) or (value > weight + shift):
+            m = Fraction(l.numerator + h.numerator, l.denominator + h.denominator)
+            cake.value = self.__trim(m)
+            value = user.value_of(cake)
+            if   value > weight: h = m
+            elif value < weight: l = m
+        return cake
+
+    def __trim(self, stop):
+        ''' A helper method to trim the current
+        intervals at the specified stopping point.
+
+        This method makes sure to use the supplied
+        numeric type in the new range (not the stop
+        value) and it assumes that a valid stop
+        point exists.
+
+        :param stop: The point to stop at
+        :returns: The trimmed interval range
+        '''
+        i, cake = 0, list(self.value)
+        while True:
+            a, b = cake[i]
+            if stop <= b:
+                cake[i] = (a, type(a)(stop))
+                cake = cake[:i + 1]
+                break;
+            else: i += 1
+        return cake
+
 
     def compare(this, that):
         ''' A utility method used to provide rich

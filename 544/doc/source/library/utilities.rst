@@ -19,3 +19,6 @@ API Documentation
 .. autofunction:: integrate
 
 .. autofunction:: any_range
+
+.. autoclass:: Interval
+   :members:

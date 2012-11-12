@@ -17,15 +17,14 @@ class AlgorithmTester(object):
     def _create_users(self, count):
         '''
         '''
-        names = ['mark', 'john', 'sean', 'jill', 'anna']
         users = []
-        for idx, name in zip(range(count), names):
+        for idx in range(count):
             negat = -1 if idx % 2 == 0 else 1
             slope = Fraction(negat, randint(1, 10))
             shift = 1 - Fraction(1, 2) * slope
             value = Functions.linear(slope, shift)
-            prefs = ContinuousPreference(name, value)
-            print "[%s] = %f * x + %f" % (name, slope, shift)
+            prefs = ContinuousPreference(None, value)
+            print "[%s] = %f * x + %f" % (prefs.user, slope, shift)
             users.append(prefs)
         return users
 

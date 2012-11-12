@@ -1,7 +1,9 @@
-import math, sys
+import sys
+import math
 from random import random
 from cakery.utilities import integrate
 from cakery.utilities import Interval
+
 
 #------------------------------------------------------------
 # interface
@@ -134,8 +136,8 @@ class CountedPreference(Preference):
         '''
         pieces = resource.value
         values = dict((p, random()) for p in pieces)
-        total  = sum(v for v in values.values())
-        values = dict((k, v / total) for k, v in values.items())
+        summed = sum(v for v in values.values())
+        values = dict((k, v / summed) for k, v in values.items())
         return klass(None, values)
 
     @classmethod
@@ -196,8 +198,8 @@ class CollectionPreference(Preference):
         '''
         pieces = resource.value
         values = dict((p, random()) for p in pieces)
-        total  = sum(v for v in values.values())
-        values = dict((k, v / total) for k, v in values.items())
+        summed = sum(v for v in values.values())
+        values = dict((k, v / summed) for k, v in values.items())
         return klass(None, values)
 
     @classmethod
@@ -215,19 +217,23 @@ class CollectionPreference(Preference):
                 values[name] = float(value)
         return klass(None, values)
 
+
 class IntervalPreference(Preference):
     ''' Represents the preference of a given user about a continuous
     resource over a collection of intervals.
     '''
 
-    def __init__(self, user, intervals):
+    def __init__(self, user, intervals, resolution=100):
         ''' Initialize a new preference class
 
         :param user: The name or id of the participant
         :param inervals: The intervals to initialize with
+        :param resolution: The number of steps we will take in the integral
         '''
         self.user = user or self._get_user()
         self.intervals = Interval.create(intervals)
+        self.total = sum(i.area(0, 1) for i in self.intervals)
+        self.resolution = resolution
 
     def value_of(self, resource):
         ''' Given a resource, return the total value
@@ -236,12 +242,11 @@ class IntervalPreference(Preference):
         :params resource: The resource to get the value of
         :returns: The total value of the items
         '''
-        piece, total = 0, 0
-        for x0, x1 in resource.value:
+        piece = 0
+        for a, b in resource.value:
             for interval in self.intervals:
-                total += interval.area(0, 1)
-                piece += interval.area(x0, x1) 
-        return piece / total
+                piece += interval.area(a, b)
+        return piece / self.total
 
     @classmethod
     def random(klass, intervals):
@@ -257,7 +262,7 @@ class IntervalPreference(Preference):
             cx += random() / intervals
         points.append((1.0, random()))
         return klass(None, points)
-        
+
     @classmethod
     def from_file(klass, filename):
         ''' A factory method to create a preference

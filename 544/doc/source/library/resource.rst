@@ -23,3 +23,6 @@ API Documentation
 
 .. autoclass:: CollectionResource
    :members:
+
+.. autoclass:: IntervalResource
+   :members:

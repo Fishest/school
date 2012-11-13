@@ -1,0 +1,497 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+
+    <title>algorithms — Cakery Algorithms &mdash; Cakery 1.0 documentation</title>
+
+<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
+
+
+    
+    <link rel="stylesheet" href="../_static/rtd.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/searchtools.js"></script>
+    <link rel="top" title="Cakery 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Cakery Library API Documentation" href="index.html" />
+    <link rel="prev" title="utilities — Extra Cakery Utilities" href="utilities.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="utilities.html" title="utilities — Extra Cakery Utilities"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Cakery 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Cakery Library API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-algorithms">
+<span id="algorithms-cakery-algorithms"></span><h1><a class="reference internal" href="#module-algorithms" title="algorithms: Cakery Algorithms"><tt class="xref py py-mod docutils literal"><span class="pre">algorithms</span></tt></a> &#8212; Cakery Algorithms<a class="headerlink" href="#module-algorithms" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-cakery.algorithms">
+<span id="api-documentation"></span><h2>API Documentation<a class="headerlink" href="#module-cakery.algorithms" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="cakery.algorithms.AustinMovingKnife">
+<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">AustinMovingKnife</tt><big>(</big><em>users</em>, <em>cake</em>, <em>value</em><big>)</big><a class="headerlink" href="#cakery.algorithms.AustinMovingKnife" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes a new instance of the algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>users</strong> &#8211; The users to operate with</li>
+<li><strong>cake</strong> &#8211; The cake to divide</li>
+<li><strong>value</strong> &#8211; The agreed value to find</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cakery.algorithms.AustinMovingKnife.divide">
+<tt class="descname">divide</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.AustinMovingKnife.divide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the algorithm to perform a suggested
+division.</p>
+<p>If a piece of the requesed value cannot be found,
+this will throw.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of divisions of {user: piece}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.algorithms.AustinMovingKnife.settings">
+<tt class="descname">settings</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.AustinMovingKnife.settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retieves a capability listing of this algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of the algorithm features</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cakery.algorithms.BanachKnaster">
+<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">BanachKnaster</tt><big>(</big><em>users</em>, <em>cake</em><big>)</big><a class="headerlink" href="#cakery.algorithms.BanachKnaster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes a new instance of the algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>users</strong> &#8211; The users to operate with</li>
+<li><strong>cake</strong> &#8211; The cake to divide</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cakery.algorithms.BanachKnaster.divide">
+<tt class="descname">divide</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.BanachKnaster.divide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the algorithm to perform a suggested
+division.</p>
+<p>If a piece of the requesed value cannot be found,
+this will throw.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of divisions of {user: piece}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.algorithms.BanachKnaster.settings">
+<tt class="descname">settings</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.BanachKnaster.settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retieves a capability listing of this algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of the algorithm features</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cakery.algorithms.DivideAndChoose">
+<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">DivideAndChoose</tt><big>(</big><em>users</em>, <em>cake</em><big>)</big><a class="headerlink" href="#cakery.algorithms.DivideAndChoose" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is an implementation of the divide and choose
+algorithm that works as follows:</p>
+<ol class="arabic simple">
+<li>A cutting user is randomly chosen</li>
+<li>The other user is labled as the chooser</li>
+<li>The cutter divides the cake into two pieces</li>
+<li>The chooser picks the piece they like the best</li>
+<li>The cutter gets the remaining piece</li>
+</ol>
+<p>Initializes a new instance of the algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>users</strong> &#8211; The users to operate with</li>
+<li><strong>cake</strong> &#8211; The cake to divide</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cakery.algorithms.DivideAndChoose.divide">
+<tt class="descname">divide</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.DivideAndChoose.divide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the algorithm to perform a suggested
+division.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of divisions of {user: piece}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.algorithms.DivideAndChoose.settings">
+<tt class="descname">settings</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.DivideAndChoose.settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retieves a capability listing of this algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of the algorithm features</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cakery.algorithms.DubinsSpanier">
+<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">DubinsSpanier</tt><big>(</big><em>users</em>, <em>cake</em><big>)</big><a class="headerlink" href="#cakery.algorithms.DubinsSpanier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes a new instance of the algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>users</strong> &#8211; The users to operate with</li>
+<li><strong>cake</strong> &#8211; The cake to divide</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cakery.algorithms.DubinsSpanier.divide">
+<tt class="descname">divide</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.DubinsSpanier.divide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the algorithm to perform a suggested
+division.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of divisions of {user: piece}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.algorithms.DubinsSpanier.settings">
+<tt class="descname">settings</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.DubinsSpanier.settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retieves a capability listing of this algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of the algorithm features</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cakery.algorithms.SealedBidAuction">
+<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">SealedBidAuction</tt><big>(</big><em>users</em>, <em>cake</em><big>)</big><a class="headerlink" href="#cakery.algorithms.SealedBidAuction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes a new instance of the algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>users</strong> &#8211; The users to operate with</li>
+<li><strong>cake</strong> &#8211; The cake to divide</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cakery.algorithms.SealedBidAuction.divide">
+<tt class="descname">divide</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.SealedBidAuction.divide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the algorithm to perform a suggested
+division.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of divisions of {user: piece}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.algorithms.SealedBidAuction.settings">
+<tt class="descname">settings</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.SealedBidAuction.settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retieves a capability listing of this algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of the algorithm features</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cakery.algorithms.InverseDivideAndChoose">
+<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">InverseDivideAndChoose</tt><big>(</big><em>users</em>, <em>cake</em><big>)</big><a class="headerlink" href="#cakery.algorithms.InverseDivideAndChoose" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is an implementation of the divide and choose
+algorithm that can be used to divide chores and it
+works as follows:</p>
+<ol class="arabic simple">
+<li>A cutting user is randomly chosen</li>
+<li>The other user is labled as the chooser</li>
+<li>The cutter divides the cake into two pieces</li>
+<li>The chooser picks the piece they like the least</li>
+<li>The cutter gets the remaining piece</li>
+</ol>
+<p>Initializes a new instance of the algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>users</strong> &#8211; The users to operate with</li>
+<li><strong>cake</strong> &#8211; The cake to divide</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cakery.algorithms.InverseDivideAndChoose.divide">
+<tt class="descname">divide</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.InverseDivideAndChoose.divide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the algorithm to perform a suggested
+division.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of divisions of {user: piece}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.algorithms.InverseDivideAndChoose.settings">
+<tt class="descname">settings</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.InverseDivideAndChoose.settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retieves a capability listing of this algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of the algorithm features</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cakery.algorithms.LoneChooser">
+<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">LoneChooser</tt><big>(</big><em>users</em>, <em>cake</em><big>)</big><a class="headerlink" href="#cakery.algorithms.LoneChooser" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is an implementation of the lone chooser
+algorithm that works as follows:</p>
+<ol class="arabic simple">
+<li>Perform divide and choose with two players</li>
+<li>Another player is added to the division</li>
+<li>Each current player divides their current share</li>
+<li>This should be 1/n (where n is the player count)</li>
+<li>The new player chooses the best slice from each player</li>
+<li>Repeat at 2 for each new player</li>
+</ol>
+<p>Initializes a new instance of the algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>users</strong> &#8211; The users to operate with</li>
+<li><strong>cake</strong> &#8211; The cake to divide</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cakery.algorithms.LoneChooser.divide">
+<tt class="descname">divide</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.LoneChooser.divide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the algorithm to perform a suggested
+division.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of divisions of {user: piece}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.algorithms.LoneChooser.settings">
+<tt class="descname">settings</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.LoneChooser.settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retieves a capability listing of this algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of the algorithm features</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">algorithms</span></tt> &#8212; Cakery Algorithms</a><ul>
+<li><a class="reference internal" href="#module-cakery.algorithms">API Documentation</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="utilities.html"
+                        title="previous chapter"><tt class="docutils literal"><span class="pre">utilities</span></tt> &#8212; Extra Cakery Utilities</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/library/algorithms.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="utilities.html" title="utilities — Extra Cakery Utilities"
+             >previous</a> |</li>
+        <li><a href="../index.html">Cakery 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Cakery Library API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+<div class="footer">
+    &copy; Copyright 2012, Galen Collins.
+  Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+  <br />Theme based on <a href="http://readthedocs.org/">Read The Docs</a>
+
+</div>
+
+
+
+
+
+  </body>
+</html>

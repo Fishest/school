@@ -1,0 +1,278 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+
+    <title>utilities — Extra Cakery Utilities &mdash; Cakery 1.0 documentation</title>
+
+<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
+
+
+    
+    <link rel="stylesheet" href="../_static/rtd.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/searchtools.js"></script>
+    <link rel="top" title="Cakery 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Cakery Library API Documentation" href="index.html" />
+    <link rel="next" title="algorithms — Cakery Algorithms" href="algorithms.html" />
+    <link rel="prev" title="resource — Cakery Resources" href="resource.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="algorithms.html" title="algorithms — Cakery Algorithms"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="resource.html" title="resource — Cakery Resources"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Cakery 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Cakery Library API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-utilities">
+<span id="utilities-extra-cakery-utilities"></span><h1><a class="reference internal" href="#module-utilities" title="utilities: Extra Cakery Utilities"><tt class="xref py py-mod docutils literal"><span class="pre">utilities</span></tt></a> &#8212; Extra Cakery Utilities<a class="headerlink" href="#module-utilities" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-cakery.utilities">
+<span id="api-documentation"></span><h2>API Documentation<a class="headerlink" href="#module-cakery.utilities" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="cakery.utilities.powerset">
+<tt class="descclassname">cakery.utilities.</tt><tt class="descname">powerset</tt><big>(</big><em>iterable</em><big>)</big><a class="reference internal" href="../_modules/cakery/utilities.html#powerset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.utilities.powerset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given an iterable, create the powerset</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Params iterable:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">The iterable to create a powerset of</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A powerset iterator</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cakery.utilities.all_same">
+<tt class="descclassname">cakery.utilities.</tt><tt class="descname">all_same</tt><big>(</big><em>iterable</em><big>)</big><a class="reference internal" href="../_modules/cakery/utilities.html#all_same"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.utilities.all_same" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given an iterable, check if all the values
+in that iterable are the same value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>iterable</strong> &#8211; The iterable to check for equality</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if all the values are the same, False otherwise</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cakery.utilities.integrate">
+<tt class="descclassname">cakery.utilities.</tt><tt class="descname">integrate</tt><big>(</big><em>fx</em>, <em>x0</em>, <em>x1</em>, <em>ns</em><big>)</big><a class="reference internal" href="../_modules/cakery/utilities.html#integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.utilities.integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Approximates the integral of the supplied
+function by using the trapezoidal rule.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>fx</strong> &#8211; The function to integrate</li>
+<li><strong>x0</strong> &#8211; The starting point of the integral</li>
+<li><strong>x1</strong> &#8211; The ending point of the integral</li>
+<li><strong>ns</strong> &#8211; The number of subinterval steps to take</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cakery.utilities.any_range">
+<tt class="descclassname">cakery.utilities.</tt><tt class="descname">any_range</tt><big>(</big><em>start</em>, <em>stop</em>, <em>step=1</em><big>)</big><a class="reference internal" href="../_modules/cakery/utilities.html#any_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.utilities.any_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a range from the starting
+value to the stopping value (exclusive) with the
+supplied step size of any numeric type.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>start</strong> &#8211; The start of the range</li>
+<li><strong>stop</strong> &#8211; The stop of the range</li>
+<li><strong>step</strong> &#8211; The step size of the range</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="cakery.utilities.Interval">
+<em class="property">class </em><tt class="descclassname">cakery.utilities.</tt><tt class="descname">Interval</tt><big>(</big><em>start</em>, <em>stop</em><big>)</big><a class="reference internal" href="../_modules/cakery/utilities.html#Interval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.utilities.Interval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a single linear interval</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>start</strong> &#8211; The starting (x1, y1)</li>
+<li><strong>stop</strong> &#8211; The ending (x2, y2)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cakery.utilities.Interval.area">
+<tt class="descname">area</tt><big>(</big><em>a</em>, <em>b</em><big>)</big><a class="reference internal" href="../_modules/cakery/utilities.html#Interval.area"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.utilities.Interval.area" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the area of this interval from a to b.
+The area is valid only between the left and right boundaries
+of this interval.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>a</strong> &#8211; The starting point of the area</li>
+<li><strong>b</strong> &#8211; The ending point of the area</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The area of the specified range</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="cakery.utilities.Interval.create">
+<em class="property">static </em><tt class="descname">create</tt><big>(</big><em>points</em><big>)</big><a class="reference internal" href="../_modules/cakery/utilities.html#Interval.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.utilities.Interval.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a list of points, create a collection
+of intervals.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>points</strong> &#8211; The points to create intervals for</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The collection of intervals</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">utilities</span></tt> &#8212; Extra Cakery Utilities</a><ul>
+<li><a class="reference internal" href="#module-cakery.utilities">API Documentation</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="resource.html"
+                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">resource</span></tt> &#8212; Cakery Resources</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="algorithms.html"
+                        title="next chapter"><tt class="docutils literal docutils literal"><span class="pre">algorithms</span></tt> &#8212; Cakery Algorithms</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/library/utilities.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="algorithms.html" title="algorithms — Cakery Algorithms"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="resource.html" title="resource — Cakery Resources"
+             >previous</a> |</li>
+        <li><a href="../index.html">Cakery 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Cakery Library API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+<div class="footer">
+    &copy; Copyright 2012, Galen Collins.
+  Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+  <br />Theme based on <a href="http://readthedocs.org/">Read The Docs</a>
+
+</div>
+
+
+
+
+
+  </body>
+</html>

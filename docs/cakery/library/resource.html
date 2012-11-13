@@ -1,0 +1,797 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+
+    <title>resource — Cakery Resources &mdash; Cakery 1.0 documentation</title>
+
+<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
+
+
+    
+    <link rel="stylesheet" href="../_static/rtd.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/searchtools.js"></script>
+    <link rel="top" title="Cakery 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Cakery Library API Documentation" href="index.html" />
+    <link rel="next" title="utilities — Extra Cakery Utilities" href="utilities.html" />
+    <link rel="prev" title="preference — Cakery Preferences" href="preference.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="utilities.html" title="utilities — Extra Cakery Utilities"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="preference.html" title="preference — Cakery Preferences"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Cakery 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Cakery Library API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-resource">
+<span id="resource-cakery-resources"></span><h1><a class="reference internal" href="#module-resource" title="resource: Cakery Resources"><tt class="xref py py-mod docutils literal"><span class="pre">resource</span></tt></a> &#8212; Cakery Resources<a class="headerlink" href="#module-resource" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-cakery.resource">
+<span id="api-documentation"></span><h2>API Documentation<a class="headerlink" href="#module-cakery.resource" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="cakery.resource.Resource">
+<em class="property">class </em><tt class="descclassname">cakery.resource.</tt><tt class="descname">Resource</tt><a class="reference internal" href="../_modules/cakery/resource.html#Resource"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.Resource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a basic resource that is to be
+divided among a number of users.</p>
+<dl class="attribute">
+<dt id="cakery.resource.Resource.value">
+<tt class="descname">value</tt><a class="headerlink" href="#cakery.resource.Resource.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>The current value of this resource in which
+the type may be unique to the resource in
+question.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.Resource.actual_value">
+<tt class="descname">actual_value</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#Resource.actual_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.Resource.actual_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an actual value that we can use for
+comparison for the algorithm.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The actual value of the object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.Resource.append">
+<tt class="descname">append</tt><big>(</big><em>piece</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#Resource.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.Resource.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update this resource by adding the
+specified piece.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>piece</strong> &#8211; The piece to append to this</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.Resource.as_collection">
+<tt class="descname">as_collection</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#Resource.as_collection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.Resource.as_collection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the underlying resource as a
+collection of resources (one for each
+discrete item</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The collection of resources</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.Resource.clone">
+<tt class="descname">clone</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#Resource.clone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.Resource.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a clone of this resource that is
+identical to the original.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A clone of the current resource</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.Resource.compare">
+<tt class="descname">compare</tt><big>(</big><em>this</em>, <em>that</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#Resource.compare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.Resource.compare" title="Permalink to this definition">¶</a></dt>
+<dd><p>A utility method used to provide rich
+comparison operations on the resource.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>that</strong> &#8211; The other resource to compare</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">-1: less than, 0: equal to, 1: greater than</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.Resource.create_pieces">
+<tt class="descname">create_pieces</tt><big>(</big><em>user</em>, <em>count=2</em>, <em>weight=None</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#Resource.create_pieces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.Resource.create_pieces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split the current resource it into count many pieces
+with the specified weight depending on the supplied user
+preference (or user.value_of(resource) / count).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>user</strong> &#8211; The user preference to split by</li>
+<li><strong>count</strong> &#8211; The number of pieces to split</li>
+<li><strong>weight</strong> &#8211; The weight to split into</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.Resource.find_piece">
+<tt class="descname">find_piece</tt><big>(</big><em>user</em>, <em>weight</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#Resource.find_piece"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.Resource.find_piece" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attempt to find a piece of the current resource
+that meets the requested weight according to the
+given user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>user</strong> &#8211; The user preferences to weight with</li>
+<li><strong>weight</strong> &#8211; The weight we are attempting to hit</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The first piece matching that weight</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.Resource.remove">
+<tt class="descname">remove</tt><big>(</big><em>piece</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#Resource.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.Resource.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update this resource by removing the
+specified piece.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>piece</strong> &#8211; The piece to remove from this</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cakery.resource.ContinuousResource">
+<em class="property">class </em><tt class="descclassname">cakery.resource.</tt><tt class="descname">ContinuousResource</tt><big>(</big><em>start</em>, <em>span</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#ContinuousResource"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.ContinuousResource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a continuous resource that exists
+over a range from 0 to 1 (beach front property
+for example).</p>
+<p>This is represented internally as a (start, span).
+Also, all math is internally performed using
+rational values (fractions.Fraction).</p>
+<p>Initializes a new instance of the resource</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>start</strong> &#8211; The starting point on the x-axis</li>
+<li><strong>span</strong> &#8211; The span from the starting point</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cakery.resource.ContinuousResource.actual_value">
+<tt class="descname">actual_value</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#ContinuousResource.actual_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.ContinuousResource.actual_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an actual value that we can use for
+comparison for the algorithm.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The actual value of the object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.ContinuousResource.append">
+<tt class="descname">append</tt><big>(</big><em>piece</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#ContinuousResource.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.ContinuousResource.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update this resource by adding the
+specified piece.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>piece</strong> &#8211; The piece to append to this</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.ContinuousResource.clone">
+<tt class="descname">clone</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#ContinuousResource.clone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.ContinuousResource.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a clone of this resource that is
+identical to the original.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A clone of the current resource</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.ContinuousResource.compare">
+<tt class="descname">compare</tt><big>(</big><em>this</em>, <em>that</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#ContinuousResource.compare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.ContinuousResource.compare" title="Permalink to this definition">¶</a></dt>
+<dd><p>A utility method used to provide rich
+comparison operations on the resource.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>that</strong> &#8211; The other resource to compare</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">-1: less than, 0: equal to, 1: greater than</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.ContinuousResource.find_piece">
+<tt class="descname">find_piece</tt><big>(</big><em>user</em>, <em>weight</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#ContinuousResource.find_piece"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.ContinuousResource.find_piece" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attempt to find a piece of the current resource
+that meets the requested weight according to the
+given user.</p>
+<p>This is implemented with a Stern-Brocot tree.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>user</strong> &#8211; The user preferences to weight with</li>
+<li><strong>weight</strong> &#8211; The weight we are attempting to hit</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The first piece matching that weight</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.ContinuousResource.remove">
+<tt class="descname">remove</tt><big>(</big><em>piece</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#ContinuousResource.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.ContinuousResource.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update this resource by removing the
+specified piece.</p>
+<p>It should be noted that we can only remove from
+one end or another from a continuous resource. If you need
+to remove from the middle, you will have to split.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>piece</strong> &#8211; The piece to remove from this</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cakery.resource.CountedResource">
+<em class="property">class </em><tt class="descclassname">cakery.resource.</tt><tt class="descname">CountedResource</tt><big>(</big><em>items</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#CountedResource"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.CountedResource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a discrete resource that may
+have 1 or more of the same item available (class
+slots for example).</p>
+<p>This is represented internally as a dictionary.</p>
+<p>Initializes a new instance of the resource</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>items</strong> &#8211; The items representing this resource</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cakery.resource.CountedResource.actual_value">
+<tt class="descname">actual_value</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#CountedResource.actual_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.CountedResource.actual_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an actual value that we can use for
+comparison for the algorithm.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The actual value of the object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.CountedResource.append">
+<tt class="descname">append</tt><big>(</big><em>piece</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#CountedResource.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.CountedResource.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update this resource by adding the
+specified piece.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>piece</strong> &#8211; The piece to append to this</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.CountedResource.clone">
+<tt class="descname">clone</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#CountedResource.clone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.CountedResource.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a clone of this resource that is
+identical to the original.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A clone of the current resource</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.CountedResource.compare">
+<tt class="descname">compare</tt><big>(</big><em>this</em>, <em>that</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#CountedResource.compare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.CountedResource.compare" title="Permalink to this definition">¶</a></dt>
+<dd><p>A utility method used to provide rich
+comparison operations on the resource.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>that</strong> &#8211; The other resource to compare</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">-1: less than, 0: equal to, 1: greater than</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.CountedResource.find_piece">
+<tt class="descname">find_piece</tt><big>(</big><em>user</em>, <em>weight</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#CountedResource.find_piece"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.CountedResource.find_piece" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attempt to find a piece of the current resource
+that meets the requested weight according to the
+given user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>user</strong> &#8211; The user preferences to weight with</li>
+<li><strong>weight</strong> &#8211; The weight we are attempting to hit</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The first piece matching that weight</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.CountedResource.remove">
+<tt class="descname">remove</tt><big>(</big><em>piece</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#CountedResource.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.CountedResource.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update this resource by removing the
+specified piece.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>piece</strong> &#8211; The piece to remove from this</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cakery.resource.CollectionResource">
+<em class="property">class </em><tt class="descclassname">cakery.resource.</tt><tt class="descname">CollectionResource</tt><big>(</big><em>items</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#CollectionResource"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.CollectionResource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a discrete resource that has only
+one instance of each item (team member selection
+for example).</p>
+<p>This is represented internally as a list.</p>
+<p>Initializes a new instance of the resource</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>items</strong> &#8211; The items representing this resource</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cakery.resource.CollectionResource.actual_value">
+<tt class="descname">actual_value</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#CollectionResource.actual_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.CollectionResource.actual_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an actual value that we can use for
+comparison for the algorithm.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The actual value of the object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.CollectionResource.append">
+<tt class="descname">append</tt><big>(</big><em>piece</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#CollectionResource.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.CollectionResource.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update this resource by adding the
+specified piece.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>piece</strong> &#8211; The piece to append to this</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.CollectionResource.as_collection">
+<tt class="descname">as_collection</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#CollectionResource.as_collection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.CollectionResource.as_collection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the underlying resource as a
+collection of resources (one for each
+discrete item</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The collection of resources</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.CollectionResource.clone">
+<tt class="descname">clone</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#CollectionResource.clone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.CollectionResource.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a clone of this resource that is
+identical to the original.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A clone of the current resource</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.CollectionResource.compare">
+<tt class="descname">compare</tt><big>(</big><em>this</em>, <em>that</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#CollectionResource.compare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.CollectionResource.compare" title="Permalink to this definition">¶</a></dt>
+<dd><p>A utility method used to provide rich
+comparison operations on the resource.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>that</strong> &#8211; The other resource to compare</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">-1: less than, 0: equal to, 1: greater than</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.CollectionResource.find_piece">
+<tt class="descname">find_piece</tt><big>(</big><em>user</em>, <em>weight</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#CollectionResource.find_piece"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.CollectionResource.find_piece" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attempt to find a piece of the current resource
+that meets the requested weight according to the
+given user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>user</strong> &#8211; The user preferences to weight with</li>
+<li><strong>weight</strong> &#8211; The weight we are attempting to hit</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The first piece matching that weight</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.CollectionResource.remove">
+<tt class="descname">remove</tt><big>(</big><em>piece</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#CollectionResource.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.CollectionResource.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update this resource by removing the
+specified piece.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>piece</strong> &#8211; The piece to remove from this</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cakery.resource.IntervalResource">
+<em class="property">class </em><tt class="descclassname">cakery.resource.</tt><tt class="descname">IntervalResource</tt><big>(</big><em>points</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#IntervalResource"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.IntervalResource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a continuous resource that exists
+over a collection of intervals.</p>
+<p>This is represented internally as a list of ranges
+[(start, stop)].</p>
+<p>Initializes a new instance of the resource</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>points</strong> &#8211; The collection of points</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cakery.resource.IntervalResource.actual_value">
+<tt class="descname">actual_value</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#IntervalResource.actual_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.IntervalResource.actual_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an actual value that we can use for
+comparison for the algorithm.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The actual value of the object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.IntervalResource.append">
+<tt class="descname">append</tt><big>(</big><em>piece</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#IntervalResource.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.IntervalResource.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update this resource by adding the
+specified piece. This also merges adjacent
+pieces to create the minimal amount of
+intervals.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>piece</strong> &#8211; The piece to append to this</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.IntervalResource.clone">
+<tt class="descname">clone</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#IntervalResource.clone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.IntervalResource.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a clone of this resource that is
+identical to the original.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A clone of the current resource</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.IntervalResource.compare">
+<tt class="descname">compare</tt><big>(</big><em>this</em>, <em>that</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#IntervalResource.compare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.IntervalResource.compare" title="Permalink to this definition">¶</a></dt>
+<dd><p>A utility method used to provide rich
+comparison operations on the resource.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>that</strong> &#8211; The other resource to compare</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">-1: less than, 0: equal to, 1: greater than</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.IntervalResource.find_piece">
+<tt class="descname">find_piece</tt><big>(</big><em>user</em>, <em>weight</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#IntervalResource.find_piece"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.IntervalResource.find_piece" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attempt to find a piece of the current resource
+that meets the requested weight according to the
+given user.</p>
+<p>This is implemented with a Stern-Brocot tree.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>user</strong> &#8211; The user preferences to weight with</li>
+<li><strong>weight</strong> &#8211; The weight we are attempting to hit</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The first piece matching that weight</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.resource.IntervalResource.remove">
+<tt class="descname">remove</tt><big>(</big><em>piece</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#IntervalResource.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.IntervalResource.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update this resource by removing the
+specified piece.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>piece</strong> &#8211; The piece to remove from this</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">resource</span></tt> &#8212; Cakery Resources</a><ul>
+<li><a class="reference internal" href="#module-cakery.resource">API Documentation</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="preference.html"
+                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">preference</span></tt> &#8212; Cakery Preferences</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="utilities.html"
+                        title="next chapter"><tt class="docutils literal docutils literal"><span class="pre">utilities</span></tt> &#8212; Extra Cakery Utilities</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/library/resource.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="utilities.html" title="utilities — Extra Cakery Utilities"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="preference.html" title="preference — Cakery Preferences"
+             >previous</a> |</li>
+        <li><a href="../index.html">Cakery 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Cakery Library API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+<div class="footer">
+    &copy; Copyright 2012, Galen Collins.
+  Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+  <br />Theme based on <a href="http://readthedocs.org/">Read The Docs</a>
+
+</div>
+
+
+
+
+
+  </body>
+</html>

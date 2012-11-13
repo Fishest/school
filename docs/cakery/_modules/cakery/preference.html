@@ -1,0 +1,402 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+
+    <title>cakery.preference &mdash; Cakery 1.0 documentation</title>
+
+<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
+
+
+    
+    <link rel="stylesheet" href="../../_static/rtd.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../_static/searchtools.js"></script>
+    <link rel="top" title="Cakery 1.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Cakery 1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for cakery.preference</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">random</span>
+<span class="kn">from</span> <span class="nn">cakery.utilities</span> <span class="kn">import</span> <span class="n">integrate</span>
+<span class="kn">from</span> <span class="nn">cakery.utilities</span> <span class="kn">import</span> <span class="n">Interval</span>
+
+
+<span class="c">#------------------------------------------------------------</span>
+<span class="c"># interface</span>
+<span class="c">#------------------------------------------------------------</span>
+<div class="viewcode-block" id="Preference"><a class="viewcode-back" href="../../library/preference.html#cakery.preference.Preference">[docs]</a><span class="k">class</span> <span class="nc">Preference</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Represents the preferences of a given user</span>
+<span class="sd">    about a given resource.</span>
+
+<span class="sd">    It should be noted, that the implementation of each</span>
+<span class="sd">    preference type is strongly coupled to the underlying</span>
+<span class="sd">    resource type. Trying to use mismatched types (Counted</span>
+<span class="sd">    with Collection for example) will result in runtime errors.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">__id</span> <span class="o">=</span> <span class="mi">1</span>
+
+<div class="viewcode-block" id="Preference.value_of"><a class="viewcode-back" href="../../library/preference.html#cakery.preference.Preference.value_of">[docs]</a>    <span class="k">def</span> <span class="nf">value_of</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Given a resource, return the total value</span>
+<span class="sd">        of this resource to the current user.</span>
+
+<span class="sd">        :params resource: The resource to get the value of</span>
+<span class="sd">        :returns: The total value of the items</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;value_of&quot;</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_get_user</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; A helper method to return a unique</span>
+<span class="sd">        username for undefined users.</span>
+
+<span class="sd">        :returns: A unique username</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">Preference</span><span class="o">.</span><span class="n">__id</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">Preference</span><span class="o">.</span><span class="n">__id</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">Preference</span><span class="o">.</span><span class="n">__id</span>
+        <span class="k">return</span> <span class="s">&quot;user</span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Returns a string representation of the preference</span>
+
+<span class="sd">        :returns: The string representation of this preference</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="s">&quot;Preference(</span><span class="si">%s</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span>
+
+    <span class="n">__repr__</span> <span class="o">=</span> <span class="n">__str__</span>
+
+
+<span class="c">#------------------------------------------------------------</span>
+<span class="c"># implementations</span>
+<span class="c">#------------------------------------------------------------</span></div>
+<div class="viewcode-block" id="ContinuousPreference"><a class="viewcode-back" href="../../library/preference.html#cakery.preference.ContinuousPreference">[docs]</a><span class="k">class</span> <span class="nc">ContinuousPreference</span><span class="p">(</span><span class="n">Preference</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Represents the preference of a given user about a continuous</span>
+<span class="sd">    resource. This preference is supplied by a function over a given</span>
+<span class="sd">    interval.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Initialize a new preference class</span>
+
+<span class="sd">        :param user: The name or id of the participant</span>
+<span class="sd">        :param function: The function that describes the user&#39;s preference</span>
+<span class="sd">        :param resolution: The number of steps we will take in the integral</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">user</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_user</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">function</span> <span class="o">=</span> <span class="n">function</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span> <span class="o">=</span> <span class="n">resolution</span>
+
+<div class="viewcode-block" id="ContinuousPreference.value_of"><a class="viewcode-back" href="../../library/preference.html#cakery.preference.ContinuousPreference.value_of">[docs]</a>    <span class="k">def</span> <span class="nf">value_of</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Given a resource, return the total value</span>
+<span class="sd">        of this resource to the current user.</span>
+
+<span class="sd">        :params resource: The resource to get the value of</span>
+<span class="sd">        :returns: The total value of the items</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">span</span><span class="p">)</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">return</span> <span class="n">integrate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">x0</span> <span class="o">+</span> <span class="n">span</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span><span class="p">)</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ContinuousPreference.random"><a class="viewcode-back" href="../../library/preference.html#cakery.preference.ContinuousPreference.random">[docs]</a>    <span class="k">def</span> <span class="nf">random</span><span class="p">(</span><span class="n">klass</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; A factory method to create a random</span>
+<span class="sd">        preference collection.</span>
+
+<span class="sd">        :returns: An initialized Preference</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">negat</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.5</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="n">slope</span> <span class="o">=</span> <span class="n">random</span><span class="p">()</span> <span class="o">*</span> <span class="n">negat</span>
+        <span class="n">shift</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">slope</span>
+        <span class="n">function</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">*</span> <span class="n">slope</span> <span class="o">+</span> <span class="n">shift</span>
+        <span class="k">return</span> <span class="n">klass</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">function</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="CountedPreference"><a class="viewcode-back" href="../../library/preference.html#cakery.preference.CountedPreference">[docs]</a><span class="k">class</span> <span class="nc">CountedPreference</span><span class="p">(</span><span class="n">Preference</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Represents the preference of a given user about a collection</span>
+<span class="sd">    of items that can be requested more than once.</span>
+
+<span class="sd">    Here, a value is given to each item and a count filter can</span>
+<span class="sd">    optionally be specified that suggests how many of each item</span>
+<span class="sd">    we care to retrieve (defaults to as many as possible).</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">counts</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Initialize a new preference class</span>
+
+<span class="sd">        :param user: The name or id of the participant</span>
+<span class="sd">        :param values: The preference values of the user</span>
+<span class="sd">        :param counts: Listing of how many of each item is wanted</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">user</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_user</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">values</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">counts</span> <span class="o">=</span> <span class="n">counts</span> <span class="ow">or</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="c">#self.counts = counts or dict((k, sys.maxint) for k in self.values)</span>
+
+<div class="viewcode-block" id="CountedPreference.value_of"><a class="viewcode-back" href="../../library/preference.html#cakery.preference.CountedPreference.value_of">[docs]</a>    <span class="k">def</span> <span class="nf">value_of</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Given a resource, return the total value</span>
+<span class="sd">        of this resource to the current user.</span>
+
+<span class="sd">        :params resource: The resource to get the value of</span>
+<span class="sd">        :returns: The total value of the items</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">item</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">resource</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">wants</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">total</span> <span class="o">+=</span> <span class="n">value</span> <span class="o">*</span> <span class="nb">min</span><span class="p">(</span><span class="n">wants</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">total</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="CountedPreference.random"><a class="viewcode-back" href="../../library/preference.html#cakery.preference.CountedPreference.random">[docs]</a>    <span class="k">def</span> <span class="nf">random</span><span class="p">(</span><span class="n">klass</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; A factory method to create a random</span>
+<span class="sd">        preference collection.</span>
+
+<span class="sd">        :param resource: The resource to build values for</span>
+<span class="sd">        :returns: An initialized Preference</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">pieces</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="n">random</span><span class="p">())</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pieces</span><span class="p">)</span>
+        <span class="n">summed</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="o">/</span> <span class="n">summed</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">klass</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="CountedPreference.from_file"><a class="viewcode-back" href="../../library/preference.html#cakery.preference.CountedPreference.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">klass</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; A factory method to create a preference</span>
+<span class="sd">        collection from a settings file.</span>
+
+<span class="sd">        :param filename: The file to read preferences from</span>
+<span class="sd">        :returns: An initialized Preference</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">handle</span><span class="p">:</span>
+                <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="n">values</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">klass</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="CollectionPreference"><a class="viewcode-back" href="../../library/preference.html#cakery.preference.CollectionPreference">[docs]</a><span class="k">class</span> <span class="nc">CollectionPreference</span><span class="p">(</span><span class="n">Preference</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Represents the discrete preferences of a given user</span>
+<span class="sd">    about a supplied resource(s). The preferences are</span>
+<span class="sd">    represented as a dictionary of resource -&gt; preference</span>
+<span class="sd">    where the preference value is a fixed point value (no</span>
+<span class="sd">    decimals).</span>
+
+<span class="sd">    The preferences should be assigned as a percentage</span>
+<span class="sd">    of the defined resolution (integers). We assume the</span>
+<span class="sd">    preferences collectively add up to specified resolution</span>
+<span class="sd">    (or slightly less, but never more).</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Initialize a new preference class</span>
+
+<span class="sd">        :param user: The name or id of the participant</span>
+<span class="sd">        :param values: The preference values of the user</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">user</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_user</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">values</span> <span class="ow">or</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="CollectionPreference.value_of"><a class="viewcode-back" href="../../library/preference.html#cakery.preference.CollectionPreference.value_of">[docs]</a>    <span class="k">def</span> <span class="nf">value_of</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Given a resource, return its total value</span>
+<span class="sd">        to this user.</span>
+
+<span class="sd">        :params resource: The resource to get the value of</span>
+<span class="sd">        :returns: The total value of the items</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">value</span> <span class="k">for</span> <span class="n">item</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">resource</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="CollectionPreference.random"><a class="viewcode-back" href="../../library/preference.html#cakery.preference.CollectionPreference.random">[docs]</a>    <span class="k">def</span> <span class="nf">random</span><span class="p">(</span><span class="n">klass</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; A factory method to create a random</span>
+<span class="sd">        preference collection.</span>
+
+<span class="sd">        :param resource: The resource to build values for</span>
+<span class="sd">        :returns: An initialized Preference</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">pieces</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="n">random</span><span class="p">())</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pieces</span><span class="p">)</span>
+        <span class="n">summed</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="o">/</span> <span class="n">summed</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">klass</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="CollectionPreference.from_file"><a class="viewcode-back" href="../../library/preference.html#cakery.preference.CollectionPreference.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">klass</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; A factory method to create a preference</span>
+<span class="sd">        collection from a settings file.</span>
+
+<span class="sd">        :param filename: The file to read preferences from</span>
+<span class="sd">        :returns: An initialized Preference</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">handle</span><span class="p">:</span>
+                <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="n">values</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">klass</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="OrdinalPreference"><a class="viewcode-back" href="../../library/preference.html#cakery.preference.OrdinalPreference">[docs]</a><span class="k">class</span> <span class="nc">OrdinalPreference</span><span class="p">(</span><span class="n">CollectionPreference</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Represents the discrete preference for a given</span>
+<span class="sd">    user, however the value of each item is not known,</span>
+<span class="sd">    just the relative ordering of the items.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Initialize a new preference class</span>
+
+<span class="sd">        :param user: The name or id of the participant</span>
+<span class="sd">        :param values: The ordered preference values of the user</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">values</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">)</span>
+        <span class="n">CollectionPreference</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="IntervalPreference"><a class="viewcode-back" href="../../library/preference.html#cakery.preference.IntervalPreference">[docs]</a><span class="k">class</span> <span class="nc">IntervalPreference</span><span class="p">(</span><span class="n">Preference</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Represents the preference of a given user about a continuous</span>
+<span class="sd">    resource over a collection of intervals.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">intervals</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Initialize a new preference class</span>
+
+<span class="sd">        :param user: The name or id of the participant</span>
+<span class="sd">        :param inervals: The intervals to initialize with</span>
+<span class="sd">        :param resolution: The number of steps we will take in the integral</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">user</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_user</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intervals</span> <span class="o">=</span> <span class="n">Interval</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">intervals</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">area</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span> <span class="o">=</span> <span class="n">resolution</span>
+
+<div class="viewcode-block" id="IntervalPreference.value_of"><a class="viewcode-back" href="../../library/preference.html#cakery.preference.IntervalPreference.value_of">[docs]</a>    <span class="k">def</span> <span class="nf">value_of</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Given a resource, return the total value</span>
+<span class="sd">        of this resource to the current user.</span>
+
+<span class="sd">        :params resource: The resource to get the value of</span>
+<span class="sd">        :returns: The total value of the items</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">piece</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">resource</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">interval</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="p">:</span>
+                <span class="n">piece</span> <span class="o">+=</span> <span class="n">interval</span><span class="o">.</span><span class="n">area</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">piece</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">total</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="IntervalPreference.random"><a class="viewcode-back" href="../../library/preference.html#cakery.preference.IntervalPreference.random">[docs]</a>    <span class="k">def</span> <span class="nf">random</span><span class="p">(</span><span class="n">klass</span><span class="p">,</span> <span class="n">intervals</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; A factory method to create a random</span>
+<span class="sd">        preference collection.</span>
+
+<span class="sd">        :param intervals: The number intervals to use</span>
+<span class="sd">        :returns: An initialized Preference</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">cx</span><span class="p">,</span> <span class="n">points</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="n">cx</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
+            <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">cx</span><span class="p">,</span> <span class="n">random</span><span class="p">()))</span>
+            <span class="n">cx</span> <span class="o">+=</span> <span class="n">random</span><span class="p">()</span> <span class="o">/</span> <span class="n">intervals</span>
+        <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">random</span><span class="p">()))</span>
+        <span class="k">return</span> <span class="n">klass</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">points</span><span class="p">)</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="IntervalPreference.from_file"><a class="viewcode-back" href="../../library/preference.html#cakery.preference.IntervalPreference.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">klass</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; A factory method to create a preference</span>
+<span class="sd">        collection from a settings file.</span>
+
+<span class="sd">        :param filename: The file to read preferences from</span>
+<span class="sd">        :returns: An initialized Preference</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">handle</span><span class="p">:</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+                <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">klass</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">points</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Cakery 1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+<div class="footer">
+    &copy; Copyright 2012, Galen Collins.
+  Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+  <br />Theme based on <a href="http://readthedocs.org/">Read The Docs</a>
+
+</div>
+
+
+
+
+
+  </body>
+</html>

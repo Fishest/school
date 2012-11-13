@@ -24,5 +24,8 @@ API Documentation
 .. autoclass:: CollectionPreference
    :members:
 
+.. autoclass:: OrdinalPreference
+   :members:
+
 .. autoclass:: IntervalPreference
    :members:

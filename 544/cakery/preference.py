@@ -218,6 +218,23 @@ class CollectionPreference(Preference):
         return klass(None, values)
 
 
+class OrdinalPreference(CollectionPreference):
+    ''' Represents the discrete preference for a given
+    user, however the value of each item is not known,
+    just the relative ordering of the items.
+    '''
+
+    def __init__(self, user, values):
+        ''' Initialize a new preference class
+
+        :param user: The name or id of the participant
+        :param values: The ordered preference values of the user
+        '''
+        values = enumerate(reversed(values), 1)
+        values = dict((v, k) for k, v in values)
+        CollectionPreference.__init__(self, user, values)
+
+
 class IntervalPreference(Preference):
     ''' Represents the preference of a given user about a continuous
     resource over a collection of intervals.

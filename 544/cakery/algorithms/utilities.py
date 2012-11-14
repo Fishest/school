@@ -7,6 +7,7 @@ These are a collection of simple helper methods that make
 the code easier to read (basically a simple DSL).
 '''
 import random
+from math import ceil, sqrt
 
 
 # ------------------------------------------------------------
@@ -117,3 +118,55 @@ def trim_and_replace(user, cake, piece, weight):
     (piece, trimming) = piece.create_pieces(user, weight=weight)
     cake.append(trimming)
     return piece
+
+
+# ------------------------------------------------------------
+# classes
+# ------------------------------------------------------------
+class AlternationStrategy(object):
+    ''' A collection of predefined alternation strategies
+    that can be used to supply a user ordering for choosing
+    resources.
+    '''
+
+    @staticmethod
+    def ordinal(users, pieces):
+        ''' Simply rotate the users in order
+        from start to finish.
+
+        :param users: The users to rotate between
+        :param pieces: The items to choose between
+        :returns: The next user to choose
+        '''
+        return lambda: list(users)
+
+    @staticmethod
+    def random(users, pieces):
+        ''' Return a random ordering each time.
+
+        :param users: The users to rotate between
+        :param pieces: The items to choose between
+        :returns: The next user to choose
+        '''
+        return lambda: randomize_items(users)
+
+    @staticmethod
+    def balanced(users, pieces):
+        ''' Perform a balanced alternation that
+        attepmts to catch up the latter choosers.
+
+        ab
+        abba
+        abbabaab
+        abbabaabbaababba
+
+        :param users: The users to rotate between
+        :param pieces: The items to choose between
+        :returns: The next user to choose
+        '''
+        turns = list(users)
+        sizes = int(ceil(sqrt(len(pieces))))
+        for i in range(1, sizes):
+            n = len(turns) / 2
+            turns = turns + turns[n:] + turns[:n]
+        return lambda: turns

@@ -49,7 +49,7 @@ class LoneChooser(FairDivider):
         users  = randomize_items(self.users)        # randomize to be somewhat fair
         cutter = choose_and_remove(users)           # randomly select the first chooser
         slices[cutter] = self.cake.clone()          # first user gets all of the cake
-        while len(users) > 0:                       # until all the users have chosen
+        while any(users):                           # until all the users have chosen
             picker = choose_and_remove(users)       # randomly select the next chooser
             count += 1                              # add another player to the game
             for cutter, piece in slices.items():    # each current player has to cut

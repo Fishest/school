@@ -3,6 +3,7 @@ Handle the version information here; you should only have to
 change the version tuple.
 '''
 
+
 class Version(object):
 
     def __init__(self, package, major, minor, micro):

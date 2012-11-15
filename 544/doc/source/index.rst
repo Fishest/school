@@ -135,8 +135,9 @@ Todo
 * algorithm stress tests
 * unit test algorithm utilities for each resource
 
+------------------------------------------------------------
 Cakery API Documentation
-==================================
+------------------------------------------------------------
 
 .. toctree::
    :maxdepth: 2
@@ -144,8 +145,9 @@ Cakery API Documentation
    library/index.rst
 
 
+------------------------------------------------------------
 Indices
-==================================
+------------------------------------------------------------
 
 * :ref:`genindex`
 * :ref:`modindex`

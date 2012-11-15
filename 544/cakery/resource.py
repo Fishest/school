@@ -1,7 +1,7 @@
-'''
-'''
-from fractions import Fraction
+from random import randint, sample, random
+from fractions import Fraction as F
 from cakery.utilities import any_range, powerset
+
 
 #------------------------------------------------------------
 # interface
@@ -136,6 +136,18 @@ class ContinuousResource(Resource):
         self.value = (start, span)
         self.resolution = resolution
 
+    @classmethod
+    def random(klass):
+        ''' A factory method to create a random
+        resource.
+
+        :returns: An initialized Preference
+        '''
+        start = F(randint(0, 1), 2)
+        span  = F(1, randint(1, 10))
+        span  = F(1, 1) if start == span else span
+        return klass(start, span)
+
     def actual_value(self):
         ''' Return an actual value that we can use for
         comparison for the algorithm.
@@ -148,7 +160,7 @@ class ContinuousResource(Resource):
         ''' Return the underlying resource as a
         collection of resources (one for each
         discrete item
-        
+
         :returns: The collection of resources
         '''
         (start, span) = self.value
@@ -228,9 +240,9 @@ class ContinuousResource(Resource):
         if value < weight:
             raise ValueError("cannot find a piece with this weight")
 
-        l, h = Fraction(0, 1), Fraction(cake.value[1])
+        l, h = F(0, 1), F(cake.value[1])
         while (value < weight - shift) or (value > weight + shift):
-            m = Fraction(l.numerator + h.numerator, l.denominator + h.denominator)
+            m = F(l.numerator + h.numerator, l.denominator + h.denominator)
             cake.value = (cake.value[0], m)
             value = user.value_of(cake)
             if   value > weight: h = m
@@ -261,8 +273,20 @@ class CountedResource(Resource):
         :param items: The items representing this resource
         '''
         if not isinstance(items, dict):
-            items = dict((item, 1) for item in items)
+            items = {item: 1 for item in items}
         self.value = items
+
+    @classmethod
+    def random(klass, size=None):
+        ''' A factory method to create a random
+        resource.
+
+        :returns: An initialized Preference
+        '''
+        size = size or randint(1, 10)
+        dist = [chr(i) for i in range(ord('a'), ord('{'))]
+        vals = {k: randint(1, 10) for k in sample(dist, size)}
+        return klass(vals)
 
     def actual_value(self):
         ''' Return an actual value that we can use for
@@ -276,7 +300,7 @@ class CountedResource(Resource):
         ''' Return the underlying resource as a
         collection of resources (one for each
         discrete item
-        
+
         :returns: The collection of resources
         '''
         return [i for k, v in self.value.items() for i in [k] * v]
@@ -373,6 +397,18 @@ class CollectionResource(Resource):
         if not hasattr(items, '__iter__'):
             items = [items]
         self.value = list(items)
+
+    @classmethod
+    def random(klass, size=None):
+        ''' A factory method to create a random
+        resource.
+
+        :returns: An initialized Preference
+        '''
+        size = size or randint(1, 10)
+        dist = [chr(i) for i in range(ord('a'), ord('{'))]
+        vals = sample(dist, size)
+        return klass(vals)
 
     def as_collection(self):
         ''' Return the underlying resource as a
@@ -478,6 +514,21 @@ class IntervalResource(Resource):
             points = [points]
         self.value = points
 
+    @classmethod
+    def random(klass, intervals=1):
+        ''' A factory method to create a random
+        resource.
+
+        :param intervals: The number intervals to create
+        :returns: An initialized Preference
+        '''
+        cx, points = random(), []
+        while cx < 1.0 and intervals > 0:
+            nx = min(1.0, cx + random() / intervals)
+            points.append((cx, nx))
+            intervals, cx = intervals - 1, nx
+        return klass(points)
+
     def actual_value(self):
         ''' Return an actual value that we can use for
         comparison for the algorithm.
@@ -490,7 +541,7 @@ class IntervalResource(Resource):
         ''' Return the underlying resource as a
         collection of resources (one for each
         discrete item
-        
+
         :returns: The collection of resources
         '''
         pieces = []
@@ -584,9 +635,9 @@ class IntervalResource(Resource):
         if value < weight:
             raise ValueError("cannot find a piece with this weight")
 
-        l, h = Fraction(cake.value[0][0]), Fraction(cake.value[-1][-1])
+        l, h = F(cake.value[0][0]), F(cake.value[-1][-1])
         while (value < weight - shift) or (value > weight + shift):
-            m = Fraction(l.numerator + h.numerator, l.denominator + h.denominator)
+            m = F(l.numerator + h.numerator, l.denominator + h.denominator)
             cake.value = self.__trim(m)
             value = user.value_of(cake)
             if   value > weight: h = m

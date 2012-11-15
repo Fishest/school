@@ -1,6 +1,6 @@
 import sys
 import math
-from random import random
+from random import random, shuffle
 from cakery.utilities import integrate
 from cakery.utilities import Interval
 
@@ -234,6 +234,18 @@ class OrdinalPreference(CollectionPreference):
         values = dict((v, k) for k, v in values)
         CollectionPreference.__init__(self, user, values)
 
+    @classmethod
+    def random(klass, resource):
+        ''' A factory method to create a random
+        preference collection.
+
+        :param resource: The resource to build values for
+        :returns: An initialized Preference
+        '''
+        values = list(resource.value)
+        shuffle(values)
+        return klass(None, values)
+
 
 class IntervalPreference(Preference):
     ''' Represents the preference of a given user about a continuous
@@ -270,7 +282,7 @@ class IntervalPreference(Preference):
         ''' A factory method to create a random
         preference collection.
 
-        :param intervals: The number intervals to use
+        :param intervals: The number intervals to create
         :returns: An initialized Preference
         '''
         cx, points = 0.0, []

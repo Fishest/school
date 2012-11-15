@@ -8,7 +8,7 @@ class BalancedAlternatingChoice(FairDivider):
     ''' This algorithm takes turns between each user
     choosing their next favorite item from the resource.
     It runs as follows:
-    
+
     1. Flatten the resource into a collection of choices
     2. At each round, have each user choose their best piece
     3. If the pieces are not the same, assign each user that piece

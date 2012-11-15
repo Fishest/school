@@ -86,7 +86,7 @@ class Interval(object):
         if ox < 1:
             intervals.append(Interval((ox, oy), (1, 0)))
         return intervals
-    
+
     def __init__(self, start, stop):
         '''
         :param start: The starting (x1, y1)
@@ -108,9 +108,9 @@ class Interval(object):
 
         :param x: The x point to integrate with
         :returns: The integral of this interval
-        '''        
+        '''
         return self.m * x * x / 2 + self.b * x
-    
+
     def area(self, a, b):
         ''' Calculate the area of this interval from a to b.
         The area is valid only between the left and right boundaries
@@ -119,12 +119,12 @@ class Interval(object):
         :param a: The starting point of the area
         :param b: The ending point of the area
         :returns: The area of the specified range
-        '''    
+        '''
         l, r = max(self.x1, a), min(self.x2, b)
         if (l > self.x2) or (r < self.x1):
             return 0
         return self._integrate(r) - self._integrate(l)
-        
+
     def __str__(self):
         ''' Returns a string representation of this interval
 

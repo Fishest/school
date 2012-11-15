@@ -63,28 +63,29 @@ def choose_lowest_bidder(users, item):
 def list_best_pieces(users, pieces):
     ''' Given a collection of users and pieces
     return the favorite pieces for each user.
-    
+
     :param users: The users to search with
     :param pieces: The pieces to search in
     :returns: dict of {user: best-pieces}
     '''
     choices = {}
     for user in users:
-        choice = max((user.value_of(p),p) for p in pieces)
+        choice = max((user.value_of(p), p) for p in pieces)
         choices[user] = choice[1]
     return choices
+
 
 def list_worst_pieces(users, pieces):
     ''' Given a collection of users and pieces
     return the worst pieces for each user.
-    
+
     :param users: The users to search with
     :param pieces: The pieces to search in
     :returns: dict of {user: worst-pieces}
     '''
     choices = {}
     for user in users:
-        choice = min((user.value_of(p),p) for p in pieces)
+        choice = min((user.value_of(p), p) for p in pieces)
         choices[user] = choice[1]
     return choices
 

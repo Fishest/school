@@ -16,6 +16,8 @@ API Documentation
 
 .. autofunction:: all_same
 
+.. autofunction:: all_unique
+
 .. autofunction:: integrate
 
 .. autofunction:: any_range

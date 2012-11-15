@@ -32,3 +32,15 @@ API Documentation
 
 .. autoclass:: LoneChooser
    :members:
+
+.. autoclass:: AlternatingChoice
+   :members:
+
+.. autoclass:: InverseAlternatingChoice
+   :members:
+
+.. autoclass:: BalancedAlternatingChoice
+   :members:
+
+.. autoclass:: InverseBalancedAlternatingChoice
+   :members:

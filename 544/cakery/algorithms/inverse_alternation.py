@@ -1,3 +1,4 @@
+from collections import defaultdict
 from cakery.algorithms.utilities import *
 from cakery.algorithms.common import FairDivider
 
@@ -30,7 +31,6 @@ class InverseAlternatingChoice(FairDivider):
             'optimal':      False,
             'discrete':     True,
             'continuous':   True,
-            # equitable, stable
         }
 
     def divide(self):
@@ -39,10 +39,11 @@ class InverseAlternatingChoice(FairDivider):
 
         :returns: A dictionary of divisions of {user: piece}
         '''
-        slices  = {}
+        slices  = defaultdict(list)
         pieces  = self.cake.as_collection()
         cutters = self.strategy(self.users, pieces)
         while any(pieces):
             for cutter in cutters():
-                slices[cutter] = choose_worst_piece(cutter, pieces)
+                piece = choose_worst_piece(cutter, pieces)
+                slices[cutter].append(piece)
         return slices

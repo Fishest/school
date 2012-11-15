@@ -1,5 +1,6 @@
 from itertools import chain, combinations
 
+
 def powerset(iterable):
     ''' Given an iterable, create the powerset
 
@@ -9,6 +10,7 @@ def powerset(iterable):
     s = list(iterable)
     return chain.from_iterable(combinations(s, r) for r in range(1, len(s) + 1))
 
+
 def all_same(iterable):
     ''' Given an iterable, check if all the values
     in that iterable are the same value.
@@ -17,6 +19,18 @@ def all_same(iterable):
     :returns: True if all the values are the same, False otherwise
     '''
     return len(set(iterable)) == 1
+
+
+def all_unique(iterable):
+    ''' Given an iterable, check if all the values
+    in that iterable are unique
+
+    :param iterable: The iterable to check for uniqueness
+    :returns: True if all the values are the unique, False otherwise
+    '''
+    values = list(iterable)
+    return len(set(values)) == len(values)
+
 
 def integrate(fx, x0, x1, ns):
     ''' Approximates the integral of the supplied
@@ -32,6 +46,7 @@ def integrate(fx, x0, x1, ns):
     for i in xrange(1, ns):
         s += 2 * fx(x0 + i * h)
     return s * h / 2
+
 
 def any_range(start, stop, step=1):
     ''' Generates a range from the starting
@@ -116,7 +131,3 @@ class Interval(object):
         :returns: The string representation
         '''
         return "%s - %s" % ((self.x1, self.y1), (self.x2, self.y2))
-            
-
-
-        

@@ -92,6 +92,10 @@ implemented in this collection are:
 * inverse_divide_and_choose
 * lone_chooser
 * sealed_bid_auction
+* simple alternation
+* inverse simple alternation
+* balanced alternation
+* inverse balanced alternation
 
 ------------------------------------------------------------
 Class Interface
@@ -124,3 +128,9 @@ Todo
   - find 1/n of value for a resource
 * algorithms
   - fixed budget divider (budget based on bid count)
+* review the rich sorting of the resources
+* change alternation algorithms to use defaultdict
+* reverse balanced algorithm
+* algorithm unit tests
+* algorithm stress tests
+* unit test algorithm utilities for each resource

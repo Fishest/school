@@ -24,7 +24,7 @@ class SealedBidAuction(FairDivider):
             'users':        'n',
             'envy-free':    True,
             'proportional': True,
-            # equitable, stable
+            # TODO
         }
 
     def divide(self):
@@ -36,6 +36,6 @@ class SealedBidAuction(FairDivider):
         slices = {}
         users  = randomize_items(self.users)
         for cake in self.cake.as_collection():
-            cutter = choose_largest_bidder(users, cake)
+            cutter = choose_highest_bidder(users, cake)
             slices[cutter] = cake  # user that bid the most, gets the cake
         return slices

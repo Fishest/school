@@ -3,6 +3,7 @@ import unittest
 from fractions import Fraction
 from cakery.utilities import integrate, powerset
 from cakery.utilities import all_same, any_range
+from cakery.utilities import all_unique
 
 class UtilitiesTest(unittest.TestCase):
     '''
@@ -30,9 +31,16 @@ class UtilitiesTest(unittest.TestCase):
     def test_all_same(self):
         ''' test that the all_same method works correctly '''
         self.assertTrue(all_same([1,1,1,1,1,1]))
+        self.assertTrue(all_same(['a', 'a', 'a']))
         self.assertTrue(all_same(1 for _ in range(10)))
         self.assertFalse(all_same([1,1,1,2,1,1]))
         self.assertFalse(all_same(range(10)))
+
+    def test_all_unique(self):
+        ''' test that the all_same method works correctly '''
+        self.assertTrue(all_unique(['a', 'b', 'c']))
+        self.assertFalse(all_unique([1,1,1,2,1,1]))
+        self.assertTrue(all_unique(range(10)))
 
 #---------------------------------------------------------------------------#
 # Main

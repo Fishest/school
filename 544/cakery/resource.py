@@ -126,13 +126,15 @@ class ContinuousResource(Resource):
     rational values (fractions.Fraction).
     '''
 
-    def __init__(self, start, span):
+    def __init__(self, start, span, resolution=100):
         ''' Initializes a new instance of the resource
 
         :param start: The starting point on the x-axis
         :param span: The span from the starting point
+        :param resolution: The number of pieces to create
         '''
         self.value = (start, span)
+        self.resolution = resolution
 
     def actual_value(self):
         ''' Return an actual value that we can use for
@@ -141,6 +143,22 @@ class ContinuousResource(Resource):
         :returns: The actual value of the object
         '''
         return self.value[1]
+
+    def as_collection():
+        ''' Return the underlying resource as a
+        collection of resources (one for each
+        discrete item
+        
+        :returns: The collection of resources
+        '''
+        (start, span) = self.value
+        step = (start + span) / self.resolution
+        pieces = []
+        points = any_range(start + step, start + span, step)
+        for point in points:
+            pieces.append(CollectionResource(start, point - start))
+            start = point
+        return pieces
 
     def clone(self):
         ''' Return a clone of this resource that is
@@ -253,6 +271,15 @@ class CountedResource(Resource):
         :returns: The actual value of the object
         '''
         return sum(self.value.values())
+
+    def as_collection(): # counted
+        ''' Return the underlying resource as a
+        collection of resources (one for each
+        discrete item
+        
+        :returns: The collection of resources
+        '''
+        return [i for k, v in self.value.items() for i in [k] * v]
 
     def clone(self):
         ''' Return a clone of this resource that is
@@ -459,6 +486,23 @@ class IntervalResource(Resource):
         '''
         return sum(e - b for b, e in self.value)
 
+    def as_collection(): # interval needs resolution
+        ''' Return the underlying resource as a
+        collection of resources (one for each
+        discrete item
+        
+        :returns: The collection of resources
+        '''
+        pieces = []
+        value  = self.actual_value()
+        steps  = value / self.resolution
+        for start, stop in self.value:
+            step = steps * ((stop - start) / value)
+            for point in any_range(start + step, stop, step):
+                pieces.append(IntervalResource((start, point)))
+                start = point
+        return pieces
+
     def clone(self):
         ''' Return a clone of this resource that is
         identical to the original.
@@ -570,7 +614,6 @@ class IntervalResource(Resource):
                 break;
             else: i += 1
         return cake
-
 
     def compare(this, that):
         ''' A utility method used to provide rich

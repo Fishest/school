@@ -38,15 +38,55 @@ def choose_and_remove(items):
     return choice
 
 
-def choose_largest_bidder(users, item):
+def choose_highest_bidder(users, item):
     ''' Given an item, return the user that bid
-    the largest amount for said item.
+    the higest amount for said item.
 
     :param users: The users bidding on the item
     :param item: The item to be bid upon
     :returns: The user with the highest bid
     '''
     return max((user.value_of(item), user) for user in users)[1]
+
+
+def choose_lowest_bidder(users, item):
+    ''' Given an item, return the user that bid
+    the lowest amount for said item.
+
+    :param users: The users bidding on the item
+    :param item: The item to be bid upon
+    :returns: The user with the highest bid
+    '''
+    return min((user.value_of(item), user) for user in users)[1]
+
+
+def list_best_pieces(users, pieces):
+    ''' Given a collection of users and pieces
+    return the favorite pieces for each user.
+    
+    :param users: The users to search with
+    :param pieces: The pieces to search in
+    :returns: dict of {user: best-pieces}
+    '''
+    choices = {}
+    for user in users:
+        choice = max((user.value_of(p),p) for p in pieces)
+        choices[user] = choice[1]
+    return choices
+
+def list_worst_pieces(users, pieces):
+    ''' Given a collection of users and pieces
+    return the worst pieces for each user.
+    
+    :param users: The users to search with
+    :param pieces: The pieces to search in
+    :returns: dict of {user: worst-pieces}
+    '''
+    choices = {}
+    for user in users:
+        choice = min((user.value_of(p),p) for p in pieces)
+        choices[user] = choice[1]
+    return choices
 
 
 def choose_best_piece(user, pieces):

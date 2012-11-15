@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from fractions import Fraction as F
 from cakery.preference import *
 from cakery.resource import *
@@ -31,6 +32,10 @@ cs = [
 #------------------------------------------------------------ 
 # test that the methods work
 #------------------------------------------------------------ 
+print "\n","=" * 60
+print "Find Min/Max Bidder Stress Test"
+print "=" * 60,"\n"
+
 for user_factory, cake_factory in zip(us, cs):
     cake = cake_factory()
     print "-" * 60
@@ -41,6 +46,6 @@ for user_factory, cake_factory in zip(us, cs):
         left  = choose_lowest_bidder(users, cake)
         right = choose_highest_bidder(users, cake)
         lvalue, rvalue = left.value_of(cake), right.value_of(cake)
-        print "left[%f]\t<=\tright[%f]" % (lvalue, rvalue)
+        print "left[%f]\t\t<= right[%f]" % (lvalue, rvalue)
         assert(left != right)
         assert(lvalue <= rvalue)

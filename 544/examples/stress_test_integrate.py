@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from cakery.preference import ContinuousPreference
 from cakery.utilities import integrate
 
@@ -19,7 +20,12 @@ ss = [l + r for l, r in zip(ls, rs)]
 #------------------------------------------------------------ 
 # test that the constraints hold
 #------------------------------------------------------------ 
+print "\n","=" * 60
+print "Integration Stress Test"
+print "=" * 60,"\n"
+
 for left, right in zip(ls, rs):
+    print "left[%f]\t<= right[%f]" % (left, right)
     assert(left != right)
     assert(left > right or left < right)
     assert(1.0 - tolerance < left + right < 1.0 + tolerance)

@@ -1,7 +1,7 @@
-:mod:`algorithms` --- Cakery Algorithms
+:mod:`cakery.algorithms` --- Algorithms
 ===========================================
 
-.. module:: algorithms
+.. module:: cakery.algorithms
    :synopsis: Cakery Algorithms
 
 .. moduleauthor:: Galen Collins <bashwork@gmail.com>
@@ -9,8 +9,6 @@
 
 API Documentation
 -------------------
-
-.. automodule:: cakery.algorithms
 
 .. autoclass:: AustinMovingKnife
    :members:

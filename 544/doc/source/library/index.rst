@@ -12,3 +12,4 @@ from the sourcecode*
    resource.rst
    utilities.rst
    algorithms.rst
+   algorithms.utilities.rst

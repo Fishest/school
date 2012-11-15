@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 import unittest
+import random
 from fractions import Fraction as F
 from cakery.resource import CollectionResource
 from cakery.preference import OrdinalPreference
@@ -12,14 +13,19 @@ class OrdinalResourceTest(unittest.TestCase):
     code utilities.
     '''
 
-    def test_resource_create(self):
-        ''' test that the resource is created correctly '''
+    def test_preference_create(self):
+        ''' test that the preference is created correctly '''
         vals  = {'a': 4, 'b': 3, 'c': 2, 'd': 1}
         keys  = sorted(vals.keys())
+        cake  = CollectionResource(keys)
         user1 = CollectionPreference('mark', vals)
         user2 = OrdinalPreference('john', keys)
-        cake  = CollectionResource(keys)
         self.assertEqual(user1.value_of(cake), user2.value_of(cake))
+
+        random.seed(1) # to ensure same test
+        cake  = CollectionResource(['a'])
+        user3 = OrdinalPreference.random(cake)
+        self.assertNotEqual(user2.value_of(cake), user3.value_of(cake))
 
 
 #---------------------------------------------------------------------------#

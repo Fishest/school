@@ -156,7 +156,7 @@ class ContinuousResource(Resource):
         '''
         return self.value[1]
 
-    def as_collection():
+    def as_collection(self):
         ''' Return the underlying resource as a
         collection of resources (one for each
         discrete item
@@ -168,8 +168,8 @@ class ContinuousResource(Resource):
         pieces = []
         points = any_range(start + step, start + span, step)
         for point in points:
-            pieces.append(CollectionResource(start, point - start))
-            start = point
+            start, piece = point, ContinuousResource(start, point - start)
+            pieces.append(piece)
         return pieces
 
     def clone(self):
@@ -296,14 +296,15 @@ class CountedResource(Resource):
         '''
         return sum(self.value.values())
 
-    def as_collection(): # counted
+    def as_collection(self):
         ''' Return the underlying resource as a
         collection of resources (one for each
         discrete item
 
         :returns: The collection of resources
         '''
-        return [i for k, v in self.value.items() for i in [k] * v]
+        values = (i for k, v in self.value.items() for i in [k] * v)
+        return [CountedResource({v : 1}) for v in values]
 
     def clone(self):
         ''' Return a clone of this resource that is
@@ -537,7 +538,7 @@ class IntervalResource(Resource):
         '''
         return sum(e - b for b, e in self.value)
 
-    def as_collection(): # interval needs resolution
+    def as_collection(self):
         ''' Return the underlying resource as a
         collection of resources (one for each
         discrete item

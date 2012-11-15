@@ -12,6 +12,12 @@ class ContinuousResourceTest(unittest.TestCase):
 
     def test_resource_create(self):
         ''' test that the resource factory methods work '''
+        cake1 = ContinuousResource.random()
+        cake2 = ContinuousResource.random()
+        self.assertNotEqual(cake1, cake2)
+
+    def test_preference_create(self):
+        ''' test that the preference factory methods work '''
         cake  = ContinuousResource(0.0, 1.0)
         users = [ContinuousPreference.random() for i in range(5)]
         for user in users:

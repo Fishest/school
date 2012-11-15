@@ -12,6 +12,14 @@ class CountedResourceTest(unittest.TestCase):
 
     def test_resource_create(self):
         ''' test that the resource factory methods work '''
+        cake1 = CountedResource.random(5)
+        cake2 = CountedResource.random(5)
+        cake3 = CountedResource.random()
+        self.assertNotEqual(cake1.value, cake2.value)
+        self.assertNotEqual(cake1.value, cake3.value)
+
+    def test_preference_create(self):
+        ''' test that the preference factory methods work '''
         path  = os.path.join(os.path.abspath('data'), 'collection')
         path  = os.path.join(path, 'uniform')
         user1 = CountedPreference.from_file(path)
@@ -106,6 +114,16 @@ class CountedResourceTest(unittest.TestCase):
         self.assertEqual(50, user.value_of(cake.find_piece(user, 50)))
         self.assertEqual(60, user.value_of(cake.find_piece(user, 60)))
         self.assertEqual(70, user.value_of(cake.find_piece(user, 70)))
+
+    def test_resource_as_collection(self):
+        ''' test that we can convert a resource to a collection '''
+        keys = {'a':1, 'b':1, 'c':2}
+        cake = CountedResource(keys)
+        pieces = cake.as_collection()
+        actual = [CountedResource({key: 1}) for key in keys]
+        actual.insert(1, CountedResource({'c': 1}))
+        for this,that in zip(pieces, actual):
+            self.assertEqual(this.value, that.value)
 
 #---------------------------------------------------------------------------#
 # Main

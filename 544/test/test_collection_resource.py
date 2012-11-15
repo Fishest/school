@@ -13,6 +13,15 @@ class CollectionResourceTest(unittest.TestCase):
 
     def test_resource_create(self):
         ''' test that the resource factory methods work '''
+        cake1 = CollectionResource.random(5)
+        cake2 = CollectionResource.random(5)
+        cake3 = CollectionResource.random()
+        self.assertEqual(cake1.actual_value(), cake2.actual_value())
+        self.assertNotEqual(cake1.value, cake2.value)
+        self.assertNotEqual(cake1.value, cake3.value)
+
+    def test_preference_create(self):
+        ''' test that the preference factory methods work '''
         path  = os.path.join(os.path.abspath('data'), 'collection')
         path  = os.path.join(path, 'uniform')
         user1 = CollectionPreference.from_file(path)

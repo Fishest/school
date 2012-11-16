@@ -126,7 +126,7 @@ class ContinuousResource(Resource):
     rational values (fractions.Fraction).
     '''
 
-    def __init__(self, start, span, resolution=100):
+    def __init__(self, start, span, resolution=10):
         ''' Initializes a new instance of the resource
 
         :param start: The starting point on the x-axis
@@ -506,14 +506,16 @@ class IntervalResource(Resource):
     [(start, stop)].
     '''
 
-    def __init__(self, points):
+    def __init__(self, points, resolution=100):
         ''' Initializes a new instance of the resource
 
         :param points: The collection of points
+        :param resolution: The number of pieces to create
         '''
         if not isinstance(points, list):
             points = [points]
         self.value = points
+        self.resolution = resolution
 
     @classmethod
     def random(klass, intervals=1):

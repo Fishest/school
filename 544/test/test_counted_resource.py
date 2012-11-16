@@ -115,6 +115,8 @@ class CountedResourceTest(unittest.TestCase):
         self.assertEqual(60, user.value_of(cake.find_piece(user, 60)))
         self.assertEqual(70, user.value_of(cake.find_piece(user, 70)))
 
+        self.assertRaises(ValueError, lambda:cake.find_piece(user, 110))
+
     def test_resource_as_collection(self):
         ''' test that we can convert a resource to a collection '''
         keys = {'a':1, 'b':1, 'c':2}

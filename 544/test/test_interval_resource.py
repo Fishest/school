@@ -10,9 +10,14 @@ class IntervalResourceTest(unittest.TestCase):
     This is the unittest for the ContinuousResource
     code utilities.
     '''
-
     def test_resource_create(self):
         ''' test that the resource factory methods work '''
+        cake1 = IntervalResource.random()
+        cake2 = IntervalResource.random()
+        self.assertNotEqual(cake1, cake2)
+
+    def test_preference_create(self):
+        ''' test that the preference factory methods work '''
         path  = os.path.join(os.path.abspath('data'), 'interval')
         path  = os.path.join(path, 'uniform')
         user1 = IntervalPreference.from_file(path)
@@ -130,6 +135,20 @@ class IntervalResourceTest(unittest.TestCase):
         self.assertEqual(piece, actual)
 
         self.assertRaises(ValueError, lambda: cake.find_piece(user, F(10)))
+
+    def test_resource_as_collection(self):
+        ''' test that we can convert a resource to a collection '''
+        cake = IntervalResource((F(0), F(1)), resolution=5)
+        pieces = cake.as_collection()
+        actual = [
+            IntervalResource((F(0,5), F(1,5))),
+            IntervalResource((F(1,5), F(2,5))),
+            IntervalResource((F(2,5), F(3,5))),
+            IntervalResource((F(3,5), F(4,5))),
+            IntervalResource((F(4,5), F(5,5)))
+        ]
+        for this,that in zip(pieces, actual):
+            self.assertEqual(this.value, that.value)
 
 #---------------------------------------------------------------------------#
 # Main

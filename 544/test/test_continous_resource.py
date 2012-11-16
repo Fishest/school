@@ -86,6 +86,20 @@ class ContinuousResourceTest(unittest.TestCase):
 
         self.assertRaises(ValueError, lambda: cake.find_piece(user, F(10)))
 
+    def test_resource_as_collection(self):
+        ''' test that we can convert a resource to a collection '''
+        cake = ContinuousResource(F(0), F(1), resolution=5)
+        pieces = cake.as_collection()
+        actual = [
+            ContinuousResource(F(0,5), F(1,5)),
+            ContinuousResource(F(1,5), F(1,5)),
+            ContinuousResource(F(2,5), F(1,5)),
+            ContinuousResource(F(3,5), F(1,5)),
+            ContinuousResource(F(4,5), F(1,5))
+        ]
+        for this,that in zip(pieces, actual):
+            self.assertEqual(this.value, that.value)
+
 #---------------------------------------------------------------------------#
 # Main
 #---------------------------------------------------------------------------#

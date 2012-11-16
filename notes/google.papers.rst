@@ -509,6 +509,75 @@ Sawzall
  FlumeJava
 ------------------------------------------------------------
 
+--------------------------------------------------------------------------------
+ Large Scale Distributed Deep Networks
+--------------------------------------------------------------------------------
+
+Increasing the scale of deep learning with respect to training examples and the
+number of model parameters (or both) can drastically improve classification
+accurracy. Using GPU's has shown great advances, however, the data must be
+reduced to fit in the GPU memory (6GB):
+
+* fine for smaller problems: acousting modeling for speech recognition
+* bad for large number of examples and dimensions: high-resolution images
+
+These problems can be solved with new software framework called `DistBelief` that
+enables local machine parallelism (multithread) and distrubuted machines (message
+passing):
+
+* all communication, parallelism, and synchronization details handled by framework
+* can use multiple replicas of a model to optimize a single objective (data parallelism)
+* Downpour SGD (model replicas) and Sandblaster L-BFGS (distributed)
+* with a modest cluster, can be faster than state of the art GPU
+
+With larger datasets, the problem of scaling up SGD for convex problems become challenging:
+
+* asynchronous SGD with lock-less parameter updates (Hogwild!)
+* not know if this can easily be applied to non-convex problems with local minima
+* cpu -> gpu conversion (Theano)
+* create many small models on GPU farms and averaging their results
+* MapReduce and GraphLap found insufficient (Mahout?)
+
+DistBelief basically works as follows:
+
+* Each node in the neural network has its computation defined
+* The input data it needs is exposed via messaging (updard and downward)
+* These can easily be partition arcross machines for large networks
+* Speedups are great except for fully connected structure dominated by communication
+* Slowest machine can be a bottleneck
+
+Architecture of DistBelief:
+
+* Downpour (online) and Sandblaster (batch)
+* Both make use of a centralized shared parameter server to replicate models
+* ameneable to variance in procesing speed and model failure (restarts of machines)
+* test data is sharded into N replicas that are trained independently
+* they use the parameter server to communicate updates
+* at each round, each mini-batch pulls current parameters from server
+* it runs its batch round using its shareded data
+* it then sends its gradient to the server which applies it to the current parameters
+* can reduce communication by only push/pulling updates every Npush or Nfetch steps.
+* some stochasticity may be introduced
+  - as gradients are updated on slightly old data
+  - as a machine goes down and doesn't update its model
+  - as parameter servers are slightly behind on updates
+  - can be overcome with adagrad (seperate learning rate for each parameter):
+
+    \eta_i,k \equiv \frac{\gamma}{\sqrt{\sum_{j=1}^k \Delta w_i,j^2}}
+    \eta_i,k is the learning rate of the ith parameter at iteration k
+    \Delta w_i,k is its gradient
+    \gamma is the constant scaling fator for all learning rates
+    \gamma is generally larger (order of magnitude) than largest rate without adagrad
+
+* Sandblaster uses a coordination server that sends common math operation commands
+  - dot product, scaling, vector addition, vector multiplication
+* It sends these commands to independent parameter server shard to compute
+* send 1/N of the computation to each shard
+  - can send less to slower machines (that may bottleneck the total process)
+  - can also send more to faster machines
+  - runs multiple of the same computations at once, take the first to finish
+* gets/sends parameter updates at lower frequency than Downpour
+
 
 ------------------------------------------------------------
  references

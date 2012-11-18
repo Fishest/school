@@ -122,15 +122,20 @@ Todo
 * add settings for algorithms
   - test them with the utility methods
   - test with non-trivial parameters
-* consolidate the algorithm utilities
-  - put them in the algorithm file in question
-  - make more generic and not one off
-  - find 1/n of value for a resource
 * algorithms
   - fixed budget divider (budget based on bid count)
-* review the rich sorting of the resources
-* change alternation algorithms to use defaultdict
 * reverse balanced algorithm
 * algorithm unit tests
 * algorithm stress tests
 * unit test algorithm utilities for each resource
+* choose_next_piece
+  - find_piece must be at least 1/n (never under)
+  - choose_next_piece chooses smallest value
+  - choose_next_piece also wants smallest slice
+  - for collections, knapsack problem?
+* memoize value_of, find_piece?
+* heavily work on the following:
+  - stress_test_choose_next_piece
+  - stress_test_create_equal_pieces
+  - stress_test_trim_and_replace
+

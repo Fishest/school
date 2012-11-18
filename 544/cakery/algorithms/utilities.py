@@ -7,6 +7,7 @@ These are a collection of simple helper methods that make
 the code easier to read (basically a simple DSL).
 '''
 import random
+from fractions import Fraction as F
 from math import ceil, sqrt
 
 
@@ -139,7 +140,7 @@ def choose_next_piece(users, cake):
     :param cake: The cake to split
     :returns: (user, piece)
     '''
-    weight = 1.0 / len(users)
+    weight = F(1, len(users))
     pieces = ((cake.find_piece(user, weight), user) for user in users)
     (piece, user) = min(pieces) # random choice
     cake.remove(piece)
@@ -154,6 +155,7 @@ def trim_and_replace(user, cake, piece, weight):
     :param user: The user to split the resource with
     :param cake: The cake to re-attach trimmings to
     :param piece: The piece to trim with the given user
+    :param weight: The amount to reduce the piece to
     :returns: The newly trimmed piece
     '''
     (piece, trimming) = piece.create_pieces(user, weight=weight)

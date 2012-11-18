@@ -37,7 +37,7 @@ class AlgorithmUtilitiesTest(unittest.TestCase):
 
         users[0].values['cake'] = 0
         actual = choose_highest_bidder(users, cake)
-        self.assertEqual(actual, users[0])
+        self.assertEqual(actual, users[1])
 
     def test_choose_lowest_bidder(self):
         ''' test the choose lowest bidder utility '''
@@ -62,6 +62,7 @@ class AlgorithmUtilitiesTest(unittest.TestCase):
         self.assertEqual(actual.value, ['c'])
 
         user.values['b'] = 3
+        cakes = [CollectionResource([k]) for k in prefs.keys()]
         actual = choose_best_piece(user, cakes)
         self.assertEqual(actual.value, ['c'])
 
@@ -97,7 +98,7 @@ class AlgorithmUtilitiesTest(unittest.TestCase):
             CollectionPreference('john', {'a':0, 'b':1})
         ]
         actual = list_best_pieces(users, cakes)
-        expect = {users[0]: cakes[1], users[1]: cakes[0]}
+        expect = {users[0]: cakes[0], users[1]: cakes[1]}
         self.assertEqual(actual, expect)
 
         users[0].values = {'a':1, 'b':0}
@@ -117,7 +118,7 @@ class AlgorithmUtilitiesTest(unittest.TestCase):
             CollectionPreference('john', {'a':0, 'b':1})
         ]
         actual = list_worst_pieces(users, cakes)
-        expect = {users[0]: cakes[0], users[1]: cakes[1]}
+        expect = {users[0]: cakes[1], users[1]: cakes[0]}
         self.assertEqual(actual, expect)
 
         users[0].values = {'a':1, 'b':0}
@@ -143,7 +144,7 @@ class AlgorithmUtilitiesTest(unittest.TestCase):
         trim = CollectionResource(['a', 'b'])
         user = CollectionPreference('mark', {'a':1, 'b':5, 'c':10})
         piece = trim_and_replace(user, cake, trim, 1)
-        self.assertEqual(cake, CollectionResource(['a', 'b']))
+        self.assertEqual(cake, CollectionResource(['c', 'b']))
 
 #---------------------------------------------------------------------------#
 # Main

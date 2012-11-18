@@ -69,15 +69,6 @@ class Resource(object):
         '''
         raise NotImplementedError("find_piece")
 
-    def compare(this, that):
-        ''' A utility method used to provide rich
-        comparison operations on the resource.
-
-        :param that: The other resource to compare
-        :returns: -1: less than, 0: equal to, 1: greater than
-        '''
-        raise NotImplementedError("compare")
-
     #------------------------------------------------------------
     # common methods
     #------------------------------------------------------------
@@ -99,6 +90,15 @@ class Resource(object):
             cake.remove(piece)
         pieces.append(cake) # the rest is a single slice
         return pieces
+
+    def compare(this, that):
+        ''' A utility method used to provide rich
+        comparison operations on the resource.
+
+        :param that: The other resource to compare
+        :returns: -1: less than, 0: equal to, 1: greater than
+        '''
+        return cmp(this.value, that.value)
 
     #------------------------------------------------------------
     # the magic methods
@@ -164,7 +164,7 @@ class ContinuousResource(Resource):
         :returns: The collection of resources
         '''
         (start, span) = self.value
-        step = (start + span) / self.resolution
+        step = F(start + span, self.resolution)
         pieces = []
         points = any_range(start + step, start + span, step)
         for point in points:
@@ -235,28 +235,19 @@ class ContinuousResource(Resource):
         :param weight: The weight we are attempting to hit
         :returns: The first piece matching that weight
         '''
-        shift = 1.0 / user.resolution
+        shift = F(1, user.resolution)
         cake, value = self.clone(), user.value_of(self)
         if value < weight:
             raise ValueError("cannot find a piece with this weight")
 
         l, h = F(0, 1), F(cake.value[1])
-        while (value < weight - shift) or (value > weight + shift):
+        while abs(value - weight) > shift:
             m = F(l.numerator + h.numerator, l.denominator + h.denominator)
             cake.value = (cake.value[0], m)
             value = user.value_of(cake)
             if   value > weight: h = m
             elif value < weight: l = m
         return cake
-
-    def compare(this, that):
-        ''' A utility method used to provide rich
-        comparison operations on the resource.
-
-        :param that: The other resource to compare
-        :returns: -1: less than, 0: equal to, 1: greater than
-        '''
-        return cmp(this.value[1], that.value[1])
 
 
 class CountedResource(Resource):
@@ -369,17 +360,8 @@ class CountedResource(Resource):
             check = (value, list(possible))
             if   value == weight: piece = check; break
             elif value  < weight: piece = max(piece, check)
+            # TODO, what if we can't find <=, but only just over weight
         return CountedResource(piece[1])
-
-    def compare(this, that):
-        ''' A utility method used to provide rich
-        comparison operations on the resource.
-
-        :param that: The other resource to compare
-        :returns: -1: less than, 0: equal to, 1: greater than
-        '''
-        if this.value == that.value: return 0
-        return cmp(sum(this.value.values()), sum(that.value.values()))
 
 
 class CollectionResource(Resource):
@@ -485,17 +467,8 @@ class CollectionResource(Resource):
             check = (value, list(possible))
             if   value == weight: piece = check; break
             elif value  < weight: piece = max(piece, check)
+            # TODO, what if we can't find <=, but only just over weight
         return CollectionResource(piece[1])
-
-    def compare(this, that):
-        ''' A utility method used to provide rich
-        comparison operations on the resource.
-
-        :param that: The other resource to compare
-        :returns: -1: less than, 0: equal to, 1: greater than
-        '''
-        if this.value == that.value: return 0
-        return cmp(len(this.value), len(that.value))
 
 
 class IntervalResource(Resource):
@@ -633,13 +606,13 @@ class IntervalResource(Resource):
         :param weight: The weight we are attempting to hit
         :returns: The first piece matching that weight
         '''
-        shift = 1.0 / user.resolution
+        shift = F(1, user.resolution)
         cake, value = self.clone(), user.value_of(self)
         if value < weight:
             raise ValueError("cannot find a piece with this weight")
 
         l, h = F(cake.value[0][0]), F(cake.value[-1][-1])
-        while (value < weight - shift) or (value > weight + shift):
+        while abs(value - weight) > shift:
             m = F(l.numerator + h.numerator, l.denominator + h.denominator)
             cake.value = self.__trim(m)
             value = user.value_of(cake)
@@ -668,12 +641,3 @@ class IntervalResource(Resource):
                 break;
             else: i += 1
         return cake
-
-    def compare(this, that):
-        ''' A utility method used to provide rich
-        comparison operations on the resource.
-
-        :param that: The other resource to compare
-        :returns: -1: less than, 0: equal to, 1: greater than
-        '''
-        return cmp(this.value, that.value)

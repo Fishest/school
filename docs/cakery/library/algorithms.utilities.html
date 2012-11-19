@@ -1,0 +1,459 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+
+    <title>cakery.algorithms.utilities — Algorithm Utilities &mdash; Cakery 1.0 documentation</title>
+
+<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
+
+
+    
+    <link rel="stylesheet" href="../_static/rtd.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/searchtools.js"></script>
+    <link rel="top" title="Cakery 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Cakery Library API Documentation" href="index.html" />
+    <link rel="prev" title="cakery.algorithms — Algorithms" href="algorithms.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="algorithms.html" title="cakery.algorithms — Algorithms"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Cakery 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Cakery Library API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="cakery-algorithms-utilities-algorithm-utilities">
+<h1><a class="reference internal" href="#module-cakery.algorithms.utilities" title="cakery.algorithms.utilities"><tt class="xref py py-mod docutils literal"><span class="pre">cakery.algorithms.utilities</span></tt></a> &#8212; Algorithm Utilities<a class="headerlink" href="#cakery-algorithms-utilities-algorithm-utilities" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-cakery.algorithms.utilities">
+<span id="api-documentation"></span><h2>API Documentation<a class="headerlink" href="#module-cakery.algorithms.utilities" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="algorithm-utilities">
+<h3>Algorithm Utilities<a class="headerlink" href="#algorithm-utilities" title="Permalink to this headline">¶</a></h3>
+<p>These are a collection of simple helper methods that make
+the code easier to read (basically a simple DSL).</p>
+<dl class="class">
+<dt id="cakery.algorithms.utilities.AlternationStrategy">
+<em class="property">class </em><tt class="descclassname">cakery.algorithms.utilities.</tt><tt class="descname">AlternationStrategy</tt><a class="reference internal" href="../_modules/cakery/algorithms/utilities.html#AlternationStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.algorithms.utilities.AlternationStrategy" title="Permalink to this definition">¶</a></dt>
+<dd><p>A collection of predefined alternation strategies
+that can be used to supply a user ordering for choosing
+resources.</p>
+<dl class="staticmethod">
+<dt id="cakery.algorithms.utilities.AlternationStrategy.balanced">
+<em class="property">static </em><tt class="descname">balanced</tt><big>(</big><em>users</em>, <em>pieces</em><big>)</big><a class="reference internal" href="../_modules/cakery/algorithms/utilities.html#AlternationStrategy.balanced"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.algorithms.utilities.AlternationStrategy.balanced" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a balanced alternation that
+attepmts to catch up the latter choosers.</p>
+<p>ab
+abba
+abbabaab
+abbabaabbaababba</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>users</strong> &#8211; The users to rotate between</li>
+<li><strong>pieces</strong> &#8211; The items to choose between</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The next user to choose</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="cakery.algorithms.utilities.AlternationStrategy.ordinal">
+<em class="property">static </em><tt class="descname">ordinal</tt><big>(</big><em>users</em>, <em>pieces</em><big>)</big><a class="reference internal" href="../_modules/cakery/algorithms/utilities.html#AlternationStrategy.ordinal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.algorithms.utilities.AlternationStrategy.ordinal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simply rotate the users in order
+from start to finish.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>users</strong> &#8211; The users to rotate between</li>
+<li><strong>pieces</strong> &#8211; The items to choose between</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The next user to choose</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="cakery.algorithms.utilities.AlternationStrategy.random">
+<em class="property">static </em><tt class="descname">random</tt><big>(</big><em>users</em>, <em>pieces</em><big>)</big><a class="reference internal" href="../_modules/cakery/algorithms/utilities.html#AlternationStrategy.random"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.algorithms.utilities.AlternationStrategy.random" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a random ordering each time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>users</strong> &#8211; The users to rotate between</li>
+<li><strong>pieces</strong> &#8211; The items to choose between</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The next user to choose</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="cakery.algorithms.utilities.choose_and_remove">
+<tt class="descclassname">cakery.algorithms.utilities.</tt><tt class="descname">choose_and_remove</tt><big>(</big><em>items</em><big>)</big><a class="reference internal" href="../_modules/cakery/algorithms/utilities.html#choose_and_remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.algorithms.utilities.choose_and_remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a collection, randomly choose a value
+from that collection and then remove it from the
+collection so it can&#8217;t be selected again.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>items</strong> &#8211; The items to randomly choose from</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A random value from the collection</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cakery.algorithms.utilities.choose_best_piece">
+<tt class="descclassname">cakery.algorithms.utilities.</tt><tt class="descname">choose_best_piece</tt><big>(</big><em>user</em>, <em>pieces</em><big>)</big><a class="reference internal" href="../_modules/cakery/algorithms/utilities.html#choose_best_piece"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.algorithms.utilities.choose_best_piece" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a collection of resources, choose the
+one that is the most preferred by the supplied
+user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>user</strong> &#8211; The user to choose the best item for</li>
+<li><strong>pieces</strong> &#8211; The pieces to choose the most liked from</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A the best item for the user</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cakery.algorithms.utilities.choose_highest_bidder">
+<tt class="descclassname">cakery.algorithms.utilities.</tt><tt class="descname">choose_highest_bidder</tt><big>(</big><em>users</em>, <em>item</em><big>)</big><a class="reference internal" href="../_modules/cakery/algorithms/utilities.html#choose_highest_bidder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.algorithms.utilities.choose_highest_bidder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given an item, return the user that bid
+the higest amount for said item.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>users</strong> &#8211; The users bidding on the item</li>
+<li><strong>item</strong> &#8211; The item to be bid upon</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The user with the highest bid</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cakery.algorithms.utilities.choose_lowest_bidder">
+<tt class="descclassname">cakery.algorithms.utilities.</tt><tt class="descname">choose_lowest_bidder</tt><big>(</big><em>users</em>, <em>item</em><big>)</big><a class="reference internal" href="../_modules/cakery/algorithms/utilities.html#choose_lowest_bidder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.algorithms.utilities.choose_lowest_bidder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given an item, return the user that bid
+the lowest amount for said item.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>users</strong> &#8211; The users bidding on the item</li>
+<li><strong>item</strong> &#8211; The item to be bid upon</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The user with the highest bid</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cakery.algorithms.utilities.choose_next_piece">
+<tt class="descclassname">cakery.algorithms.utilities.</tt><tt class="descname">choose_next_piece</tt><big>(</big><em>users</em>, <em>cake</em><big>)</big><a class="reference internal" href="../_modules/cakery/algorithms/utilities.html#choose_next_piece"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.algorithms.utilities.choose_next_piece" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a resource and a collection of users,
+return the next user who would have said &#8216;Stop&#8217;
+first and the piece they would have stopped for.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>users</strong> &#8211; The users to split the resource with</li>
+<li><strong>cake</strong> &#8211; The cake to split</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(user, piece)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cakery.algorithms.utilities.choose_worst_piece">
+<tt class="descclassname">cakery.algorithms.utilities.</tt><tt class="descname">choose_worst_piece</tt><big>(</big><em>user</em>, <em>pieces</em><big>)</big><a class="reference internal" href="../_modules/cakery/algorithms/utilities.html#choose_worst_piece"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.algorithms.utilities.choose_worst_piece" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a collection of resources, choose the
+one that is the least preferred by the supplied
+user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>user</strong> &#8211; The user to choose the best item for</li>
+<li><strong>pieces</strong> &#8211; The pieces to choose the least liked from</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A the worst item for the user</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cakery.algorithms.utilities.create_equal_pieces">
+<tt class="descclassname">cakery.algorithms.utilities.</tt><tt class="descname">create_equal_pieces</tt><big>(</big><em>user</em>, <em>cake</em>, <em>count</em><big>)</big><a class="reference internal" href="../_modules/cakery/algorithms/utilities.html#create_equal_pieces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.algorithms.utilities.create_equal_pieces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a resource, split it into count many
+pieces equal in value to the supplied user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>user</strong> &#8211; The user to split the resource with</li>
+<li><strong>cake</strong> &#8211; The cake to split</li>
+<li><strong>count</strong> &#8211; The number of pieces to create</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of the split pieces</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cakery.algorithms.utilities.list_best_pieces">
+<tt class="descclassname">cakery.algorithms.utilities.</tt><tt class="descname">list_best_pieces</tt><big>(</big><em>users</em>, <em>pieces</em><big>)</big><a class="reference internal" href="../_modules/cakery/algorithms/utilities.html#list_best_pieces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.algorithms.utilities.list_best_pieces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a collection of users and pieces
+return the favorite pieces for each user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>users</strong> &#8211; The users to search with</li>
+<li><strong>pieces</strong> &#8211; The pieces to search in</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dict of {user: best-pieces}</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cakery.algorithms.utilities.list_worst_pieces">
+<tt class="descclassname">cakery.algorithms.utilities.</tt><tt class="descname">list_worst_pieces</tt><big>(</big><em>users</em>, <em>pieces</em><big>)</big><a class="reference internal" href="../_modules/cakery/algorithms/utilities.html#list_worst_pieces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.algorithms.utilities.list_worst_pieces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a collection of users and pieces
+return the worst pieces for each user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>users</strong> &#8211; The users to search with</li>
+<li><strong>pieces</strong> &#8211; The pieces to search in</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dict of {user: worst-pieces}</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cakery.algorithms.utilities.randomize_items">
+<tt class="descclassname">cakery.algorithms.utilities.</tt><tt class="descname">randomize_items</tt><big>(</big><em>items</em><big>)</big><a class="reference internal" href="../_modules/cakery/algorithms/utilities.html#randomize_items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.algorithms.utilities.randomize_items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a collection, create a clone of it and
+randomize the elements before returning it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>items</strong> &#8211; The items to randomly choose from</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The randomized collection</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cakery.algorithms.utilities.trim_and_replace">
+<tt class="descclassname">cakery.algorithms.utilities.</tt><tt class="descname">trim_and_replace</tt><big>(</big><em>user</em>, <em>cake</em>, <em>piece</em>, <em>weight</em><big>)</big><a class="reference internal" href="../_modules/cakery/algorithms/utilities.html#trim_and_replace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.algorithms.utilities.trim_and_replace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a resource and a user, trim the given
+piece to be of the supplied value and reattach the
+trimming to the total cake.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>user</strong> &#8211; The user to split the resource with</li>
+<li><strong>cake</strong> &#8211; The cake to re-attach trimmings to</li>
+<li><strong>piece</strong> &#8211; The piece to trim with the given user</li>
+<li><strong>weight</strong> &#8211; The amount to reduce the piece to</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The newly trimmed piece</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">cakery.algorithms.utilities</span></tt> &#8212; Algorithm Utilities</a><ul>
+<li><a class="reference internal" href="#module-cakery.algorithms.utilities">API Documentation</a><ul>
+<li><a class="reference internal" href="#algorithm-utilities">Algorithm Utilities</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="algorithms.html"
+                        title="previous chapter"><tt class="docutils literal docutils literal"><span class="pre">cakery.algorithms</span></tt> &#8212; Algorithms</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/library/algorithms.utilities.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="algorithms.html" title="cakery.algorithms — Algorithms"
+             >previous</a> |</li>
+        <li><a href="../index.html">Cakery 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Cakery Library API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+<div class="footer">
+    &copy; Copyright 2012, Galen Collins.
+  Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+  <br />Theme based on <a href="http://readthedocs.org/">Read The Docs</a>
+
+</div>
+
+
+
+
+
+  </body>
+</html>

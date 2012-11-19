@@ -1,0 +1,323 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+
+    <title>cakery.algorithms.utilities &mdash; Cakery 1.0 documentation</title>
+
+<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
+
+
+    
+    <link rel="stylesheet" href="../../../_static/rtd.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../../../_static/searchtools.js"></script>
+    <link rel="top" title="Cakery 1.0 documentation" href="../../../index.html" />
+    <link rel="up" title="cakery.algorithms" href="../algorithms.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Cakery 1.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../algorithms.html" accesskey="U">cakery.algorithms</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for cakery.algorithms.utilities</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">------------------------------------------------------------</span>
+<span class="sd">Algorithm Utilities</span>
+<span class="sd">------------------------------------------------------------</span>
+
+<span class="sd">These are a collection of simple helper methods that make</span>
+<span class="sd">the code easier to read (basically a simple DSL).</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">fractions</span> <span class="kn">import</span> <span class="n">Fraction</span> <span class="k">as</span> <span class="n">F</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span><span class="p">,</span> <span class="n">sqrt</span>
+
+
+<span class="c"># ------------------------------------------------------------</span>
+<span class="c"># helpers</span>
+<span class="c"># ------------------------------------------------------------</span>
+<div class="viewcode-block" id="randomize_items"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.randomize_items">[docs]</a><span class="k">def</span> <span class="nf">randomize_items</span><span class="p">(</span><span class="n">items</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Given a collection, create a clone of it and</span>
+<span class="sd">    randomize the elements before returning it.</span>
+
+<span class="sd">    :param items: The items to randomly choose from</span>
+<span class="sd">    :returns: The randomized collection</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+    <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">items</span>
+
+</div>
+<div class="viewcode-block" id="choose_and_remove"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.choose_and_remove">[docs]</a><span class="k">def</span> <span class="nf">choose_and_remove</span><span class="p">(</span><span class="n">items</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Given a collection, randomly choose a value</span>
+<span class="sd">    from that collection and then remove it from the</span>
+<span class="sd">    collection so it can&#39;t be selected again.</span>
+
+<span class="sd">    :param items: The items to randomly choose from</span>
+<span class="sd">    :returns: A random value from the collection</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">choice</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+    <span class="n">items</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">choice</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">choice</span>
+
+</div>
+<div class="viewcode-block" id="choose_highest_bidder"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.choose_highest_bidder">[docs]</a><span class="k">def</span> <span class="nf">choose_highest_bidder</span><span class="p">(</span><span class="n">users</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Given an item, return the user that bid</span>
+<span class="sd">    the higest amount for said item.</span>
+
+<span class="sd">    :param users: The users bidding on the item</span>
+<span class="sd">    :param item: The item to be bid upon</span>
+<span class="sd">    :returns: The user with the highest bid</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">((</span><span class="n">user</span><span class="o">.</span><span class="n">value_of</span><span class="p">(</span><span class="n">item</span><span class="p">),</span> <span class="n">user</span><span class="p">)</span> <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">users</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+</div>
+<div class="viewcode-block" id="choose_lowest_bidder"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.choose_lowest_bidder">[docs]</a><span class="k">def</span> <span class="nf">choose_lowest_bidder</span><span class="p">(</span><span class="n">users</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Given an item, return the user that bid</span>
+<span class="sd">    the lowest amount for said item.</span>
+
+<span class="sd">    :param users: The users bidding on the item</span>
+<span class="sd">    :param item: The item to be bid upon</span>
+<span class="sd">    :returns: The user with the highest bid</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="nb">min</span><span class="p">((</span><span class="n">user</span><span class="o">.</span><span class="n">value_of</span><span class="p">(</span><span class="n">item</span><span class="p">),</span> <span class="n">user</span><span class="p">)</span> <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">users</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+</div>
+<div class="viewcode-block" id="list_best_pieces"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.list_best_pieces">[docs]</a><span class="k">def</span> <span class="nf">list_best_pieces</span><span class="p">(</span><span class="n">users</span><span class="p">,</span> <span class="n">pieces</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Given a collection of users and pieces</span>
+<span class="sd">    return the favorite pieces for each user.</span>
+
+<span class="sd">    :param users: The users to search with</span>
+<span class="sd">    :param pieces: The pieces to search in</span>
+<span class="sd">    :returns: dict of {user: best-pieces}</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">choices</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">users</span><span class="p">:</span>
+        <span class="n">choice</span> <span class="o">=</span> <span class="nb">max</span><span class="p">((</span><span class="n">user</span><span class="o">.</span><span class="n">value_of</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pieces</span><span class="p">)</span>
+        <span class="n">choices</span><span class="p">[</span><span class="n">user</span><span class="p">]</span> <span class="o">=</span> <span class="n">choice</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">choices</span>
+
+</div>
+<div class="viewcode-block" id="list_worst_pieces"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.list_worst_pieces">[docs]</a><span class="k">def</span> <span class="nf">list_worst_pieces</span><span class="p">(</span><span class="n">users</span><span class="p">,</span> <span class="n">pieces</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Given a collection of users and pieces</span>
+<span class="sd">    return the worst pieces for each user.</span>
+
+<span class="sd">    :param users: The users to search with</span>
+<span class="sd">    :param pieces: The pieces to search in</span>
+<span class="sd">    :returns: dict of {user: worst-pieces}</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">choices</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">users</span><span class="p">:</span>
+        <span class="n">choice</span> <span class="o">=</span> <span class="nb">min</span><span class="p">((</span><span class="n">user</span><span class="o">.</span><span class="n">value_of</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pieces</span><span class="p">)</span>
+        <span class="n">choices</span><span class="p">[</span><span class="n">user</span><span class="p">]</span> <span class="o">=</span> <span class="n">choice</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">choices</span>
+
+</div>
+<div class="viewcode-block" id="choose_best_piece"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.choose_best_piece">[docs]</a><span class="k">def</span> <span class="nf">choose_best_piece</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">pieces</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Given a collection of resources, choose the</span>
+<span class="sd">    one that is the most preferred by the supplied</span>
+<span class="sd">    user.</span>
+
+<span class="sd">    :param user: The user to choose the best item for</span>
+<span class="sd">    :param pieces: The pieces to choose the most liked from</span>
+<span class="sd">    :returns: A the best item for the user</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">choice</span> <span class="o">=</span> <span class="nb">max</span><span class="p">((</span><span class="n">user</span><span class="o">.</span><span class="n">value_of</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pieces</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">pieces</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">choice</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">choice</span>
+
+</div>
+<div class="viewcode-block" id="choose_worst_piece"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.choose_worst_piece">[docs]</a><span class="k">def</span> <span class="nf">choose_worst_piece</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">pieces</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Given a collection of resources, choose the</span>
+<span class="sd">    one that is the least preferred by the supplied</span>
+<span class="sd">    user.</span>
+
+<span class="sd">    :param user: The user to choose the best item for</span>
+<span class="sd">    :param pieces: The pieces to choose the least liked from</span>
+<span class="sd">    :returns: A the worst item for the user</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">choice</span> <span class="o">=</span> <span class="nb">min</span><span class="p">((</span><span class="n">user</span><span class="o">.</span><span class="n">value_of</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pieces</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">pieces</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">choice</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">choice</span>
+
+</div>
+<div class="viewcode-block" id="create_equal_pieces"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.create_equal_pieces">[docs]</a><span class="k">def</span> <span class="nf">create_equal_pieces</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">cake</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Given a resource, split it into count many</span>
+<span class="sd">    pieces equal in value to the supplied user.</span>
+
+<span class="sd">    :param user: The user to split the resource with</span>
+<span class="sd">    :param cake: The cake to split</span>
+<span class="sd">    :param count: The number of pieces to create</span>
+<span class="sd">    :returns: A list of the split pieces</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">cake</span><span class="o">.</span><span class="n">create_pieces</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="choose_next_piece"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.choose_next_piece">[docs]</a><span class="k">def</span> <span class="nf">choose_next_piece</span><span class="p">(</span><span class="n">users</span><span class="p">,</span> <span class="n">cake</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Given a resource and a collection of users,</span>
+<span class="sd">    return the next user who would have said &#39;Stop&#39;</span>
+<span class="sd">    first and the piece they would have stopped for.</span>
+
+<span class="sd">    :param users: The users to split the resource with</span>
+<span class="sd">    :param cake: The cake to split</span>
+<span class="sd">    :returns: (user, piece)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">weight</span> <span class="o">=</span> <span class="n">F</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">users</span><span class="p">))</span>
+    <span class="n">pieces</span> <span class="o">=</span> <span class="p">((</span><span class="n">cake</span><span class="o">.</span><span class="n">find_piece</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">weight</span><span class="p">),</span> <span class="n">user</span><span class="p">)</span> <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">users</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">piece</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">pieces</span><span class="p">)</span> <span class="c"># random choice</span>
+    <span class="n">cake</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">piece</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">piece</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="trim_and_replace"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.trim_and_replace">[docs]</a><span class="k">def</span> <span class="nf">trim_and_replace</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">cake</span><span class="p">,</span> <span class="n">piece</span><span class="p">,</span> <span class="n">weight</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Given a resource and a user, trim the given</span>
+<span class="sd">    piece to be of the supplied value and reattach the</span>
+<span class="sd">    trimming to the total cake.</span>
+
+<span class="sd">    :param user: The user to split the resource with</span>
+<span class="sd">    :param cake: The cake to re-attach trimmings to</span>
+<span class="sd">    :param piece: The piece to trim with the given user</span>
+<span class="sd">    :param weight: The amount to reduce the piece to</span>
+<span class="sd">    :returns: The newly trimmed piece</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="p">(</span><span class="n">piece</span><span class="p">,</span> <span class="n">trimming</span><span class="p">)</span> <span class="o">=</span> <span class="n">piece</span><span class="o">.</span><span class="n">create_pieces</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="n">weight</span><span class="p">)</span>
+    <span class="n">cake</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trimming</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">piece</span>
+
+
+<span class="c"># ------------------------------------------------------------</span>
+<span class="c"># classes</span>
+<span class="c"># ------------------------------------------------------------</span></div>
+<div class="viewcode-block" id="AlternationStrategy"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.AlternationStrategy">[docs]</a><span class="k">class</span> <span class="nc">AlternationStrategy</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; A collection of predefined alternation strategies</span>
+<span class="sd">    that can be used to supply a user ordering for choosing</span>
+<span class="sd">    resources.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="AlternationStrategy.ordinal"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.AlternationStrategy.ordinal">[docs]</a>    <span class="k">def</span> <span class="nf">ordinal</span><span class="p">(</span><span class="n">users</span><span class="p">,</span> <span class="n">pieces</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Simply rotate the users in order</span>
+<span class="sd">        from start to finish.</span>
+
+<span class="sd">        :param users: The users to rotate between</span>
+<span class="sd">        :param pieces: The items to choose between</span>
+<span class="sd">        :returns: The next user to choose</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="k">lambda</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">users</span><span class="p">)</span>
+</div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="AlternationStrategy.random"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.AlternationStrategy.random">[docs]</a>    <span class="k">def</span> <span class="nf">random</span><span class="p">(</span><span class="n">users</span><span class="p">,</span> <span class="n">pieces</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Return a random ordering each time.</span>
+
+<span class="sd">        :param users: The users to rotate between</span>
+<span class="sd">        :param pieces: The items to choose between</span>
+<span class="sd">        :returns: The next user to choose</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">randomize_items</span><span class="p">(</span><span class="n">users</span><span class="p">)</span>
+</div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="AlternationStrategy.balanced"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.AlternationStrategy.balanced">[docs]</a>    <span class="k">def</span> <span class="nf">balanced</span><span class="p">(</span><span class="n">users</span><span class="p">,</span> <span class="n">pieces</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Perform a balanced alternation that</span>
+<span class="sd">        attepmts to catch up the latter choosers.</span>
+
+<span class="sd">        ab</span>
+<span class="sd">        abba</span>
+<span class="sd">        abbabaab</span>
+<span class="sd">        abbabaabbaababba</span>
+
+<span class="sd">        :param users: The users to rotate between</span>
+<span class="sd">        :param pieces: The items to choose between</span>
+<span class="sd">        :returns: The next user to choose</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">turns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">users</span><span class="p">)</span>
+        <span class="n">sizes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ceil</span><span class="p">(</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pieces</span><span class="p">))))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">sizes</span><span class="p">):</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">turns</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">turns</span> <span class="o">=</span> <span class="n">turns</span> <span class="o">+</span> <span class="n">turns</span><span class="p">[</span><span class="n">n</span><span class="p">:]</span> <span class="o">+</span> <span class="n">turns</span><span class="p">[:</span><span class="n">n</span><span class="p">]</span>
+        <span class="k">return</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">turns</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Cakery 1.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../algorithms.html" >cakery.algorithms</a> &raquo;</li> 
+      </ul>
+    </div>
+<div class="footer">
+    &copy; Copyright 2012, Galen Collins.
+  Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+  <br />Theme based on <a href="http://readthedocs.org/">Read The Docs</a>
+
+</div>
+
+
+
+
+
+  </body>
+</html>

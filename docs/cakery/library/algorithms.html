@@ -8,7 +8,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
 
-    <title>algorithms — Cakery Algorithms &mdash; Cakery 1.0 documentation</title>
+    <title>cakery.algorithms — Algorithms &mdash; Cakery 1.0 documentation</title>
 
 <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
 
@@ -32,7 +32,8 @@
     <script type="text/javascript" src="../../_static/searchtools.js"></script>
     <link rel="top" title="Cakery 1.0 documentation" href="../index.html" />
     <link rel="up" title="Cakery Library API Documentation" href="index.html" />
-    <link rel="prev" title="utilities — Extra Cakery Utilities" href="utilities.html" /> 
+    <link rel="next" title="cakery.algorithms.utilities — Algorithm Utilities" href="algorithms.utilities.html" />
+    <link rel="prev" title="cakery.utilities — Common Utilities" href="utilities.html" /> 
   </head>
   <body>
     <div class="related">
@@ -45,7 +46,10 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="utilities.html" title="utilities — Extra Cakery Utilities"
+          <a href="algorithms.utilities.html" title="cakery.algorithms.utilities — Algorithm Utilities"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="utilities.html" title="cakery.utilities — Common Utilities"
              accesskey="P">previous</a> |</li>
         <li><a href="../index.html">Cakery 1.0 documentation</a> &raquo;</li>
           <li><a href="index.html" accesskey="U">Cakery Library API Documentation</a> &raquo;</li> 
@@ -57,10 +61,10 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="module-algorithms">
-<span id="algorithms-cakery-algorithms"></span><h1><a class="reference internal" href="#module-algorithms" title="algorithms: Cakery Algorithms"><tt class="xref py py-mod docutils literal"><span class="pre">algorithms</span></tt></a> &#8212; Cakery Algorithms<a class="headerlink" href="#module-algorithms" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="module-cakery.algorithms">
-<span id="api-documentation"></span><h2>API Documentation<a class="headerlink" href="#module-cakery.algorithms" title="Permalink to this headline">¶</a></h2>
+  <div class="section" id="module-cakery.algorithms">
+<span id="cakery-algorithms-algorithms"></span><h1><a class="reference internal" href="#module-cakery.algorithms" title="cakery.algorithms: Cakery Algorithms"><tt class="xref py py-mod docutils literal"><span class="pre">cakery.algorithms</span></tt></a> &#8212; Algorithms<a class="headerlink" href="#module-cakery.algorithms" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="api-documentation">
+<h2>API Documentation<a class="headerlink" href="#api-documentation" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="cakery.algorithms.AustinMovingKnife">
 <em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">AustinMovingKnife</tt><big>(</big><em>users</em>, <em>cake</em>, <em>value</em><big>)</big><a class="headerlink" href="#cakery.algorithms.AustinMovingKnife" title="Permalink to this definition">¶</a></dt>
@@ -424,6 +428,220 @@ division.</p>
 
 </dd></dl>
 
+<dl class="class">
+<dt id="cakery.algorithms.AlternatingChoice">
+<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">AlternatingChoice</tt><big>(</big><em>users</em>, <em>cake</em>, <em>strategy=None</em><big>)</big><a class="headerlink" href="#cakery.algorithms.AlternatingChoice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes a new instance of the algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>users</strong> &#8211; The users to operate with</li>
+<li><strong>cake</strong> &#8211; The cake to divide</li>
+<li><strong>strategy</strong> &#8211; The alternation strategy to use</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cakery.algorithms.AlternatingChoice.divide">
+<tt class="descname">divide</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.AlternatingChoice.divide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the algorithm to perform a suggested
+division.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of divisions of {user: piece}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.algorithms.AlternatingChoice.settings">
+<tt class="descname">settings</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.AlternatingChoice.settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retieves a capability listing of this algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of the algorithm features</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cakery.algorithms.InverseAlternatingChoice">
+<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">InverseAlternatingChoice</tt><big>(</big><em>users</em>, <em>cake</em>, <em>strategy=None</em><big>)</big><a class="headerlink" href="#cakery.algorithms.InverseAlternatingChoice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes a new instance of the algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>users</strong> &#8211; The users to operate with</li>
+<li><strong>cake</strong> &#8211; The cake to divide</li>
+<li><strong>strategy</strong> &#8211; The alternation strategy to use</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cakery.algorithms.InverseAlternatingChoice.divide">
+<tt class="descname">divide</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.InverseAlternatingChoice.divide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the algorithm to perform a suggested
+division.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of divisions of {user: piece}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.algorithms.InverseAlternatingChoice.settings">
+<tt class="descname">settings</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.InverseAlternatingChoice.settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retieves a capability listing of this algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of the algorithm features</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cakery.algorithms.BalancedAlternatingChoice">
+<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">BalancedAlternatingChoice</tt><big>(</big><em>users</em>, <em>cake</em>, <em>strategy=None</em><big>)</big><a class="headerlink" href="#cakery.algorithms.BalancedAlternatingChoice" title="Permalink to this definition">¶</a></dt>
+<dd><p>This algorithm takes turns between each user
+choosing their next favorite item from the resource.
+It runs as follows:</p>
+<ol class="arabic simple">
+<li>Flatten the resource into a collection of choices</li>
+<li>At each round, have each user choose their best piece</li>
+<li>If the pieces are not the same, assign each user that piece</li>
+<li>Otherwise, put those pieces in the contested pile</li>
+<li>Repeat at 2 until the original pile is exhausted</li>
+<li>Now run the simple alternation choice on the contested pile</li>
+</ol>
+<p>Initializes a new instance of the algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>users</strong> &#8211; The users to operate with</li>
+<li><strong>cake</strong> &#8211; The cake to divide</li>
+<li><strong>strategy</strong> &#8211; The alternation strategy to use</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cakery.algorithms.BalancedAlternatingChoice.divide">
+<tt class="descname">divide</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.BalancedAlternatingChoice.divide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the algorithm to perform a suggested
+division.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of divisions of {user: piece}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.algorithms.BalancedAlternatingChoice.settings">
+<tt class="descname">settings</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.BalancedAlternatingChoice.settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retieves a capability listing of this algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of the algorithm features</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cakery.algorithms.InverseBalancedAlternatingChoice">
+<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">InverseBalancedAlternatingChoice</tt><big>(</big><em>users</em>, <em>cake</em>, <em>strategy=None</em><big>)</big><a class="headerlink" href="#cakery.algorithms.InverseBalancedAlternatingChoice" title="Permalink to this definition">¶</a></dt>
+<dd><p>This algorithm takes turns between each user
+choosing their next worst item from the resource.
+It runs as follows:</p>
+<ol class="arabic simple">
+<li>Flatten the resource into a collection of choices</li>
+<li>At each round, have each user choose their worst piece</li>
+<li>If the pieces are not the same, assign each user that piece</li>
+<li>Otherwise, put those pieces in the contested pile</li>
+<li>Repeat at 2 until the original pile is exhausted</li>
+<li>Now run the inverse alternation choice on the contested pile</li>
+</ol>
+<p>Initializes a new instance of the algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>users</strong> &#8211; The users to operate with</li>
+<li><strong>cake</strong> &#8211; The cake to divide</li>
+<li><strong>strategy</strong> &#8211; The alternation strategy to use</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cakery.algorithms.InverseBalancedAlternatingChoice.divide">
+<tt class="descname">divide</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.InverseBalancedAlternatingChoice.divide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the algorithm to perform a suggested
+division.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of divisions of {user: piece}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.algorithms.InverseBalancedAlternatingChoice.settings">
+<tt class="descname">settings</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.InverseBalancedAlternatingChoice.settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retieves a capability listing of this algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of the algorithm features</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 </div>
 
@@ -435,15 +653,18 @@ division.</p>
         <div class="sphinxsidebarwrapper">
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">algorithms</span></tt> &#8212; Cakery Algorithms</a><ul>
-<li><a class="reference internal" href="#module-cakery.algorithms">API Documentation</a></li>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">cakery.algorithms</span></tt> &#8212; Algorithms</a><ul>
+<li><a class="reference internal" href="#api-documentation">API Documentation</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="utilities.html"
-                        title="previous chapter"><tt class="docutils literal"><span class="pre">utilities</span></tt> &#8212; Extra Cakery Utilities</a></p>
+                        title="previous chapter"><tt class="docutils literal"><span class="pre">cakery.utilities</span></tt> &#8212; Common Utilities</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="algorithms.utilities.html"
+                        title="next chapter"><tt class="docutils literal"><span class="pre">cakery.algorithms.utilities</span></tt> &#8212; Algorithm Utilities</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../_sources/library/algorithms.txt"
@@ -476,7 +697,10 @@ division.</p>
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="utilities.html" title="utilities — Extra Cakery Utilities"
+          <a href="algorithms.utilities.html" title="cakery.algorithms.utilities — Algorithm Utilities"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="utilities.html" title="cakery.utilities — Common Utilities"
              >previous</a> |</li>
         <li><a href="../index.html">Cakery 1.0 documentation</a> &raquo;</li>
           <li><a href="index.html" >Cakery Library API Documentation</a> &raquo;</li> 

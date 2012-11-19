@@ -54,10 +54,10 @@
           <div class="body">
             
   <h1>Source code for cakery.resource</h1><div class="highlight"><pre>
-<span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">&#39;&#39;&#39;</span>
-<span class="kn">from</span> <span class="nn">fractions</span> <span class="kn">import</span> <span class="n">Fraction</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">randint</span><span class="p">,</span> <span class="n">sample</span><span class="p">,</span> <span class="n">random</span>
+<span class="kn">from</span> <span class="nn">fractions</span> <span class="kn">import</span> <span class="n">Fraction</span> <span class="k">as</span> <span class="n">F</span>
 <span class="kn">from</span> <span class="nn">cakery.utilities</span> <span class="kn">import</span> <span class="n">any_range</span><span class="p">,</span> <span class="n">powerset</span>
+
 
 <span class="c">#------------------------------------------------------------</span>
 <span class="c"># interface</span>
@@ -124,15 +124,6 @@
 <span class="sd">        :returns: The first piece matching that weight</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;find_piece&quot;</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="Resource.compare"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.Resource.compare">[docs]</a>    <span class="k">def</span> <span class="nf">compare</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="n">that</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; A utility method used to provide rich</span>
-<span class="sd">        comparison operations on the resource.</span>
-
-<span class="sd">        :param that: The other resource to compare</span>
-<span class="sd">        :returns: -1: less than, 0: equal to, 1: greater than</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;compare&quot;</span><span class="p">)</span>
 
     <span class="c">#------------------------------------------------------------</span>
     <span class="c"># common methods</span>
@@ -155,6 +146,15 @@
             <span class="n">cake</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">piece</span><span class="p">)</span>
         <span class="n">pieces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cake</span><span class="p">)</span> <span class="c"># the rest is a single slice</span>
         <span class="k">return</span> <span class="n">pieces</span>
+</div>
+<div class="viewcode-block" id="Resource.compare"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.Resource.compare">[docs]</a>    <span class="k">def</span> <span class="nf">compare</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="n">that</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; A utility method used to provide rich</span>
+<span class="sd">        comparison operations on the resource.</span>
+
+<span class="sd">        :param that: The other resource to compare</span>
+<span class="sd">        :returns: -1: less than, 0: equal to, 1: greater than</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="nb">cmp</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">that</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
     <span class="c">#------------------------------------------------------------</span>
     <span class="c"># the magic methods</span>
@@ -182,14 +182,28 @@
 <span class="sd">    rational values (fractions.Fraction).</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">span</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">span</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Initializes a new instance of the resource</span>
 
 <span class="sd">        :param start: The starting point on the x-axis</span>
 <span class="sd">        :param span: The span from the starting point</span>
+<span class="sd">        :param resolution: The number of pieces to create</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">span</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span> <span class="o">=</span> <span class="n">resolution</span>
 
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ContinuousResource.random"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.ContinuousResource.random">[docs]</a>    <span class="k">def</span> <span class="nf">random</span><span class="p">(</span><span class="n">klass</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; A factory method to create a random</span>
+<span class="sd">        resource.</span>
+
+<span class="sd">        :returns: An initialized Preference</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">F</span><span class="p">(</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">span</span>  <span class="o">=</span> <span class="n">F</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+        <span class="n">span</span>  <span class="o">=</span> <span class="n">F</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">start</span> <span class="o">==</span> <span class="n">span</span> <span class="k">else</span> <span class="n">span</span>
+        <span class="k">return</span> <span class="n">klass</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">span</span><span class="p">)</span>
+</div>
 <div class="viewcode-block" id="ContinuousResource.actual_value"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.ContinuousResource.actual_value">[docs]</a>    <span class="k">def</span> <span class="nf">actual_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Return an actual value that we can use for</span>
 <span class="sd">        comparison for the algorithm.</span>
@@ -197,6 +211,22 @@
 <span class="sd">        :returns: The actual value of the object</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="ContinuousResource.as_collection"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.ContinuousResource.as_collection">[docs]</a>    <span class="k">def</span> <span class="nf">as_collection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Return the underlying resource as a</span>
+<span class="sd">        collection of resources (one for each</span>
+<span class="sd">        discrete item</span>
+
+<span class="sd">        :returns: The collection of resources</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">span</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="n">F</span><span class="p">(</span><span class="n">start</span> <span class="o">+</span> <span class="n">span</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span><span class="p">)</span>
+        <span class="n">pieces</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">any_range</span><span class="p">(</span><span class="n">start</span> <span class="o">+</span> <span class="n">step</span><span class="p">,</span> <span class="n">start</span> <span class="o">+</span> <span class="n">span</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">points</span><span class="p">:</span>
+            <span class="n">start</span><span class="p">,</span> <span class="n">piece</span> <span class="o">=</span> <span class="n">point</span><span class="p">,</span> <span class="n">ContinuousResource</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">point</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+            <span class="n">pieces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">piece</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pieces</span>
 </div>
 <div class="viewcode-block" id="ContinuousResource.clone"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.ContinuousResource.clone">[docs]</a>    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Return a clone of this resource that is</span>
@@ -261,28 +291,19 @@
 <span class="sd">        :param weight: The weight we are attempting to hit</span>
 <span class="sd">        :returns: The first piece matching that weight</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="n">shift</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">user</span><span class="o">.</span><span class="n">resolution</span>
+        <span class="n">shift</span> <span class="o">=</span> <span class="n">F</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">user</span><span class="o">.</span><span class="n">resolution</span><span class="p">)</span>
         <span class="n">cake</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clone</span><span class="p">(),</span> <span class="n">user</span><span class="o">.</span><span class="n">value_of</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="n">weight</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;cannot find a piece with this weight&quot;</span><span class="p">)</span>
 
-        <span class="n">l</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">Fraction</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">cake</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-        <span class="k">while</span> <span class="p">(</span><span class="n">value</span> <span class="o">&lt;</span> <span class="n">weight</span> <span class="o">-</span> <span class="n">shift</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">value</span> <span class="o">&gt;</span> <span class="n">weight</span> <span class="o">+</span> <span class="n">shift</span><span class="p">):</span>
-            <span class="n">m</span> <span class="o">=</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">numerator</span> <span class="o">+</span> <span class="n">h</span><span class="o">.</span><span class="n">numerator</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">denominator</span> <span class="o">+</span> <span class="n">h</span><span class="o">.</span><span class="n">denominator</span><span class="p">)</span>
+        <span class="n">l</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">F</span><span class="p">(</span><span class="n">cake</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">while</span> <span class="nb">abs</span><span class="p">(</span><span class="n">value</span> <span class="o">-</span> <span class="n">weight</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">shift</span><span class="p">:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">F</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">numerator</span> <span class="o">+</span> <span class="n">h</span><span class="o">.</span><span class="n">numerator</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">denominator</span> <span class="o">+</span> <span class="n">h</span><span class="o">.</span><span class="n">denominator</span><span class="p">)</span>
             <span class="n">cake</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="n">cake</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">m</span><span class="p">)</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">value_of</span><span class="p">(</span><span class="n">cake</span><span class="p">)</span>
             <span class="k">if</span>   <span class="n">value</span> <span class="o">&gt;</span> <span class="n">weight</span><span class="p">:</span> <span class="n">h</span> <span class="o">=</span> <span class="n">m</span>
             <span class="k">elif</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="n">weight</span><span class="p">:</span> <span class="n">l</span> <span class="o">=</span> <span class="n">m</span>
         <span class="k">return</span> <span class="n">cake</span>
-</div>
-<div class="viewcode-block" id="ContinuousResource.compare"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.ContinuousResource.compare">[docs]</a>    <span class="k">def</span> <span class="nf">compare</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="n">that</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; A utility method used to provide rich</span>
-<span class="sd">        comparison operations on the resource.</span>
-
-<span class="sd">        :param that: The other resource to compare</span>
-<span class="sd">        :returns: -1: less than, 0: equal to, 1: greater than</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">return</span> <span class="nb">cmp</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">that</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
 </div></div>
 <div class="viewcode-block" id="CountedResource"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.CountedResource">[docs]</a><span class="k">class</span> <span class="nc">CountedResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
@@ -299,9 +320,21 @@
 <span class="sd">        :param items: The items representing this resource</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="n">items</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">item</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">)</span>
+            <span class="n">items</span> <span class="o">=</span> <span class="p">{</span><span class="n">item</span><span class="p">:</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">items</span>
 
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="CountedResource.random"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.CountedResource.random">[docs]</a>    <span class="k">def</span> <span class="nf">random</span><span class="p">(</span><span class="n">klass</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; A factory method to create a random</span>
+<span class="sd">        resource.</span>
+
+<span class="sd">        :returns: An initialized Preference</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="n">size</span> <span class="ow">or</span> <span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="p">[</span><span class="nb">chr</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">),</span> <span class="nb">ord</span><span class="p">(</span><span class="s">&#39;{&#39;</span><span class="p">))]</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="n">size</span><span class="p">)}</span>
+        <span class="k">return</span> <span class="n">klass</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+</div>
 <div class="viewcode-block" id="CountedResource.actual_value"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.CountedResource.actual_value">[docs]</a>    <span class="k">def</span> <span class="nf">actual_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Return an actual value that we can use for</span>
 <span class="sd">        comparison for the algorithm.</span>
@@ -309,6 +342,16 @@
 <span class="sd">        :returns: The actual value of the object</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="CountedResource.as_collection"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.CountedResource.as_collection">[docs]</a>    <span class="k">def</span> <span class="nf">as_collection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Return the underlying resource as a</span>
+<span class="sd">        collection of resources (one for each</span>
+<span class="sd">        discrete item</span>
+
+<span class="sd">        :returns: The collection of resources</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">v</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">CountedResource</span><span class="p">({</span><span class="n">v</span> <span class="p">:</span> <span class="mi">1</span><span class="p">})</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
 </div>
 <div class="viewcode-block" id="CountedResource.clone"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.CountedResource.clone">[docs]</a>    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Return a clone of this resource that is</span>
@@ -373,17 +416,8 @@
             <span class="n">check</span> <span class="o">=</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">possible</span><span class="p">))</span>
             <span class="k">if</span>   <span class="n">value</span> <span class="o">==</span> <span class="n">weight</span><span class="p">:</span> <span class="n">piece</span> <span class="o">=</span> <span class="n">check</span><span class="p">;</span> <span class="k">break</span>
             <span class="k">elif</span> <span class="n">value</span>  <span class="o">&lt;</span> <span class="n">weight</span><span class="p">:</span> <span class="n">piece</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">piece</span><span class="p">,</span> <span class="n">check</span><span class="p">)</span>
+            <span class="c"># TODO, what if we can&#39;t find &lt;=, but only just over weight</span>
         <span class="k">return</span> <span class="n">CountedResource</span><span class="p">(</span><span class="n">piece</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-</div>
-<div class="viewcode-block" id="CountedResource.compare"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.CountedResource.compare">[docs]</a>    <span class="k">def</span> <span class="nf">compare</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="n">that</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; A utility method used to provide rich</span>
-<span class="sd">        comparison operations on the resource.</span>
-
-<span class="sd">        :param that: The other resource to compare</span>
-<span class="sd">        :returns: -1: less than, 0: equal to, 1: greater than</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="n">this</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">that</span><span class="o">.</span><span class="n">value</span><span class="p">:</span> <span class="k">return</span> <span class="mi">0</span>
-        <span class="k">return</span> <span class="nb">cmp</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="nb">sum</span><span class="p">(</span><span class="n">that</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
 
 </div></div>
 <div class="viewcode-block" id="CollectionResource"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.CollectionResource">[docs]</a><span class="k">class</span> <span class="nc">CollectionResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
@@ -403,6 +437,18 @@
             <span class="n">items</span> <span class="o">=</span> <span class="p">[</span><span class="n">items</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
 
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="CollectionResource.random"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.CollectionResource.random">[docs]</a>    <span class="k">def</span> <span class="nf">random</span><span class="p">(</span><span class="n">klass</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; A factory method to create a random</span>
+<span class="sd">        resource.</span>
+
+<span class="sd">        :returns: An initialized Preference</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="n">size</span> <span class="ow">or</span> <span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="p">[</span><span class="nb">chr</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">),</span> <span class="nb">ord</span><span class="p">(</span><span class="s">&#39;{&#39;</span><span class="p">))]</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="n">sample</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">klass</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+</div>
 <div class="viewcode-block" id="CollectionResource.as_collection"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.CollectionResource.as_collection">[docs]</a>    <span class="k">def</span> <span class="nf">as_collection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Return the underlying resource as a</span>
 <span class="sd">        collection of resources (one for each</span>
@@ -477,17 +523,8 @@
             <span class="n">check</span> <span class="o">=</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">possible</span><span class="p">))</span>
             <span class="k">if</span>   <span class="n">value</span> <span class="o">==</span> <span class="n">weight</span><span class="p">:</span> <span class="n">piece</span> <span class="o">=</span> <span class="n">check</span><span class="p">;</span> <span class="k">break</span>
             <span class="k">elif</span> <span class="n">value</span>  <span class="o">&lt;</span> <span class="n">weight</span><span class="p">:</span> <span class="n">piece</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">piece</span><span class="p">,</span> <span class="n">check</span><span class="p">)</span>
+            <span class="c"># TODO, what if we can&#39;t find &lt;=, but only just over weight</span>
         <span class="k">return</span> <span class="n">CollectionResource</span><span class="p">(</span><span class="n">piece</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-</div>
-<div class="viewcode-block" id="CollectionResource.compare"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.CollectionResource.compare">[docs]</a>    <span class="k">def</span> <span class="nf">compare</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="n">that</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; A utility method used to provide rich</span>
-<span class="sd">        comparison operations on the resource.</span>
-
-<span class="sd">        :param that: The other resource to compare</span>
-<span class="sd">        :returns: -1: less than, 0: equal to, 1: greater than</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="n">this</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">that</span><span class="o">.</span><span class="n">value</span><span class="p">:</span> <span class="k">return</span> <span class="mi">0</span>
-        <span class="k">return</span> <span class="nb">cmp</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">value</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">that</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
 
 </div></div>
 <div class="viewcode-block" id="IntervalResource"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.IntervalResource">[docs]</a><span class="k">class</span> <span class="nc">IntervalResource</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
@@ -498,15 +535,32 @@
 <span class="sd">    [(start, stop)].</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Initializes a new instance of the resource</span>
 
 <span class="sd">        :param points: The collection of points</span>
+<span class="sd">        :param resolution: The number of pieces to create</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">points</span> <span class="o">=</span> <span class="p">[</span><span class="n">points</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">points</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span> <span class="o">=</span> <span class="n">resolution</span>
 
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="IntervalResource.random"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.IntervalResource.random">[docs]</a>    <span class="k">def</span> <span class="nf">random</span><span class="p">(</span><span class="n">klass</span><span class="p">,</span> <span class="n">intervals</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; A factory method to create a random</span>
+<span class="sd">        resource.</span>
+
+<span class="sd">        :param intervals: The number intervals to create</span>
+<span class="sd">        :returns: An initialized Preference</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">cx</span><span class="p">,</span> <span class="n">points</span> <span class="o">=</span> <span class="n">random</span><span class="p">(),</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="n">cx</span> <span class="o">&lt;</span> <span class="mf">1.0</span> <span class="ow">and</span> <span class="n">intervals</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">nx</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cx</span> <span class="o">+</span> <span class="n">random</span><span class="p">()</span> <span class="o">/</span> <span class="n">intervals</span><span class="p">)</span>
+            <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">cx</span><span class="p">,</span> <span class="n">nx</span><span class="p">))</span>
+            <span class="n">intervals</span><span class="p">,</span> <span class="n">cx</span> <span class="o">=</span> <span class="n">intervals</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nx</span>
+        <span class="k">return</span> <span class="n">klass</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+</div>
 <div class="viewcode-block" id="IntervalResource.actual_value"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.IntervalResource.actual_value">[docs]</a>    <span class="k">def</span> <span class="nf">actual_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Return an actual value that we can use for</span>
 <span class="sd">        comparison for the algorithm.</span>
@@ -514,6 +568,23 @@
 <span class="sd">        :returns: The actual value of the object</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">e</span> <span class="o">-</span> <span class="n">b</span> <span class="k">for</span> <span class="n">b</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="IntervalResource.as_collection"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.IntervalResource.as_collection">[docs]</a>    <span class="k">def</span> <span class="nf">as_collection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Return the underlying resource as a</span>
+<span class="sd">        collection of resources (one for each</span>
+<span class="sd">        discrete item</span>
+
+<span class="sd">        :returns: The collection of resources</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">pieces</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">value</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">actual_value</span><span class="p">()</span>
+        <span class="n">steps</span>  <span class="o">=</span> <span class="n">value</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span>
+        <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+            <span class="n">step</span> <span class="o">=</span> <span class="n">steps</span> <span class="o">*</span> <span class="p">((</span><span class="n">stop</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span> <span class="o">/</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">any_range</span><span class="p">(</span><span class="n">start</span> <span class="o">+</span> <span class="n">step</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+                <span class="n">pieces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">IntervalResource</span><span class="p">((</span><span class="n">start</span><span class="p">,</span> <span class="n">point</span><span class="p">)))</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="n">point</span>
+        <span class="k">return</span> <span class="n">pieces</span>
 </div>
 <div class="viewcode-block" id="IntervalResource.clone"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.IntervalResource.clone">[docs]</a>    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Return a clone of this resource that is</span>
@@ -591,14 +662,14 @@
 <span class="sd">        :param weight: The weight we are attempting to hit</span>
 <span class="sd">        :returns: The first piece matching that weight</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="n">shift</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">user</span><span class="o">.</span><span class="n">resolution</span>
+        <span class="n">shift</span> <span class="o">=</span> <span class="n">F</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">user</span><span class="o">.</span><span class="n">resolution</span><span class="p">)</span>
         <span class="n">cake</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clone</span><span class="p">(),</span> <span class="n">user</span><span class="o">.</span><span class="n">value_of</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="n">weight</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;cannot find a piece with this weight&quot;</span><span class="p">)</span>
 
-        <span class="n">l</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">cake</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">cake</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-        <span class="k">while</span> <span class="p">(</span><span class="n">value</span> <span class="o">&lt;</span> <span class="n">weight</span> <span class="o">-</span> <span class="n">shift</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">value</span> <span class="o">&gt;</span> <span class="n">weight</span> <span class="o">+</span> <span class="n">shift</span><span class="p">):</span>
-            <span class="n">m</span> <span class="o">=</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">numerator</span> <span class="o">+</span> <span class="n">h</span><span class="o">.</span><span class="n">numerator</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">denominator</span> <span class="o">+</span> <span class="n">h</span><span class="o">.</span><span class="n">denominator</span><span class="p">)</span>
+        <span class="n">l</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="p">(</span><span class="n">cake</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="n">F</span><span class="p">(</span><span class="n">cake</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">while</span> <span class="nb">abs</span><span class="p">(</span><span class="n">value</span> <span class="o">-</span> <span class="n">weight</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">shift</span><span class="p">:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">F</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">numerator</span> <span class="o">+</span> <span class="n">h</span><span class="o">.</span><span class="n">numerator</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">denominator</span> <span class="o">+</span> <span class="n">h</span><span class="o">.</span><span class="n">denominator</span><span class="p">)</span>
             <span class="n">cake</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__trim</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">value_of</span><span class="p">(</span><span class="n">cake</span><span class="p">)</span>
             <span class="k">if</span>   <span class="n">value</span> <span class="o">&gt;</span> <span class="n">weight</span><span class="p">:</span> <span class="n">h</span> <span class="o">=</span> <span class="n">m</span>
@@ -625,17 +696,7 @@
                 <span class="n">cake</span> <span class="o">=</span> <span class="n">cake</span><span class="p">[:</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
                 <span class="k">break</span><span class="p">;</span>
             <span class="k">else</span><span class="p">:</span> <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">return</span> <span class="n">cake</span>
-
-
-<div class="viewcode-block" id="IntervalResource.compare"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.IntervalResource.compare">[docs]</a>    <span class="k">def</span> <span class="nf">compare</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="n">that</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; A utility method used to provide rich</span>
-<span class="sd">        comparison operations on the resource.</span>
-
-<span class="sd">        :param that: The other resource to compare</span>
-<span class="sd">        :returns: -1: less than, 0: equal to, 1: greater than</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">return</span> <span class="nb">cmp</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">that</span><span class="o">.</span><span class="n">value</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">cake</span></div>
 </pre></div>
 
           </div>

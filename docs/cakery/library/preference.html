@@ -8,7 +8,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
 
-    <title>preference — Cakery Preferences &mdash; Cakery 1.0 documentation</title>
+    <title>cakery.preference — Cake Preferences &mdash; Cakery 1.0 documentation</title>
 
 <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
 
@@ -32,7 +32,7 @@
     <script type="text/javascript" src="../../_static/searchtools.js"></script>
     <link rel="top" title="Cakery 1.0 documentation" href="../index.html" />
     <link rel="up" title="Cakery Library API Documentation" href="index.html" />
-    <link rel="next" title="resource — Cakery Resources" href="resource.html" />
+    <link rel="next" title="cakery.resource — Cake Resources" href="resource.html" />
     <link rel="prev" title="Cakery Library API Documentation" href="index.html" /> 
   </head>
   <body>
@@ -46,7 +46,7 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="resource.html" title="resource — Cakery Resources"
+          <a href="resource.html" title="cakery.resource — Cake Resources"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Cakery Library API Documentation"
@@ -61,24 +61,74 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="module-preference">
-<span id="preference-cakery-preferences"></span><h1><a class="reference internal" href="#module-preference" title="preference: Cakery Preferences"><tt class="xref py py-mod docutils literal"><span class="pre">preference</span></tt></a> &#8212; Cakery Preferences<a class="headerlink" href="#module-preference" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="cakery-preference-cake-preferences">
+<h1><a class="reference internal" href="#module-cakery.preference" title="cakery.preference"><tt class="xref py py-mod docutils literal"><span class="pre">cakery.preference</span></tt></a> &#8212; Cake Preferences<a class="headerlink" href="#cakery-preference-cake-preferences" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-cakery.preference">
 <span id="api-documentation"></span><h2>API Documentation<a class="headerlink" href="#module-cakery.preference" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="cakery.preference.Preference">
-<em class="property">class </em><tt class="descclassname">cakery.preference.</tt><tt class="descname">Preference</tt><a class="reference internal" href="../_modules/cakery/preference.html#Preference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.preference.Preference" title="Permalink to this definition">¶</a></dt>
-<dd><p>Represents the preferences of a given user
-about a given resource.</p>
-<p>It should be noted, that the implementation of each
-preference type is strongly coupled to the underlying
-resource type. Trying to use mismatched types (Counted
-with Collection for example) will result in runtime errors.</p>
+<dt id="cakery.preference.CollectionPreference">
+<em class="property">class </em><tt class="descclassname">cakery.preference.</tt><tt class="descname">CollectionPreference</tt><big>(</big><em>user</em>, <em>values</em><big>)</big><a class="reference internal" href="../_modules/cakery/preference.html#CollectionPreference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.preference.CollectionPreference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents the discrete preferences of a given user
+about a supplied resource(s). The preferences are
+represented as a dictionary of resource -&gt; preference
+where the preference value is a fixed point value (no
+decimals).</p>
+<p>The preferences should be assigned as a percentage
+of the defined resolution (integers). We assume the
+preferences collectively add up to specified resolution
+(or slightly less, but never more).</p>
+<p>Initialize a new preference class</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>user</strong> &#8211; The name or id of the participant</li>
+<li><strong>values</strong> &#8211; The preference values of the user</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="classmethod">
+<dt id="cakery.preference.CollectionPreference.from_file">
+<em class="property">classmethod </em><tt class="descname">from_file</tt><big>(</big><em>klass</em>, <em>filename</em><big>)</big><a class="reference internal" href="../_modules/cakery/preference.html#CollectionPreference.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.preference.CollectionPreference.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>A factory method to create a preference
+collection from a settings file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; The file to read preferences from</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An initialized Preference</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="cakery.preference.CollectionPreference.random">
+<em class="property">classmethod </em><tt class="descname">random</tt><big>(</big><em>klass</em>, <em>resource</em><big>)</big><a class="reference internal" href="../_modules/cakery/preference.html#CollectionPreference.random"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.preference.CollectionPreference.random" title="Permalink to this definition">¶</a></dt>
+<dd><p>A factory method to create a random
+preference collection.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>resource</strong> &#8211; The resource to build values for</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An initialized Preference</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="method">
-<dt id="cakery.preference.Preference.value_of">
-<tt class="descname">value_of</tt><big>(</big><em>resource</em><big>)</big><a class="reference internal" href="../_modules/cakery/preference.html#Preference.value_of"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.preference.Preference.value_of" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given a resource, return the total value
-of this resource to the current user.</p>
+<dt id="cakery.preference.CollectionPreference.value_of">
+<tt class="descname">value_of</tt><big>(</big><em>resource</em><big>)</big><a class="reference internal" href="../_modules/cakery/preference.html#CollectionPreference.value_of"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.preference.CollectionPreference.value_of" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a resource, return its total value
+to this user.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -226,106 +276,6 @@ of this resource to the current user.</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="cakery.preference.CollectionPreference">
-<em class="property">class </em><tt class="descclassname">cakery.preference.</tt><tt class="descname">CollectionPreference</tt><big>(</big><em>user</em>, <em>values</em><big>)</big><a class="reference internal" href="../_modules/cakery/preference.html#CollectionPreference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.preference.CollectionPreference" title="Permalink to this definition">¶</a></dt>
-<dd><p>Represents the discrete preferences of a given user
-about a supplied resource(s). The preferences are
-represented as a dictionary of resource -&gt; preference
-where the preference value is a fixed point value (no
-decimals).</p>
-<p>The preferences should be assigned as a percentage
-of the defined resolution (integers). We assume the
-preferences collectively add up to specified resolution
-(or slightly less, but never more).</p>
-<p>Initialize a new preference class</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>user</strong> &#8211; The name or id of the participant</li>
-<li><strong>values</strong> &#8211; The preference values of the user</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="classmethod">
-<dt id="cakery.preference.CollectionPreference.from_file">
-<em class="property">classmethod </em><tt class="descname">from_file</tt><big>(</big><em>klass</em>, <em>filename</em><big>)</big><a class="reference internal" href="../_modules/cakery/preference.html#CollectionPreference.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.preference.CollectionPreference.from_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>A factory method to create a preference
-collection from a settings file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; The file to read preferences from</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An initialized Preference</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="classmethod">
-<dt id="cakery.preference.CollectionPreference.random">
-<em class="property">classmethod </em><tt class="descname">random</tt><big>(</big><em>klass</em>, <em>resource</em><big>)</big><a class="reference internal" href="../_modules/cakery/preference.html#CollectionPreference.random"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.preference.CollectionPreference.random" title="Permalink to this definition">¶</a></dt>
-<dd><p>A factory method to create a random
-preference collection.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>resource</strong> &#8211; The resource to build values for</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An initialized Preference</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="cakery.preference.CollectionPreference.value_of">
-<tt class="descname">value_of</tt><big>(</big><em>resource</em><big>)</big><a class="reference internal" href="../_modules/cakery/preference.html#CollectionPreference.value_of"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.preference.CollectionPreference.value_of" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given a resource, return its total value
-to this user.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">Params resource:</th></tr>
-<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">The resource to get the value of</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The total value of the items</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="cakery.preference.OrdinalPreference">
-<em class="property">class </em><tt class="descclassname">cakery.preference.</tt><tt class="descname">OrdinalPreference</tt><big>(</big><em>user</em>, <em>values</em><big>)</big><a class="reference internal" href="../_modules/cakery/preference.html#OrdinalPreference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.preference.OrdinalPreference" title="Permalink to this definition">¶</a></dt>
-<dd><p>Represents the discrete preference for a given
-user, however the value of each item is not known,
-just the relative ordering of the items.</p>
-<p>Initialize a new preference class</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>user</strong> &#8211; The name or id of the participant</li>
-<li><strong>values</strong> &#8211; The ordered preference values of the user</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="class">
 <dt id="cakery.preference.IntervalPreference">
 <em class="property">class </em><tt class="descclassname">cakery.preference.</tt><tt class="descname">IntervalPreference</tt><big>(</big><em>user</em>, <em>intervals</em>, <em>resolution=100</em><big>)</big><a class="reference internal" href="../_modules/cakery/preference.html#IntervalPreference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.preference.IntervalPreference" title="Permalink to this definition">¶</a></dt>
 <dd><p>Represents the preference of a given user about a continuous
@@ -370,7 +320,7 @@ preference collection.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>intervals</strong> &#8211; The number intervals to use</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>intervals</strong> &#8211; The number intervals to create</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An initialized Preference</td>
 </tr>
@@ -398,6 +348,78 @@ of this resource to the current user.</p>
 
 </dd></dl>
 
+<dl class="class">
+<dt id="cakery.preference.OrdinalPreference">
+<em class="property">class </em><tt class="descclassname">cakery.preference.</tt><tt class="descname">OrdinalPreference</tt><big>(</big><em>user</em>, <em>values</em><big>)</big><a class="reference internal" href="../_modules/cakery/preference.html#OrdinalPreference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.preference.OrdinalPreference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents the discrete preference for a given
+user, however the value of each item is not known,
+just the relative ordering of the items.</p>
+<p>Initialize a new preference class</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>user</strong> &#8211; The name or id of the participant</li>
+<li><strong>values</strong> &#8211; The ordered preference values of the user</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="classmethod">
+<dt id="cakery.preference.OrdinalPreference.random">
+<em class="property">classmethod </em><tt class="descname">random</tt><big>(</big><em>klass</em>, <em>resource</em><big>)</big><a class="reference internal" href="../_modules/cakery/preference.html#OrdinalPreference.random"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.preference.OrdinalPreference.random" title="Permalink to this definition">¶</a></dt>
+<dd><p>A factory method to create a random
+preference collection.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>resource</strong> &#8211; The resource to build values for</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An initialized Preference</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cakery.preference.Preference">
+<em class="property">class </em><tt class="descclassname">cakery.preference.</tt><tt class="descname">Preference</tt><a class="reference internal" href="../_modules/cakery/preference.html#Preference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.preference.Preference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents the preferences of a given user
+about a given resource.</p>
+<p>It should be noted, that the implementation of each
+preference type is strongly coupled to the underlying
+resource type. Trying to use mismatched types (Counted
+with Collection for example) will result in runtime errors.</p>
+<dl class="method">
+<dt id="cakery.preference.Preference.value_of">
+<tt class="descname">value_of</tt><big>(</big><em>resource</em><big>)</big><a class="reference internal" href="../_modules/cakery/preference.html#Preference.value_of"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.preference.Preference.value_of" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a resource, return the total value
+of this resource to the current user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Params resource:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">The resource to get the value of</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The total value of the items</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="cakery.preference.random">
+<tt class="descclassname">cakery.preference.</tt><tt class="descname">random</tt><big>(</big><big>)</big> &rarr; x in the interval [0, 1).<a class="headerlink" href="#cakery.preference.random" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 </div>
 
@@ -409,7 +431,7 @@ of this resource to the current user.</p>
         <div class="sphinxsidebarwrapper">
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">preference</span></tt> &#8212; Cakery Preferences</a><ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">cakery.preference</span></tt> &#8212; Cake Preferences</a><ul>
 <li><a class="reference internal" href="#module-cakery.preference">API Documentation</a></li>
 </ul>
 </li>
@@ -420,7 +442,7 @@ of this resource to the current user.</p>
                         title="previous chapter">Cakery Library API Documentation</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="resource.html"
-                        title="next chapter"><tt class="docutils literal"><span class="pre">resource</span></tt> &#8212; Cakery Resources</a></p>
+                        title="next chapter"><tt class="docutils literal"><span class="pre">cakery.resource</span></tt> &#8212; Cake Resources</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../_sources/library/preference.txt"
@@ -453,7 +475,7 @@ of this resource to the current user.</p>
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="resource.html" title="resource — Cakery Resources"
+          <a href="resource.html" title="cakery.resource — Cake Resources"
              >next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Cakery Library API Documentation"

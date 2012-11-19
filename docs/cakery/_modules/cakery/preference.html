@@ -56,7 +56,7 @@
   <h1>Source code for cakery.preference</h1><div class="highlight"><pre>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">random</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">random</span><span class="p">,</span> <span class="n">shuffle</span>
 <span class="kn">from</span> <span class="nn">cakery.utilities</span> <span class="kn">import</span> <span class="n">integrate</span>
 <span class="kn">from</span> <span class="nn">cakery.utilities</span> <span class="kn">import</span> <span class="n">Interval</span>
 
@@ -290,7 +290,19 @@
         <span class="n">values</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">)</span>
         <span class="n">CollectionPreference</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
 
-</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="OrdinalPreference.random"><a class="viewcode-back" href="../../library/preference.html#cakery.preference.OrdinalPreference.random">[docs]</a>    <span class="k">def</span> <span class="nf">random</span><span class="p">(</span><span class="n">klass</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; A factory method to create a random</span>
+<span class="sd">        preference collection.</span>
+
+<span class="sd">        :param resource: The resource to build values for</span>
+<span class="sd">        :returns: An initialized Preference</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">shuffle</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">klass</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+
+</div></div>
 <div class="viewcode-block" id="IntervalPreference"><a class="viewcode-back" href="../../library/preference.html#cakery.preference.IntervalPreference">[docs]</a><span class="k">class</span> <span class="nc">IntervalPreference</span><span class="p">(</span><span class="n">Preference</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39; Represents the preference of a given user about a continuous</span>
 <span class="sd">    resource over a collection of intervals.</span>
@@ -326,7 +338,7 @@
         <span class="sd">&#39;&#39;&#39; A factory method to create a random</span>
 <span class="sd">        preference collection.</span>
 
-<span class="sd">        :param intervals: The number intervals to use</span>
+<span class="sd">        :param intervals: The number intervals to create</span>
 <span class="sd">        :returns: An initialized Preference</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">cx</span><span class="p">,</span> <span class="n">points</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="p">[]</span>

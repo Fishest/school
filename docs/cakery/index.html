@@ -8,7 +8,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
 
-    <title>Cakery API Documentation &mdash; Cakery 1.0 documentation</title>
+    <title>Cakery Class Assignment &mdash; Cakery 1.0 documentation</title>
 
 <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
 
@@ -55,28 +55,153 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="cakery-api-documentation">
-<h1>Cakery API Documentation<a class="headerlink" href="#cakery-api-documentation" title="Permalink to this headline">¶</a></h1>
-<p>Contents:</p>
+  <div class="section" id="cakery-class-assignment">
+<h1>Cakery Class Assignment<a class="headerlink" href="#cakery-class-assignment" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h2>
+<p>The cakery class assignment utility is an attempt to
+perform fair division of a limited number of class
+assignments between a number of students with non-uniform
+preferences about the classes they would like to take. The
+goal is to provide a class assignment that is proportional
+among the students and if possible envy free.</p>
+<p>The current algorithm being used to provide these gurantees
+is Banach-Knaster&#8217;s Trimming Algorithm.</p>
+</div>
+<div class="section" id="resources">
+<h2>Resources<a class="headerlink" href="#resources" title="Permalink to this headline">¶</a></h2>
+<p>The resources are simple wrappers around different &#8220;types&#8221;
+of cake. Currently the following exist:</p>
+<ul>
+<li><p class="first">collection:</p>
+<p>This represents a collection of discrete non-repeating
+items and can be used to model things like estate sales.</p>
+</li>
+<li><p class="first">counted:</p>
+<p>This represents a collection of discrete items that may
+be repeated one or more times. This can be used to
+represent things like course selection and registration.</p>
+</li>
+<li><p class="first">exact continuous:</p>
+<p>This represents a continuous resource that users may
+specify preference functions for. This can be used to
+represent divisible things like cakes. This is not as
+powerful as the piecewise continous, however, it is
+exact when rational numbers are used as the seed (can
+also use scaled integers and floats).</p>
+</li>
+<li><p class="first">piecewise continuous:</p>
+<p>This represents a continuous resource that users may
+specify preference functions for. This can be used to
+represent divisible things like cakes.</p>
+</li>
+</ul>
+<p>Also for each resource, common methods are supplied that
+allow each resource to be used generically by each of the
+supplied algorithms:</p>
+<ul class="simple">
+<li>append(piece)</li>
+<li>remove(piece)</li>
+<li>find_piece(preference, weight)</li>
+<li>compare(that)</li>
+<li>clone()</li>
+<li>actual_value()</li>
+<li>as_collection()</li>
+<li>create_pieces(user, count, weight)</li>
+<li>rich comparison methods</li>
+<li>__str__</li>
+</ul>
+</div>
+<div class="section" id="preferences">
+<h2>Preferences<a class="headerlink" href="#preferences" title="Permalink to this headline">¶</a></h2>
+<p>The preferences supply a mirror to each resource type that
+is used to supply a few common functions around said resource
+that are employed in the fair division algorithms:</p>
+<ul>
+<li><p class="first">value_of:</p>
+<p>This is used to get the current value of a resource in the
+view of the current user in question.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="algorithms">
+<h2>Algorithms<a class="headerlink" href="#algorithms" title="Permalink to this headline">¶</a></h2>
+<p>The algorithms should mostly be generic and thus able to work
+with any kind of resource/preference pair. Currently
+implemented in this collection are:</p>
+<ul class="simple">
+<li>austin_moving_knife</li>
+<li>banach_knaster</li>
+<li>divide_and_choose</li>
+<li>dubins_spanier</li>
+<li>inverse_divide_and_choose</li>
+<li>lone_chooser</li>
+<li>sealed_bid_auction</li>
+<li>simple alternation</li>
+<li>inverse simple alternation</li>
+<li>balanced alternation</li>
+<li>inverse balanced alternation</li>
+</ul>
+</div>
+<div class="section" id="class-interface">
+<h2>Class Interface<a class="headerlink" href="#class-interface" title="Permalink to this headline">¶</a></h2>
+<p>The interface to the class project includes two things:</p>
+<ul>
+<li><p class="first">preference files</p>
+<p>These are stored in the data directory and are specified
+as linear functions of <cite>x-point y-value</cite> that are
+monotonically increasing.</p>
+</li>
+<li><p class="first">algorithm listing</p>
+<p>This is listed in the algs file which is of the format
+<cite>algorithm-file num-of-users</cite> where num-of-users is the
+max supported number of users allowed in this algorithm.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="todo">
+<h2>Todo<a class="headerlink" href="#todo" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>add settings for algorithms
+- test them with the utility methods
+- test with non-trivial parameters</li>
+<li>consolidate the algorithm utilities
+- put them in the algorithm file in question
+- make more generic and not one off
+- find 1/n of value for a resource</li>
+<li>algorithms
+- fixed budget divider (budget based on bid count)</li>
+<li>review the rich sorting of the resources</li>
+<li>change alternation algorithms to use defaultdict</li>
+<li>reverse balanced algorithm</li>
+<li>algorithm unit tests</li>
+<li>algorithm stress tests</li>
+<li>unit test algorithm utilities for each resource</li>
+</ul>
+</div>
+<div class="section" id="cakery-api-documentation">
+<h2>Cakery API Documentation<a class="headerlink" href="#cakery-api-documentation" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="library/index.html">Cakery Library API Documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="library/preference.html"><tt class="docutils literal"><span class="pre">preference</span></tt> &#8212; Cakery Preferences</a></li>
-<li class="toctree-l2"><a class="reference internal" href="library/resource.html"><tt class="docutils literal"><span class="pre">resource</span></tt> &#8212; Cakery Resources</a></li>
-<li class="toctree-l2"><a class="reference internal" href="library/utilities.html"><tt class="docutils literal"><span class="pre">utilities</span></tt> &#8212; Extra Cakery Utilities</a></li>
-<li class="toctree-l2"><a class="reference internal" href="library/algorithms.html"><tt class="docutils literal"><span class="pre">algorithms</span></tt> &#8212; Cakery Algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library/preference.html"><tt class="docutils literal"><span class="pre">cakery.preference</span></tt> &#8212; Cake Preferences</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library/resource.html"><tt class="docutils literal"><span class="pre">cakery.resource</span></tt> &#8212; Cake Resources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library/utilities.html"><tt class="docutils literal"><span class="pre">cakery.utilities</span></tt> &#8212; Common Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library/algorithms.html"><tt class="docutils literal"><span class="pre">cakery.algorithms</span></tt> &#8212; Algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library/algorithms.utilities.html"><tt class="docutils literal"><span class="pre">cakery.algorithms.utilities</span></tt> &#8212; Algorithm Utilities</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 <div class="section" id="indices">
-<h1>Indices<a class="headerlink" href="#indices" title="Permalink to this headline">¶</a></h1>
+<h2>Indices<a class="headerlink" href="#indices" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
 <li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
 <li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
 </ul>
+</div>
 </div>
 
 
@@ -87,10 +212,19 @@
         <div class="sphinxsidebarwrapper">
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Cakery API Documentation</a><ul>
+<li><a class="reference internal" href="#">Cakery Class Assignment</a><ul>
+<li><a class="reference internal" href="#summary">Summary</a></li>
+<li><a class="reference internal" href="#resources">Resources</a></li>
+<li><a class="reference internal" href="#preferences">Preferences</a></li>
+<li><a class="reference internal" href="#algorithms">Algorithms</a></li>
+<li><a class="reference internal" href="#class-interface">Class Interface</a></li>
+<li><a class="reference internal" href="#todo">Todo</a></li>
+<li><a class="reference internal" href="#cakery-api-documentation">Cakery API Documentation</a><ul>
 </ul>
 </li>
 <li><a class="reference internal" href="#indices">Indices</a></li>
+</ul>
+</li>
 </ul>
 
   <h4>Next topic</h4>

@@ -65,7 +65,12 @@ project and reserve more space for data files.
 544
 ------------------------------------------------------------
 
-...
+This is the code for the fair division game theory class. It
+is basically a framework for defining resources and preferences
+for those resources in a low level way. The remainder of the
+code builds high level primitives out of these and then builds
+high level algorithms for dividing resources.  The code is in
+python.
 
 ------------------------------------------------------------
 coursera-ml
@@ -73,3 +78,12 @@ coursera-ml
 
 This is the code and notes for the coursera machine learning
 class taught by Andrew Ng. The code is in octave
+
+------------------------------------------------------------
+coursera-scala
+------------------------------------------------------------
+
+This is the code and notes for the coursera functional
+programming in Scala class taught by Martin Odersky. The
+code is obviously in Scala.
+

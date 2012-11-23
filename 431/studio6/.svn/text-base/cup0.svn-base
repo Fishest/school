@@ -1,0 +1,26 @@
+// Studio: 4
+// File:  cup0
+//
+//  Your group's members' names:
+//     1)
+//     2)
+//     3)
+//
+//   Terminals are in the "terms" file for all the grammars in this studio
+//
+//   Use terminals a, b, c, d, or e
+//   Use any nonterminals you like, but be sure to declare them below
+//     
+
+non terminal A, B, S;
+
+//
+// Try out your ambiguous grammar by entering it below
+//
+
+S	::= a B
+	  | a A
+	;
+	
+B   ::= a B;
+A   ::= a B;

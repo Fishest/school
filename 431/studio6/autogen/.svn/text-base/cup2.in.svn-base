@@ -1,0 +1,50 @@
+package autogen;
+import common.Listing;
+terminal         x, a, b, c, d, e, lparen, rparen, IF, ELSE;
+
+terminal         eggroll, wonton, salad;	
+terminal         hotsoursoup, eggdropsoup, noodlesoup;
+terminal         beef, tofu, shrimp, chicken;
+
+terminal         PRIVATE, PUBLIC, PROTECTED, PACKAGE;
+terminal         VOID, INT, FLOAT, OBJECT;
+terminal         ABSTRACT, NONABSTRACT;
+terminal         name, semi;
+
+
+// Studio: 4
+// File: cup2
+//
+//  Which group did you show your work?
+//      --->   
+//
+non terminal     MealA, MealB, MealC;
+
+//
+// Construct a grammar for a Meal that has ***exactly***
+//    one choice from Column A (eggroll, wonton, salad)
+//    one choice from Column B (hotsoursoup, eggdropsoup, noodlesoup)
+//    one choice from Column C (beef, tofu, shrimp, chicken)
+//  in exactly that order
+//
+
+MealA
+	::= eggroll MealB
+	| wonton MealB
+	| salad MealB
+	;
+	
+MealB
+	::= hotsoursoup MealC
+	| eggdropsoup MealC
+	| noodlesoup MealC
+	;
+	
+MealC
+	::= beef
+	| tofu
+	| shrimp
+	| chicken
+
+	;
+	

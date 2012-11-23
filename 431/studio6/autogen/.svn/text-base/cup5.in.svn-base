@@ -1,0 +1,26 @@
+package autogen;
+import common.Listing;
+terminal         x, a, b, c, d, e, lparen, rparen, IF, ELSE;
+
+terminal         eggroll, wonton, salad;	
+terminal         hotsoursoup, eggdropsoup, noodlesoup;
+terminal         beef, tofu, shrimp, chicken;
+
+terminal         PRIVATE, PUBLIC, PROTECTED, PACKAGE;
+terminal         VOID, INT, FLOAT, OBJECT;
+terminal         ABSTRACT, NONABSTRACT;
+terminal         name, semi;
+
+
+// Studio: 4
+// File: cup5
+//
+//  This is the classic if - then - else grammar (for C/Java)
+//    Investigate ambiguity, fix if possible
+//
+non terminal        S, R;
+
+//
+S ::= IF lparen rparen R | x;
+
+R ::= ELSE S | S;

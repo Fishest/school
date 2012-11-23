@@ -1,0 +1,63 @@
+CompilationUnit
+    Declarations
+        Class
+            Identifier (Foo)
+            ClassBody
+                FieldDeclaration
+                    IntType
+                    VariableDeclarations
+                        VariableDeclaration
+                            Identifier (i)
+                            IntegerLiteral (1)
+                FieldDeclaration
+                    CharType
+                    VariableDeclarations
+                        VariableDeclaration
+                            Identifier (c)
+                            CharLiteral (a)
+                FieldDeclaration
+                    DoubleType
+                    VariableDeclarations
+                        VariableDeclaration
+                            Identifier (d)
+                            FloatLiteral (2.0)
+                FieldDeclaration
+                    BooleanType
+                    VariableDeclarations
+                        VariableDeclaration
+                            Identifier (b)
+                            BooleanLiteral (true)
+                FieldDeclaration
+                    Identifier (String)
+                    VariableDeclarations
+                        VariableDeclaration
+                            Identifier (s)
+                            IntegerLiteral ("hello")
+                MethodDeclaration
+                    Identifier (m1)
+                    Parameters
+                    Void
+                    Block
+                        LocalVarDeclaration
+                            IntType
+                            VariableDeclarations
+                                VariableDeclaration
+                                    Identifier (j)
+                                VariableDeclaration
+                                    Identifier (k)
+                        While
+                            LessThan
+                                Identifier (i)
+                                IntegerLiteral (5)
+                            Block
+                                If
+                                    GreaterThan
+                                        Identifier (d)
+                                        IntegerLiteral (3)
+                                    Block
+                                        ExpressionStatement
+                                            Assign
+                                                Identifier (a)
+                                                Multiplication
+                                                    Identifier (b)
+                                                    Identifier (c)

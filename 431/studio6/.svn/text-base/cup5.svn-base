@@ -1,0 +1,11 @@
+// Studio: 4
+// File: cup5
+//
+//  This is the classic if - then - else grammar (for C/Java)
+//    Investigate ambiguity, fix if possible
+//
+non terminal        S, R;
+
+//
+S ::= IF lparen rparen R | x;
+R ::= ELSE S | S;

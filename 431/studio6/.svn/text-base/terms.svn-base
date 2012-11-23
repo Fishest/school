@@ -1,0 +1,14 @@
+package autogen;
+import common.Listing;
+terminal         x, a, b, c, d, e, lparen, rparen, IF, ELSE;
+
+terminal         eggroll, wonton, salad;	
+terminal         hotsoursoup, eggdropsoup, noodlesoup;
+terminal         beef, tofu, shrimp, chicken;
+
+terminal         PRIVATE, PUBLIC, PROTECTED, PACKAGE;
+terminal         VOID, INT, FLOAT, OBJECT;
+terminal         ABSTRACT, NONABSTRACT;
+terminal         name, semi;
+
+

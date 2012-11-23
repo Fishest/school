@@ -9,6 +9,13 @@ here as library code. Feel free to borrow or take anything
 that can help out:
 
 ------------------------------------------------------------
+431
+------------------------------------------------------------
+
+This is the code for the compilers course. All of the code
+is in Java using jflex, cup, and jasmine.
+
+------------------------------------------------------------
 511
 ------------------------------------------------------------
 

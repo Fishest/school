@@ -1,0 +1,47 @@
+class Foo {
+
+    int testing(int param1, double param2) {
+	  char a, b;
+	  int j;
+	  boolean d = true;
+	  
+	  if (a == b) {
+	  } else {
+	    d = false;
+	  }
+	  // something crazy!!!
+	  /* even more crazy thigns !! */
+	  ;
+	  ++j;
+	  --j;
+	  j++;
+	  j--;
+	  j = -j;
+	  j = +j;
+	  d = !d; // error
+	  d = (boolean)j;
+	  d = (d + d)j;
+	  j = j * j;
+	  j = j / j;
+	  j = j + j;
+	  j = j - j;
+	  d = j > j;
+	  d = j < j;
+	  d = j >= j;
+	  d = j <= j;
+	  d = j == j;
+	  d = j != j;
+	  d = d && d;
+	  d = d || d;
+	  a = b = a = b;
+	  
+	  return j;
+	}
+	
+	
+	void testing2() {
+	  int result = testing(1, 1.1);
+	  int result2 = testing2();
+	  return;
+	}
+}

@@ -1,0 +1,44 @@
+package autogen;
+import common.Listing;
+terminal         x, a, b, c, d, e, lparen, rparen, IF, ELSE;
+
+terminal         eggroll, wonton, salad;	
+terminal         hotsoursoup, eggdropsoup, noodlesoup;
+terminal         beef, tofu, shrimp, chicken;
+
+terminal         PRIVATE, PUBLIC, PROTECTED, PACKAGE;
+terminal         VOID, INT, FLOAT, OBJECT;
+terminal         ABSTRACT, NONABSTRACT;
+terminal         name, semi;
+
+
+// Studio: 4
+// File: cup1
+//
+//   Which group did you show your work?
+//      --->   
+//
+//   Terminals are in the "terms" file for all the grammars in this studio
+//
+//  Is this grammar ambiguous?
+//     If so, demonstrate two parse trees for the same string
+//         Share the resulting parse trees with another group and the TA or prof
+//         Modify the grammar to accept the same language, but unambiguously
+//         Check your answers with another group that has gotten this far
+//          and the TA/prof
+//     If not, argue why it is not ambiguous and fix the grammar so CUP can handle it
+//     To test this out, be sure to uncomment the Problem1 instantiation in
+//        Main.java
+//         
+
+//  See the studio instructions for ideas to investigate this issue
+//     
+
+non terminal         S, R;
+
+S	::=	lparen S 
+	|   x R
+	;
+	
+R   ::=  R rparen
+	| ;

@@ -1,0 +1,28 @@
+non terminal Obj S, One, Rest, D;
+    terminal Obj plus, zero;
+    terminal Obj bogus, not, really, used;
+
+start with S;
+
+S ::=   zero Rest
+  |   One Rest
+  ;
+
+Rest ::=
+     plus  D
+  |  MINUS   D
+  ;
+
+D::=
+     zero
+  |  won
+  |  really
+  ;
+
+
+zero:
+     '0' ;
+
+One:
+     '1' ;
+%%

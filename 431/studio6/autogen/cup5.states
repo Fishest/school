@@ -1,0 +1,88 @@
+===== Viable Prefix Recognizer =====
+START lalr_state [0]: {
+  [S ::= (*) x , {EOF }]
+  [$START ::= (*) S EOF , {EOF }]
+  [S ::= (*) IF lparen rparen R , {EOF }]
+}
+transition on IF to state [3]
+transition on S to state [2]
+transition on x to state [1]
+
+-------------------
+lalr_state [1]: {
+  [S ::= x (*) , {EOF }]
+}
+
+-------------------
+lalr_state [2]: {
+  [$START ::= S (*) EOF , {EOF }]
+}
+transition on EOF to state [10]
+
+-------------------
+lalr_state [3]: {
+  [S ::= IF (*) lparen rparen R , {EOF }]
+}
+transition on lparen to state [4]
+
+-------------------
+lalr_state [4]: {
+  [S ::= IF lparen (*) rparen R , {EOF }]
+}
+transition on rparen to state [5]
+
+-------------------
+lalr_state [5]: {
+  [S ::= (*) x , {EOF }]
+  [R ::= (*) S , {EOF }]
+  [S ::= IF lparen rparen (*) R , {EOF }]
+  [R ::= (*) ELSE S , {EOF }]
+  [S ::= (*) IF lparen rparen R , {EOF }]
+}
+transition on IF to state [3]
+transition on R to state [8]
+transition on S to state [7]
+transition on ELSE to state [6]
+transition on x to state [1]
+
+-------------------
+lalr_state [6]: {
+  [S ::= (*) x , {EOF }]
+  [R ::= ELSE (*) S , {EOF }]
+  [S ::= (*) IF lparen rparen R , {EOF }]
+}
+transition on IF to state [3]
+transition on S to state [9]
+transition on x to state [1]
+
+-------------------
+lalr_state [7]: {
+  [R ::= S (*) , {EOF }]
+}
+
+-------------------
+lalr_state [8]: {
+  [S ::= IF lparen rparen R (*) , {EOF }]
+}
+
+-------------------
+lalr_state [9]: {
+  [R ::= ELSE S (*) , {EOF }]
+}
+
+-------------------
+lalr_state [10]: {
+  [$START ::= S EOF (*) , {EOF }]
+}
+
+-------------------
+------- CUP v0.11a beta 20060608 Parser Generation Summary -------
+  0 errors and 0 warnings
+  34 terminals, 2 non-terminals, and 5 productions declared, 
+  producing 11 unique parse states.
+  27 terminals declared but not used.
+  0 non-terminals declared but not used.
+  0 productions never reduced.
+  0 conflicts detected (0 expected).
+  Code written to "Parsercup5.java", and "sym.java".
+---------------------------------------------------- (v0.11a beta 20060608)

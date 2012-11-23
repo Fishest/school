@@ -1,0 +1,67 @@
+===== Viable Prefix Recognizer =====
+START lalr_state [0]: {
+  [S ::= (*) x R , {EOF }]
+  [$START ::= (*) S EOF , {EOF }]
+  [S ::= (*) lparen S , {EOF }]
+}
+transition on lparen to state [3]
+transition on S to state [2]
+transition on x to state [1]
+
+-------------------
+lalr_state [1]: {
+  [S ::= x (*) R , {EOF }]
+  [R ::= (*) , {EOF rparen }]
+  [R ::= (*) R rparen , {EOF rparen }]
+}
+transition on R to state [6]
+
+-------------------
+lalr_state [2]: {
+  [$START ::= S (*) EOF , {EOF }]
+}
+transition on EOF to state [5]
+
+-------------------
+lalr_state [3]: {
+  [S ::= (*) x R , {EOF }]
+  [S ::= lparen (*) S , {EOF }]
+  [S ::= (*) lparen S , {EOF }]
+}
+transition on lparen to state [3]
+transition on S to state [4]
+transition on x to state [1]
+
+-------------------
+lalr_state [4]: {
+  [S ::= lparen S (*) , {EOF }]
+}
+
+-------------------
+lalr_state [5]: {
+  [$START ::= S EOF (*) , {EOF }]
+}
+
+-------------------
+lalr_state [6]: {
+  [S ::= x R (*) , {EOF }]
+  [R ::= R (*) rparen , {EOF rparen }]
+}
+transition on rparen to state [7]
+
+-------------------
+lalr_state [7]: {
+  [R ::= R rparen (*) , {EOF rparen }]
+}
+
+-------------------
+------- CUP v0.11a beta 20060608 Parser Generation Summary -------
+  0 errors and 0 warnings
+  34 terminals, 2 non-terminals, and 5 productions declared, 
+  producing 8 unique parse states.
+  29 terminals declared but not used.
+  0 non-terminals declared but not used.
+  0 productions never reduced.
+  0 conflicts detected (0 expected).
+  Code written to "Parsercup1.java", and "sym.java".
+---------------------------------------------------- (v0.11a beta 20060608)

@@ -1,0 +1,11 @@
+class Foo {
+	int i, j = 1;
+
+	void m1(int i, char c, int j) {
+	    if (i < 3) {
+		    ++i;
+	    } else {
+		    j++;
+	    }
+	}
+}

@@ -1,0 +1,103 @@
+package autogen;
+import common.Listing;
+terminal         x, a, b, c, d, e, lparen, rparen, IF, ELSE;
+
+terminal         eggroll, wonton, salad;	
+terminal         hotsoursoup, eggdropsoup, noodlesoup;
+terminal         beef, tofu, shrimp, chicken;
+
+terminal         PRIVATE, PUBLIC, PROTECTED, PACKAGE;
+terminal         VOID, INT, FLOAT, OBJECT;
+terminal         ABSTRACT, NONABSTRACT;
+terminal         name, semi;
+
+
+// Studio: 4
+// File: cup3
+//
+//  Which group did you show your work?
+//     -->   
+//
+// Languages usually allow modifiers of a type declaration to appear in
+//    any order
+//    For example, in a fictitious programming language:
+//       public abstract int foo;
+//       nonabstract int protected bar;
+//    are all OK
+//
+//    For each category of modifier, we require at most one choice,
+//       Thus, 
+//           private public foo;
+//       is not allowed
+//
+//    BUT, modifiers can appear in any order, and any of them could be missing:
+//        private baz;
+//        abstract int boz;
+//
+//  Design an *umambiguous* grammar whose language (syntax) allows
+//     1) At most one choice from each of Type, Access, Abstractness
+//     2) Type, Access, and Abstractness to appear in any order
+//     3) Any of Type, Access, or Abstractness to be missing
+//
+//  The grammar below is insufficient, as it would allow:
+//     private public private int protected foo;
+//
+
+non terminal     Dcls, Dcl, Mods, Mod, Type, Access, Abstractness;
+
+//
+//  Do not change the grammar from below this line....
+//
+Dcls
+	::= Dcls Dcl
+	|   Dcl
+	;
+	
+Dcl
+	::= Mods name semi
+	;
+	
+//
+//    ... to above this line
+//
+
+Mods
+	::= Access
+	| Access Type
+	| Access Type Abstractness
+	| Access Abstractness Type
+	| Type
+	| Type Access
+	| Type Access Abstractness
+    | Type Abstractness Access	
+	| Abstractness
+	| Abstractness Type
+	| Abstractness Type Access
+	| Abstractness Access Type
+	;
+	
+Mod
+	::= Access
+	|   Type
+	|   Abstractness
+	;	
+	
+Access
+	::= PUBLIC
+	|   PRIVATE
+	|   PROTECTED
+	|   PACKAGE     /* No such keyword in Java -- would be blank for package access */
+	;
+	
+Type
+	::= VOID
+	|   INT
+	|   FLOAT
+	|   OBJECT
+	;
+	
+	
+Abstractness
+	::= ABSTRACT
+	|   NONABSTRACT  /* No such keyword in Java -- would be blank for non abstract */
+	;

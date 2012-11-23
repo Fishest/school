@@ -1,0 +1,97 @@
+Warning : *** Reduce/Reduce conflict found in state #8
+  between A ::= a B (*) 
+  and     B ::= a B (*) 
+  under symbols: {EOF}
+  Resolved in favor of the second production.
+
+Warning : *** Shift/Reduce conflict found in state #8
+  between A ::= a B (*) 
+  under symbol EOF
+  Resolved in favor of shifting.
+
+Warning : *** Shift/Reduce conflict found in state #8
+  between B ::= a B (*) 
+  under symbol EOF
+  Resolved in favor of shifting.
+
+Error : *** More conflicts encountered than expected -- parser generation aborted
+===== Viable Prefix Recognizer =====
+START lalr_state [0]: {
+  [S ::= (*) a A , {EOF }]
+  [$START ::= (*) S EOF , {EOF }]
+  [S ::= (*) a B , {EOF }]
+}
+transition on S to state [2]
+transition on a to state [1]
+
+-------------------
+lalr_state [1]: {
+  [S ::= a (*) A , {EOF }]
+  [A ::= (*) a B , {EOF }]
+  [B ::= (*) a B , {EOF }]
+  [S ::= a (*) B , {EOF }]
+}
+transition on B to state [6]
+transition on a to state [5]
+transition on A to state [4]
+
+-------------------
+lalr_state [2]: {
+  [$START ::= S (*) EOF , {EOF }]
+}
+transition on EOF to state [3]
+
+-------------------
+lalr_state [3]: {
+  [$START ::= S EOF (*) , {EOF }]
+}
+
+-------------------
+lalr_state [4]: {
+  [S ::= a A (*) , {EOF }]
+}
+
+-------------------
+lalr_state [5]: {
+  [A ::= a (*) B , {EOF }]
+  [B ::= a (*) B , {EOF }]
+  [B ::= (*) a B , {EOF }]
+}
+transition on B to state [8]
+transition on a to state [7]
+
+-------------------
+lalr_state [6]: {
+  [S ::= a B (*) , {EOF }]
+}
+
+-------------------
+lalr_state [7]: {
+  [B ::= a (*) B , {EOF }]
+  [B ::= (*) a B , {EOF }]
+}
+transition on B to state [9]
+transition on a to state [7]
+
+-------------------
+lalr_state [8]: {
+  [A ::= a B (*) , {EOF }]
+  [B ::= a B (*) , {EOF }]
+}
+
+-------------------
+lalr_state [9]: {
+  [B ::= a B (*) , {EOF }]
+}
+
+-------------------
+------- CUP v0.11a beta 20060608 Parser Generation Summary -------
+  1 error and 3 warnings
+  34 terminals, 3 non-terminals, and 5 productions declared, 
+  producing 10 unique parse states.
+  31 terminals declared but not used.
+  0 non-terminals declared but not used.
+  0 productions never reduced.
+  3 conflicts detected (0 expected).
+  No code produced.
+---------------------------------------------------- (v0.11a beta 20060608)

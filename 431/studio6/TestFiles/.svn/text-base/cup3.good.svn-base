@@ -1,0 +1,8 @@
+public abstract void name;
+abstract public int name;
+object public abstract name;
+int nonabstract protected name;
+abstract int name;
+protected void name;
+int name;
+float protected name;

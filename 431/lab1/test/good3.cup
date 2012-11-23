@@ -1,0 +1,20 @@
+    terminal Obj letter, digit, blank;
+non terminal Obj String, Id, Num;
+
+start with String;
+
+String
+	::= letter Id
+	|   digit Num
+	;
+
+Id
+	::= letter Id
+	| digit Id
+	| blank
+	;
+
+Num
+	::= digit Num
+	| blank
+	;

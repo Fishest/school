@@ -1,0 +1,17 @@
+class Foo {
+	int i = 1;
+	char c = 'a';
+	double d = 2.0;
+	boolean b = true;
+	String s = "hello";
+	
+	void m1() {
+	    int j, k;
+	
+		while (i < 5) {
+			if (d > 3) {
+				a = b * c;
+			}
+		}
+	}
+}

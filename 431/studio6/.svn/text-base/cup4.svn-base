@@ -1,0 +1,37 @@
+// Studio: 4
+// File: cup4
+//
+//  Which group did you show your work?
+//      --->
+//
+//  Is this grammar ambiguous?
+//     If so, demonstrate two parse trees for the same string
+//         Change the grammar (except where prohibited below) so it denotes
+//         the same language unambiguously and test your parser
+//     If not, argue why it is not ambiguous and fix the grammar so CUP can handle it
+//         Test your resulting parser (you will need to uncomment the call
+//             to the parserin Main.java)
+//
+non terminal        A, B, S;
+
+//
+//  Do not change the grammar from below this line ...
+
+S
+	::=  A d
+	|    B e
+	;
+	
+//
+//   .... to above his line
+//
+	
+A
+	::= c A
+	| c
+	;
+	
+B
+	::= c B
+	| c
+	;

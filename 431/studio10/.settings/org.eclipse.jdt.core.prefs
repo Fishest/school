@@ -1,0 +1,5 @@
+#Fri Sep 04 08:52:44 CDT 2009
+eclipse.preferences.version=1
+org.eclipse.jdt.core.compiler.taskCaseSensitive=enabled
+org.eclipse.jdt.core.compiler.taskPriorities=HIGH,HIGH,HIGH
+org.eclipse.jdt.core.compiler.taskTags=FIXME,TRY,TA

@@ -1,0 +1,162 @@
+===== Viable Prefix Recognizer =====
+START lalr_state [0]: {
+  [MealA ::= (*) wonton MealB , {EOF }]
+  [$START ::= (*) MealA EOF , {EOF }]
+  [MealA ::= (*) salad MealB , {EOF }]
+  [MealA ::= (*) eggroll MealB , {EOF }]
+}
+transition on wonton to state [4]
+transition on MealA to state [3]
+transition on salad to state [2]
+transition on eggroll to state [1]
+
+-------------------
+lalr_state [1]: {
+  [MealB ::= (*) eggdropsoup MealC , {EOF }]
+  [MealB ::= (*) hotsoursoup MealC , {EOF }]
+  [MealB ::= (*) noodlesoup MealC , {EOF }]
+  [MealA ::= eggroll (*) MealB , {EOF }]
+}
+transition on noodlesoup to state [8]
+transition on MealB to state [18]
+transition on eggdropsoup to state [6]
+transition on hotsoursoup to state [5]
+
+-------------------
+lalr_state [2]: {
+  [MealB ::= (*) eggdropsoup MealC , {EOF }]
+  [MealB ::= (*) hotsoursoup MealC , {EOF }]
+  [MealB ::= (*) noodlesoup MealC , {EOF }]
+  [MealA ::= salad (*) MealB , {EOF }]
+}
+transition on noodlesoup to state [8]
+transition on MealB to state [17]
+transition on eggdropsoup to state [6]
+transition on hotsoursoup to state [5]
+
+-------------------
+lalr_state [3]: {
+  [$START ::= MealA (*) EOF , {EOF }]
+}
+transition on EOF to state [16]
+
+-------------------
+lalr_state [4]: {
+  [MealB ::= (*) eggdropsoup MealC , {EOF }]
+  [MealA ::= wonton (*) MealB , {EOF }]
+  [MealB ::= (*) hotsoursoup MealC , {EOF }]
+  [MealB ::= (*) noodlesoup MealC , {EOF }]
+}
+transition on noodlesoup to state [8]
+transition on MealB to state [7]
+transition on eggdropsoup to state [6]
+transition on hotsoursoup to state [5]
+
+-------------------
+lalr_state [5]: {
+  [MealC ::= (*) tofu , {EOF }]
+  [MealC ::= (*) chicken , {EOF }]
+  [MealC ::= (*) beef , {EOF }]
+  [MealB ::= hotsoursoup (*) MealC , {EOF }]
+  [MealC ::= (*) shrimp , {EOF }]
+}
+transition on tofu to state [13]
+transition on chicken to state [12]
+transition on shrimp to state [11]
+transition on MealC to state [15]
+transition on beef to state [9]
+
+-------------------
+lalr_state [6]: {
+  [MealC ::= (*) tofu , {EOF }]
+  [MealB ::= eggdropsoup (*) MealC , {EOF }]
+  [MealC ::= (*) chicken , {EOF }]
+  [MealC ::= (*) beef , {EOF }]
+  [MealC ::= (*) shrimp , {EOF }]
+}
+transition on tofu to state [13]
+transition on chicken to state [12]
+transition on shrimp to state [11]
+transition on MealC to state [14]
+transition on beef to state [9]
+
+-------------------
+lalr_state [7]: {
+  [MealA ::= wonton MealB (*) , {EOF }]
+}
+
+-------------------
+lalr_state [8]: {
+  [MealC ::= (*) tofu , {EOF }]
+  [MealC ::= (*) chicken , {EOF }]
+  [MealC ::= (*) beef , {EOF }]
+  [MealC ::= (*) shrimp , {EOF }]
+  [MealB ::= noodlesoup (*) MealC , {EOF }]
+}
+transition on tofu to state [13]
+transition on chicken to state [12]
+transition on shrimp to state [11]
+transition on MealC to state [10]
+transition on beef to state [9]
+
+-------------------
+lalr_state [9]: {
+  [MealC ::= beef (*) , {EOF }]
+}
+
+-------------------
+lalr_state [10]: {
+  [MealB ::= noodlesoup MealC (*) , {EOF }]
+}
+
+-------------------
+lalr_state [11]: {
+  [MealC ::= shrimp (*) , {EOF }]
+}
+
+-------------------
+lalr_state [12]: {
+  [MealC ::= chicken (*) , {EOF }]
+}
+
+-------------------
+lalr_state [13]: {
+  [MealC ::= tofu (*) , {EOF }]
+}
+
+-------------------
+lalr_state [14]: {
+  [MealB ::= eggdropsoup MealC (*) , {EOF }]
+}
+
+-------------------
+lalr_state [15]: {
+  [MealB ::= hotsoursoup MealC (*) , {EOF }]
+}
+
+-------------------
+lalr_state [16]: {
+  [$START ::= MealA EOF (*) , {EOF }]
+}
+
+-------------------
+lalr_state [17]: {
+  [MealA ::= salad MealB (*) , {EOF }]
+}
+
+-------------------
+lalr_state [18]: {
+  [MealA ::= eggroll MealB (*) , {EOF }]
+}
+
+-------------------
+------- CUP v0.11a beta 20060608 Parser Generation Summary -------
+  0 errors and 0 warnings
+  34 terminals, 3 non-terminals, and 11 productions declared, 
+  producing 19 unique parse states.
+  22 terminals declared but not used.
+  0 non-terminals declared but not used.
+  0 productions never reduced.
+  0 conflicts detected (0 expected).
+  Code written to "Parsercup2.java", and "sym.java".
+---------------------------------------------------- (v0.11a beta 20060608)

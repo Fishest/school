@@ -1,0 +1,84 @@
+===== Viable Prefix Recognizer =====
+START lalr_state [0]: {
+  [B ::= (*) c B , {e }]
+  [S ::= (*) B e , {EOF }]
+  [A ::= (*) c , {d }]
+  [$START ::= (*) S EOF , {EOF }]
+  [B ::= (*) c , {e }]
+  [A ::= (*) c A , {d }]
+  [S ::= (*) A d , {EOF }]
+}
+transition on c to state [4]
+transition on B to state [3]
+transition on S to state [2]
+transition on A to state [1]
+
+-------------------
+lalr_state [1]: {
+  [S ::= A (*) d , {EOF }]
+}
+transition on d to state [9]
+
+-------------------
+lalr_state [2]: {
+  [$START ::= S (*) EOF , {EOF }]
+}
+transition on EOF to state [8]
+
+-------------------
+lalr_state [3]: {
+  [S ::= B (*) e , {EOF }]
+}
+transition on e to state [7]
+
+-------------------
+lalr_state [4]: {
+  [B ::= c (*) B , {e }]
+  [B ::= (*) c B , {e }]
+  [A ::= c (*) , {d }]
+  [A ::= (*) c , {d }]
+  [B ::= c (*) , {e }]
+  [B ::= (*) c , {e }]
+  [A ::= c (*) A , {d }]
+  [A ::= (*) c A , {d }]
+}
+transition on B to state [6]
+transition on c to state [4]
+transition on A to state [5]
+
+-------------------
+lalr_state [5]: {
+  [A ::= c A (*) , {d }]
+}
+
+-------------------
+lalr_state [6]: {
+  [B ::= c B (*) , {e }]
+}
+
+-------------------
+lalr_state [7]: {
+  [S ::= B e (*) , {EOF }]
+}
+
+-------------------
+lalr_state [8]: {
+  [$START ::= S EOF (*) , {EOF }]
+}
+
+-------------------
+lalr_state [9]: {
+  [S ::= A d (*) , {EOF }]
+}
+
+-------------------
+------- CUP v0.11a beta 20060608 Parser Generation Summary -------
+  0 errors and 0 warnings
+  34 terminals, 3 non-terminals, and 7 productions declared, 
+  producing 10 unique parse states.
+  29 terminals declared but not used.
+  0 non-terminals declared but not used.
+  0 productions never reduced.
+  0 conflicts detected (0 expected).
+  Code written to "Parsercup4.java", and "sym.java".
+---------------------------------------------------- (v0.11a beta 20060608)

@@ -1,0 +1,20 @@
+non terminal obj S;
+    terminal obj plus, minus, zero, one;
+non terminal obj Rest, D;
+    terminal obj bogus, not, really, used;
+start with S;
+S
+	::= zero Rest
+	|   one Rest
+	;
+
+Rest
+	::= plus    D
+	|   minus   D
+	;
+
+D
+	::= zero
+	|   one
+	|   really
+	;

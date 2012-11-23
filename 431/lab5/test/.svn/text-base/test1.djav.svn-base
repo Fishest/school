@@ -1,0 +1,31 @@
+class Foo {
+
+	void program() {
+		int i, j, k;
+		i = 1;
+		j = 2;
+		k = myAdd(i, j);
+		println(k);
+	}
+
+	int myAdd(int x, int y) {
+	    if (x == y){ if (x == y) y = x; else x = y; }
+	    if (x >= y){ }
+	    if (x >  y){ }
+	    if (x <= y){ }
+	    if (x <  y){ }
+	    if (x !=  y){ }
+	    x = y || x;
+	    x = true;
+	    x = false;
+	    x = !x;
+	    x = -x;
+	    x = +x;
+	    x = 15;
+	    x = 2;
+	    x = x * y;
+	    x = x / y;
+	    x = x - y;
+		return x + y;
+	}
+}

@@ -1,0 +1,14 @@
+non terminal Obj non, with;
+    terminal Obj terminal, start;
+
+start with with;
+
+with
+	::= start non
+	|   terminal
+	;
+
+non
+	::= terminal non
+	|   terminal 
+	|   start;

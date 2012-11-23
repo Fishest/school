@@ -1,0 +1,56 @@
+<project name="studio8" default="run" basedir=".">
+
+	<property name="toolpath" value="Tools" />
+
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
+		<classpath>
+			<pathelement location="Tools/ant-contrib-0.6.jar" />
+		</classpath>
+	</taskdef>
+
+
+	<property name="jasmin.jar" value="jasmin-2.3.jar" />
+
+
+	<target name="run" depends="clean">
+		<foreach list="Test1,Test2,Test3,Test4" inheritall="true" delimiter="," trim="true" param="jasmin.classname" target="InternalRun">
+		</foreach>
+	</target>
+
+
+	<target name="rebuild">
+		<eclipse.refreshLocal resource="CAC-studio10" depth="infinite" />
+		<eclipse.incrementalBuild project="CAC-studio10" kind="full" />
+	</target>
+
+
+	<target name="clean">
+		<delete>
+			<fileset dir="." includes="**/*.class" />
+		</delete>
+		<antcall target="rebuild" />
+
+	</target>
+
+
+	<target name="jasmin">
+		<fail message="Must supply source file" unless="jasmin.classname" />
+		<echo message="Assembling ${jasmin.classname}.j" />
+		<java jar="${toolpath}/${jasmin.jar}" fork="true" failonerror="true">
+			<arg value="-d" />
+			<arg value="bin" />
+			<arg value="${jasmin.classname}.j" />
+		</java>
+		<java jar="${toolpath}/filesize.jar" fork="true" failonerror="true">
+			<arg value="bin/${jasmin.classname}.class" />
+		</java>
+	</target>
+
+	<target name="InternalRun" depends="jasmin">
+		<fail message="Must supply classs name" unless="jasmin.classname" />
+		<echo message="Executing Java class ${jasmin.classname}" />
+		<java fork="true" classname="${jasmin.classname}" classpath="bin:" />
+	</target>
+
+
+</project>

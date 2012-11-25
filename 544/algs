@@ -1,0 +1,12 @@
+src/scripts/austin_moving_knives.py 2
+src/scripts/banach_knaster.py ?
+src/scripts/divide_and_choose.py 2
+src/scripts/inverse_divide_and_choose.py 2
+src/scripts/lone_chooser.py ?
+src/scripts/dubins_spanier.py ?
+src/scripts/sealed_bids.py ?
+src/scripts/simple_alternation.py 2
+src/scripts/inverse_simple_alternation.py 2
+src/scripts/balanced_alternation.py 2
+src/scripts/inverse_balanced_alternation.py 2
+

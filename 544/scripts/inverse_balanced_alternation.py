@@ -1,6 +1,2 @@
-from common import *
-
-users   = get_users(sys.argv[1:])
-cake    = get_cake(users[0])
-factory = get_algorithm('InverseBalancedAlternatingChoice')
-print factory(users, cake).divide()
+from common import run_algorithm
+run_algorithm('InverseBalancedAlternatingChoice')

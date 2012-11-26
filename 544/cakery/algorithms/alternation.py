@@ -4,7 +4,11 @@ from cakery.algorithms.common import FairDivider
 
 
 class AlternatingChoice(FairDivider):
-    '''
+    ''' This is a simple algorithm that just lets
+    each available user take turns choosing their next
+    favorite piece. The choosing order is dependent on
+    the supplied alternation strategy which simply
+    defaults to ordinal.
     '''
 
     def __init__(self, users, cake, strategy=None):
@@ -39,11 +43,12 @@ class AlternatingChoice(FairDivider):
 
         :returns: A dictionary of divisions of {user: piece}
         '''
-        slices  = defaultdict(list)
-        pieces  = self.cake.as_collection()
-        cutters = self.strategy(self.users, pieces)
-        while any(pieces):
-            for cutter in cutters():
-                piece = choose_best_piece(cutter, pieces)
-                slices[cutter].append(piece)
+        slices  = defaultdict(list)                 # initialize each user to an empty list
+        pieces  = self.cake.as_collection()         # project our collection to a list
+        cutters = self.strategy(self.users, pieces) # initialize our alternation strategy
+        while any(pieces):                          # while there are still pieces
+            for cutter in cutters():                # choose users based on our strategy
+                piece = choose_best_piece(cutter, pieces)   # they remove their favorite piece
+                slices[cutter].append(piece)        # and add it to their list
+                if not any(pieces): break           # exit early in case of odd pieces
         return slices

@@ -124,6 +124,7 @@ Todo
   - test with non-trivial parameters
 * algorithms
   - fixed budget divider (budget based on bid count)
+  - austin's moving knives
 * reverse balanced algorithm
 * algorithm unit tests
 * algorithm stress tests

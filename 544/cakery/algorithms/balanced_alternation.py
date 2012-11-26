@@ -54,7 +54,7 @@ class BalancedAlternatingChoice(FairDivider):
         cutters = self.strategy(self.users, pieces)     # create our alternation strategy
         contest = []                                    # initialize the contested pieces
         while any(pieces):                              # distribute the un-contested pieces
-            choices = list_best_pieces(users, pieces)   # find each user's best piece
+            choices = list_best_pieces(self.users, pieces)   # find each user's best piece
             settled = all_unique(choices.values())      # are any choices the same
             for cutter, piece in choices.items():       # if not assign, else put in contested
                 if settled: slices[cutter].append(piece)

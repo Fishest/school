@@ -1,3 +1,4 @@
+from collections import defaultdict
 from cakery.algorithms.utilities import *
 from cakery.algorithms.common import FairDivider
 
@@ -22,9 +23,12 @@ class SealedBidAuction(FairDivider):
         '''
         return {
             'users':        'n',
-            'envy-free':    True,
-            'proportional': True,
-            # TODO
+            'envy-free':    False,
+            'proportional': False,
+            'equitable':    False,
+            'optimal':      False,
+            'discrete':     True,
+            'continuous':   True,
         }
 
     def divide(self):
@@ -33,9 +37,9 @@ class SealedBidAuction(FairDivider):
 
         :returns: A dictionary of divisions of {user: piece}
         '''
-        slices = {}
+        slices = defaultdict(list)
         users  = randomize_items(self.users)
         for cake in self.cake.as_collection():
             cutter = choose_highest_bidder(users, cake)
-            slices[cutter] = cake  # user that bid the most, gets the cake
+            slices[cutter].append(cake)  # user that bid the most, gets the cake
         return slices

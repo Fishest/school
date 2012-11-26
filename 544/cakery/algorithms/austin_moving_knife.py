@@ -1,3 +1,4 @@
+from fractions import Fraction as F
 from cakery.algorithms.utilities import *
 from cakery.algorithms.common import FairDivider
 
@@ -6,7 +7,7 @@ class AustinMovingKnife(FairDivider):
     '''
     '''
 
-    def __init__(self, users, cake, value):
+    def __init__(self, users, cake, value=F(1, 2)):
         ''' Initializes a new instance of the algorithm
 
         :param users: The users to operate with

@@ -22,6 +22,7 @@ from cakery.resource import *
 from cakery.preference import *
 from fractions import Fraction as F
 
+
 #--------------------------------------------------------------------------------#
 # helper methods
 #--------------------------------------------------------------------------------#
@@ -35,6 +36,7 @@ def get_algorithm(name):
     if not hasattr(cakery.algorithms, name):
         raise Exception("no matching algorithm available")
     return getattr(cakery.algorithms, name)
+
 
 def get_users(paths):
     ''' Given a collection of preference files,
@@ -58,6 +60,7 @@ def get_users(paths):
             log.exception("Preference cannot be parsed")
     raise Exception("no matching user preference available")
 
+
 def get_cake(user):
     ''' Given a collection of preference files,
     generate a collection of users.
@@ -67,7 +70,24 @@ def get_cake(user):
     '''
     resource = resources = {
         'IntervalPreference'  : lambda: IntervalResource((F(0, 1), F(1, 1))),
-        'CollectionPreference': lambda: CollectionPreference(user.value.keys()),
-        'ContinuousPreference': lambda: ContinuousPreference(F(0, 1), F(1, 1)),
+        'CollectionPreference': lambda: CollectionResource(user.values.keys()),
+        'ContinuousPreference': lambda: ContinuousResource(F(0, 1), F(1, 1)),
     }[user.__class__.__name__]
     return resource()
+
+
+def run_algorithm(name):
+    ''' Given an algorithm, run it with the supplied
+    command line parameters.
+
+    :param name: The name of the algorithm to run
+    '''
+    users   = get_users(sys.argv[1:])
+    cake    = get_cake(users[0])
+    factory = get_algorithm(name)
+    results = factory(users, cake).divide()
+    for user, shares in results.items():
+        print "-" * 50
+        print "share for: %s" % user.user
+        print "-" * 50
+        print shares, "\n"

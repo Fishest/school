@@ -49,20 +49,25 @@ of cake. Currently the following exist:
   specify preference functions for. This can be used to
   represent divisible things like cakes.
 
-Also for each resource, common methods are supplied that
-allow each resource to be used generically by each of the
-supplied algorithms:
+The general idea of the resource is to abstract the
+following group methods: (from which we can build
+higher level more general primitives that the algorithms
+can use):
 
 * append(piece)
 * remove(piece)
 * find_piece(preference, weight)
-* compare(that)
+* as_collection()
 * clone()
 * actual_value()
-* as_collection()
+
+Also for each resource, common methods are supplied that
+allow each resource to be used generically by each of the
+supplied algorithms:
+
+* to_string()
+* compare(that)
 * create_pieces(user, count, weight)
-* rich comparison methods
-* __str__
 
 ------------------------------------------------------------
 Preferences
@@ -78,6 +83,29 @@ that are employed in the fair division algorithms:
   view of the current user in question.
 
 ------------------------------------------------------------
+Algorithm Primitives
+------------------------------------------------------------
+
+Using the lower level methods supplied by the resource and
+the preference interface, we can generalize the following
+methods that allow the algorithms to be written in a much
+higher level (and furthermore completely generically without
+regards to the underlying resource type):
+
+* randomize_items(items)
+* choose_and_remove(items)
+* choose_highest_bidder(users, item)
+* choose_lowest_bidder(users, item)
+* get_total_value(user, pieces)
+* list_best_pieces(users, pieces)
+* list_worst_pieces(users, pieces)
+* choose_best_piece(user, pieces)
+* choose_worst_piece(user, pieces)
+* create_equal_pieces(user, cake, count)
+* choose_next_piece(users, cake)
+* trim_and_replace(user, cake, piece, weight)
+
+------------------------------------------------------------
 Algorithms
 ------------------------------------------------------------
 
@@ -85,17 +113,18 @@ The algorithms should mostly be generic and thus able to work
 with any kind of resource/preference pair. Currently
 implemented in this collection are:
 
-* austin_moving_knife
-* banach_knaster
-* divide_and_choose
-* dubins_spanier
-* inverse_divide_and_choose
-* lone_chooser
-* sealed_bid_auction
+* austin moving knife
+* banach knaster
+* divide and choose
+* dubins spanier
+* inverse divide and choose
+* lone chooser
+* sealed bids auction
 * simple alternation
 * inverse simple alternation
 * balanced alternation
 * inverse balanced alternation
+* knaster sealed bids
 
 ------------------------------------------------------------
 Class Interface
@@ -122,18 +151,24 @@ Todo
 * add settings for algorithms
   - test them with the utility methods
   - test with non-trivial parameters
-* consolidate the algorithm utilities
-  - put them in the algorithm file in question
-  - make more generic and not one off
-  - find 1/n of value for a resource
 * algorithms
   - fixed budget divider (budget based on bid count)
-* review the rich sorting of the resources
-* change alternation algorithms to use defaultdict
-* reverse balanced algorithm
+  - austin's moving knives
+  - adjusted winner
+  - lucas method of markers
 * algorithm unit tests
 * algorithm stress tests
 * unit test algorithm utilities for each resource
+* choose_next_piece
+  - find_piece must be at least 1/n (never under)
+  - choose_next_piece chooses smallest value
+  - choose_next_piece also wants smallest slice
+  - for collections, knapsack problem?
+* memoize value_of, find_piece?
+* heavily work on the following:
+  - stress_test_choose_next_piece
+  - stress_test_create_equal_pieces
+  - stress_test_trim_and_replace
 
 ------------------------------------------------------------
 Cakery API Documentation

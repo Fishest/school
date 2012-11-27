@@ -67,7 +67,7 @@
 <h2>API Documentation<a class="headerlink" href="#api-documentation" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="cakery.algorithms.AustinMovingKnife">
-<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">AustinMovingKnife</tt><big>(</big><em>users</em>, <em>cake</em>, <em>value</em><big>)</big><a class="headerlink" href="#cakery.algorithms.AustinMovingKnife" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">AustinMovingKnife</tt><big>(</big><em>users</em>, <em>cake</em>, <em>value=Fraction(1</em>, <em>2)</em><big>)</big><a class="headerlink" href="#cakery.algorithms.AustinMovingKnife" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes a new instance of the algorithm</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -268,8 +268,8 @@ division.</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="cakery.algorithms.SealedBidAuction">
-<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">SealedBidAuction</tt><big>(</big><em>users</em>, <em>cake</em><big>)</big><a class="headerlink" href="#cakery.algorithms.SealedBidAuction" title="Permalink to this definition">¶</a></dt>
+<dt id="cakery.algorithms.SealedBidsAuction">
+<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">SealedBidsAuction</tt><big>(</big><em>users</em>, <em>cake</em><big>)</big><a class="headerlink" href="#cakery.algorithms.SealedBidsAuction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes a new instance of the algorithm</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -284,8 +284,8 @@ division.</p>
 </tbody>
 </table>
 <dl class="method">
-<dt id="cakery.algorithms.SealedBidAuction.divide">
-<tt class="descname">divide</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.SealedBidAuction.divide" title="Permalink to this definition">¶</a></dt>
+<dt id="cakery.algorithms.SealedBidsAuction.divide">
+<tt class="descname">divide</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.SealedBidsAuction.divide" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run the algorithm to perform a suggested
 division.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -299,8 +299,59 @@ division.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="cakery.algorithms.SealedBidAuction.settings">
-<tt class="descname">settings</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.SealedBidAuction.settings" title="Permalink to this definition">¶</a></dt>
+<dt id="cakery.algorithms.SealedBidsAuction.settings">
+<tt class="descname">settings</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.SealedBidsAuction.settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retieves a capability listing of this algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of the algorithm features</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cakery.algorithms.KnasterSealedBids">
+<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">KnasterSealedBids</tt><big>(</big><em>users</em>, <em>cake</em><big>)</big><a class="headerlink" href="#cakery.algorithms.KnasterSealedBids" title="Permalink to this definition">¶</a></dt>
+<dd><p>This algorithm works roughly like a simple
+sealed bids auction, however, at the end of the
+auction, money is distributed to make the parties
+equal.</p>
+<p>Initializes a new instance of the algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>users</strong> &#8211; The users to operate with</li>
+<li><strong>cake</strong> &#8211; The cake to divide</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cakery.algorithms.KnasterSealedBids.divide">
+<tt class="descname">divide</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.KnasterSealedBids.divide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the algorithm to perform a suggested
+division.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of divisions of {user: piece}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.algorithms.KnasterSealedBids.settings">
+<tt class="descname">settings</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.KnasterSealedBids.settings" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retieves a capability listing of this algorithm</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -431,7 +482,12 @@ division.</p>
 <dl class="class">
 <dt id="cakery.algorithms.AlternatingChoice">
 <em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">AlternatingChoice</tt><big>(</big><em>users</em>, <em>cake</em>, <em>strategy=None</em><big>)</big><a class="headerlink" href="#cakery.algorithms.AlternatingChoice" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initializes a new instance of the algorithm</p>
+<dd><p>This is a simple algorithm that just lets
+each available user take turns choosing their next
+favorite piece. The choosing order is dependent on
+the supplied alternation strategy which simply
+defaults to ordinal.</p>
+<p>Initializes a new instance of the algorithm</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -479,7 +535,12 @@ division.</p>
 <dl class="class">
 <dt id="cakery.algorithms.InverseAlternatingChoice">
 <em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">InverseAlternatingChoice</tt><big>(</big><em>users</em>, <em>cake</em>, <em>strategy=None</em><big>)</big><a class="headerlink" href="#cakery.algorithms.InverseAlternatingChoice" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initializes a new instance of the algorithm</p>
+<dd><p>This is a simple algorithm that just lets
+each available user take turns choosing their next
+worst piece. The choosing order is dependent on
+the supplied alternation strategy which simply
+defaults to ordinal.</p>
+<p>Initializes a new instance of the algorithm</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />

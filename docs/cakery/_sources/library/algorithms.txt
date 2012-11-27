@@ -22,7 +22,10 @@ API Documentation
 .. autoclass:: DubinsSpanier
    :members:
 
-.. autoclass:: SealedBidAuction
+.. autoclass:: SealedBidsAuction
+   :members:
+
+.. autoclass:: KnasterSealedBids
    :members:
 
 .. autoclass:: InverseDivideAndChoose

@@ -96,20 +96,25 @@ specify preference functions for. This can be used to
 represent divisible things like cakes.</p>
 </li>
 </ul>
-<p>Also for each resource, common methods are supplied that
-allow each resource to be used generically by each of the
-supplied algorithms:</p>
+<p>The general idea of the resource is to abstract the
+following group methods: (from which we can build
+higher level more general primitives that the algorithms
+can use):</p>
 <ul class="simple">
 <li>append(piece)</li>
 <li>remove(piece)</li>
 <li>find_piece(preference, weight)</li>
-<li>compare(that)</li>
+<li>as_collection()</li>
 <li>clone()</li>
 <li>actual_value()</li>
-<li>as_collection()</li>
+</ul>
+<p>Also for each resource, common methods are supplied that
+allow each resource to be used generically by each of the
+supplied algorithms:</p>
+<ul class="simple">
+<li>to_string()</li>
+<li>compare(that)</li>
 <li>create_pieces(user, count, weight)</li>
-<li>rich comparison methods</li>
-<li>__str__</li>
 </ul>
 </div>
 <div class="section" id="preferences">
@@ -124,23 +129,46 @@ view of the current user in question.</p>
 </li>
 </ul>
 </div>
+<div class="section" id="algorithm-primitives">
+<h2>Algorithm Primitives<a class="headerlink" href="#algorithm-primitives" title="Permalink to this headline">¶</a></h2>
+<p>Using the lower level methods supplied by the resource and
+the preference interface, we can generalize the following
+methods that allow the algorithms to be written in a much
+higher level (and furthermore completely generically without
+regards to the underlying resource type):</p>
+<ul class="simple">
+<li>randomize_items(items)</li>
+<li>choose_and_remove(items)</li>
+<li>choose_highest_bidder(users, item)</li>
+<li>choose_lowest_bidder(users, item)</li>
+<li>get_total_value(user, pieces)</li>
+<li>list_best_pieces(users, pieces)</li>
+<li>list_worst_pieces(users, pieces)</li>
+<li>choose_best_piece(user, pieces)</li>
+<li>choose_worst_piece(user, pieces)</li>
+<li>create_equal_pieces(user, cake, count)</li>
+<li>choose_next_piece(users, cake)</li>
+<li>trim_and_replace(user, cake, piece, weight)</li>
+</ul>
+</div>
 <div class="section" id="algorithms">
 <h2>Algorithms<a class="headerlink" href="#algorithms" title="Permalink to this headline">¶</a></h2>
 <p>The algorithms should mostly be generic and thus able to work
 with any kind of resource/preference pair. Currently
 implemented in this collection are:</p>
 <ul class="simple">
-<li>austin_moving_knife</li>
-<li>banach_knaster</li>
-<li>divide_and_choose</li>
-<li>dubins_spanier</li>
-<li>inverse_divide_and_choose</li>
-<li>lone_chooser</li>
-<li>sealed_bid_auction</li>
+<li>austin moving knife</li>
+<li>banach knaster</li>
+<li>divide and choose</li>
+<li>dubins spanier</li>
+<li>inverse divide and choose</li>
+<li>lone chooser</li>
+<li>sealed bids auction</li>
 <li>simple alternation</li>
 <li>inverse simple alternation</li>
 <li>balanced alternation</li>
 <li>inverse balanced alternation</li>
+<li>knaster sealed bids</li>
 </ul>
 </div>
 <div class="section" id="class-interface">
@@ -165,18 +193,24 @@ max supported number of users allowed in this algorithm.</p>
 <li>add settings for algorithms
 - test them with the utility methods
 - test with non-trivial parameters</li>
-<li>consolidate the algorithm utilities
-- put them in the algorithm file in question
-- make more generic and not one off
-- find 1/n of value for a resource</li>
 <li>algorithms
-- fixed budget divider (budget based on bid count)</li>
-<li>review the rich sorting of the resources</li>
-<li>change alternation algorithms to use defaultdict</li>
-<li>reverse balanced algorithm</li>
+- fixed budget divider (budget based on bid count)
+- austin&#8217;s moving knives
+- adjusted winner
+- lucas method of markers</li>
 <li>algorithm unit tests</li>
 <li>algorithm stress tests</li>
 <li>unit test algorithm utilities for each resource</li>
+<li>choose_next_piece
+- find_piece must be at least 1/n (never under)
+- choose_next_piece chooses smallest value
+- choose_next_piece also wants smallest slice
+- for collections, knapsack problem?</li>
+<li>memoize value_of, find_piece?</li>
+<li>heavily work on the following:
+- stress_test_choose_next_piece
+- stress_test_create_equal_pieces
+- stress_test_trim_and_replace</li>
 </ul>
 </div>
 <div class="section" id="cakery-api-documentation">
@@ -216,6 +250,7 @@ max supported number of users allowed in this algorithm.</p>
 <li><a class="reference internal" href="#summary">Summary</a></li>
 <li><a class="reference internal" href="#resources">Resources</a></li>
 <li><a class="reference internal" href="#preferences">Preferences</a></li>
+<li><a class="reference internal" href="#algorithm-primitives">Algorithm Primitives</a></li>
 <li><a class="reference internal" href="#algorithms">Algorithms</a></li>
 <li><a class="reference internal" href="#class-interface">Class Interface</a></li>
 <li><a class="reference internal" href="#todo">Todo</a></li>

@@ -75,7 +75,41 @@ def get_cake(user):
     }[user.__class__.__name__]
     return resource()
 
+def print_results(divider, results, extras):
+    ''' Given an algorithm and its results,
+    print a nice report to the console.
 
+    :param divider: The algorithm we divided with
+    :param results: The division results
+    :param extras: Any extra results to report
+    '''
+    header  = "-" * 50
+    print "\nAlgorithm Information\n", header
+    for key, value in divider.settings().items():
+        print "*", key, "\t:", value
+
+    print "\nAlgorithm Results\n", header
+    for user, shares in results.items():
+        print "* share for", user
+        print " ", shares, "\n"
+
+    if isinstance(extras, dict):
+        print "Extra Results\n", header
+        for key, value in extras.items():
+            print key, "\t:", value
+        print
+
+    print "Algorithm Result Validation\n", header
+    print "* users\t\t:", len(results.keys())
+    print "* optimal\t:", divider.is_optimal(results)
+    print "* envy free\t:", divider.is_envy_free(results)
+    print "* equitable\t:", divider.is_equitable(results)
+    print "* proportional\t:", divider.is_proportional(results)
+
+
+#--------------------------------------------------------------------------------#
+# algorithm main
+#--------------------------------------------------------------------------------#
 def run_algorithm(name):
     ''' Given an algorithm, run it with the supplied
     command line parameters.
@@ -85,22 +119,10 @@ def run_algorithm(name):
     users   = get_users(sys.argv[1:])
     cake    = get_cake(users[0])
     factory = get_algorithm(name)
-    results = factory(users, cake).divide()
-    extras  = 'no extra data reported from the algorithm'
+    divider = factory(users, cake)
+    results = divider.divide()
+    extras  = None
 
     if isinstance(results, tuple):
         results, extras = results
-
-    for user, shares in results.items():
-        print "-" * 50
-        print "share for:", user
-        print "-" * 50
-        print shares, "\n"
-
-    print "-" * 50
-    print "extra algorithm information"
-    print "-" * 50
-    if isinstance(extras, dict):
-        for key, value in extras.items():
-            print key, "\t:", value
-    else: print extras
+    print_results(divider, results, extras)

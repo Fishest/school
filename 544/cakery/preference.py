@@ -1,5 +1,6 @@
 import sys
 import math
+from fractions import Fraction as F
 from random import random, shuffle
 from cakery.utilities import integrate
 from cakery.utilities import Interval
@@ -303,6 +304,6 @@ class IntervalPreference(Preference):
         points = []
         with open(filename) as handle:
             for line in handle:
-                x, y = [float(x) for x in line.split()]
+                x, y = [F(x) for x in line.split()]
                 points.append((x, y))
         return klass(None, points)

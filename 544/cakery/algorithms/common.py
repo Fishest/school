@@ -1,4 +1,5 @@
 from cakery.utilities import all_same
+from cakery.algorithms.utilities import get_total_value
 
 
 # ------------------------------------------------------------
@@ -33,8 +34,8 @@ class FairDivider(object):
         '''
         share  = slices.keys()[0].value_of(self.cake) / len(self.users)
         pieces = slices.values()
-        for user, piece in slices.items():
-            if not all(user.value_of(p) >= share for p in pieces):
+        for user, _ in slices.items():
+            if not all(get_total_value(user, p) >= share for p in pieces):
                 return False
         return True
 
@@ -46,8 +47,8 @@ class FairDivider(object):
         '''
         pieces = slices.values()
         for user, piece in slices.items():
-            value = user.value_of(piece)
-            if not all(user.value_of(p) == value for p in pieces):
+            value = get_total_value(user, piece)
+            if not all(get_total_value(user, p) == value for p in pieces):
                 return False
         return True
 
@@ -59,8 +60,8 @@ class FairDivider(object):
         '''
         pieces = slices.values()
         for user, piece in slices.items():
-            envied = max(user.value_of(p) for p in pieces)
-            if envied > user.value_of(piece):
+            envied = max(get_total_value(user, p) for p in pieces)
+            if envied > get_total_value(user, piece):
                 return False
         return True
 
@@ -70,7 +71,7 @@ class FairDivider(object):
         :param slices: The proposed division of the resource
         :returns: True if envy-free, False otherwise
         '''
-        raise NotImplementedError("is_optimal")
+        return False
 
     def settings(self):
         ''' Retieves a capability listing of this algorithm

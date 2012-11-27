@@ -62,14 +62,16 @@ def choose_lowest_bidder(users, item):
 
 
 def get_total_value(user, pieces):
-    ''' Given a user and a collection of pieces,
-    return the total value of those pieces to that
-    user.
+    ''' Given a user and a collection of one or
+    more pieces, return the total value of those
+    pieces as viewed by that user.
 
     :param user: The user to get the value with
     :param pieces: The pieces to totally value
     :returns: The total value of the pieces to the user
     '''
+    if not isinstance(pieces, list):
+        return user.value_of(pieces)
     return sum(user.value_of(p) for p in pieces)
 
 

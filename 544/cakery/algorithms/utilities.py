@@ -61,6 +61,18 @@ def choose_lowest_bidder(users, item):
     return min((user.value_of(item), user) for user in users)[1]
 
 
+def get_total_value(user, pieces):
+    ''' Given a user and a collection of pieces,
+    return the total value of those pieces to that
+    user.
+
+    :param user: The user to get the value with
+    :param pieces: The pieces to totally value
+    :returns: The total value of the pieces to the user
+    '''
+    return sum(user.value_of(p) for p in pieces)
+
+
 def list_best_pieces(users, pieces):
     ''' Given a collection of users and pieces
     return the favorite pieces for each user.

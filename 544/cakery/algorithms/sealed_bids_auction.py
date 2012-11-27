@@ -3,7 +3,7 @@ from cakery.algorithms.utilities import *
 from cakery.algorithms.common import FairDivider
 
 
-class SealedBidAuction(FairDivider):
+class SealedBidsAuction(FairDivider):
     '''
     '''
 

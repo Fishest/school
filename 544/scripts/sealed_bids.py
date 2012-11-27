@@ -1,2 +1,2 @@
 from common import run_algorithm
-run_algorithm('SealedBidAuction')
+run_algorithm('SealedBidsAuction')

@@ -2,11 +2,12 @@
 import unittest
 from cakery.preference import CollectionPreference
 from cakery.resource import CollectionResource
-from cakery.algorithms import SealedBidAuction
+from cakery.algorithms import SealedBidsAuction
+from cakery.algorithms.utilities import get_total_value
 
-class SealedBidAuctionTest(unittest.TestCase):
+class SealedBidsAuctionTest(unittest.TestCase):
     '''
-    This is the unittest for the cakery.algorithm.SealedBidAuction
+    This is the unittest for the cakery.algorithm.SealedBidsAuction
     '''
 
     def test_initializes(self):
@@ -18,7 +19,7 @@ class SealedBidAuctionTest(unittest.TestCase):
         users.append(CollectionPreference('mark', vals))
         users.append(CollectionPreference('john', vals))
 
-        algorithm = SealedBidAuction(users, cake)
+        algorithm = SealedBidsAuction(users, cake)
         self.assertEqual(True, algorithm.is_valid())
 
     def test_division(self):
@@ -31,10 +32,10 @@ class SealedBidAuctionTest(unittest.TestCase):
         users.append(CollectionPreference('john', {'red':10, 'blue':30, 'green':20}))
         users.append(CollectionPreference('anna', {'red':30, 'blue':20, 'green':10}))
 
-        algorithm = SealedBidAuction(users, cake)
+        algorithm = SealedBidsAuction(users, cake)
         divisions = algorithm.divide()
-        for user, piece in divisions.items():
-            self.assertEqual(30, user.value_of(piece))
+        for user, pieces in divisions.items():
+            self.assertEqual(30, get_total_value(user, pieces))
 
 
 #---------------------------------------------------------------------------#

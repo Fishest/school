@@ -26,7 +26,7 @@ class BalancedAlternatingChoice(FairDivider):
         '''
         self.users = users
         self.cake  = cake
-        self.strategy = strategy or AlternationStrategy.ordinal
+        self.strategy = strategy or AlternationStrategy.balanced
 
     def settings(self):
         ''' Retieves a capability listing of this algorithm

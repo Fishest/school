@@ -125,6 +125,7 @@ implemented in this collection are:
 * balanced alternation
 * inverse balanced alternation
 * knaster sealed bids
+* adjusted winner
 
 ------------------------------------------------------------
 Class Interface
@@ -154,7 +155,6 @@ Todo
 * algorithms
   - fixed budget divider (budget based on bid count)
   - austin's moving knives
-  - adjusted winner
   - lucas method of markers
 * algorithm unit tests
 * algorithm stress tests

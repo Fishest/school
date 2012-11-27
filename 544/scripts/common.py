@@ -86,8 +86,21 @@ def run_algorithm(name):
     cake    = get_cake(users[0])
     factory = get_algorithm(name)
     results = factory(users, cake).divide()
+    extras  = 'no extra data reported from the algorithm'
+
+    if isinstance(results, tuple):
+        results, extras = results
+
     for user, shares in results.items():
         print "-" * 50
-        print "share for: %s" % user.user
+        print "share for:", user
         print "-" * 50
         print shares, "\n"
+
+    print "-" * 50
+    print "extra algorithm information"
+    print "-" * 50
+    if isinstance(extras, dict):
+        for key, value in extras.items():
+            print key, "\t:", value
+    else: print extras

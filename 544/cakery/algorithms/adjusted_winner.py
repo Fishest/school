@@ -68,15 +68,17 @@ class AdjustedWinner(FairDivider):
             settled = all_unique(choices.values())      # are any choices the same
             for cutter, piece in choices.items():       # if not assign, else put in contested
                 if settled: slices[cutter].append(piece)
+                elif piece not in pieces: continue      # this piece has already been contested
                 else: contest.append(piece)             # both users want this piece
                 pieces.remove(piece)                    # remove these from the choosing
 
         while any(contest):                             # distribute the contested pieces
             for cutter in cutters():                    # change users based on our strategy
-                piece = choose_best_piece(cutter, pieces)
+                piece = choose_best_piece(cutter, contest)
                 slices[cutter].append(piece)            # give that user their next best piece
+                if not any(contest): break              # exit early in case of odd pieces
                                                         # find a piece to resolve envy with
-        totals = {u: get_total_value(cs) for u, cs in slices.items()} # see what everyone got
+        totals = {u: get_total_value(u, cs) for u, cs in slices.items()} # see what everyone got
         loser  = min((v, u) for u, v in totals.items())[1] # find the loser of the bidding
         winner = max((v, u) for u, v in totals.items())[1] # find the winner of the bidding
         shared = min((winner.value_of(v) / loser.value_of(v), v) for v in slices[winner])[1]
@@ -85,6 +87,6 @@ class AdjustedWinner(FairDivider):
         return slices, {
             'shared_item': shared,  # the contested item that should be shared
             'shared_rate': rate,    # the rate at which the item should be shared
-            'winner'     : rate * -winner.value_of(shared), # how much the winner loses of shared
-            'loser'      : rate * loser.value_of(shared),   # how much the loser gets of shared
+            'winner(%s)' % winner : rate * -winner.value_of(shared), # how much the winner loses of shared
+            'loser(%s)'  % loser  : rate * loser.value_of(shared),   # how much the loser gets of shared
         }

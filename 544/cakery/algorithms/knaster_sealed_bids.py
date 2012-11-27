@@ -40,7 +40,7 @@ class KnasterSealedBids(FairDivider):
 
         :returns: A dictionary of divisions of {user: piece}
         '''
-        N      = len(users)                                     # The number of users competing
+        N      = len(self.users)                                # The number of users competing
         slices = defaultdict(list)                              # initialize the user's assignments
         users  = randomize_items(self.users)                    # create a safe copy of the users
         fairs  = {u: u.value_of(self.cake) / N for u in users}  # each users fair share view of the cake
@@ -54,4 +54,10 @@ class KnasterSealedBids(FairDivider):
         surplus = sum(v for v in excess.values()) / N           # the total surplus share of value for each user
         adjusts = {u: fairs[u] + surplus for u in users}        # each user's assigned value adjusted by surplus
         settled = {u: assign[u] - adjusts[u] for u in users}    # how much each user should give and get from the pot
-        return slices, settled                                  # return the assignments and settlements
+        return slices, {                                        # return the assignments and settlements
+            'settlements': settled,
+            'excesses'   : excess,
+            'assignments': assign,
+            'adjustments': adjusts,
+            'surplus'    : surplus,
+        }

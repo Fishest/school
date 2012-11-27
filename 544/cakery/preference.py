@@ -42,7 +42,7 @@ class Preference(object):
 
         :returns: The string representation of this preference
         '''
-        return "Preference(%s)" % self.user
+        return self.user
 
     __repr__ = __str__
 

@@ -58,11 +58,13 @@ class BalancedAlternatingChoice(FairDivider):
             settled = all_unique(choices.values())      # are any choices the same
             for cutter, piece in choices.items():       # if not assign, else put in contested
                 if settled: slices[cutter].append(piece)
-                else: contest.append(piece)
+                elif piece not in pieces: continue      # this piece has already been contested
+                else: contest.append(piece)             # both users want this piece
                 pieces.remove(piece)                    # remove these from the choosing
 
         while any(contest):                             # distribute the contested pieces
             for cutter in cutters():                    # change users based on our strategy
-                piece = choose_best_piece(cutter, pieces)
+                piece = choose_best_piece(cutter, contest)
                 slices[cutter].append(piece)            # give that user their next best piece
+                if not any(contest): break              # exit early in case of odd pieces
         return slices

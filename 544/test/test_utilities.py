@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 import unittest
+from random import randint
 from fractions import Fraction
 from cakery.utilities import integrate, powerset
 from cakery.utilities import all_same, any_range
-from cakery.utilities import all_unique
+from cakery.utilities import all_unique, memoize
 
 class UtilitiesTest(unittest.TestCase):
     '''
@@ -41,6 +42,13 @@ class UtilitiesTest(unittest.TestCase):
         self.assertTrue(all_unique(['a', 'b', 'c']))
         self.assertFalse(all_unique([1,1,1,2,1,1]))
         self.assertTrue(all_unique(range(10)))
+
+    def test_memoize(self):
+        ''' test that the memoize method works correctly '''
+        nextrand = memoize(randint)
+        self.assertEqual(nextrand(2, 100), nextrand(2, 100))
+        self.assertEqual(nextrand(3, 100), nextrand(3, 100))
+        self.assertNotEqual(nextrand(3, 100), nextrand(2, 100))
 
 #---------------------------------------------------------------------------#
 # Main

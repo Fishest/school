@@ -145,18 +145,19 @@ def create_equal_pieces(user, cake, count):
     return cake.create_pieces(user, count)
 
 
-def choose_next_piece(users, cake):
+def choose_next_piece(users, cake, weight=None):
     ''' Given a resource and a collection of users,
     return the next user who would have said 'Stop'
     first and the piece they would have stopped for.
 
     :param users: The users to split the resource with
     :param cake: The cake to split
+    :param weight: The weight to find the next piece for
     :returns: (user, piece)
     '''
-    weight = F(1, len(users))
+    weight = weight or F(1, len(users))
     pieces = ((cake.find_piece(user, weight), user) for user in users)
-    (piece, user) = min(pieces) # random choice
+    (piece, user) = min(pieces) # TODO random choice
     cake.remove(piece)
     return (user, piece)
 

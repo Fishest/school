@@ -63,6 +63,22 @@ def any_range(start, stop, step=1):
         current += step
 
 
+def memoize(function):
+    ''' Given a function, perform memoization
+    of the various calls to the function based
+    on the supplied argument tuple.
+
+    :param function: The function to memoize
+    :returns: The memoized function instance
+    '''
+    cache = {}
+    def catcher(*args):
+        if args not in cache:
+            cache[args] = function(*args)
+        return cache[args]
+    return catcher
+
+
 class Interval(object):
     ''' Represents a single linear interval
     '''
@@ -131,3 +147,30 @@ class Interval(object):
         :returns: The string representation
         '''
         return "%s - %s" % ((self.x1, self.y1), (self.x2, self.y2))
+
+
+class ValueItem(object):
+    ''' This is a simple wrapper around an item
+    to give it a real world appraisable value
+    that can be used to compare other items.
+    '''
+
+    def __init__(self, item, value):
+        ''' Initializes a new instance of this item
+
+        :param item: The item to wrap
+        :param value: The real world value of the item
+        '''
+        self.item  = item
+        self.value = value
+        self.pair  = (self.item, self.value)
+
+    def __repr__(this):     return "%s($%d)" % (this.item, this.value)
+    def __str__(this):      return "%s($%d)" % (this.item, this.value)
+    def __hash__(this):     return hash(this.pair)
+    def __eq__(this, that): return this.pair  == that.pair
+    def __ne__(this, that): return this.pair  != that.pair
+    def __lt__(this, that): return this.value  < that.value
+    def __le__(this, that): return this.value <= that.value
+    def __gt__(this, that): return this.value  > that.value
+    def __ge__(this, that): return this.value >= that.value

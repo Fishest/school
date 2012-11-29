@@ -22,7 +22,8 @@ class CollectionResourceTest(unittest.TestCase):
 
     def test_preference_create(self):
         ''' test that the preference factory methods work '''
-        path  = os.path.join(os.path.abspath('data'), 'collection')
+        path  = os.path.join(os.path.abspath('contrib'), 'data')
+        path  = os.path.join(path, 'collection')
         path  = os.path.join(path, 'uniform')
         user1 = CollectionPreference.from_file(path)
         keys  = user1.values.keys()

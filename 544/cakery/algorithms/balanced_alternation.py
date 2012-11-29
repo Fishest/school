@@ -53,11 +53,12 @@ class BalancedAlternatingChoice(FairDivider):
         pieces  = self.cake.as_collection()             # flatten the collection into choices
         cutters = self.strategy(self.users, pieces)     # create our alternation strategy
         contest = []                                    # initialize the contested pieces
+
         while any(pieces):                              # distribute the un-contested pieces
             choices = list_best_pieces(self.users, pieces)   # find each user's best piece
             settled = all_unique(choices.values())      # are any choices the same
-            for cutter, piece in choices.items():       # if not assign, else put in contested
-                if settled: slices[cutter].append(piece)
+            for cutter, piece in choices.items():       # check all the chosen items
+                if settled: slices[cutter].append(piece)# if not contested, give each user that piece
                 elif piece not in pieces: continue      # this piece has already been contested
                 else: contest.append(piece)             # both users want this piece
                 pieces.remove(piece)                    # remove these from the choosing

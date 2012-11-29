@@ -24,7 +24,10 @@ class DubinsSpanier(FairDivider):
             'users':        'n',
             'envy-free':    True,
             'proportional': True,
-            # equitable, stable
+            'equitable':    True,
+            'optimal':      False,
+            'discrete':     True,
+            'continuous':   True,
         }
 
     def divide(self):
@@ -37,7 +40,7 @@ class DubinsSpanier(FairDivider):
         users  = randomize_items(self.users)
         cake   = self.cake.clone()
         while len(users) > 1:               # single user shouldn't divide
-            (cutter, piece) = choose_next_piece(users, cake)
+            (cutter, piece) = choose_next_piece(users, cake) # TODO
             slices[cutter]  = piece         # user that said stop gets the piece
         slices[users[0]] = cake             # last user gets remainder
         return slices

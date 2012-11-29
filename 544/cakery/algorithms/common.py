@@ -71,7 +71,7 @@ class FairDivider(object):
         :param slices: The proposed division of the resource
         :returns: True if envy-free, False otherwise
         '''
-        return False
+        raise NotImplementedError("is_optimal")
 
     def settings(self):
         ''' Retieves a capability listing of this algorithm

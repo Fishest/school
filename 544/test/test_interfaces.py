@@ -32,7 +32,7 @@ class InterfacesTest(unittest.TestCase):
         self.assertRaises(NotImplementedError, lambda: user.value_of(cake))
 
         user.user = 'mark'
-        self.assertEqual('Preference(mark)', str(user))
+        self.assertEqual('mark', str(user))
 
     def test_resource_interface(self):
         ''' test the basic methods on the preference interface '''

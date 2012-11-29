@@ -101,7 +101,7 @@ def print_results(divider, results, extras):
 
     print "Algorithm Result Validation\n", header
     print "* users\t\t:", len(results.keys())
-    print "* optimal\t:", divider.is_optimal(results)
+    #print "* optimal\t:", divider.is_optimal(results)
     print "* envy free\t:", divider.is_envy_free(results)
     print "* equitable\t:", divider.is_equitable(results)
     print "* proportional\t:", divider.is_proportional(results)

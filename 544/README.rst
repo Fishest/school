@@ -131,7 +131,8 @@ implemented in this collection are:
 Class Interface
 ------------------------------------------------------------
 
-The interface to the class project includes two things:
+The interface to the class project includes two things (which
+are included in the contrib directory):
 
 * preference files
 
@@ -153,12 +154,11 @@ Todo
   - test them with the utility methods
   - test with non-trivial parameters
 * algorithms
-  - fixed budget divider (budget based on bid count)
   - austin's moving knives
+  - dubin's spanier for collection
   - lucas method of markers
 * algorithm unit tests
 * algorithm stress tests
-* unit test algorithm utilities for each resource
 * choose_next_piece
   - find_piece must be at least 1/n (never under)
   - choose_next_piece chooses smallest value

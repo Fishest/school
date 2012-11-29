@@ -18,7 +18,8 @@ class IntervalResourceTest(unittest.TestCase):
 
     def test_preference_create(self):
         ''' test that the preference factory methods work '''
-        path  = os.path.join(os.path.abspath('data'), 'interval')
+        path  = os.path.join(os.path.abspath('contrib'), 'data')
+        path  = os.path.join(path, 'interval')
         path  = os.path.join(path, 'uniform')
         user1 = IntervalPreference.from_file(path)
         user2 = IntervalPreference('user2', [(0.0, 1.0), (1.0, 1.0)])

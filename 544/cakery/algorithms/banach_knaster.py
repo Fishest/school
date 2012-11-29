@@ -22,9 +22,12 @@ class BanachKnaster(FairDivider):
         '''
         return {
             'users':        'n',
-            'envy-free':    True,
+            'envy-free':    False,
             'proportional': True,
-            # equitable, stable
+            'equitable':    False,
+            'optimal':      False,
+            'discrete':     True,
+            'continuous':   True,
         }
 
     def divide(self):

@@ -153,22 +153,24 @@ Todo
   - test them with the utility methods
   - test with non-trivial parameters
 * algorithms
-  - fixed budget divider (budget based on bid count)
-  - austin's moving knives
+  - dubin's spanier for collection
   - lucas method of markers
 * algorithm unit tests
 * algorithm stress tests
-* unit test algorithm utilities for each resource
-* choose_next_piece
-  - find_piece must be at least 1/n (never under)
-  - choose_next_piece chooses smallest value
-  - choose_next_piece also wants smallest slice
-  - for collections, knapsack problem?
 * memoize value_of, find_piece?
 * heavily work on the following:
+  - austin's moving knives
   - stress_test_choose_next_piece
   - stress_test_create_equal_pieces
   - stress_test_trim_and_replace
+
+------------------------------------------------------------
+Links
+------------------------------------------------------------
+
+* http://ec2-184-72-151-84.compute-1.amazonaws.com/
+* https://shell.cec.wustl.edu:8443/cse544_fl12/svn/group-cakery/
+* http://www.cs.wustl.edu/~cytron/cake/
 
 ------------------------------------------------------------
 Cakery API Documentation

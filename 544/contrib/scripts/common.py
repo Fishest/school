@@ -18,6 +18,7 @@ if __name__ == '__main__': pass
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 
 import cakery.algorithms
+from cakery.algorithms.utilities import get_total_value
 from cakery.resource import *
 from cakery.preference import *
 from fractions import Fraction as F
@@ -56,8 +57,7 @@ def get_users(paths):
         try:
             log.debug("trying user %s" % preference.__name__)
             return [preference.from_file(path) for path in paths]
-        except Exception, e:
-            log.exception("Preference cannot be parsed")
+        except Exception, e: pass
     raise Exception("no matching user preference available")
 
 
@@ -90,7 +90,7 @@ def print_results(divider, results, extras):
 
     print "\nAlgorithm Results\n", header
     for user, shares in results.items():
-        print "* share for", user
+        print "* share for %s: value(%s)" % (str(user), get_total_value(user, shares))
         print " ", shares, "\n"
 
     if isinstance(extras, dict):
@@ -116,13 +116,16 @@ def run_algorithm(name):
 
     :param name: The name of the algorithm to run
     '''
-    users   = get_users(sys.argv[1:])
-    cake    = get_cake(users[0])
-    factory = get_algorithm(name)
-    divider = factory(users, cake)
-    results = divider.divide()
-    extras  = None
+    try:
+        users   = get_users(sys.argv[1:])
+        cake    = get_cake(users[0])
+        factory = get_algorithm(name)
+        divider = factory(users, cake)
+        results = divider.divide()
+        extras  = None
 
-    if isinstance(results, tuple):
-        results, extras = results
-    print_results(divider, results, extras)
+        if isinstance(results, tuple):
+            results, extras = results
+        print_results(divider, results, extras)
+    except Exception, e:
+        log.exception("Error while performing division")

@@ -26,6 +26,9 @@ class IntervalResourceTest(unittest.TestCase):
         cake  = IntervalResource((F(0,1), F(1,1)))
         self.assertEqual(user1.value_of(cake), user2.value_of(cake))
 
+        user3 = IntervalPreference.from_function(lambda x: 1.0, 1.0)
+        self.assertEqual(user2.value_of(cake), user3.value_of(cake))
+
         users = [IntervalPreference.random(10) for i in range(5)]
         for user in users:
             self.assertEqual(1.0, user.value_of(cake))

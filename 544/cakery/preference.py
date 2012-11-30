@@ -1,5 +1,4 @@
 import sys
-import math
 from fractions import Fraction as F
 from random import random, shuffle
 from cakery.utilities import integrate

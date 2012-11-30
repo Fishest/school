@@ -4,6 +4,7 @@ from fractions import Fraction as F
 from random import random, shuffle
 from cakery.utilities import integrate
 from cakery.utilities import Interval
+from cakery.utilities import any_range
 
 
 #------------------------------------------------------------
@@ -67,6 +68,7 @@ class ContinuousPreference(Preference):
         self.user = user or self._get_user()
         self.function = function
         self.resolution = resolution
+        self.total = integrate(self.function, F(0), F(1), self.resolution)
 
     def value_of(self, resource):
         ''' Given a resource, return the total value
@@ -76,7 +78,8 @@ class ContinuousPreference(Preference):
         :returns: The total value of the items
         '''
         (x0, span) = resource.value
-        return integrate(self.function, x0, x0 + span, self.resolution)
+        value = integrate(self.function, x0, x0 + span, self.resolution)
+        return value / self.total
 
     @classmethod
     def random(klass):
@@ -306,4 +309,19 @@ class IntervalPreference(Preference):
             for line in handle:
                 x, y = [F(x) for x in line.split()]
                 points.append((x, y))
+        return klass(None, points)
+
+    @classmethod
+    def from_function(klass, function, interval=0.01):
+        ''' A factory method to create a preference
+        collection from a value function.
+
+        :param function: The function to generate intervals with
+        :param interval: The interval step size to use
+        :returns: An initialized Preference
+        '''
+        points = []
+        for x in any_range(0, 1, interval):
+            points.append((x, function(x)))
+        points.append((1, function(1)))
         return klass(None, points)

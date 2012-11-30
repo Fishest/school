@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import unittest
+from random import randint
 from fractions import Fraction
 from cakery.preference import ContinuousPreference
 from cakery.resource import ContinuousResource
@@ -24,7 +25,7 @@ class BanachKnasterTest(unittest.TestCase):
         self.assertEqual(True, algorithm.is_valid())
 
         # test that the algorithm is not valid
-        pref  = lambda x: 10
+        pref  = lambda x: randint(1, 100) # crazy person...
         users.append(ContinuousPreference('bill', pref))
         algorithm = BanachKnaster(users, cake)
         self.assertRaises(ValueError, lambda: algorithm.is_valid())

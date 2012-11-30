@@ -48,14 +48,15 @@ class AdjustedWinner(FairDivider):
         ''' Run the algorithm to perform a suggested
         division. This algorithm also returns a dictionary of
         values for how to split a shared item to reduce any
-        envy in the division:
-        {
-          'shared_item': the item to share
-          'shared_rate': the rate at which to share the item
-          'winner'     : the amount that the winner should receive
-          'loser'      : the amount that the loser should receive
-        }
+        envy in the division::
 
+            {
+                'shared_item': the item to share
+                'shared_rate': the rate at which to share the item
+                'winner'     : the amount that the winner should receive
+                'loser'      : the amount that the loser should receive
+            }
+        
         :returns: A dictionary of divisions of {user: piece}
         '''
         slices  = defaultdict(list)                     # we will return N pieces per cutter

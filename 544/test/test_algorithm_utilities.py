@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import random
 import unittest
+from cakery.utilities import ValueItem as V
 from cakery.algorithms.utilities import *
 from cakery.preference import CollectionPreference
 from cakery.resource import CollectionResource
@@ -129,14 +130,15 @@ class AlgorithmUtilitiesTest(unittest.TestCase):
 
     def test_choose_next_piece(self):
         ''' test the choose next piece utility '''
-        cake  = CollectionResource(['a', 'b', 'c'])
+        a, b, c = V('a', 10), V('b', 100), V('c', 1000)
+        cake  = CollectionResource([a, b, c])
         users = [
-            CollectionPreference('mark', {'a':0.5, 'b':.50}),
-            CollectionPreference('john', {'a':0.25, 'b':.75})
+            CollectionPreference('mark', {a:0.5,  b:.50}),
+            CollectionPreference('john', {a:0.25, b:.75})
         ]
         user, piece = choose_next_piece(users, cake)
         self.assertEqual(user, users[0])
-        self.assertEqual(piece, CollectionResource(['a']))
+        self.assertEqual(piece, CollectionResource([a]))
 
     def test_trim_and_replace(self):
         ''' test the trim and replace utility '''

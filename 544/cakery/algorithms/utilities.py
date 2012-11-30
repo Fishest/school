@@ -155,9 +155,9 @@ def choose_next_piece(users, cake, weight=None):
     :param weight: The weight to find the next piece for
     :returns: (user, piece)
     '''
-    weight = weight or F(1, len(users))
+    weight = weight or F(1, len(users)) # TODO
     pieces = ((cake.find_piece(user, weight), user) for user in users)
-    (piece, user) = min(pieces) # TODO random choice
+    (piece, user) = min(pieces) # we choose the smallest 'appraised value'
     cake.remove(piece)
     return (user, piece)
 

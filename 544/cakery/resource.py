@@ -1,3 +1,4 @@
+import sys
 from random import randint, sample, random
 from fractions import Fraction as F
 from cakery.utilities import any_range, powerset
@@ -339,28 +340,23 @@ class CountedResource(Resource):
         :param weight: The weight we are attempting to hit
         :returns: The first piece matching that weight
         '''
-        piece = (0, []) # a proposed slice in the resource
         cake, items = self.clone(), {}
+        piece = (sys.maxint, []) # a proposed slice in the resource
         value = user.value_of(cake)
         if value < weight:
             raise ValueError("cannot find a piece with this weight")
 
-        # sort the values by weight to make the least amount of
-        # cuts possible. TODO how to deal with N items?
-        for item in self.value:
+        for item in self.value: # TODO what about N repeats?
             cake.value = {item: 1}
-            value = user.value_of(cake)
-            if 0 < value <= weight: items[item] = value
-        cakes = sorted(items, key=lambda k: items[k], reverse=True)
+            items[item] = user.value_of(cake)
 
         # try all possible combinations of resources until we
         # find one that matches the weight we are looking for
-        for possible in powerset(cakes):
-            value = sum(items[k] for k in possible)
-            check = (value, list(possible))
-            if   value == weight: piece = check; break
-            elif value  < weight: piece = max(piece, check)
-            # TODO, what if we can't find <=, but only just over weight
+        # otherwise, find smallest difference from our weight
+        for possible in powerset(self.value):
+            value = abs(weight - sum(items[k] for k in possible))
+            piece = min(piece, (value, list(possible)))
+            if value == 0: break
         return CountedResource(piece[1])
 
 
@@ -443,31 +439,23 @@ class CollectionResource(Resource):
         :param weight: The weight we are attempting to hit
         :returns: The first piece matching that weight
         '''
-        piece = (0, []) # a proposed slice in the resource
-        cake, items = self.clone(), []
+        cake, items = self.clone(), {}
+        piece = (sys.maxint, []) # a proposed slice in the resource
         value = user.value_of(cake)
         if value < weight:
             raise ValueError("cannot find a piece with this weight")
 
-        # sort the values by weight to make the least amount of
-        # cuts possible, otherwise keep them ordered by the
-        # original resource ordering
         for item in self.value:
             cake.value = [item]
-            value = user.value_of(cake)
-            if 0 < value <= weight: items.append((item, value))
-        cakes = sorted(items, key=lambda k: k[1], reverse=True)
-        cakes = [item[0] for item in items]
-        items = dict(items)
+            items[item] = user.value_of(cake)
 
         # try all possible combinations of resources until we
         # find one that matches the weight we are looking for
-        for possible in powerset(cakes):
-            value = sum(items[k] for k in possible)
-            check = (value, list(possible))
-            if   value == weight: piece = check; break
-            elif value  < weight: piece = max(piece, check)
-            # TODO, what if we can't find <=, but only just over weight
+        # otherwise, find smallest difference from our weight
+        for possible in powerset(self.value): # preserve original order
+            value = abs(weight - sum(items[k] for k in possible))
+            piece = min(piece, (value, list(possible)))
+            if value == 0: break
         return CollectionResource(piece[1])
 
 

@@ -133,8 +133,8 @@ class AlgorithmUtilitiesTest(unittest.TestCase):
         a, b, c = V('a', 10), V('b', 100), V('c', 1000)
         cake  = CollectionResource([a, b, c])
         users = [
-            CollectionPreference('mark', {a:0.5,  b:.50}),
-            CollectionPreference('john', {a:0.25, b:.75})
+            CollectionPreference('mark', {a:0.50, b:0.50}),
+            CollectionPreference('john', {a:0.25, b:0.75})
         ]
         user, piece = choose_next_piece(users, cake)
         self.assertEqual(user, users[0])

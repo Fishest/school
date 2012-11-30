@@ -312,6 +312,28 @@ collection from a settings file.</p>
 </dd></dl>
 
 <dl class="classmethod">
+<dt id="cakery.preference.IntervalPreference.from_function">
+<em class="property">classmethod </em><tt class="descname">from_function</tt><big>(</big><em>klass</em>, <em>function</em>, <em>interval=0.01</em><big>)</big><a class="reference internal" href="../_modules/cakery/preference.html#IntervalPreference.from_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.preference.IntervalPreference.from_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>A factory method to create a preference
+collection from a value function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>function</strong> &#8211; The function to generate intervals with</li>
+<li><strong>interval</strong> &#8211; The interval step size to use</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An initialized Preference</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
 <dt id="cakery.preference.IntervalPreference.random">
 <em class="property">classmethod </em><tt class="descname">random</tt><big>(</big><em>klass</em>, <em>intervals</em><big>)</big><a class="reference internal" href="../_modules/cakery/preference.html#IntervalPreference.random"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.preference.IntervalPreference.random" title="Permalink to this definition">¶</a></dt>
 <dd><p>A factory method to create a random

@@ -229,7 +229,7 @@ the lowest amount for said item.</p>
 
 <dl class="function">
 <dt id="cakery.algorithms.utilities.choose_next_piece">
-<tt class="descclassname">cakery.algorithms.utilities.</tt><tt class="descname">choose_next_piece</tt><big>(</big><em>users</em>, <em>cake</em><big>)</big><a class="reference internal" href="../_modules/cakery/algorithms/utilities.html#choose_next_piece"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.algorithms.utilities.choose_next_piece" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">cakery.algorithms.utilities.</tt><tt class="descname">choose_next_piece</tt><big>(</big><em>users</em>, <em>cake</em>, <em>weight=None</em><big>)</big><a class="reference internal" href="../_modules/cakery/algorithms/utilities.html#choose_next_piece"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.algorithms.utilities.choose_next_piece" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a resource and a collection of users,
 return the next user who would have said &#8216;Stop&#8217;
 first and the piece they would have stopped for.</p>
@@ -240,6 +240,7 @@ first and the piece they would have stopped for.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>users</strong> &#8211; The users to split the resource with</li>
 <li><strong>cake</strong> &#8211; The cake to split</li>
+<li><strong>weight</strong> &#8211; The weight to find the next piece for</li>
 </ul>
 </td>
 </tr>
@@ -299,9 +300,9 @@ pieces equal in value to the supplied user.</p>
 <dl class="function">
 <dt id="cakery.algorithms.utilities.get_total_value">
 <tt class="descclassname">cakery.algorithms.utilities.</tt><tt class="descname">get_total_value</tt><big>(</big><em>user</em>, <em>pieces</em><big>)</big><a class="reference internal" href="../_modules/cakery/algorithms/utilities.html#get_total_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.algorithms.utilities.get_total_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given a user and a collection of pieces,
-return the total value of those pieces to that
-user.</p>
+<dd><p>Given a user and a collection of one or
+more pieces, return the total value of those
+pieces as viewed by that user.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />

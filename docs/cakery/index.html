@@ -169,6 +169,7 @@ implemented in this collection are:</p>
 <li>balanced alternation</li>
 <li>inverse balanced alternation</li>
 <li>knaster sealed bids</li>
+<li>adjusted winner</li>
 </ul>
 </div>
 <div class="section" id="class-interface">
@@ -194,23 +195,24 @@ max supported number of users allowed in this algorithm.</p>
 - test them with the utility methods
 - test with non-trivial parameters</li>
 <li>algorithms
-- fixed budget divider (budget based on bid count)
-- austin&#8217;s moving knives
-- adjusted winner
+- dubin&#8217;s spanier for collection
 - lucas method of markers</li>
 <li>algorithm unit tests</li>
 <li>algorithm stress tests</li>
-<li>unit test algorithm utilities for each resource</li>
-<li>choose_next_piece
-- find_piece must be at least 1/n (never under)
-- choose_next_piece chooses smallest value
-- choose_next_piece also wants smallest slice
-- for collections, knapsack problem?</li>
 <li>memoize value_of, find_piece?</li>
 <li>heavily work on the following:
+- austin&#8217;s moving knives
 - stress_test_choose_next_piece
 - stress_test_create_equal_pieces
 - stress_test_trim_and_replace</li>
+</ul>
+</div>
+<div class="section" id="links">
+<h2>Links<a class="headerlink" href="#links" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference external" href="http://ec2-184-72-151-84.compute-1.amazonaws.com/">http://ec2-184-72-151-84.compute-1.amazonaws.com/</a></li>
+<li><a class="reference external" href="https://shell.cec.wustl.edu:8443/cse544_fl12/svn/group-cakery/">https://shell.cec.wustl.edu:8443/cse544_fl12/svn/group-cakery/</a></li>
+<li><a class="reference external" href="http://www.cs.wustl.edu/~cytron/cake/">http://www.cs.wustl.edu/~cytron/cake/</a></li>
 </ul>
 </div>
 <div class="section" id="cakery-api-documentation">
@@ -254,6 +256,7 @@ max supported number of users allowed in this algorithm.</p>
 <li><a class="reference internal" href="#algorithms">Algorithms</a></li>
 <li><a class="reference internal" href="#class-interface">Class Interface</a></li>
 <li><a class="reference internal" href="#todo">Todo</a></li>
+<li><a class="reference internal" href="#links">Links</a></li>
 <li><a class="reference internal" href="#cakery-api-documentation">Cakery API Documentation</a><ul>
 </ul>
 </li>

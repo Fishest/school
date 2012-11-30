@@ -45,3 +45,6 @@ API Documentation
 
 .. autoclass:: InverseBalancedAlternatingChoice
    :members:
+
+.. autoclass:: AdjustedWinner
+   :members:

@@ -119,6 +119,22 @@
         <span class="n">current</span> <span class="o">+=</span> <span class="n">step</span>
 
 </div>
+<div class="viewcode-block" id="memoize"><a class="viewcode-back" href="../../library/utilities.html#cakery.utilities.memoize">[docs]</a><span class="k">def</span> <span class="nf">memoize</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Given a function, perform memoization</span>
+<span class="sd">    of the various calls to the function based</span>
+<span class="sd">    on the supplied argument tuple.</span>
+
+<span class="sd">    :param function: The function to memoize</span>
+<span class="sd">    :returns: The memoized function instance</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">cache</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">def</span> <span class="nf">catcher</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">args</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cache</span><span class="p">:</span>
+            <span class="n">cache</span><span class="p">[</span><span class="n">args</span><span class="p">]</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cache</span><span class="p">[</span><span class="n">args</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">catcher</span>
+
+</div>
 <div class="viewcode-block" id="Interval"><a class="viewcode-back" href="../../library/utilities.html#cakery.utilities.Interval">[docs]</a><span class="k">class</span> <span class="nc">Interval</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39; Represents a single linear interval</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -186,7 +202,34 @@
 
 <span class="sd">        :returns: The string representation</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> - </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">x1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y1</span><span class="p">),</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y2</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> - </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">x1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y1</span><span class="p">),</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y2</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="ValueItem"><a class="viewcode-back" href="../../library/utilities.html#cakery.utilities.ValueItem">[docs]</a><span class="k">class</span> <span class="nc">ValueItem</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; This is a simple wrapper around an item</span>
+<span class="sd">    to give it a real world appraisable value</span>
+<span class="sd">    that can be used to compare other items.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Initializes a new instance of this item</span>
+
+<span class="sd">        :param item: The item to wrap</span>
+<span class="sd">        :param value: The real world value of the item</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">item</span>  <span class="o">=</span> <span class="n">item</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pair</span>  <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="n">this</span><span class="p">):</span>     <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">($</span><span class="si">%d</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">item</span><span class="p">,</span> <span class="n">this</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="n">this</span><span class="p">):</span>      <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">($</span><span class="si">%d</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">item</span><span class="p">,</span> <span class="n">this</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="n">this</span><span class="p">):</span>     <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">pair</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="n">that</span><span class="p">):</span> <span class="k">return</span> <span class="n">this</span><span class="o">.</span><span class="n">pair</span>  <span class="o">==</span> <span class="n">that</span><span class="o">.</span><span class="n">pair</span>
+    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="n">that</span><span class="p">):</span> <span class="k">return</span> <span class="n">this</span><span class="o">.</span><span class="n">pair</span>  <span class="o">!=</span> <span class="n">that</span><span class="o">.</span><span class="n">pair</span>
+    <span class="k">def</span> <span class="nf">__lt__</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="n">that</span><span class="p">):</span> <span class="k">return</span> <span class="n">this</span><span class="o">.</span><span class="n">value</span>  <span class="o">&lt;</span> <span class="n">that</span><span class="o">.</span><span class="n">value</span>
+    <span class="k">def</span> <span class="nf">__le__</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="n">that</span><span class="p">):</span> <span class="k">return</span> <span class="n">this</span><span class="o">.</span><span class="n">value</span> <span class="o">&lt;=</span> <span class="n">that</span><span class="o">.</span><span class="n">value</span>
+    <span class="k">def</span> <span class="nf">__gt__</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="n">that</span><span class="p">):</span> <span class="k">return</span> <span class="n">this</span><span class="o">.</span><span class="n">value</span>  <span class="o">&gt;</span> <span class="n">that</span><span class="o">.</span><span class="n">value</span>
+    <span class="k">def</span> <span class="nf">__ge__</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="n">that</span><span class="p">):</span> <span class="k">return</span> <span class="n">this</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;=</span> <span class="n">that</span><span class="o">.</span><span class="n">value</span></div>
 </pre></div>
 
           </div>

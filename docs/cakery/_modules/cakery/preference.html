@@ -55,10 +55,11 @@
             
   <h1>Source code for cakery.preference</h1><div class="highlight"><pre>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">fractions</span> <span class="kn">import</span> <span class="n">Fraction</span> <span class="k">as</span> <span class="n">F</span>
 <span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">random</span><span class="p">,</span> <span class="n">shuffle</span>
 <span class="kn">from</span> <span class="nn">cakery.utilities</span> <span class="kn">import</span> <span class="n">integrate</span>
 <span class="kn">from</span> <span class="nn">cakery.utilities</span> <span class="kn">import</span> <span class="n">Interval</span>
+<span class="kn">from</span> <span class="nn">cakery.utilities</span> <span class="kn">import</span> <span class="n">any_range</span>
 
 
 <span class="c">#------------------------------------------------------------</span>
@@ -98,7 +99,7 @@
 
 <span class="sd">        :returns: The string representation of this preference</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">return</span> <span class="s">&quot;Preference(</span><span class="si">%s</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span>
 
     <span class="n">__repr__</span> <span class="o">=</span> <span class="n">__str__</span>
 
@@ -122,6 +123,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">user</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_user</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">function</span> <span class="o">=</span> <span class="n">function</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span> <span class="o">=</span> <span class="n">resolution</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total</span> <span class="o">=</span> <span class="n">integrate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">,</span> <span class="n">F</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">F</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ContinuousPreference.value_of"><a class="viewcode-back" href="../../library/preference.html#cakery.preference.ContinuousPreference.value_of">[docs]</a>    <span class="k">def</span> <span class="nf">value_of</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Given a resource, return the total value</span>
@@ -131,7 +133,8 @@
 <span class="sd">        :returns: The total value of the items</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">span</span><span class="p">)</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">value</span>
-        <span class="k">return</span> <span class="n">integrate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">x0</span> <span class="o">+</span> <span class="n">span</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">integrate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">x0</span> <span class="o">+</span> <span class="n">span</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">total</span>
 </div>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="ContinuousPreference.random"><a class="viewcode-back" href="../../library/preference.html#cakery.preference.ContinuousPreference.random">[docs]</a>    <span class="k">def</span> <span class="nf">random</span><span class="p">(</span><span class="n">klass</span><span class="p">):</span>
@@ -359,8 +362,23 @@
         <span class="n">points</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">handle</span><span class="p">:</span>
-                <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="n">F</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
                 <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">klass</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">points</span><span class="p">)</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="IntervalPreference.from_function"><a class="viewcode-back" href="../../library/preference.html#cakery.preference.IntervalPreference.from_function">[docs]</a>    <span class="k">def</span> <span class="nf">from_function</span><span class="p">(</span><span class="n">klass</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; A factory method to create a preference</span>
+<span class="sd">        collection from a value function.</span>
+
+<span class="sd">        :param function: The function to generate intervals with</span>
+<span class="sd">        :param interval: The interval step size to use</span>
+<span class="sd">        :returns: An initialized Preference</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">any_range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">interval</span><span class="p">):</span>
+            <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">function</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+        <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">function</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">klass</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">points</span><span class="p">)</span></div></div>
 </pre></div>
 

@@ -119,14 +119,16 @@
 
 </div>
 <div class="viewcode-block" id="get_total_value"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.get_total_value">[docs]</a><span class="k">def</span> <span class="nf">get_total_value</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">pieces</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39; Given a user and a collection of pieces,</span>
-<span class="sd">    return the total value of those pieces to that</span>
-<span class="sd">    user.</span>
+    <span class="sd">&#39;&#39;&#39; Given a user and a collection of one or</span>
+<span class="sd">    more pieces, return the total value of those</span>
+<span class="sd">    pieces as viewed by that user.</span>
 
 <span class="sd">    :param user: The user to get the value with</span>
 <span class="sd">    :param pieces: The pieces to totally value</span>
 <span class="sd">    :returns: The total value of the pieces to the user</span>
 <span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pieces</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">user</span><span class="o">.</span><span class="n">value_of</span><span class="p">(</span><span class="n">pieces</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">value_of</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pieces</span><span class="p">)</span>
 
 </div>
@@ -200,18 +202,19 @@
     <span class="k">return</span> <span class="n">cake</span><span class="o">.</span><span class="n">create_pieces</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="choose_next_piece"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.choose_next_piece">[docs]</a><span class="k">def</span> <span class="nf">choose_next_piece</span><span class="p">(</span><span class="n">users</span><span class="p">,</span> <span class="n">cake</span><span class="p">):</span>
+<div class="viewcode-block" id="choose_next_piece"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.choose_next_piece">[docs]</a><span class="k">def</span> <span class="nf">choose_next_piece</span><span class="p">(</span><span class="n">users</span><span class="p">,</span> <span class="n">cake</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39; Given a resource and a collection of users,</span>
 <span class="sd">    return the next user who would have said &#39;Stop&#39;</span>
 <span class="sd">    first and the piece they would have stopped for.</span>
 
 <span class="sd">    :param users: The users to split the resource with</span>
 <span class="sd">    :param cake: The cake to split</span>
+<span class="sd">    :param weight: The weight to find the next piece for</span>
 <span class="sd">    :returns: (user, piece)</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">weight</span> <span class="o">=</span> <span class="n">F</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">users</span><span class="p">))</span>
+    <span class="n">weight</span> <span class="o">=</span> <span class="n">weight</span> <span class="ow">or</span> <span class="n">F</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">users</span><span class="p">))</span> <span class="c"># TODO</span>
     <span class="n">pieces</span> <span class="o">=</span> <span class="p">((</span><span class="n">cake</span><span class="o">.</span><span class="n">find_piece</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">weight</span><span class="p">),</span> <span class="n">user</span><span class="p">)</span> <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">users</span><span class="p">)</span>
-    <span class="p">(</span><span class="n">piece</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">pieces</span><span class="p">)</span> <span class="c"># random choice</span>
+    <span class="p">(</span><span class="n">piece</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">pieces</span><span class="p">)</span> <span class="c"># we choose the smallest &#39;appraised value&#39;</span>
     <span class="n">cake</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">piece</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">piece</span><span class="p">)</span>
 

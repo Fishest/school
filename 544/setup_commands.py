@@ -141,6 +141,43 @@ class Pep8Command(Command):
             return True
         except: return False
 
+class PynocleCommand(Command):
+    ''' Helper command to scan for python code metrics
+
+    ./setup.py metrics
+    '''
+    description  = "perform a metrics scan of the code"
+    user_options = []
+
+    def initialize_options(self):
+        ''' options setup '''
+        self.path = os.path.dirname(__file__)
+        self.build = os.path.join(self.path, 'build')
+        self.output = os.path.join(self.build, 'metrics')
+        self.project = os.path.join(self.path, 'cakery')
+        if not os.path.exists(self.build): os.mkdir(self.build)
+        if not os.path.exists(self.output): os.mkdir(self.output)
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        ''' command runner '''
+        self.__run_pynocle()
+
+    def __run_pynocle(self):
+        try:
+            import pynocle
+            import coverage
+            
+            covdata = coverage.coverage(data_file=".coverage")
+            covdata.load()
+            os.altsep = os.sep  # bug in pynocle
+            m = pynocle.Monocle('cakery', self.output, rootdir=self.project, coveragedata=covdata)
+            m.generate_all()
+            return True
+        except Exception, ex: print ex; return False
+
 #---------------------------------------------------------------------------# 
 # Command Configuration
 #---------------------------------------------------------------------------# 
@@ -149,6 +186,7 @@ command_classes = {
     'lint'          : LintCommand,
     'scan_2to3'     : Python3Command,
     'pep8'          : Pep8Command,
+    'metrics'       : PynocleCommand,
 }
 
 #---------------------------------------------------------------------------# 

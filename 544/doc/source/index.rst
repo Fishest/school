@@ -119,6 +119,7 @@ implemented in this collection are:
 * dubins spanier
 * inverse divide and choose
 * lone chooser
+* inverse lone chooser
 * sealed bids auction
 * simple alternation
 * inverse simple alternation
@@ -126,6 +127,7 @@ implemented in this collection are:
 * inverse balanced alternation
 * knaster sealed bids
 * adjusted winner
+* one cut suffices
 
 ------------------------------------------------------------
 Class Interface

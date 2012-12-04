@@ -12,3 +12,4 @@ from cakery.algorithms.balanced_alternation import BalancedAlternatingChoice
 from cakery.algorithms.inverse_balanced_alternation import InverseBalancedAlternatingChoice
 from cakery.algorithms.knaster_sealed_bids import KnasterSealedBids
 from cakery.algorithms.adjusted_winner import AdjustedWinner
+from cakery.algorithms.one_cut_suffices import OneCutSuffices

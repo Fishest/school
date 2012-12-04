@@ -3,11 +3,11 @@ from cakery.algorithms.utilities import *
 from cakery.algorithms.common import FairDivider
 
 
-class DubinsSpanier(FairDivider):
+class InverseDubinsSpanier(FairDivider):
     '''
     '''
 
-    def __init__(self, users, cake, value=None):
+    def __init__(self, users, cake):
         ''' Initializes a new instance of the algorithm
 
         :param users: The users to operate with
@@ -43,7 +43,7 @@ class DubinsSpanier(FairDivider):
         users  = randomize_items(self.users)
         cake   = self.cake.clone()
         while len(users) > 1:               # single user shouldn't divide
-            (cutter, piece) = choose_next_piece(users, cake, self.value)
+            (cutter, piece) = choose_last_piece(users, cake, self.value)
             slices[cutter]  = piece         # user that said stop gets the piece
             users.remove(cutter)            # remove that user from the division
         slices[users.pop()] = cake          # last user gets remainder

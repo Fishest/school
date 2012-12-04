@@ -162,6 +162,23 @@ def choose_next_piece(users, cake, weight=None):
     return (user, piece)
 
 
+def choose_last_piece(users, cake, weight=None):
+    ''' Given a resource and a collection of users,
+    return the next user who would have said 'Stop'
+    last and the piece they would have stopped for.
+
+    :param users: The users to split the resource with
+    :param cake: The cake to split
+    :param weight: The weight to find the next piece for
+    :returns: (user, piece)
+    '''
+    weight = weight or F(1, len(users)) # TODO
+    pieces = ((cake.find_piece(user, weight), user) for user in users)
+    (piece, user) = max(pieces) # we choose the largest 'appraised value'
+    cake.remove(piece)
+    return (user, piece)
+
+
 def trim_and_replace(user, cake, piece, weight):
     ''' Given a resource and a user, trim the given
     piece to be of the supplied value and reattach the

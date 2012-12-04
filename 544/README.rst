@@ -117,6 +117,7 @@ implemented in this collection are:
 * banach knaster
 * divide and choose
 * dubins spanier
+* inverse dubins spanier
 * inverse divide and choose
 * lone chooser
 * inverse lone chooser
@@ -157,6 +158,10 @@ Todo
   - test with non-trivial parameters
 * algorithms
   - dubin's spanier for collection
+  - Guy Slefridge Conway and inverse
+  - brahms simple n=3,4 and inverse
+  - moving knive inverse
+    * first to stop gets right side (start over with left)
   - lucas method of markers
 * algorithm unit tests
 * algorithm stress tests

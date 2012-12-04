@@ -117,6 +117,7 @@ implemented in this collection are:
 * banach knaster
 * divide and choose
 * dubins spanier
+* inverse dubins spanier
 * inverse divide and choose
 * lone chooser
 * inverse lone chooser
@@ -146,25 +147,6 @@ The interface to the class project includes two things:
   This is listed in the algs file which is of the format
   `algorithm-file num-of-users` where num-of-users is the
   max supported number of users allowed in this algorithm.
-
-------------------------------------------------------------
-Todo
-------------------------------------------------------------
-
-* add settings for algorithms
-  - test them with the utility methods
-  - test with non-trivial parameters
-* algorithms
-  - dubin's spanier for collection
-  - lucas method of markers
-* algorithm unit tests
-* algorithm stress tests
-* memoize value_of, find_piece?
-* heavily work on the following:
-  - austin's moving knives
-  - stress_test_choose_next_piece
-  - stress_test_create_equal_pieces
-  - stress_test_trim_and_replace
 
 ------------------------------------------------------------
 Links

@@ -51,3 +51,9 @@ API Documentation
 
 .. autoclass:: AdjustedWinner
    :members:
+
+.. autoclass:: GuyConwaySelfridge
+   :members:
+
+.. autoclass:: InverseGuyConwaySelfridge
+   :members:

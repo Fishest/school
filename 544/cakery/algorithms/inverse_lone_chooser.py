@@ -3,15 +3,15 @@ from cakery.algorithms.utilities import *
 from cakery.algorithms.common import FairDivider
 
 
-class LoneChooser(FairDivider):
+class InverseLoneChooser(FairDivider):
     ''' This is an implementation of the lone chooser
-    algorithm that works as follows:
+    algorithm for chores that works as follows:
 
     1. Perform divide and choose with two players
     2. Another player is added to the division
     3. Each current player divides their current share
     4. This should be 1/n (where n is the player count)
-    5. The new player chooses the best slice from each player
+    5. The new player chooses the worst slice from each player
     6. Repeat at 2 for each new player
     '''
 
@@ -55,7 +55,7 @@ class LoneChooser(FairDivider):
             count += 1                              # add another player to the game
             for cutter, piece in slices.items():    # each current player has to cut
                 pieces = create_equal_pieces(cutter, piece, count)
-                piece  = choose_best_piece(picker, pieces)  # picker finds the best piece for them
+                piece  = choose_worst_piece(picker, pieces)  # picker finds the worst piece for them
                 slices[cutter].remove(piece)        # remove that piece from their share
                 slices[picker].append(piece)        # and add it to the picker's share
         return slices

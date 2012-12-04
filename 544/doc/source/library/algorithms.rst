@@ -34,6 +34,9 @@ API Documentation
 .. autoclass:: LoneChooser
    :members:
 
+.. autoclass:: InverseLoneChooser
+   :members:
+
 .. autoclass:: AlternatingChoice
    :members:
 

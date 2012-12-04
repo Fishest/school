@@ -5,6 +5,7 @@ from cakery.algorithms.dubins_spanier import DubinsSpanier
 from cakery.algorithms.sealed_bids_auction import SealedBidsAuction
 from cakery.algorithms.inverse_divide_and_choose import InverseDivideAndChoose
 from cakery.algorithms.lone_chooser import LoneChooser
+from cakery.algorithms.inverse_lone_chooser import InverseLoneChooser
 from cakery.algorithms.alternation import AlternatingChoice
 from cakery.algorithms.inverse_alternation import InverseAlternatingChoice
 from cakery.algorithms.balanced_alternation import BalancedAlternatingChoice

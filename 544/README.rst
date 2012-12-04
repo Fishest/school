@@ -129,6 +129,8 @@ implemented in this collection are:
 * knaster sealed bids
 * adjusted winner
 * one cut suffices
+* guy conway selfridge
+* inverse guy conway selfridge
 
 ------------------------------------------------------------
 Class Interface
@@ -158,7 +160,6 @@ Todo
   - test with non-trivial parameters
 * algorithms
   - dubin's spanier for collection
-  - Guy Slefridge Conway and inverse
   - brahms simple n=3,4 and inverse
   - moving knive inverse
     * first to stop gets right side (start over with left)
@@ -171,6 +172,7 @@ Todo
   - stress_test_choose_next_piece
   - stress_test_create_equal_pieces
   - stress_test_trim_and_replace
+* pie / mobius resource (continuous)
 
 ------------------------------------------------------------
 Links

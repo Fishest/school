@@ -14,3 +14,5 @@ from cakery.algorithms.inverse_balanced_alternation import InverseBalancedAltern
 from cakery.algorithms.knaster_sealed_bids import KnasterSealedBids
 from cakery.algorithms.adjusted_winner import AdjustedWinner
 from cakery.algorithms.one_cut_suffices import OneCutSuffices
+from cakery.algorithms.guy_conway_selfridge import GuyConwaySelfridge
+from cakery.algorithms.inverse_guy_conway_selfridge import InverseGuyConwaySelfridge

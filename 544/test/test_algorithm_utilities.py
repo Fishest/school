@@ -11,11 +11,29 @@ class AlgorithmUtilitiesTest(unittest.TestCase):
     This is the unittest for the cakery.algorithm.utility
     '''
 
+    def test_replace_first_item(self):
+        ''' test the replace first item utility '''
+        items = ['a', 'b', 'c', 'd', 'b']
+        replace_first_item(items, 'b', 'x')
+        actual = ['a', 'x', 'c', 'd', 'b']
+        self.assertEqual(items, actual)
+
+        items = ['a', 'b', 'c', 'd']
+        replace_first_item(items, 'x', 'y')
+        actual = ['a', 'b', 'c', 'd']
+        self.assertEqual(items, actual)
+
     def test_randomize_items(self):
         ''' test the random items utility '''
         random.seed(1) # to ensure same result
         items = ['a', 'b', 'c', 'd']
         takes = [randomize_items(items) for i in range(2)]
+        self.assertNotEqual(takes, sorted(takes))
+
+        takes = randomize_items(4, 2, 5, 1, 3, 6)
+        self.assertNotEqual(takes, sorted(takes))
+
+        takes = randomize_items((i for i in range(10)), 4, 2, 5, 1, 3, 6)
         self.assertNotEqual(takes, sorted(takes))
 
     def test_choose_and_remove(self):
@@ -36,10 +54,6 @@ class AlgorithmUtilitiesTest(unittest.TestCase):
         actual = choose_highest_bidder(users, cake)
         self.assertEqual(actual, users[0])
 
-        users[0].values['cake'] = 0
-        actual = choose_highest_bidder(users, cake)
-        self.assertEqual(actual, users[1])
-
     def test_choose_lowest_bidder(self):
         ''' test the choose lowest bidder utility '''
         cake = CollectionResource(['cake'])
@@ -49,10 +63,6 @@ class AlgorithmUtilitiesTest(unittest.TestCase):
         ]
         actual = choose_lowest_bidder(users, cake)
         self.assertEqual(actual, users[1])
-
-        users[0].values['cake'] = 0
-        actual = choose_lowest_bidder(users, cake)
-        self.assertEqual(actual, users[0])
 
     def test_choose_best_piece(self):
         ''' test the choose best piece utility '''
@@ -138,6 +148,18 @@ class AlgorithmUtilitiesTest(unittest.TestCase):
         ]
         user, piece = choose_next_piece(users, cake)
         self.assertEqual(user, users[0])
+        self.assertEqual(piece, CollectionResource([a]))
+
+    def test_choose_last_piece(self):
+        ''' test the choose last piece utility '''
+        a, b, c = V('a', 10), V('b', 100), V('c', 1000)
+        cake  = CollectionResource([a, b, c])
+        users = [
+            CollectionPreference('mark', {a:0.50, b:0.50}),
+            CollectionPreference('john', {a:0.25, b:0.75})
+        ]
+        user, piece = choose_last_piece(users, cake)
+        self.assertEqual(user, users[1])
         self.assertEqual(piece, CollectionResource([a]))
 
     def test_trim_and_replace(self):

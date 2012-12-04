@@ -7,6 +7,7 @@ These are a collection of simple helper methods that make
 the code easier to read (basically a simple DSL).
 '''
 import random
+from collections import Iterable
 from fractions import Fraction as F
 from math import ceil, sqrt
 
@@ -14,14 +15,32 @@ from math import ceil, sqrt
 # ------------------------------------------------------------
 # helpers
 # ------------------------------------------------------------
-def randomize_items(items):
+def replace_first_item(items, needle, trade):
+    ''' Given a list of items, replace the first needle
+    with the trade in value
+
+    :param items: The list to replace the value in
+    :param needle: The value to replace
+    :param trade: The value to replace the needle with
+    '''
+    try:
+        i = items.index(needle)
+        items[i] = trade
+    except ValueError: pass
+
+
+def randomize_items(items, *args):
     ''' Given a collection, create a clone of it and
     randomize the elements before returning it.
+
+    This can also accept values via *args and create them
+    into a randomized list.
 
     :param items: The items to randomly choose from
     :returns: The randomized collection
     '''
-    items = list(items)
+    items = list(items) if isinstance(items, Iterable) else [items]
+    items = items + list(args) if args else items
     random.shuffle(items)
     return items
 

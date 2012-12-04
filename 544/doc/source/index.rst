@@ -129,6 +129,8 @@ implemented in this collection are:
 * knaster sealed bids
 * adjusted winner
 * one cut suffices
+* guy conway selfridge
+* inverse guy conway selfridge
 
 ------------------------------------------------------------
 Class Interface

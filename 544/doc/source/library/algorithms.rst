@@ -57,3 +57,9 @@ API Documentation
 
 .. autoclass:: InverseGuyConwaySelfridge
    :members:
+
+.. autoclass:: LensEpsteinPoints
+   :members:
+
+.. autoclass:: SalterPoints
+   :members:

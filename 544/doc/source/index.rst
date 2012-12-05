@@ -131,6 +131,8 @@ implemented in this collection are:
 * one cut suffices
 * guy conway selfridge
 * inverse guy conway selfridge
+* lens epstein points reduction
+* salter points reduction
 
 ------------------------------------------------------------
 Class Interface

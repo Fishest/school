@@ -16,3 +16,5 @@ from cakery.algorithms.adjusted_winner import AdjustedWinner
 from cakery.algorithms.one_cut_suffices import OneCutSuffices
 from cakery.algorithms.guy_conway_selfridge import GuyConwaySelfridge
 from cakery.algorithms.inverse_guy_conway_selfridge import InverseGuyConwaySelfridge
+from cakery.algorithms.lens_epstein_points import LensEpsteinPoints
+from cakery.algorithms.salter_points import SalterPoints

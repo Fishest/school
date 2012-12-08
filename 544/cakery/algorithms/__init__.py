@@ -19,3 +19,4 @@ from cakery.algorithms.guy_conway_selfridge import GuyConwaySelfridge
 from cakery.algorithms.inverse_guy_conway_selfridge import InverseGuyConwaySelfridge
 from cakery.algorithms.lens_epstein_points import LensEpsteinPoints
 from cakery.algorithms.salter_points import SalterPoints
+from cakery.algorithms.taylor_rst import TaylorRst

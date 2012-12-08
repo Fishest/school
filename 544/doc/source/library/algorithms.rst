@@ -66,3 +66,6 @@ API Documentation
 
 .. autoclass:: SalterPoints
    :members:
+
+.. autoclass:: TaylorRst
+   :members:

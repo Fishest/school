@@ -134,6 +134,7 @@ implemented in this collection are:
 * inverse guy conway selfridge
 * lens epstein points reduction
 * salter points reduction
+* taylor RST
 
 ------------------------------------------------------------
 Class Interface

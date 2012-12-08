@@ -7,7 +7,7 @@ class InverseDubinsSpanier(FairDivider):
     '''
     '''
 
-    def __init__(self, users, cake):
+    def __init__(self, users, cake, value=None):
         ''' Initializes a new instance of the algorithm
 
         :param users: The users to operate with
@@ -16,7 +16,7 @@ class InverseDubinsSpanier(FairDivider):
         '''
         self.users = users
         self.cake = cake
-        self.value = None or F(1, len(users))
+        self.value = value or F(1, len(users))
 
     def settings(self):
         ''' Retieves a capability listing of this algorithm

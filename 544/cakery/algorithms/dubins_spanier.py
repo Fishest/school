@@ -16,7 +16,7 @@ class DubinsSpanier(FairDivider):
         '''
         self.users = users
         self.cake = cake
-        self.value = None or F(1, len(users))
+        self.value = value or F(1, len(users))
 
     def settings(self):
         ''' Retieves a capability listing of this algorithm

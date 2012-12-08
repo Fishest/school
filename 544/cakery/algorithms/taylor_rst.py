@@ -41,8 +41,8 @@ class TaylorRst(FairDivider):
         '''
         cutter, picker = randomize_items(self.users)
         pieces = create_equal_pieces(cutter, piece, self.count)
-        pieces = [(picker.value_of(p), p) for p in pieces]
-        pieces = [piece for value, piece in sorted(pieces, reverse=True)]
+        pieces = sort_by_value(picker, pieces, reverse=True)
+        pieces = [piece for value, piece in pieces]
         R,S,T  = pieces[0:-1:2], pieces[1::2], pieces[2::2]
         s_value, t_value = get_total_value(S), get_total_value(T)
         slices = {cutter: S, picker: T}

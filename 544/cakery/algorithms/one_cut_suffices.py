@@ -47,7 +47,7 @@ class OneCutSuffices(FairDivider):
         slices = defaultdict(list)
         picker = randomize_items(self.users).pop()
         pieces = self.cake.as_collection()
-        valued = sorted((picker.value_of(p), p) for p in pieces)
+        valued = sort_by_value(picker, pieces)
         split, total, value = None, 0, 0
 
         while total < self.value:

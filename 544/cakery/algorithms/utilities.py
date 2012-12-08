@@ -124,6 +124,18 @@ def list_worst_pieces(users, pieces):
     return choices
 
 
+def sort_by_value(user, pieces, reverse=False):
+    ''' Given a collection of pieces, sort
+    them based on their value to the given user.
+
+    :param user: The user to value the pieces with
+    :param pieces: The pieces to sort by value
+    :param reverse: True to return in descending order
+    :returns: A list of (value, piece)
+    '''
+    return sorted(((user.value_of(p), p) for p in pieces), reverse=reverse)
+
+
 def choose_best_piece(user, pieces):
     ''' Given a collection of resources, choose the
     one that is the most preferred by the supplied

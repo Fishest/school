@@ -44,9 +44,7 @@ class DivideAndChoose(FairDivider):
         :returns: A dictionary of divisions of {user: piece}
         '''
         slices = {}
-        users  = randomize_items(self.users)
-        cutter = choose_and_remove(users)
-        picker = choose_and_remove(users)
+        cutter, picker = randomize_items(self.users)
         pieces = create_equal_pieces(cutter, self.cake, 2)
         slices[picker] = choose_best_piece(picker, pieces)
         slices[cutter] = choose_and_remove(pieces)

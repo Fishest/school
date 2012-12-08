@@ -25,7 +25,7 @@ class SalterPoints(FairDivider):
         :returns: A dictionary of the algorithm features
         '''
         return {
-            'users':        'n',
+            'users':        2,
             'envy-free':    False,
             'proportional': False,
             'equitable':    False,
@@ -43,9 +43,9 @@ class SalterPoints(FairDivider):
         cutter, picker = self.users
         slices  = {}
         pieces  = create_equal_pieces(cutter, self.cake, self.count)
-        remove  = choose_best_piece(picker, pieces)
+        removed = choose_best_piece(picker, pieces)
         cleaned = self.cake.clone()
-        cleaned.remove(remove)
-        slices[picker] = remove
+        cleaned.remove(removed)
+        slices[picker] = removed
         slices[cutter] = cleaned
         return slices

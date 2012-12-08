@@ -50,8 +50,8 @@ def get_users(paths):
     preferences = [
         IntervalPreference,
         CollectionPreference,
-        CountedPreference,
-        ContinuousPreference,
+        #CountedPreference,
+        #ContinuousPreference,
     ]
 
     for preference in preferences:

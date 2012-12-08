@@ -170,6 +170,21 @@ class AlgorithmUtilitiesTest(unittest.TestCase):
         piece = trim_and_replace(user, cake, trim, 1)
         self.assertEqual(cake, CollectionResource(['c', 'b']))
 
+    def test_sort_by_value(self):
+        ''' test the sort by value utility '''
+        keys  = ['a', 'b', 'c']
+        prefs = {'a': 1, 'b': 2, 'c': 3}
+        cakes = [CollectionResource([k]) for k in keys]
+        user  = CollectionPreference('mark', prefs)
+
+        expected = [(3, cakes[2]), (2, cakes[1]), (1, cakes[0])]
+        actual = sort_by_value(user, cakes, reverse=True)
+        self.assertEqual(actual, expected)
+
+        expected = [(1, cakes[0]), (2, cakes[1]), (3, cakes[2])]
+        actual = sort_by_value(user, cakes)
+        self.assertEqual(actual, expected)
+
 #---------------------------------------------------------------------------#
 # Main
 #---------------------------------------------------------------------------#

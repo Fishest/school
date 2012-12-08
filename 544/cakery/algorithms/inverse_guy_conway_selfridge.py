@@ -41,7 +41,7 @@ class InverseGuyConwaySelfridge(FairDivider):
         slices = defaultdict(list)                                      # initialize each users results
         cutter, marker, picker = randomize_items(self.users)            # randomize each user role
         pieces = create_equal_pieces(cutter, self.cake, self.count)     # the cutter makes N pieces
-        values = sorted((marker.value_of(p), p) for p in pieces)        # the marker choose the top two pieces
+        values = sort_by_value(marker, pieces)                          # the marker choose the top two pieces
         value1, piece1 = values.pop(0)                                  # the smallest piece and value
         value2, piece2 = values.pop(0)                                  # the second smallest piece and value
 

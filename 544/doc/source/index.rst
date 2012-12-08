@@ -115,6 +115,7 @@ implemented in this collection are:
 
 * austin moving knife
 * banach knaster
+* inverse banach knaster
 * divide and choose
 * dubins spanier
 * inverse dubins spanier

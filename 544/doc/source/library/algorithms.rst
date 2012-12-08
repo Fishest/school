@@ -16,6 +16,9 @@ API Documentation
 .. autoclass:: BanachKnaster
    :members:
 
+.. autoclass:: InverseBanachKnaster
+   :members:
+
 .. autoclass:: DivideAndChoose
    :members:
 

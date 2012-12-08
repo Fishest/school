@@ -2,12 +2,13 @@ from cakery.algorithms.utilities import *
 from cakery.algorithms.common import FairDivider
 
 
-class BanachKnaster(FairDivider):
-    ''' This is an implementation of the banach knaster
-    last diminisher algorithm that works as follows:
+class InverseBanachKnaster(FairDivider):
+    ''' This is an implementation of the inverse
+    banach knaster last diminisher algorithm that
+    works as follows:
 
     1. The first player proposes a trimming
-    2. The next users in the line are allowed to reduce the trimming
+    2. The next users in the line are allowed to increase the trimming
     3. This continues until the last player in the line
     4. The last user that trimmed the piece receives it and exits
     5. This continues until all the players have exited the division
@@ -55,8 +56,8 @@ class BanachKnaster(FairDivider):
             piece  = cake.find_piece(cutter, self.weight)
             for user in users[1:]:              # skip initial cutter
                 value = user.value_of(piece)    # what this users thinks is 1/n
-                if value > self.weight:         # user thinks piece is too big
-                    piece  = trim_and_replace(user, cake, piece, weight)
+                if value < self.weight:         # user thinks piece is too big
+                    piece  = cake.find_piece(user, self.weight)
                     cutter = user               # update last trimmer
             cake.remove(piece)                  # remove piece from cake
             users.remove(cutter)                # remove assigned user

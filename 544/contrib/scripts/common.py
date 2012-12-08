@@ -1,6 +1,7 @@
 import sys
 import os
 import logging
+from random import seed
 
 #--------------------------------------------------------------------------------#
 # initialize logging
@@ -117,6 +118,7 @@ def run_algorithm(name):
     :param name: The name of the algorithm to run
     '''
     try:
+        seed()  # so we don't get the same results
         users   = get_users(sys.argv[1:])
         cake    = get_cake(users[0])
         factory = get_algorithm(name)

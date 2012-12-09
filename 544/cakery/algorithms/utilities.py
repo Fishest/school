@@ -33,7 +33,7 @@ def randomize_items(items, *args):
     ''' Given a collection, create a clone of it and
     randomize the elements before returning it.
 
-    This can also accept values via *args and create them
+    This can also accept values via args and create them
     into a randomized list.
 
     :param items: The items to randomly choose from

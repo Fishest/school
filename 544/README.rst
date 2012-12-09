@@ -160,10 +160,10 @@ Todo
 ------------------------------------------------------------
 
 * add settings for algorithms
-  - test them with the utility methods
-  - test with non-trivial parameters
 * algorithms
-  - dubin's spanier for collection
+  - inverse GSC unfair for P1 (Oskui)
+  - bottom up alternation strategy
+  - adjusted winner with ties currently wrong
   - brahms simple n=3,4 and inverse
   - moving knive inverse
     * first to stop gets right side (start over with left)
@@ -171,6 +171,7 @@ Todo
 * algorithm unit tests
 * algorithm stress tests
 * memoize value_of, find_piece?
+* knapsack min(value(items))..sum(value(items)) of min stepsize
 * heavily work on the following:
   - austin's moving knives
   - stress_test_choose_next_piece

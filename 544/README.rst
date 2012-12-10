@@ -169,7 +169,6 @@ Todo
     * first to stop gets right side (start over with left)
   - lucas method of markers
 * algorithm unit tests
-* algorithm stress tests
 * memoize value_of, find_piece?
 * knapsack min(value(items))..sum(value(items)) of min stepsize
 * heavily work on the following:
@@ -178,6 +177,7 @@ Todo
   - stress_test_create_equal_pieces
   - stress_test_trim_and_replace
 * pie / mobius resource (continuous)
+* move resource/preference to directory
 
 ------------------------------------------------------------
 Links

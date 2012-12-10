@@ -64,6 +64,7 @@
 <span class="sd">the code easier to read (basically a simple DSL).</span>
 <span class="sd">&#39;&#39;&#39;</span>
 <span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Iterable</span>
 <span class="kn">from</span> <span class="nn">fractions</span> <span class="kn">import</span> <span class="n">Fraction</span> <span class="k">as</span> <span class="n">F</span>
 <span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span><span class="p">,</span> <span class="n">sqrt</span>
 
@@ -71,14 +72,32 @@
 <span class="c"># ------------------------------------------------------------</span>
 <span class="c"># helpers</span>
 <span class="c"># ------------------------------------------------------------</span>
-<div class="viewcode-block" id="randomize_items"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.randomize_items">[docs]</a><span class="k">def</span> <span class="nf">randomize_items</span><span class="p">(</span><span class="n">items</span><span class="p">):</span>
+<div class="viewcode-block" id="replace_first_item"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.replace_first_item">[docs]</a><span class="k">def</span> <span class="nf">replace_first_item</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">needle</span><span class="p">,</span> <span class="n">trade</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Given a list of items, replace the first needle</span>
+<span class="sd">    with the trade in value</span>
+
+<span class="sd">    :param items: The list to replace the value in</span>
+<span class="sd">    :param needle: The value to replace</span>
+<span class="sd">    :param trade: The value to replace the needle with</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">items</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">needle</span><span class="p">)</span>
+        <span class="n">items</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">trade</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span> <span class="k">pass</span>
+
+</div>
+<div class="viewcode-block" id="randomize_items"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.randomize_items">[docs]</a><span class="k">def</span> <span class="nf">randomize_items</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39; Given a collection, create a clone of it and</span>
 <span class="sd">    randomize the elements before returning it.</span>
+
+<span class="sd">    This can also accept values via args and create them</span>
+<span class="sd">    into a randomized list.</span>
 
 <span class="sd">    :param items: The items to randomly choose from</span>
 <span class="sd">    :returns: The randomized collection</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">items</span><span class="p">]</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="n">items</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="k">if</span> <span class="n">args</span> <span class="k">else</span> <span class="n">items</span>
     <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">items</span>
 
@@ -162,6 +181,18 @@
     <span class="k">return</span> <span class="n">choices</span>
 
 </div>
+<div class="viewcode-block" id="sort_by_value"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.sort_by_value">[docs]</a><span class="k">def</span> <span class="nf">sort_by_value</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">pieces</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Given a collection of pieces, sort</span>
+<span class="sd">    them based on their value to the given user.</span>
+
+<span class="sd">    :param user: The user to value the pieces with</span>
+<span class="sd">    :param pieces: The pieces to sort by value</span>
+<span class="sd">    :param reverse: True to return in descending order</span>
+<span class="sd">    :returns: A list of (value, piece)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(((</span><span class="n">user</span><span class="o">.</span><span class="n">value_of</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pieces</span><span class="p">),</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span>
+
+</div>
 <div class="viewcode-block" id="choose_best_piece"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.choose_best_piece">[docs]</a><span class="k">def</span> <span class="nf">choose_best_piece</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">pieces</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39; Given a collection of resources, choose the</span>
 <span class="sd">    one that is the most preferred by the supplied</span>
@@ -190,16 +221,24 @@
     <span class="k">return</span> <span class="n">choice</span>
 
 </div>
-<div class="viewcode-block" id="create_equal_pieces"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.create_equal_pieces">[docs]</a><span class="k">def</span> <span class="nf">create_equal_pieces</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">cake</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39; Given a resource, split it into count many</span>
-<span class="sd">    pieces equal in value to the supplied user.</span>
+<div class="viewcode-block" id="create_equal_pieces"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.create_equal_pieces">[docs]</a><span class="k">def</span> <span class="nf">create_equal_pieces</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">cake</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Split the current resource it into count many pieces</span>
+<span class="sd">    with the specified weight depending on the supplied user</span>
+<span class="sd">    preference (or user.value_of(resource) / count).</span>
 
-<span class="sd">    :param user: The user to split the resource with</span>
-<span class="sd">    :param cake: The cake to split</span>
-<span class="sd">    :param count: The number of pieces to create</span>
-<span class="sd">    :returns: A list of the split pieces</span>
+<span class="sd">    :param user: The user preference to split by</span>
+<span class="sd">    :param count: The number of pieces to split</span>
+<span class="sd">    :param weight: The weight to split into</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">return</span> <span class="n">cake</span><span class="o">.</span><span class="n">create_pieces</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+    <span class="n">pieces</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">weight</span> <span class="o">=</span> <span class="n">weight</span> <span class="ow">or</span> <span class="n">user</span><span class="o">.</span><span class="n">value_of</span><span class="p">(</span><span class="n">cake</span><span class="p">)</span> <span class="o">/</span> <span class="n">count</span>
+    <span class="n">cloned</span> <span class="o">=</span> <span class="n">cake</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">piece</span> <span class="o">=</span> <span class="n">cloned</span><span class="o">.</span><span class="n">find_piece</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">weight</span><span class="p">)</span>
+        <span class="n">pieces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">piece</span><span class="p">)</span>
+        <span class="n">cloned</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">piece</span><span class="p">)</span>
+    <span class="n">pieces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cloned</span><span class="p">)</span> <span class="c"># the rest is a single slice</span>
+    <span class="k">return</span> <span class="n">pieces</span>
 
 </div>
 <div class="viewcode-block" id="choose_next_piece"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.choose_next_piece">[docs]</a><span class="k">def</span> <span class="nf">choose_next_piece</span><span class="p">(</span><span class="n">users</span><span class="p">,</span> <span class="n">cake</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -219,6 +258,23 @@
     <span class="k">return</span> <span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">piece</span><span class="p">)</span>
 
 </div>
+<div class="viewcode-block" id="choose_last_piece"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.choose_last_piece">[docs]</a><span class="k">def</span> <span class="nf">choose_last_piece</span><span class="p">(</span><span class="n">users</span><span class="p">,</span> <span class="n">cake</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Given a resource and a collection of users,</span>
+<span class="sd">    return the next user who would have said &#39;Stop&#39;</span>
+<span class="sd">    last and the piece they would have stopped for.</span>
+
+<span class="sd">    :param users: The users to split the resource with</span>
+<span class="sd">    :param cake: The cake to split</span>
+<span class="sd">    :param weight: The weight to find the next piece for</span>
+<span class="sd">    :returns: (user, piece)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">weight</span> <span class="o">=</span> <span class="n">weight</span> <span class="ow">or</span> <span class="n">F</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">users</span><span class="p">))</span> <span class="c"># TODO</span>
+    <span class="n">pieces</span> <span class="o">=</span> <span class="p">((</span><span class="n">cake</span><span class="o">.</span><span class="n">find_piece</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">weight</span><span class="p">),</span> <span class="n">user</span><span class="p">)</span> <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">users</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">piece</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">pieces</span><span class="p">)</span> <span class="c"># we choose the largest &#39;appraised value&#39;</span>
+    <span class="n">cake</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">piece</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">piece</span><span class="p">)</span>
+
+</div>
 <div class="viewcode-block" id="trim_and_replace"><a class="viewcode-back" href="../../../library/algorithms.utilities.html#cakery.algorithms.utilities.trim_and_replace">[docs]</a><span class="k">def</span> <span class="nf">trim_and_replace</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">cake</span><span class="p">,</span> <span class="n">piece</span><span class="p">,</span> <span class="n">weight</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39; Given a resource and a user, trim the given</span>
 <span class="sd">    piece to be of the supplied value and reattach the</span>
@@ -230,7 +286,7 @@
 <span class="sd">    :param weight: The amount to reduce the piece to</span>
 <span class="sd">    :returns: The newly trimmed piece</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="p">(</span><span class="n">piece</span><span class="p">,</span> <span class="n">trimming</span><span class="p">)</span> <span class="o">=</span> <span class="n">piece</span><span class="o">.</span><span class="n">create_pieces</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="n">weight</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">piece</span><span class="p">,</span> <span class="n">trimming</span><span class="p">)</span> <span class="o">=</span> <span class="n">create_equal_pieces</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">piece</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="n">weight</span><span class="p">)</span>
     <span class="n">cake</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trimming</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">piece</span>
 

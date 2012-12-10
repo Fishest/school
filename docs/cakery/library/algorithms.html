@@ -118,8 +118,17 @@ this will throw.</p>
 
 <dl class="class">
 <dt id="cakery.algorithms.BanachKnaster">
-<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">BanachKnaster</tt><big>(</big><em>users</em>, <em>cake</em><big>)</big><a class="headerlink" href="#cakery.algorithms.BanachKnaster" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initializes a new instance of the algorithm</p>
+<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">BanachKnaster</tt><big>(</big><em>users</em>, <em>cake</em>, <em>weight=None</em><big>)</big><a class="headerlink" href="#cakery.algorithms.BanachKnaster" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is an implementation of the banach knaster
+last diminisher algorithm that works as follows:</p>
+<ol class="arabic simple">
+<li>The first player proposes a trimming</li>
+<li>The next users in the line are allowed to reduce the trimming</li>
+<li>This continues until the last player in the line</li>
+<li>The last user that trimmed the piece receives it and exits</li>
+<li>This continues until all the players have exited the division</li>
+</ol>
+<p>Initializes a new instance of the algorithm</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -152,6 +161,65 @@ this will throw.</p>
 <dl class="method">
 <dt id="cakery.algorithms.BanachKnaster.settings">
 <tt class="descname">settings</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.BanachKnaster.settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retieves a capability listing of this algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of the algorithm features</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cakery.algorithms.InverseBanachKnaster">
+<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">InverseBanachKnaster</tt><big>(</big><em>users</em>, <em>cake</em>, <em>weight=None</em><big>)</big><a class="headerlink" href="#cakery.algorithms.InverseBanachKnaster" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is an implementation of the inverse
+banach knaster last diminisher algorithm that
+works as follows:</p>
+<ol class="arabic simple">
+<li>The first player proposes a trimming</li>
+<li>The next users in the line are allowed to increase the trimming</li>
+<li>This continues until the last player in the line</li>
+<li>The last user that trimmed the piece receives it and exits</li>
+<li>This continues until all the players have exited the division</li>
+</ol>
+<p>Initializes a new instance of the algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>users</strong> &#8211; The users to operate with</li>
+<li><strong>cake</strong> &#8211; The cake to divide</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cakery.algorithms.InverseBanachKnaster.divide">
+<tt class="descname">divide</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.InverseBanachKnaster.divide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the algorithm to perform a suggested
+division.</p>
+<p>If a piece of the requesed value cannot be found,
+this will throw.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of divisions of {user: piece}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.algorithms.InverseBanachKnaster.settings">
+<tt class="descname">settings</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.InverseBanachKnaster.settings" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retieves a capability listing of this algorithm</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -223,7 +291,7 @@ division.</p>
 
 <dl class="class">
 <dt id="cakery.algorithms.DubinsSpanier">
-<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">DubinsSpanier</tt><big>(</big><em>users</em>, <em>cake</em><big>)</big><a class="headerlink" href="#cakery.algorithms.DubinsSpanier" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">DubinsSpanier</tt><big>(</big><em>users</em>, <em>cake</em>, <em>value=None</em><big>)</big><a class="headerlink" href="#cakery.algorithms.DubinsSpanier" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes a new instance of the algorithm</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -232,6 +300,7 @@ division.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>users</strong> &#8211; The users to operate with</li>
 <li><strong>cake</strong> &#8211; The cake to divide</li>
+<li><strong>value</strong> &#8211; The value to split the cake into</li>
 </ul>
 </td>
 </tr>
@@ -467,6 +536,63 @@ division.</p>
 <dl class="method">
 <dt id="cakery.algorithms.LoneChooser.settings">
 <tt class="descname">settings</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.LoneChooser.settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retieves a capability listing of this algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of the algorithm features</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cakery.algorithms.InverseLoneChooser">
+<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">InverseLoneChooser</tt><big>(</big><em>users</em>, <em>cake</em><big>)</big><a class="headerlink" href="#cakery.algorithms.InverseLoneChooser" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is an implementation of the lone chooser
+algorithm for chores that works as follows:</p>
+<ol class="arabic simple">
+<li>Perform divide and choose with two players</li>
+<li>Another player is added to the division</li>
+<li>Each current player divides their current share</li>
+<li>This should be 1/n (where n is the player count)</li>
+<li>The new player chooses the worst slice from each player</li>
+<li>Repeat at 2 for each new player</li>
+</ol>
+<p>Initializes a new instance of the algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>users</strong> &#8211; The users to operate with</li>
+<li><strong>cake</strong> &#8211; The cake to divide</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cakery.algorithms.InverseLoneChooser.divide">
+<tt class="descname">divide</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.InverseLoneChooser.divide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the algorithm to perform a suggested
+division.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of divisions of {user: piece}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.algorithms.InverseLoneChooser.settings">
+<tt class="descname">settings</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.InverseLoneChooser.settings" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retieves a capability listing of this algorithm</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -760,6 +886,249 @@ envy in the division:</p>
 <dl class="method">
 <dt id="cakery.algorithms.AdjustedWinner.settings">
 <tt class="descname">settings</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.AdjustedWinner.settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retieves a capability listing of this algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of the algorithm features</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cakery.algorithms.GuyConwaySelfridge">
+<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">GuyConwaySelfridge</tt><big>(</big><em>users</em>, <em>cake</em><big>)</big><a class="headerlink" href="#cakery.algorithms.GuyConwaySelfridge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes a new instance of the algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>users</strong> &#8211; The users to operate with</li>
+<li><strong>cake</strong> &#8211; The cake to divide</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cakery.algorithms.GuyConwaySelfridge.divide">
+<tt class="descname">divide</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.GuyConwaySelfridge.divide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the algorithm to perform a suggested
+division.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of divisions of {user: piece}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.algorithms.GuyConwaySelfridge.settings">
+<tt class="descname">settings</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.GuyConwaySelfridge.settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retieves a capability listing of this algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of the algorithm features</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cakery.algorithms.InverseGuyConwaySelfridge">
+<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">InverseGuyConwaySelfridge</tt><big>(</big><em>users</em>, <em>cake</em><big>)</big><a class="headerlink" href="#cakery.algorithms.InverseGuyConwaySelfridge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes a new instance of the algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>users</strong> &#8211; The users to operate with</li>
+<li><strong>cake</strong> &#8211; The cake to divide</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cakery.algorithms.InverseGuyConwaySelfridge.divide">
+<tt class="descname">divide</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.InverseGuyConwaySelfridge.divide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the algorithm to perform a suggested
+division.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of divisions of {user: piece}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.algorithms.InverseGuyConwaySelfridge.settings">
+<tt class="descname">settings</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.InverseGuyConwaySelfridge.settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retieves a capability listing of this algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of the algorithm features</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cakery.algorithms.LensEpsteinPoints">
+<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">LensEpsteinPoints</tt><big>(</big><em>users</em>, <em>cake</em>, <em>count=None</em><big>)</big><a class="headerlink" href="#cakery.algorithms.LensEpsteinPoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes a new instance of the algorithm.
+It should be noted that the first player is the
+bidder and the second player is the chooser.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>users</strong> &#8211; The users to operate with</li>
+<li><strong>cake</strong> &#8211; The cake to divide</li>
+<li><strong>count</strong> &#8211; The number of pieces to suggest</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cakery.algorithms.LensEpsteinPoints.divide">
+<tt class="descname">divide</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.LensEpsteinPoints.divide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the algorithm to perform a suggested
+division.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of divisions of {user: piece}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.algorithms.LensEpsteinPoints.settings">
+<tt class="descname">settings</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.LensEpsteinPoints.settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retieves a capability listing of this algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of the algorithm features</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cakery.algorithms.SalterPoints">
+<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">SalterPoints</tt><big>(</big><em>users</em>, <em>cake</em>, <em>count=None</em><big>)</big><a class="headerlink" href="#cakery.algorithms.SalterPoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes a new instance of the algorithm.
+It should be noted that the first player is the
+bidder and the second player is the chooser.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>users</strong> &#8211; The users to operate with</li>
+<li><strong>cake</strong> &#8211; The cake to divide</li>
+<li><strong>count</strong> &#8211; The number of pieces to suggest</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cakery.algorithms.SalterPoints.divide">
+<tt class="descname">divide</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.SalterPoints.divide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the algorithm to perform a suggested
+division.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of divisions of {user: piece}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.algorithms.SalterPoints.settings">
+<tt class="descname">settings</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.SalterPoints.settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retieves a capability listing of this algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of the algorithm features</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cakery.algorithms.TaylorRst">
+<em class="property">class </em><tt class="descclassname">cakery.algorithms.</tt><tt class="descname">TaylorRst</tt><big>(</big><em>users</em>, <em>cake</em>, <em>count=None</em><big>)</big><a class="headerlink" href="#cakery.algorithms.TaylorRst" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is an implementation of the taylor RST
+algorithm that works as follows:</p>
+<p>Initializes a new instance of the algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>users</strong> &#8211; The users to operate with</li>
+<li><strong>cake</strong> &#8211; The cake to divide</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cakery.algorithms.TaylorRst.divide">
+<tt class="descname">divide</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.TaylorRst.divide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the algorithm to perform a suggested
+division.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of divisions of {user: piece}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cakery.algorithms.TaylorRst.settings">
+<tt class="descname">settings</tt><big>(</big><big>)</big><a class="headerlink" href="#cakery.algorithms.TaylorRst.settings" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retieves a capability listing of this algorithm</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

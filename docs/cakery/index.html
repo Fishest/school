@@ -114,7 +114,6 @@ supplied algorithms:</p>
 <ul class="simple">
 <li>to_string()</li>
 <li>compare(that)</li>
-<li>create_pieces(user, count, weight)</li>
 </ul>
 </div>
 <div class="section" id="preferences">
@@ -141,6 +140,7 @@ regards to the underlying resource type):</p>
 <li>choose_and_remove(items)</li>
 <li>choose_highest_bidder(users, item)</li>
 <li>choose_lowest_bidder(users, item)</li>
+<li>create_pieces(user, cake, count, weight)</li>
 <li>get_total_value(user, pieces)</li>
 <li>list_best_pieces(users, pieces)</li>
 <li>list_worst_pieces(users, pieces)</li>
@@ -159,10 +159,13 @@ implemented in this collection are:</p>
 <ul class="simple">
 <li>austin moving knife</li>
 <li>banach knaster</li>
+<li>inverse banach knaster</li>
 <li>divide and choose</li>
 <li>dubins spanier</li>
+<li>inverse dubins spanier</li>
 <li>inverse divide and choose</li>
 <li>lone chooser</li>
+<li>inverse lone chooser</li>
 <li>sealed bids auction</li>
 <li>simple alternation</li>
 <li>inverse simple alternation</li>
@@ -170,6 +173,12 @@ implemented in this collection are:</p>
 <li>inverse balanced alternation</li>
 <li>knaster sealed bids</li>
 <li>adjusted winner</li>
+<li>one cut suffices</li>
+<li>guy conway selfridge</li>
+<li>inverse guy conway selfridge</li>
+<li>lens epstein points reduction</li>
+<li>salter points reduction</li>
+<li>taylor RST</li>
 </ul>
 </div>
 <div class="section" id="class-interface">
@@ -186,25 +195,6 @@ monotonically increasing.</p>
 <cite>algorithm-file num-of-users</cite> where num-of-users is the
 max supported number of users allowed in this algorithm.</p>
 </li>
-</ul>
-</div>
-<div class="section" id="todo">
-<h2>Todo<a class="headerlink" href="#todo" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li>add settings for algorithms
-- test them with the utility methods
-- test with non-trivial parameters</li>
-<li>algorithms
-- dubin&#8217;s spanier for collection
-- lucas method of markers</li>
-<li>algorithm unit tests</li>
-<li>algorithm stress tests</li>
-<li>memoize value_of, find_piece?</li>
-<li>heavily work on the following:
-- austin&#8217;s moving knives
-- stress_test_choose_next_piece
-- stress_test_create_equal_pieces
-- stress_test_trim_and_replace</li>
 </ul>
 </div>
 <div class="section" id="links">
@@ -255,7 +245,6 @@ max supported number of users allowed in this algorithm.</p>
 <li><a class="reference internal" href="#algorithm-primitives">Algorithm Primitives</a></li>
 <li><a class="reference internal" href="#algorithms">Algorithms</a></li>
 <li><a class="reference internal" href="#class-interface">Class Interface</a></li>
-<li><a class="reference internal" href="#todo">Todo</a></li>
 <li><a class="reference internal" href="#links">Links</a></li>
 <li><a class="reference internal" href="#cakery-api-documentation">Cakery API Documentation</a><ul>
 </ul>

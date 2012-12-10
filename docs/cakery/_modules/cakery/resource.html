@@ -129,25 +129,6 @@
     <span class="c">#------------------------------------------------------------</span>
     <span class="c"># common methods</span>
     <span class="c">#------------------------------------------------------------</span></div>
-<div class="viewcode-block" id="Resource.create_pieces"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.Resource.create_pieces">[docs]</a>    <span class="k">def</span> <span class="nf">create_pieces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; Split the current resource it into count many pieces</span>
-<span class="sd">        with the specified weight depending on the supplied user</span>
-<span class="sd">        preference (or user.value_of(resource) / count).</span>
-
-<span class="sd">        :param user: The user preference to split by</span>
-<span class="sd">        :param count: The number of pieces to split</span>
-<span class="sd">        :param weight: The weight to split into</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="n">pieces</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">weight</span> <span class="o">=</span> <span class="n">weight</span> <span class="ow">or</span> <span class="n">user</span><span class="o">.</span><span class="n">value_of</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">/</span> <span class="n">count</span>
-        <span class="n">cake</span>   <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">piece</span> <span class="o">=</span> <span class="n">cake</span><span class="o">.</span><span class="n">find_piece</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">weight</span><span class="p">)</span>
-            <span class="n">pieces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">piece</span><span class="p">)</span>
-            <span class="n">cake</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">piece</span><span class="p">)</span>
-        <span class="n">pieces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cake</span><span class="p">)</span> <span class="c"># the rest is a single slice</span>
-        <span class="k">return</span> <span class="n">pieces</span>
-</div>
 <div class="viewcode-block" id="Resource.compare"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.Resource.compare">[docs]</a>    <span class="k">def</span> <span class="nf">compare</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="n">that</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; A utility method used to provide rich</span>
 <span class="sd">        comparison operations on the resource.</span>
@@ -194,11 +175,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span> <span class="o">=</span> <span class="n">resolution</span>
 
     <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ContinuousResource.empty"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.ContinuousResource.empty">[docs]</a>    <span class="k">def</span> <span class="nf">empty</span><span class="p">(</span><span class="n">klass</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; A factory method to create an empty</span>
+<span class="sd">        resource.</span>
+
+<span class="sd">        :returns: An initialized resource</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">klass</span><span class="p">(</span><span class="n">F</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">F</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+</div>
+    <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="ContinuousResource.random"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.ContinuousResource.random">[docs]</a>    <span class="k">def</span> <span class="nf">random</span><span class="p">(</span><span class="n">klass</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; A factory method to create a random</span>
 <span class="sd">        resource.</span>
 
-<span class="sd">        :returns: An initialized Preference</span>
+<span class="sd">        :returns: An initialized resource</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">start</span> <span class="o">=</span> <span class="n">F</span><span class="p">(</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
         <span class="n">span</span>  <span class="o">=</span> <span class="n">F</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
@@ -325,6 +315,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">items</span>
 
     <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="CountedResource.empty"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.CountedResource.empty">[docs]</a>    <span class="k">def</span> <span class="nf">empty</span><span class="p">(</span><span class="n">klass</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; A factory method to create an empty</span>
+<span class="sd">        resource.</span>
+
+<span class="sd">        :returns: An initialized resource</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">klass</span><span class="p">({})</span>
+</div>
+    <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="CountedResource.random"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.CountedResource.random">[docs]</a>    <span class="k">def</span> <span class="nf">random</span><span class="p">(</span><span class="n">klass</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; A factory method to create a random</span>
 <span class="sd">        resource.</span>
@@ -342,6 +341,7 @@
 
 <span class="sd">        :returns: The actual value of the object</span>
 <span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c"># TODO</span>
         <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 </div>
 <div class="viewcode-block" id="CountedResource.as_collection"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.CountedResource.as_collection">[docs]</a>    <span class="k">def</span> <span class="nf">as_collection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -434,6 +434,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="CollectionResource.empty"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.CollectionResource.empty">[docs]</a>    <span class="k">def</span> <span class="nf">empty</span><span class="p">(</span><span class="n">klass</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; A factory method to create an empty</span>
+<span class="sd">        resource.</span>
+
+<span class="sd">        :returns: An initialized resource</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">klass</span><span class="p">([])</span>
+</div>
+    <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="CollectionResource.random"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.CollectionResource.random">[docs]</a>    <span class="k">def</span> <span class="nf">random</span><span class="p">(</span><span class="n">klass</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; A factory method to create a random</span>
 <span class="sd">        resource.</span>
@@ -460,6 +469,7 @@
 
 <span class="sd">        :returns: The actual value of the object</span>
 <span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c"># TODO</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="CollectionResource.clone"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.CollectionResource.clone">[docs]</a>    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -534,6 +544,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">points</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span> <span class="o">=</span> <span class="n">resolution</span>
 
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="IntervalResource.empty"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.IntervalResource.empty">[docs]</a>    <span class="k">def</span> <span class="nf">empty</span><span class="p">(</span><span class="n">klass</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; A factory method to create an empty</span>
+<span class="sd">        resource.</span>
+
+<span class="sd">        :returns: An initialized resource</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">klass</span><span class="p">([])</span>
+</div>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="IntervalResource.random"><a class="viewcode-back" href="../../library/resource.html#cakery.resource.IntervalResource.random">[docs]</a>    <span class="k">def</span> <span class="nf">random</span><span class="p">(</span><span class="n">klass</span><span class="p">,</span> <span class="n">intervals</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; A factory method to create a random</span>

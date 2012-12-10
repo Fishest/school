@@ -142,6 +142,21 @@ identical to the original.</p>
 </table>
 </dd></dl>
 
+<dl class="classmethod">
+<dt id="cakery.resource.CollectionResource.empty">
+<em class="property">classmethod </em><tt class="descname">empty</tt><big>(</big><em>klass</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#CollectionResource.empty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.CollectionResource.empty" title="Permalink to this definition">¶</a></dt>
+<dd><p>A factory method to create an empty
+resource.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An initialized resource</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="method">
 <dt id="cakery.resource.CollectionResource.find_piece">
 <tt class="descname">find_piece</tt><big>(</big><em>user</em>, <em>weight</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#CollectionResource.find_piece"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.CollectionResource.find_piece" title="Permalink to this definition">¶</a></dt>
@@ -281,6 +296,21 @@ identical to the original.</p>
 </table>
 </dd></dl>
 
+<dl class="classmethod">
+<dt id="cakery.resource.ContinuousResource.empty">
+<em class="property">classmethod </em><tt class="descname">empty</tt><big>(</big><em>klass</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#ContinuousResource.empty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.ContinuousResource.empty" title="Permalink to this definition">¶</a></dt>
+<dd><p>A factory method to create an empty
+resource.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An initialized resource</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="method">
 <dt id="cakery.resource.ContinuousResource.find_piece">
 <tt class="descname">find_piece</tt><big>(</big><em>user</em>, <em>weight</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#ContinuousResource.find_piece"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.ContinuousResource.find_piece" title="Permalink to this definition">¶</a></dt>
@@ -314,7 +344,7 @@ resource.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An initialized Preference</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An initialized resource</td>
 </tr>
 </tbody>
 </table>
@@ -412,6 +442,21 @@ identical to the original.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A clone of the current resource</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="cakery.resource.CountedResource.empty">
+<em class="property">classmethod </em><tt class="descname">empty</tt><big>(</big><em>klass</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#CountedResource.empty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.CountedResource.empty" title="Permalink to this definition">¶</a></dt>
+<dd><p>A factory method to create an empty
+resource.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An initialized resource</td>
 </tr>
 </tbody>
 </table>
@@ -550,6 +595,21 @@ identical to the original.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A clone of the current resource</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="cakery.resource.IntervalResource.empty">
+<em class="property">classmethod </em><tt class="descname">empty</tt><big>(</big><em>klass</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#IntervalResource.empty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.IntervalResource.empty" title="Permalink to this definition">¶</a></dt>
+<dd><p>A factory method to create an empty
+resource.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An initialized resource</td>
 </tr>
 </tbody>
 </table>
@@ -699,27 +759,6 @@ comparison operations on the resource.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>that</strong> &#8211; The other resource to compare</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">-1: less than, 0: equal to, 1: greater than</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="cakery.resource.Resource.create_pieces">
-<tt class="descname">create_pieces</tt><big>(</big><em>user</em>, <em>count=2</em>, <em>weight=None</em><big>)</big><a class="reference internal" href="../_modules/cakery/resource.html#Resource.create_pieces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.resource.Resource.create_pieces" title="Permalink to this definition">¶</a></dt>
-<dd><p>Split the current resource it into count many pieces
-with the specified weight depending on the supplied user
-preference (or user.value_of(resource) / count).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>user</strong> &#8211; The user preference to split by</li>
-<li><strong>count</strong> &#8211; The number of pieces to split</li>
-<li><strong>weight</strong> &#8211; The weight to split into</li>
-</ul>
-</td>
 </tr>
 </tbody>
 </table>

@@ -16,6 +16,9 @@ API Documentation
 .. autoclass:: BanachKnaster
    :members:
 
+.. autoclass:: InverseBanachKnaster
+   :members:
+
 .. autoclass:: DivideAndChoose
    :members:
 
@@ -34,6 +37,9 @@ API Documentation
 .. autoclass:: LoneChooser
    :members:
 
+.. autoclass:: InverseLoneChooser
+   :members:
+
 .. autoclass:: AlternatingChoice
    :members:
 
@@ -47,4 +53,19 @@ API Documentation
    :members:
 
 .. autoclass:: AdjustedWinner
+   :members:
+
+.. autoclass:: GuyConwaySelfridge
+   :members:
+
+.. autoclass:: InverseGuyConwaySelfridge
+   :members:
+
+.. autoclass:: LensEpsteinPoints
+   :members:
+
+.. autoclass:: SalterPoints
+   :members:
+
+.. autoclass:: TaylorRst
    :members:

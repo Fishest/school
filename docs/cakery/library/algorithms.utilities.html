@@ -206,6 +206,30 @@ the higest amount for said item.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="cakery.algorithms.utilities.choose_last_piece">
+<tt class="descclassname">cakery.algorithms.utilities.</tt><tt class="descname">choose_last_piece</tt><big>(</big><em>users</em>, <em>cake</em>, <em>weight=None</em><big>)</big><a class="reference internal" href="../_modules/cakery/algorithms/utilities.html#choose_last_piece"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.algorithms.utilities.choose_last_piece" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a resource and a collection of users,
+return the next user who would have said &#8216;Stop&#8217;
+last and the piece they would have stopped for.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>users</strong> &#8211; The users to split the resource with</li>
+<li><strong>cake</strong> &#8211; The cake to split</li>
+<li><strong>weight</strong> &#8211; The weight to find the next piece for</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(user, piece)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="cakery.algorithms.utilities.choose_lowest_bidder">
 <tt class="descclassname">cakery.algorithms.utilities.</tt><tt class="descname">choose_lowest_bidder</tt><big>(</big><em>users</em>, <em>item</em><big>)</big><a class="reference internal" href="../_modules/cakery/algorithms/utilities.html#choose_lowest_bidder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.algorithms.utilities.choose_lowest_bidder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given an item, return the user that bid
@@ -276,21 +300,19 @@ user.</p>
 
 <dl class="function">
 <dt id="cakery.algorithms.utilities.create_equal_pieces">
-<tt class="descclassname">cakery.algorithms.utilities.</tt><tt class="descname">create_equal_pieces</tt><big>(</big><em>user</em>, <em>cake</em>, <em>count</em><big>)</big><a class="reference internal" href="../_modules/cakery/algorithms/utilities.html#create_equal_pieces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.algorithms.utilities.create_equal_pieces" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given a resource, split it into count many
-pieces equal in value to the supplied user.</p>
+<tt class="descclassname">cakery.algorithms.utilities.</tt><tt class="descname">create_equal_pieces</tt><big>(</big><em>user</em>, <em>cake</em>, <em>count=2</em>, <em>weight=None</em><big>)</big><a class="reference internal" href="../_modules/cakery/algorithms/utilities.html#create_equal_pieces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.algorithms.utilities.create_equal_pieces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split the current resource it into count many pieces
+with the specified weight depending on the supplied user
+preference (or user.value_of(resource) / count).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>user</strong> &#8211; The user to split the resource with</li>
-<li><strong>cake</strong> &#8211; The cake to split</li>
-<li><strong>count</strong> &#8211; The number of pieces to create</li>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>user</strong> &#8211; The user preference to split by</li>
+<li><strong>count</strong> &#8211; The number of pieces to split</li>
+<li><strong>weight</strong> &#8211; The weight to split into</li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of the split pieces</p>
 </td>
 </tr>
 </tbody>
@@ -366,9 +388,11 @@ return the worst pieces for each user.</p>
 
 <dl class="function">
 <dt id="cakery.algorithms.utilities.randomize_items">
-<tt class="descclassname">cakery.algorithms.utilities.</tt><tt class="descname">randomize_items</tt><big>(</big><em>items</em><big>)</big><a class="reference internal" href="../_modules/cakery/algorithms/utilities.html#randomize_items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.algorithms.utilities.randomize_items" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">cakery.algorithms.utilities.</tt><tt class="descname">randomize_items</tt><big>(</big><em>items</em>, <em>*args</em><big>)</big><a class="reference internal" href="../_modules/cakery/algorithms/utilities.html#randomize_items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.algorithms.utilities.randomize_items" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a collection, create a clone of it and
 randomize the elements before returning it.</p>
+<p>This can also accept values via args and create them
+into a randomized list.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -376,6 +400,49 @@ randomize the elements before returning it.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>items</strong> &#8211; The items to randomly choose from</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The randomized collection</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cakery.algorithms.utilities.replace_first_item">
+<tt class="descclassname">cakery.algorithms.utilities.</tt><tt class="descname">replace_first_item</tt><big>(</big><em>items</em>, <em>needle</em>, <em>trade</em><big>)</big><a class="reference internal" href="../_modules/cakery/algorithms/utilities.html#replace_first_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.algorithms.utilities.replace_first_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a list of items, replace the first needle
+with the trade in value</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>items</strong> &#8211; The list to replace the value in</li>
+<li><strong>needle</strong> &#8211; The value to replace</li>
+<li><strong>trade</strong> &#8211; The value to replace the needle with</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cakery.algorithms.utilities.sort_by_value">
+<tt class="descclassname">cakery.algorithms.utilities.</tt><tt class="descname">sort_by_value</tt><big>(</big><em>user</em>, <em>pieces</em>, <em>reverse=False</em><big>)</big><a class="reference internal" href="../_modules/cakery/algorithms/utilities.html#sort_by_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cakery.algorithms.utilities.sort_by_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a collection of pieces, sort
+them based on their value to the given user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>user</strong> &#8211; The user to value the pieces with</li>
+<li><strong>pieces</strong> &#8211; The pieces to sort by value</li>
+<li><strong>reverse</strong> &#8211; True to return in descending order</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of (value, piece)</p>
+</td>
 </tr>
 </tbody>
 </table>

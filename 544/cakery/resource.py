@@ -73,25 +73,6 @@ class Resource(object):
     #------------------------------------------------------------
     # common methods
     #------------------------------------------------------------
-    def create_pieces(self, user, count=2, weight=None):
-        ''' Split the current resource it into count many pieces
-        with the specified weight depending on the supplied user
-        preference (or user.value_of(resource) / count).
-
-        :param user: The user preference to split by
-        :param count: The number of pieces to split
-        :param weight: The weight to split into
-        '''
-        pieces = []
-        weight = weight or user.value_of(self) / count
-        cake   = self.clone()
-        for n in range(count - 1):
-            piece = cake.find_piece(user, weight)
-            pieces.append(piece)
-            cake.remove(piece)
-        pieces.append(cake) # the rest is a single slice
-        return pieces
-
     def compare(this, that):
         ''' A utility method used to provide rich
         comparison operations on the resource.

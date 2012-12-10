@@ -67,7 +67,6 @@ supplied algorithms:
 
 * to_string()
 * compare(that)
-* create_pieces(user, count, weight)
 
 ------------------------------------------------------------
 Preferences
@@ -96,6 +95,7 @@ regards to the underlying resource type):
 * choose_and_remove(items)
 * choose_highest_bidder(users, item)
 * choose_lowest_bidder(users, item)
+* create_pieces(user, cake, count, weight)
 * get_total_value(user, pieces)
 * list_best_pieces(users, pieces)
 * list_worst_pieces(users, pieces)

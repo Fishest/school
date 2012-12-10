@@ -4,6 +4,7 @@ import unittest
 from fractions import Fraction as F
 from cakery.resource import IntervalResource
 from cakery.preference import IntervalPreference
+from cakery.algorithms.utilities import create_equal_pieces
 
 class IntervalResourceTest(unittest.TestCase):
     '''
@@ -112,7 +113,7 @@ class IntervalResourceTest(unittest.TestCase):
         ''' test that we can create n pieces of the cake '''
         user = IntervalPreference('user', [(0.0, 1.0), (1.0, 1.0)])
         cake = IntervalResource((F(0,1), F(1,1)))
-        pieces = cake.create_pieces(user, 3)
+        pieces = create_equal_pieces(user, cake, 3)
         actual = [
             IntervalResource((F(0,3), F(1,3))),
             IntervalResource((F(1,3), F(2,3))),

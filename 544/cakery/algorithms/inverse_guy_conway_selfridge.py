@@ -46,7 +46,7 @@ class InverseGuyConwaySelfridge(FairDivider):
         value2, piece2 = values.pop(0)                                  # the second smallest piece and value
 
         if value1 != value2:                                            # we must create a tie between these two
-            trimmed, trimming = piece1.create_pieces(marker, weight=value2) # so make value(piece1) == value2
+            trimmed, trimming = create_equal_pieces(marker, piece1, weight=value2) # so make value(piece1) == value2
             replace_first_item(pieces, piece1, trimmed)                 # we then replace with the trimmed piece
 
         for user in [picker, marker, cutter]:                           # the users choose in this order

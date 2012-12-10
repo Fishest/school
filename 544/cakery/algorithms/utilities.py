@@ -164,18 +164,24 @@ def choose_worst_piece(user, pieces):
     return choice
 
 
-def create_equal_pieces(user, cake, count, weight=None):
-    ''' Given a resource, split it into count many
-    pieces equal in value to the supplied user.
+def create_equal_pieces(user, cake, count=2, weight=None):
+    ''' Split the current resource it into count many pieces
+    with the specified weight depending on the supplied user
+    preference (or user.value_of(resource) / count).
 
-    :param user: The user to split the resource with
-    :param cake: The cake to split
-    :param count: The number of pieces to create
-    :param weight: The weight of the pieces to create
-    :returns: A list of the split pieces
+    :param user: The user preference to split by
+    :param count: The number of pieces to split
+    :param weight: The weight to split into
     '''
-    # TODO move this code to here
-    return cake.create_pieces(user, count)
+    pieces = []
+    weight = weight or user.value_of(cake) / count
+    cloned = cake.clone()
+    for n in range(count - 1):
+        piece = cloned.find_piece(user, weight)
+        pieces.append(piece)
+        cloned.remove(piece)
+    pieces.append(cloned) # the rest is a single slice
+    return pieces
 
 
 def choose_next_piece(users, cake, weight=None):
@@ -223,7 +229,7 @@ def trim_and_replace(user, cake, piece, weight):
     :param weight: The amount to reduce the piece to
     :returns: The newly trimmed piece
     '''
-    (piece, trimming) = piece.create_pieces(user, weight=weight)
+    (piece, trimming) = create_equal_pieces(user, piece, weight=weight)
     cake.append(trimming)
     return piece
 

@@ -3,6 +3,7 @@ import unittest
 from fractions import Fraction as F
 from cakery.resource import ContinuousResource
 from cakery.preference import ContinuousPreference
+from cakery.algorithms.utilities import create_equal_pieces
 
 class ContinuousResourceTest(unittest.TestCase):
     '''
@@ -68,7 +69,7 @@ class ContinuousResourceTest(unittest.TestCase):
         ''' test that we can create n pieces of the cake '''
         user = ContinuousPreference('mark', lambda x: F(1))
         cake = ContinuousResource(F(0), F(1))
-        pieces = cake.create_pieces(user, 3)
+        pieces = create_equal_pieces(user, cake, 3)
         actual = [
             ContinuousResource(F(0, 1), F(1, 3)),
             ContinuousResource(F(1, 3), F(1, 3)),

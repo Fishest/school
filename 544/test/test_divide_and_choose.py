@@ -21,8 +21,7 @@ class DivideAndChooseTest(unittest.TestCase):
         algorithm = DivideAndChoose(users, cake)
         self.assertEqual(True, algorithm.is_valid())
 
-        users.append(CollectionPreference('bill', vals))
-        algorithm = DivideAndChoose(users, cake)
+        algorithm.users.append(CollectionPreference('bill', vals))
         self.assertRaises(ValueError, lambda: algorithm.is_valid())
 
     def test_division(self):

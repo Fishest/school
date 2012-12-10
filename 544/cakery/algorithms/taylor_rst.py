@@ -46,7 +46,7 @@ class TaylorRst(FairDivider):
         R,S,T  = pieces[0:-1:2], pieces[1::2], pieces[2::2]
         s_value, t_value = get_total_value(picker, S), get_total_value(picker, T)
         slices = {cutter: S, picker: T}
-        cutters, pickers = R[0].create_pieces(picker, weight=s_value - t_value)
+        cutters, pickers = create_equal_pieces(picker, R[0], weight=s_value - t_value)
         slices[cutter].append(cutters)
         slices[picker].append(pickers)
         return slices

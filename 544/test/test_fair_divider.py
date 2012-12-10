@@ -3,7 +3,7 @@ import unittest
 from fractions import Fraction as F
 from cakery.preference import ContinuousPreference as Preference
 from cakery.resource import ContinuousResource as Resource
-from cakery.algorithms import DivideAndChoose
+from cakery.algorithms import DubinsSpanier as Algorithm
 
 class DivideAndChooseTest(unittest.TestCase):
     '''
@@ -23,7 +23,7 @@ class DivideAndChooseTest(unittest.TestCase):
             Resource(F(0,1), F(1,3)),
         ]
         self.cake = Resource(F(0,1), F(1,1))
-        self.fair = DivideAndChoose(self.users, self.cake)
+        self.fair = Algorithm(self.users, self.cake)
         self.shares = dict(zip(self.users, self.cakes))
 
     def test_is_proportional(self):

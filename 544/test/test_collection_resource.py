@@ -4,6 +4,7 @@ import unittest
 from fractions import Fraction as F
 from cakery.resource import CollectionResource
 from cakery.preference import CollectionPreference
+from cakery.algorithms.utilities import create_equal_pieces
 
 class CollectionResourceTest(unittest.TestCase):
     '''
@@ -75,7 +76,7 @@ class CollectionResourceTest(unittest.TestCase):
         vals = dict((k, F(1,1)) for k in keys)
         cake = CollectionResource(keys)
         user = CollectionPreference('mark', vals)
-        pieces = cake.create_pieces(user, 3)
+        pieces = create_equal_pieces(user, cake, 3)
         actual = [
             CollectionResource(['red', 'blue']),
             CollectionResource(['green', 'yellow']),

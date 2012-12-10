@@ -56,7 +56,7 @@ class BanachKnaster(FairDivider):
             for user in users[1:]:              # skip initial cutter
                 value = user.value_of(piece)    # what this users thinks is 1/n
                 if value > self.weight:         # user thinks piece is too big
-                    piece  = trim_and_replace(user, cake, piece, weight)
+                    piece  = trim_and_replace(user, cake, piece, self.weight)
                     cutter = user               # update last trimmer
             cake.remove(piece)                  # remove piece from cake
             users.remove(cutter)                # remove assigned user

@@ -49,7 +49,7 @@ class KnasterSealedBids(FairDivider):
             cutter = choose_highest_bidder(users, piece)        # find the highest bidder for this piece
             slices[cutter].append(piece)                        # user that bid the most, gets the piece
 
-        assign  = {u: get_total_value(u, cs) for u, cs in slices.items()}  # how much value each user got
+        assign  = {u: get_total_value(u, slices[u]) for u in users}  # how much value each user got
         excess  = {u: assign[u] - fairs[u] for u in users}      # how much in excess of fair share we got
         surplus = sum(v for v in excess.values()) / N           # the total surplus share of value for each user
         adjusts = {u: fairs[u] + surplus for u in users}        # each user's assigned value adjusted by surplus

@@ -15,7 +15,7 @@ class LensEpsteinPoints(FairDivider):
         :param cake: The cake to divide
         :param count: The number of pieces to suggest
         '''
-        self.users = users
+        self.users = users[:2]
         self.cake  = cake
         self.count = count or 2
 

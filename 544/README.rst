@@ -159,6 +159,7 @@ are included in the contrib directory):
 Todo
 ------------------------------------------------------------
 
+* move create_pieces to algorithm utilities from interface
 * add settings for algorithms
 * algorithms
   - inverse GSC unfair for P1 (Oskui)

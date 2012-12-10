@@ -1,88 +1,80 @@
 #!/usr/bin/env python
-from functions import Functions
-from random import randint
-from fractions import Fraction
+from fractions import Fraction as F
 from cakery.preference import *
 from cakery.resource import *
 from cakery.algorithms import *
+from cakery.algorithms.utilities import get_total_value
 
-class AlgorithmTester(object):
+#------------------------------------------------------------ 
+# settings
+#------------------------------------------------------------ 
+iterations = 10 # the number of rounds to run
+algorithms = [
+#    AustinMovingKnife,
+#    BanachKnaster,         # TODO find weight w/collections
+#    InverseBanachKnaster,  # TODO find weight w/collections
+#    DivideAndChoose,
+#    DubinsSpanier,         # TODO find weight w/collections
+#    InverseDubinsSpanier,  # TODO find weight w/collections
+#    SealedBidsAuction,
+#    InverseDivideAndChoose,
+#    LoneChooser, # TODO remove piece
+#    InverseLoneChooser, # TODO remove piece
+#    AlternatingChoice,
+#    InverseAlternatingChoice,
+#    BalancedAlternatingChoice,
+#    InverseBalancedAlternatingChoice,
+#    KnasterSealedBids,
+#    AdjustedWinner,
+#    OneCutSuffices,
+#    GuyConwaySelfridge, # TODO broke
+#    InverseGuyConwaySelfridge, # TODO broke
+#    LensEpsteinPoints,
+#    SalterPoints,
+    TaylorRst,
+]
 
-    def __init__(self, algorithm):
-        '''
-        '''
-        self.algorithm = algorithm
-        self.settings  = algorithm([], None).settings()
+#------------------------------------------------------------ 
+# initialize the test data
+#------------------------------------------------------------ 
+us   = [
+    #lambda xs: ContinuousPreference.random(),
+    #lambda xs: CountedPreference.random(xs),
+    lambda xs: CollectionPreference.random(xs),
+    #lambda xs: OrdinalPreference.random(xs),
+    #lambda xs: IntervalPreference.random(3)
+]
+cs = [
+    #lambda: ContinuousResource(F(0), F(1)),
+    #lambda: CountedResource.random(10),
+    lambda: CollectionResource.random(10),
+    #lambda: CollectionResource.random(10),
+    #lambda: IntervalResource((F(0), F(1)))
+]
 
-    def _create_users(self, count):
-        '''
-        '''
-        users = []
-        for idx in range(count):
-            negat = -1 if idx % 2 == 0 else 1
-            slope = Fraction(negat, randint(1, 10))
-            shift = 1 - Fraction(1, 2) * slope
-            value = Functions.linear(slope, shift)
-            prefs = ContinuousPreference(None, value)
-            print "[%s] = %f * x + %f" % (prefs.user, slope, shift)
-            users.append(prefs)
-        return users
+#------------------------------------------------------------ 
+# test that the methods work
+#------------------------------------------------------------ 
+print "\n","=" * 60
+print "Algorithms Stress Test"
+print "=" * 60,"\n"
 
-    def _validate(self, algorithm, divisions):
-        '''
-        '''
-        results = []
-
-        if (self.settings['proportional']
-            and not algorithm.is_proportional(divisions)):
-            results.append('proportional')
-
-        if (self.settings['equitable']
-            and not algorithm.is_equitable(divisions)):
-            results.append('equitable')
-
-        if (self.settings['envy-free']
-            and not algorithm.is_envy_free(divisions)):
-            results.append('envy-free')
-
-        if (self.settings['optimal']
-            and not algorithm.is_optimal(divisions)):
-            pass
-
-        if any(results):
-            print "errors:\t\t", results
-            print "users:\t\t", algorithm.users
-            print "divisions:\t", divisions
-
-    def _iterate(self):
-        ''' Given an algorithm, verify that it meets the
-        settings that it states it does
-        '''
-        resource  = ContinuousResource(Fraction(0,1), Fraction(1,1))
-        players   = [None]
-        algorithm = self.algorithm(players, resource)
-    
-        while len(players) < self.settings['users']:
-            players   = self._create_users(len(players) + 1)
-            algorithm = self.algorithm(players, resource)
-
-            try:
-                algorithm.is_valid()
-                divisions = algorithm.divide()
-                self._validate(algorithm, divisions)
-            except Exception, ex: print ex
-
-    def test(self, iterations):
-        for i in range(iterations):
-            print "\nperforming iteration %i" % i
-            print "-" * 60
-            self._iterate()
-
-
-#---------------------------------------------------------------------------#
-# Main
-#---------------------------------------------------------------------------#
-if __name__ == "__main__":
-    
-    tester = AlgorithmTester(DivideAndChoose)
-    tester.test(10)
+for user_factory, cake_factory in zip(us, cs):
+    print "-" * 60
+    print cake_factory().__class__.__name__
+    print "-" * 60
+    for algorithm_factory in algorithms:
+        print "* %s" % algorithm_factory.__name__
+        for size in range(2, iterations):
+            value = F(1, size)
+            cake  = cake_factory()
+            users = [user_factory(cake) for _ in range(size)]
+            algorithm = algorithm_factory(users, cake)    
+            extras, results = None, algorithm.divide()
+            if isinstance(results, tuple):
+                results, extras = results
+            for user, shares in results.items():
+                print "  - share for %s: value(%s)" % (str(user), get_total_value(user, shares))
+            if extras:
+                for k, v in extras.items(): print "  ~", k, v
+            print

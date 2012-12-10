@@ -39,14 +39,14 @@ class TaylorRst(FairDivider):
 
         :returns: A dictionary of divisions of {user: piece}
         '''
-        cutter, picker = randomize_items(self.users)
-        pieces = create_equal_pieces(cutter, piece, self.count)
+        cutter, picker = randomize_items(self.users)[:2]
+        pieces = create_equal_pieces(cutter, self.cake, self.count)
         pieces = sort_by_value(picker, pieces, reverse=True)
         pieces = [piece for value, piece in pieces]
         R,S,T  = pieces[0:-1:2], pieces[1::2], pieces[2::2]
-        s_value, t_value = get_total_value(S), get_total_value(T)
+        s_value, t_value = get_total_value(picker, S), get_total_value(picker, T)
         slices = {cutter: S, picker: T}
-        cutters, pickers = R[0].create_piece(picker, weight=s_value - t_value)
+        cutters, pickers = R[0].create_pieces(picker, weight=s_value - t_value)
         slices[cutter].append(cutters)
         slices[picker].append(pickers)
         return slices

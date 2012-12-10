@@ -164,15 +164,17 @@ def choose_worst_piece(user, pieces):
     return choice
 
 
-def create_equal_pieces(user, cake, count):
+def create_equal_pieces(user, cake, count, weight=None):
     ''' Given a resource, split it into count many
     pieces equal in value to the supplied user.
 
     :param user: The user to split the resource with
     :param cake: The cake to split
     :param count: The number of pieces to create
+    :param weight: The weight of the pieces to create
     :returns: A list of the split pieces
     '''
+    # TODO move this code to here
     return cake.create_pieces(user, count)
 
 

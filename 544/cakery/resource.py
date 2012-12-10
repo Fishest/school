@@ -138,11 +138,20 @@ class ContinuousResource(Resource):
         self.resolution = resolution
 
     @classmethod
+    def empty(klass):
+        ''' A factory method to create an empty
+        resource.
+
+        :returns: An initialized resource
+        '''
+        return klass(F(0,1), F(0, 1))
+
+    @classmethod
     def random(klass):
         ''' A factory method to create a random
         resource.
 
-        :returns: An initialized Preference
+        :returns: An initialized resource
         '''
         start = F(randint(0, 1), 2)
         span  = F(1, randint(1, 10))
@@ -269,6 +278,15 @@ class CountedResource(Resource):
         self.value = items
 
     @classmethod
+    def empty(klass):
+        ''' A factory method to create an empty
+        resource.
+
+        :returns: An initialized resource
+        '''
+        return klass({})
+
+    @classmethod
     def random(klass, size=None):
         ''' A factory method to create a random
         resource.
@@ -286,6 +304,7 @@ class CountedResource(Resource):
 
         :returns: The actual value of the object
         '''
+        # TODO
         return sum(self.value.values())
 
     def as_collection(self):
@@ -378,6 +397,15 @@ class CollectionResource(Resource):
         self.value = list(items)
 
     @classmethod
+    def empty(klass):
+        ''' A factory method to create an empty
+        resource.
+
+        :returns: An initialized resource
+        '''
+        return klass([])
+
+    @classmethod
     def random(klass, size=None):
         ''' A factory method to create a random
         resource.
@@ -404,6 +432,7 @@ class CollectionResource(Resource):
 
         :returns: The actual value of the object
         '''
+        # TODO
         return len(self.value)
 
     def clone(self):
@@ -477,6 +506,15 @@ class IntervalResource(Resource):
             points = [points]
         self.value = points
         self.resolution = resolution
+
+    @classmethod
+    def empty(klass):
+        ''' A factory method to create an empty
+        resource.
+
+        :returns: An initialized resource
+        '''
+        return klass([])
 
     @classmethod
     def random(klass, intervals=1):

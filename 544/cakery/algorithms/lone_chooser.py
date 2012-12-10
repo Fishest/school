@@ -45,7 +45,7 @@ class LoneChooser(FairDivider):
 
         :returns: A dictionary of divisions of {user: piece}
         '''
-        slices = defaultdict(list)
+        slices = defaultdict(self.cake.empty)
         count  = 1                                  # the current number of players
         users  = randomize_items(self.users)        # randomize to be somewhat fair
         cutter = choose_and_remove(users)           # randomly select the first chooser

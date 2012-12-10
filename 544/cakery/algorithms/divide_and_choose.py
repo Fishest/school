@@ -19,7 +19,7 @@ class DivideAndChoose(FairDivider):
         :param users: The users to operate with
         :param cake: The cake to divide
         '''
-        self.users = users
+        self.users = users[:2]
         self.cake  = cake
 
     def settings(self):

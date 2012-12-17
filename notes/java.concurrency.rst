@@ -36,6 +36,8 @@ id. If the same thread id is recorded with an entry count > 0,
 then it is allowed to increment the entry count. Otherwise it
 is blocked.
 
+
+------------------------------------------------------------
 Section Keynotes:
 ------------------------------------------------------------
 
@@ -129,6 +131,7 @@ possible).  A properly constructed object can be safely published by:
 * Storing a reference to it into a field that is properly guarded by a lock
 
 
+------------------------------------------------------------
 Section Keynotes:
 ------------------------------------------------------------
 
@@ -153,4 +156,135 @@ Section Keynotes:
   used to publish them.
 * Safely published effectively immutable objects can be used
   safely by any thread without additional synchronization.
+
+============================================================ 
+Chapter 4
+============================================================ 
+
+The design process for a thread safe class should include
+these three basic elements:
+
+* Identify the variables that form the object's state
+* Identify the invariants that constrain the state variables
+* Establish a policy for managing concurrent access to the
+  object's state.
+
+The state of an object with N-primitive fields is just the
+N-tuple of those fields. The number of ways to modify these
+is the state space range. The smaller the state space, the
+easier it is to reason about the data (ideally immutable
+objects with 1 state).
+
+Can encapsulate data to prevent concurrent access by:
+
+* protecting in local lexical scope
+* a private member field
+* or between thread methods
+
+Can make collections thread safe by using collection
+decorator factories (implement the java monitor pattern):
+
+* Collections.synchronizedList
+* Collections.synchronizedMap
+* Collections.synchronizedCollection
+* Collections.synchronizedSet
+* Collections.unmodifiable*
+
+To make collections thread-safe, we need to return more than
+an unmodifieable copy, because the underlying referenced
+objects can still be changed.  We need to make a deepCopy
+each time if we can't verify user code (defensive copies).
+If the entries are immutable, then a shallow copy is fine::
+
+    @ThreadSafe
+    public class DelegatingVehicleTracker {
+        private final ConcurrentMap<String, Point> locations;
+        private final Map<String, Point> unmodifiableMap;
+
+        public DelegatingVehicleTracker(Map<String, Point> points) {
+            locations = new ConcurrentHashMap<String, Point>(points);
+            unmodifiableMap = Collections.unmodifiableMap(locations);
+        }
+
+        public Map<String, Point> getLocations() {
+            return unmodifiableMap;
+        }
+
+        public Point getLocation(String id) {
+            return locations.get(id);
+        }
+
+        public void setLocation(String id, int x, int y) {
+            if (locations.replace(id, new Point(x, y)) == null)
+                throw new IllegalArgumentException("invalid vehicle name: " + id);
+        }
+    }
+
+    /**
+     * Can also return a static view of the data instead of a
+     * live one
+     */
+    public Map<String, Point> getLocations() {
+        return Collections.unmodifiableMap(
+            new HashMap<String, Point>(locations));
+    }
+
+Note about private constructor capture idiom.
+
+If you extend a collection to add new composite atomic methods
+to it, you have to make sure that you are all using the same
+lock for the operations (intrinsic vs explicit) otherwise
+the atomic gurantee cannot be held::
+
+    @ThreadSafe
+    public class ListHelper<E> {
+        public List<E> list =
+            Collections.synchronizedList(new ArrayList<E>());
+
+        public boolean putIfAbsent(E x) {
+            synchronized (list) {
+                boolean absent = !list.contains(x);
+                if (absent)
+                    list.add(x);
+                return absent;
+            }
+        }
+    }
+
+    // a better example with composition
+    @ThreadSafe
+    public class ImprovedLis<T> implements List<T> {
+        private final List<T> list;
+
+        public ImprovedList(List<T> list) { this.list = list; }
+        public synchronized boolean putIfAbsent(E x) {
+            boolean absent = !list.contains(x);
+            if (absent)
+                list.add(x);
+            return absent;
+        }
+
+        // and other methods delegated as such
+        public synchronized void clear() { list.clear(); }
+    }
+
+
+------------------------------------------------------------
+Section Keynotes:
+------------------------------------------------------------
+
+* You cannot ensure thread safety without understanding an
+  object's invariants and post conditions. Constraints on the
+  valid values or state transitions for state variables can
+  create atomicity and encapsulation requirements.
+* Encapsulating data within an object confines access to the
+  data to the object's methods, making it easier to ensure that
+  the data is always accessed with the appropriate lock held.
+* If a class is composed of multiple independent thread safe
+  state variables and has no operations that have any invalid
+  state transitions, then it can delegate thread safety to
+  the underlying state variables.
+* Document a class's thread safety guarantees for its clients;
+  document its synchronization policy for its maintainers.
+
 

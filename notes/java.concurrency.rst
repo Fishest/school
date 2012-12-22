@@ -540,3 +540,159 @@ Section Keynotes:
 * For CPU bound problems #CPU or #CPU + 1 is the ideal number
   of threads to use to parallelize a problem. More threads
   will not help.
+
+============================================================ 
+Chapter 6: Task Execution
+============================================================ 
+
+java.util.concurrent provides a flexible thread pool
+implementation based on the Executor framework that accepts
+new tasks to perform in the pool::
+
+    public interface Executor {
+        void execute(Runnable command);
+    }
+
+The Executor implementations also provide lifecycle support
+and hooks for adding statistics gathering, application management,
+and monitoring. It is based on the producer/consumer model:
+
+* **Producers** - These are the application codes that submit new
+  jobs to be performed in the pool.
+* **Consumers** - These are the the executing threads consume new
+  tasks off the work queue.
+
+
+Can make a custom Executor, for example one that makes a new
+thread for each task or a single threaded implementation::
+
+    public class ThreadPerTaskExecutor implements Executor {
+        public void execute(Runnable command) {
+            new Thread(command).start();
+        }
+    }
+
+    public class SingleThreadedExecutor implements Executor {
+        public void execute(Runnable command) {
+            command.run();
+        }
+    }
+
+The Executor allows one to easily change the execution policy
+for a set of task:
+
+* In what thread will tasks be executed?
+* In what order should tasks be executed (FIFO, LIFO, priority order)?
+* How many tasks may execute concurrently?
+* How many tasks may be queued pending execution?
+* If a task has to be rejected because the system is overloaded,
+  which task should be selected as the victim.
+* How should the application be notified of this victim?
+* What actions should be taken before or after executing a task?
+
+There are a number of predefined thread pool implementations in the
+Executors static class:
+
+* **newFixedThreadPool** - Creates threads as tasks arrive and then keeps
+  the threads alive up to the max requested number of threads.
+* **newCachedThreadPool** - There is no upper thread bound on this pool,
+  but it makes an attempt to reap idle threads and create new ones when
+  the demand is high.
+* **newSingleThreadExecutor** - Create a single worker thread that can
+  gurantee that tasks are operated on in the supplied manner (LIFO, FIFO,
+  priority, etc).
+* **newScheduledThreadPool** - A fixed sized thread pool that supports
+  delayed or periodic tasks (similar to Timer but should be though of
+  as its replacement, however it doesn't support absolute times, only
+  relative).
+
+To address managing Executor instances, the ExecutorService interface
+extends Executor to add a number of lifecycle methods::
+
+    public interface ExecutorService extends Executor {
+        void shutdown(); // gracefully finish all tasks and stop
+        List<Runnable> shutdownNow(); // just stop everything now
+        boolean isShutdown();
+        boolean isTerminated();
+        boolean awaitTermination(long timeout, TimeUnit unit)
+            throws InterruptedException;
+
+        // ... and more
+    }
+
+If you need to build a schedule service, you can use a delay queue
+which associates a delay time with an object that must wait until
+it can be dequeued.
+
+One can create result bearing tasks with the `Callable<T>` interface
+(to not return a value, use `Callable<Void>`. Tasks can be in one of
+four states: Created, Submitted, Started, and Completed. Tasks that
+have not been started can easily be cancelled, while tasks that have
+started may be able to if they are responsive to interruption. Results
+are represented as a Future::
+
+    public interface Future<V> {
+        boolean cancel(boolean mayInterruptIfRunning);
+        boolean isCancelled();
+        boolean isDone();
+        V get() throws InterruptedException, ExecutionException, CancellationException;
+        V get(long timeout, TimeUnit unit) throws InterruptedException,
+            ExecutionException, CancellationException, TimeoutException;
+    }
+
+Can get a future by calling ExecutorService.submit with
+a `Callable` or `Runnable` or manually wrapping the two
+with a `FutureTask`. Can also overload `newTaskFor` in the
+ExecutorService implementation which allows one to change
+how the `FutureTask` is generated (Can make more secure
+tasks with `PriviledgedAction`)::
+
+    protected <T> RunnableFuture<T> newTaskFor(Callable<T> task) {
+        return new FutureTask<T>(task);
+    }
+
+If there are many Futures that are being submitted and one would
+like the next result as it becomes available, they can use a
+`CompletionService` which combines an `ExecutorService` with a
+`BlockingQueue` (`ExecutorCompletionService`). One can now use
+`take` and `poll` to query for the next completed future::
+
+    private class QueueingFuture<V> extends FutureTask<V> {
+        QueueingFuture(Callable<V> c) { super(c); }
+        QueueingFuture(Runnable t, V r) { super(t, r); }
+        protected void done() { completionQueue.add(this); }
+    }
+
+One can even create a new ExecutorService that is private to
+a new computation while reusing the existing Executor for more
+control.
+
+Can wait a certain amount of time for a task to finish (or just
+discard the result) by using the timeout overload of `Future.get`.
+If it timesout, it will raise a TimeoutException.  The task
+should then be stopped to prevent an unused resource from using
+CPU time::
+
+    Page renderPageWithAd() throws InterruptedException {
+        long endNanos = System.nanoTime() + TIME_BUDGET;
+        Future<Ad> f = exec.submit(new FetchAdTask());
+        // Render the page while waiting for the ad
+        Page page = renderPageBody();
+        Ad ad;
+        try {
+            // Only wait for the remaining time budget
+            long timeLeft = endNanos - System.nanoTime();
+            ad = f.get(timeLeft, NANOSECONDS);
+        } catch (ExecutionException e) {
+            ad = DEFAULT_AD;
+        } catch (TimeoutException e) {
+            ad = DEFAULT_AD;
+            f.cancel(true);
+        }
+        page.setAd(ad);
+        return page;
+    }
+
+============================================================ 
+Chapter 7: Cancellation and Shutdown
+============================================================ 

@@ -696,3 +696,353 @@ CPU time::
 ============================================================ 
 Chapter 7: Cancellation and Shutdown
 ============================================================ 
+
+Thread.stop and Thread.suspend should be avoided for managing
+threads. Threads can be stopped for a variety of issues:
+
+* **user cancellation** - A user clicked a close gui button
+  or stopped a worker thread via a JMX interface.
+* **time limited execution** - An application searches a
+  space for the best solution and returns what it has when
+  the time limit expires.
+* **error conditions** - when an error occurs, all other
+  involved threads must be stopped.
+* **shutdown** - When an application is stopped, all in
+  flight work must be finished and the application must
+  shutdown gracefully.
+
+There is no safe way to stop a thread unless the two threads
+agree upon some stopping protocol like a cancellation requested
+flag that is occasionally checked by the worker thread (cancelled
+thread must be volatile to work correctly).
+
+A thread can be interrupted by calling the interrupt method
+and then checking the thread.isInterrupted flag. Blocking
+methods will usually check the interrupted flag and if
+so will call the interrupted static method to clear the
+interrupt flag, and then throw an InterruptedException
+to the calling code. There is no gurantee on how long this
+will take to happen (although in practice it is usually
+quick)::
+
+    class PrimeProducer extends Thread {
+        private final BlockingQueue<BigInteger> queue;
+        PrimeProducer(BlockingQueue<BigInteger> queue) {
+            this.queue = queue;
+        }
+
+        public void run() {
+            try {
+                BigInteger p = BigInteger.ONE;
+                while (!Thread.currentThread().isInterrupted())
+                    queue.put(p = p.nextProbablePrime());
+            } catch (InterruptedException consumed) {
+                /* Allow thread to exit */
+            }
+        }
+        public void cancel() { interrupt(); }
+    }
+
+There are two ways to handle `InterruptionException`:
+
+* propigate the exception up to higher code after cleanup
+* reset the interrupted status so higher up code can worry
+
+To do the first, simply add `InterruptionException` to the
+exception specification::
+
+    BlockingQueue<Task> queue;
+    ...
+    public Task getNextTask() throws InterruptionException {
+        return queue.take();
+    }
+
+If you cannot do this (ex: because you implement Runnable),
+the standard solution is to restore the interruption status
+by calling `interrupt()` again. To finish local work, save
+the result of the interruption, continue looping until you
+are finished with your work, and then set the current
+interruped status before you exit::
+
+    public Task getNextTask(BlockingQueue<Task> queue) {
+        boolean interrupted = false;
+        try {
+            while (true) {
+                try {
+                    return queue.take();
+                } catch (InterruptedException ex) {
+                    interrupted = true;
+                }
+            }
+        } finally {
+            if (interrupted)
+                Thread.currentThread().interrupt();
+        }
+    }
+
+The ThreadPoolExecutor detects interruption and then checks
+if the pool is being shutdown. If so, it performs some
+cleanup, otherwise it starts new threads to keep the pool
+at the correct size.
+
+Here is an example of correctly making a task that can be
+run for a specified amount of time before being stopped
+(this is implemented with Future)::
+
+    public static void timedRun(Runnable r, long timeout, TimeUnit unit)
+        throws InterruptedException {
+
+        Future<?> task = taskExec.submit(r);
+        try {
+            task.get(timeout, unit);
+        } catch (TimeoutException e) {
+            // task will be cancelled below
+        } catch (ExecutionException e) {
+            // exception thrown in task; rethrow
+            throw launderThrowable(e.getCause());
+        } finally {
+            // Harmless if task already completed
+            task.cancel(true); // interrupt if running
+        }
+    }
+
+Here is an example of overriding a thread's cancel method::
+
+    public class ReaderThread extends Thread {
+        private final Socket socket;
+        private final InputStream in;
+
+        public ReaderThread(Socket socket) throws IOException {
+            this.socket = socket;
+            this.in = socket.getInputStream();
+        }
+
+        public void interrupt() {
+            try { socket.close(); }
+            catch (IOException ignored) { }
+            finally { super.interrupt(); }
+        }
+
+        public void run() {
+            try {
+                byte[] buf = new byte[BUFSZ];
+                while (true) {
+                    int count = in.read(buf);
+                    if (count < 0) break;
+                    else if (count > 0)
+                        processBuffer(buf, count);
+                }
+            } catch (IOException e) { } // Allow thread to exit
+        }
+    }
+
+In order to empty a queue, you need an isShutdown flag and
+then a reservation count that is incremented on publish and
+decremented on consume::
+
+    public class LogService {
+        private final BlockingQueue<String> queue;
+        private final LoggerThread loggerThread;
+        private final PrintWriter writer;
+        @GuardedBy("this") private boolean isShutdown;
+        @GuardedBy("this") private int reservations;
+
+        public void start() { loggerThread.start(); }
+        public void stop() {
+            synchronized (this) { isShutdown = true; }
+            loggerThread.interrupt();
+        }
+
+        public void log(String msg) throws InterruptedException {
+            synchronized (this) {
+                if (isShutdown)
+                    throw new IllegalStateException(...);
+                ++reservations;
+            }
+            queue.put(msg);
+        }
+
+        private class LoggerThread extends Thread {
+            public void run() {
+                try {
+                    while (true) {
+                        try {
+                            synchronized (this) {
+                                if (isShutdown && reservations == 0)
+                                    break;
+                            }
+                            String msg = queue.take();
+                            synchronized (this) { --reservations; }
+                            writer.println(msg);
+                        } catch (InterruptedException e) { /* retry */ }
+                    }
+                } finally {
+                    writer.close();
+                }
+            }
+        }
+    }
+
+    public class LogService {
+        private final ExecutorService exec = newSingleThreadExecutor();
+
+        public void start() { }
+        public void stop() throws InterruptedException {
+            try {
+                exec.shutdown();
+                exec.awaitTermination(TIMEOUT, UNIT);
+            } finally {
+                writer.close();
+            }
+        }
+
+        public void log(String msg) {
+            try {
+                exec.execute(new WriteTask(msg));
+            } catch (RejectedExecutionException ignored) { }
+        }
+    }
+
+An easier way to shutdown a producer consumer is with a poison
+message. This ensures that all the current messages are consumed
+and nothing after the stop message is consumed. If there are N
+consumers, then N poison messages must be placed on the queue.
+It should be noted that this only works with unbounded queues
+as if the queue is bounded, the stop message may block forever::
+
+    public class IndexingService {
+        private static final File POISON_MESSAGE = new Flie("");
+        private final IndexerThread consumer = new IndexerThread();
+        private final CrawlerThread consumer = new CrawlerThread();
+        private final BlockingQueue<File> queue;
+        private final file root;
+
+        public void start() {
+            producer.start();
+            consumer.start();
+        }
+
+        public void stop() { producer.interrupt(); }
+        public void awaitTermination() throws InterruptionException {
+            consumer.join();
+        }
+    }
+
+    public class CrawlerThread extends Thread {
+        public void run() {
+            try {
+                crawl(root);
+            } catch (InterruptedException e) {
+            } finally {
+                while (true) {
+                    try {
+                        queue.put(POISON_MESSAGE);
+                        break;
+                    } catch (InterruptedException e) {
+                }
+            }
+        }
+
+        private void crawl(File root) throws InterruptedException {
+            // ...
+        }
+    }
+
+    public class IndexerThread extends Thread {
+        public void run() {
+            try {
+                while (true) {
+                    File file = queue.take();
+                    if (file == POISON_MESSAGE)
+                        break;
+                    else indexFile(file);
+                }
+            } catch (InterruptedException ex) {}
+        }
+    }
+
+If you have a number of one off tasks that must be completed
+before the method is finished, just encapsulate the executor
+inside of the method call and block::
+
+    boolean checkMail(Set<String> hosts, long timeout, TimeUnit unit)
+        throws InterruptedException {
+
+        ExecutorService exec = Executors.newCachedThreadPool();
+        final AtomicBoolean hasNewMail = new AtomicBoolean(false);
+        try {
+            for (final String host: hosts) {
+                exec.execute(new Runnable() {
+                    public void run() {
+                        if (checkMail(host))
+                            hasNewMail.set(true);
+                    }
+                });
+            }
+        } finally {
+            exec.shutdown();
+            exec.awaitTermination(timeout, unit);
+        }
+        return hasNewMail.get();
+    }
+
+If you need to handle uncaught exceptions in an application,
+subclass the uncaughtExceptionHandler that you provide via
+a ThreadFactory::
+
+    public class UEHLogger implements Thread.UncaughtExceptionHandler {
+        public void uncaughtException(Thread t, Throwable e) {
+            Logger logger = Logger.getAnonymousLogger();
+            logger.log(Level.SEVERE, "Thread terminated with exception: " + t.getName(), e);
+        }
+    }
+
+JVM shutdown handlers can be added with `Runtime.addShutdownHook`,
+there is no gurantee on the order these will be run in and if they
+hang, so does the JVM shutdown. These should run fast, be very
+defensive, and make no assumptions about the state of the service.
+Can be used to delete temporary files, close log, etc. If the shutdown
+handlers make use of mutual resources (a logger for example), then
+run all the tasks in a single handler, otherwise each handler is run
+concurrently::
+
+    public void start() {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                try { LogService.this.stop(); }
+                catch (InterruptedException ignored) {}
+            }
+        });
+    }
+
+Can also create normal threads that are children of the
+current JVM, or daemon threads that can run after the JVM
+parent shutdown.
+
+------------------------------------------------------------
+Section Keynotes:
+------------------------------------------------------------
+
+* There is nothing in the API or language specification that
+  ties interruption to any specific cancellation semantics,
+  but in practice, using interruption for anything but
+  cancellation is fragile and difficult to sustain in larger
+  applications.
+* Interruption is usually the most sensible way to implement
+  cancellation.
+* Because each thread has its own interruption policy, you
+  should not interrupt a thread unless you know what
+  interruption means to that thread.
+* Only code that implements a thread's interruption policys
+  may swallow an interruption request. General purpose task
+  and library code should never swallow interruption requests.
+* Provide lifecycle methods whenever a thread owning service
+  has a lifetime longer than that of the method that created
+  it.
+* Daemon threads are not a good substitute for properly
+  managing the lifecycle of services within an application.
+* Avoid finalizers (they jack up the GC)
+
+============================================================ 
+Chapter 8: Applying Thread Pools
+============================================================ 

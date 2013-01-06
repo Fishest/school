@@ -1046,3 +1046,455 @@ Section Keynotes:
 ============================================================ 
 Chapter 8: Applying Thread Pools
 ============================================================ 
+
+If your thread pool is used to query JDBC, be wary of how
+many connections are allowed in JDBC, otherwise one will be
+limited by the other.
+
+If a task is long running, avoid using the unbounded wait
+methods, and instead use the time out versions.
+
+Threadpool sizes should not be hardcoded, but instead should
+be configured by some mechanism. For CPU intensive work, the
+following formula should be sufficient::
+
+    /**
+     * given the following, the number of threads (N_th):
+     * N_cpu = Number of CPUS
+     * U_cpu = target CPU utilization 0 <= x <= 1
+     * W/C   = ratio of wait time to compute time
+     * N_th  = N_cpu * U_cpu * (1 + W/C)
+     */
+    int N_CPUS = Runtime.getRuntime().availableProcessors() + 1;
+
+To allocate a pool for other finite pooled resources, simply
+allocate the number of pool threads based on the minimum
+available other resource (socket handles, file handles,
+database connections).
+
+If the factory methods for thread pools supplied by Executors
+are not sufficient, you can use the ctor supplied by the
+ThreadPoolExecutor (you can also use `prestartAllCoreThreads`)::
+
+    public ThreadPoolExecutor(int corePoolSize,
+        int maximumPoolSize,
+        long keepAliveTime,
+        TimeUnit unit,
+        BlockingQueue<Runnable> workQueue,
+        ThreadFactory threadFactory,
+        RejectedExecutionHandler handler) { ... }
+
+You can tune the corePoolSize and maximumPoolSize to control
+the size and reaping of idle threads in the system (on the
+supplied timeout, an idle thread will be reaped until
+corePoolSize is reached):
+
+* newFixedThreadPool: corePoolSize == maximumPoolSize
+* newCachedThreadPool: corePoolSize = 0, maximumPoolSize =
+  `Integer.MAX_VALUE` (uses a SynchronousQueue)
+
+There are three options for the type of queue to supply for
+work queue: unbounded, bounded, and synchronous handoff. The
+default is a LinkedBlockingQueue. Another option is to use
+an ArrayBlockingQueue, or a bounded LinkedBlockingQueue or
+(however, policy must be set to handle when the queue is full).
+If the thread pool is unbounded or very large, a SynchronousQueue
+can be used to hand off tasks directly to the worker threads.
+If FIFO order of tasks is not wanted, PriorityBlockingQueue can
+be used to execute tasks based on some order (natural order if
+the tasks implement `Comparable` or by using a `Comparator`).
+
+When a bounded work queue fills up, the saturation policy
+comes into play. This is supplied by the `RejectedExecutionHandler`
+which can be changed after the fact.  There are a number of
+existing ones that can be used:
+
+* AbortPolicy (the default) which throws allowing the user to
+  redefine their own policy easily.
+* DiscardPolicy silently discards the new task if it cannot
+  be enqueued.
+* DiscardOldestPolicy discards the oldest task (the one closest
+  to running), in the case of a priority queue, this is the
+  highest priority item!
+* CallerRunsPolicy issues a throttling policy by executing
+  the newly submitted task on the calling thread (this
+  would cause a webserver to stop accepting requests until
+  the last task was executed). So as the service becomes
+  overloaded, the overload is pushed outward, from the thread
+  pool to the work queue, to the application, to the TCP
+  layer, and eventually to the client.
+
+The policy can be set as follows::
+
+    ThreadPoolExecutor executor = new ThreadPoolExecutor(
+        N_THREADS, N_THREADS, 0L, TimeUnit.MILLISECONDS,
+        new LinkedBlockingQueue<Runnable>(CAPACITY));
+    executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+
+A custom thread factory can also be specified to do things
+like give threads custom names, add debug logging, etc;
+simply implement the `ThreadFactory` interface::
+
+    public interface ThreadFactory {
+        Thread newThread(Runnable task);
+    }
+
+    public class NamedThreadFactory implements ThreadFactory {
+        private final String poolName;
+
+        public NamedThreadFactory(String poolName) {
+            this.poolName = poolName;
+        }
+
+        public Thread newThread(Runnable task) {
+            return new NamedThread(runnable, poolName);
+        }
+        Thread newThread(Runnable task);
+    }
+
+Executors also includes a factory method, `unconfigurableExecutorService`
+which wraps an existing ExecutorService such that it cannot
+be configured after creation. Otherwise, all options can be
+changed after the fact (except for the SingleThreadExecutor)::
+
+    ExecutorService exec = Executors.newCachedThreadPool();
+    if (exec instanceof ThreadPoolExecutor)
+        ((ThreadPoolExecutor) exec).setCorePoolSize(10);
+    else
+        throw new AssertionError("Oops, bad assumption");
+
+page 111
+
+
+------------------------------------------------------------
+Section Keynotes:
+------------------------------------------------------------
+
+* Some tasks have characteristics that require or preclude a
+  specific execution policy. Tasks that depend on other tasks
+  require that the thread pool be large enough that tasks are
+  never queued or rejected; tasks that exploit thread
+  confinement require sequential execution. Document these
+  requirements so that future maintainers do not undermine
+  safety or liveness by substituting an incompatible execution
+  policy.
+* Whenever you submit to an Executor tasks that are not
+  independent, be aware of the possibility of thread starvation
+  deadlock, and document any pool sizing or configuration
+  constraints in the code or configuration file where the
+  Executor is configured.
+
+
+============================================================ 
+Chapter 10:
+============================================================ 
+
+============================================================ 
+Chapter 11:
+============================================================ 
+
+============================================================ 
+Chapter 12:
+============================================================ 
+
+============================================================ 
+Chapter 13:
+============================================================ 
+
+============================================================ 
+Chapter 14: Building Custom Synchronizers
+============================================================ 
+
+In order to block a queue on conditions instead of using a
+check and then sleep operation, use condition queues::
+
+    @ThreadSafe
+    public class BoundedBuffer<V> extends BaseBoundedBuffer<V> {
+        // CONDITION PREDICATE: not-full (!isFull())
+        // CONDITION PREDICATE: not-empty (!isEmpty())
+        public BoundedBuffer(int size) { super(size); }
+
+        // BLOCKS-UNTIL: not-full
+        public synchronized void put(V v) throws InterruptedException {
+            while (isFull())
+                wait();
+            doPut(v);
+            notifyAll();
+        }
+
+        // BLOCKS-UNTIL: not-empty
+        public synchronized V take() throws InterruptedException {
+            while (isEmpty())
+                wait();
+            V v = doTake();
+            notifyAll();
+            return v;
+        }
+    }
+
+The general structure of a state dependent method is as
+follows::
+
+    void stateDependentMethod() throws InterruptedException {
+        synchronized(lock) {
+            while (!conditionPredicate())
+                lock.wait();
+            // object is now in desired state to perform work
+        }
+    }
+
+When using condition waits (Object.wait or Condition.await):
+
+* Always have a condition predicatesome test of object state
+  that must hold before proceeding.
+* Always test the condition predicate before calling wait,
+  and again after returning from wait.
+* Always call wait in a loop.
+* Ensure that the state variables making up the condition
+  predicate are guarded by the lock associated with the
+  condition queue.
+* Hold the lock associated with the the condition queue when
+  calling wait, notify, or notifyAll
+* Do not release the lock after checking the condition
+  predicate but before acting on it.
+
+Single notify can be used instead of notifyAll only when both
+of the following conditions hold:
+
+* Uniform waiters. Only one condition predicate is associated
+  with the condition queue, and each thread executes the same
+  logic upon returning from wait; and
+* One in, one out. A notification on the condition variable
+  enables at most one thread to proceed.
+
+This is an example of a thread gate using the wait and notify
+of the intrinsic lock::
+
+    @ThreadSafe
+    public class ThreadGate {
+        // CONDITION-PREDICATE: opened-since(n) (isOpen || generation>n)
+        @GuardedBy("this") private boolean isOpen;
+        @GuardedBy("this") private int generation;
+
+        public synchronized void close() {
+            isOpen = false;
+        }
+
+        public synchronized void open() {
+            ++generation;
+            isOpen = true;
+            notifyAll();
+        }
+
+        // BLOCKS-UNTIL: opened-since(generation on entry)
+        public synchronized void await() throws InterruptedException {
+            int arrivalGeneration = generation;
+            while (!isOpen && arrivalGeneration == generation)
+                wait();
+        }
+    }
+
+Here is a more granular example using explicit locks and
+multiple condition variables::
+
+    @ThreadSafe
+    public class ConditionBoundedBuffer<T> {
+        protected final Lock lock = new ReentrantLock();
+        // CONDITION PREDICATE: notFull (count < items.length)
+        private final Condition notFull = lock.newCondition();
+        // CONDITION PREDICATE: notEmpty (count > 0)
+        private final Condition notEmpty = lock.newCondition();
+        @GuardedBy("lock")
+        private final T[] items = (T[]) new Object[BUFFER_SIZE];
+        @GuardedBy("lock") private int tail, head, count;
+
+        // BLOCKS-UNTIL: notFull
+        public void put(T x) throws InterruptedException {
+            lock.lock();
+            try {
+                while (count == items.length)
+                    notFull.await();
+                items[tail] = x;
+                if (++tail == items.length)
+                    tail = 0;
+                ++count;
+                notEmpty.signal();
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        // BLOCKS-UNTIL: notEmpty
+        public T take() throws InterruptedException {
+            lock.lock();
+            try {
+                while (count == 0)
+                    notEmpty.await();
+                T x = items[head];
+                items[head] = null;
+                if (++head == items.length)
+                    head = 0;
+                --count;
+                notFull.signal();
+                return x;
+            } finally {
+                lock.unlock();
+            }
+        }
+    }
+
+Here is an example of implementing a simple semaphore using
+a lock::
+
+    @ThreadSafe
+    public class SemaphoreOnLock {
+        private final Lock lock = new ReentrantLock();
+        // CONDITION PREDICATE: permitsAvailable (permits > 0)
+        private final Condition permitsAvailable = lock.newCondition();
+        @GuardedBy("lock") private int permits;
+
+        SemaphoreOnLock(int initialPermits) {
+            lock.lock();
+            try {
+                permits = initialPermits;
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        // BLOCKS-UNTIL: permitsAvailable
+        public void acquire() throws InterruptedException {
+            lock.lock();
+            try {
+                while (permits <= 0)
+                permitsAvailable.await();
+                --permits;
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        public void release() {
+            lock.lock();
+            try {
+                ++permits;
+                permitsAvailable.signal();
+            } finally {
+                lock.unlock();
+            }
+        }
+    }
+
+All of the concurrent primitives in java.util.concurrent are
+implemented using the AbstractQueuedSynchronizer. They are
+generally structured as follows::
+
+    boolean acquire() throws InterruptedException {
+        while (state does not permit acquire) {
+            if (blocking acquisition requested) {
+                enqueue current thread if not already queued
+                block current thread
+            }
+            else
+                return failure
+        }
+        possibly update synchronization state
+        dequeue thread if it was queued
+        return success
+    }
+
+    void release() {
+        update synchronization state
+        if (new state may permit a blocked thread to acquire)
+            unblock one or more queued threads
+    }
+
+
+Here is an example of implementing a simple binary latch
+using the AQS::
+
+    @ThreadSafe
+    public class OneShotLatch {
+        private final Sync sync = new Sync();
+        public void signal() { sync.releaseShared(0); }
+        public void await() throws InterruptedException {
+            sync.acquireSharedInterruptibly(0);
+        }
+
+        private class Sync extends AbstractQueuedSynchronizer {
+            protected int tryAcquireShared(int ignored) {
+                return (getState() == 1) ? 1 : -1;
+            }
+
+            protected boolean tryReleaseShared(int ignored) {
+                setState(1);    // latch is now open
+                return true;    // other threads may now acquire
+            }
+        }
+    }
+
+In short, if you need a shared lock you should override:
+tryAcquireShared and tryReleaseShared.  If you need an
+exclusive lock, override: tryAcquire, tryRelease, and
+isHeldExclusively.
+
+Here is the ReentrantLock tryAcquire implementation::
+
+    protected boolean tryAcquire(int ignored) {
+        final Thread current = Thread.currentThread();
+        int c = getState();
+        if (c == 0) {
+            if (compareAndSetState(0, 1)) {
+                owner = current;
+                return true;
+            }
+        } else if (current == owner) {
+            setState(c+1);
+            return true;
+        }
+        return false;
+    }
+
+Here is the implementation of Semaphore::
+
+    protected int tryAcquireShared(int acquires) {
+        while (true) {
+            int available = getState();
+            int remaining = available - acquires;
+            if (remaining < 0
+                || compareAndSetState(available, remaining))
+                return remaining;
+        }
+    }
+
+    protected boolean tryReleaseShared(int releases) {
+        while (true) {
+            int p = getState();
+            if (compareAndSetState(p, p + releases))
+                return true;
+        }
+    }
+
+------------------------------------------------------------
+Section Keynotes:
+------------------------------------------------------------
+
+* Document the condition predicate(s) associated with a
+  condition queue and the operations that wait on them.
+* Every call to wait is implicitly associated with a specific
+  condition predicate. When calling wait regarding a particular
+  condition predicate, the caller must already hold the lock
+  associated with the condition queue, and that lock must also
+  guard the state variables from which the condition predicate
+  is composed.
+* Whenever you wait on a condition, make sure that someone
+  will perform a notification whenever the condition predicate
+  becomes true.
+* The equivalents of wait, notify, and notifyAll for Condition
+  objects are await, signal, and signalAll. However, Condition
+  extends Object, which means that it also has wait and notify
+  methods. Be sure to use the proper versions await and signal.
+
+============================================================ 
+Chapter 15: Atomic Variables and Non-Blocking Syn
+============================================================ 

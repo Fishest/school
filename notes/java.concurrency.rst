@@ -15,7 +15,9 @@ available: cas, load linked/store conditional, or spin locks:
 
 The java syncronized block performc implicit locking of any
 reference type (which can be used as implicit locks) this
-protects all mutable state in the instance::
+protects all mutable state in the instance:
+
+.. code-block:: java
 
     syncronized(lock) { ... }
 
@@ -24,7 +26,9 @@ protects all mutable state in the instance::
 
 There are a number of annotations that can be added to the java
 code to allow thread documentation and can also be used by
-FindBugs to identify threading bugs::
+FindBugs to identify threading bugs:
+
+.. code-block:: java
 
     @GuardedBy
     @ThreadSafe
@@ -54,10 +58,12 @@ Chapter 3
 Not only do we want to make sure atomic operations are
 synchronized, we also want to make sure other threads see
 the results of other thread operations (volatile). For example,
-a status variable that must be seen between threads::
+a status variable that must be seen between threads:
+
+.. code-block:: java
 
     volatile boolean do_sleep;
-    ...
+    //...
     while (do_sleep) {
         countSomeSheep();
     }
@@ -71,7 +77,9 @@ If you are going to start a thread from a constructor, don't
 start the thread in the constructor, expose a start or
 initialize method instead (so the thread doesn't see an object
 that isn't fully constructed). If you need to register an
-event listener, use a factory method::
+event listener, use a factory method:
+
+.. code-block:: java
 
     public class SafeListener {
         private final EventListener listener;
@@ -95,12 +103,12 @@ An easy way to make data thread safe is to simply confine it
 to a single thread's view. This is done in GUI event threads
 and connection pools (thread confinement). Local variables
 are confinement using the stack. Can also use `ThreadLocal<T>`
-to create confined singletons or globals (use sparingly)::
+to create confined singletons or globals (use sparingly):
 
-    /*
-     * data is stored in the Thread instance so it is garbage
-     * collected when the thread exits
-     */
+.. code-block:: java
+
+    // data is stored in the Thread instance so it is garbage
+    // collected when the thread exits
     private static ThreadLocal<Connection> connectionHolder =
         new ThreadLocal<Connection>() {
             public Connection initialValue() {
@@ -194,7 +202,9 @@ To make collections thread-safe, we need to return more than
 an unmodifieable copy, because the underlying referenced
 objects can still be changed.  We need to make a deepCopy
 each time if we can't verify user code (defensive copies).
-If the entries are immutable, then a shallow copy is fine::
+If the entries are immutable, then a shallow copy is fine:
+
+.. code-block:: java
 
     @ThreadSafe
     public class DelegatingVehicleTracker {
@@ -220,10 +230,8 @@ If the entries are immutable, then a shallow copy is fine::
         }
     }
 
-    /**
-     * Can also return a static view of the data instead of a
-     * live one
-     */
+    // Can also return a static view of the data instead of a
+    // live one
     public Map<String, Point> getLocations() {
         return Collections.unmodifiableMap(
             new HashMap<String, Point>(locations));
@@ -234,7 +242,9 @@ Note about private constructor capture idiom.
 If you extend a collection to add new composite atomic methods
 to it, you have to make sure that you are all using the same
 lock for the operations (intrinsic vs explicit) otherwise
-the atomic gurantee cannot be held::
+the atomic gurantee cannot be held:
+
+.. code-block:: java
 
     @ThreadSafe
     public class ListHelper<E> {
@@ -297,7 +307,9 @@ the Collections.synchronizedXxx factory wrappers. These guard
 each single method, however, compound methods may need extra
 guards. In order to lock these, we must aquire the collections
 intrinsic lock before performing these actions (the same is
-true for iteration)::
+true for iteration):
+
+.. code-block:: java
 
     public static Object getLast(Vector list) {
         synchronized(list) {
@@ -344,7 +356,9 @@ while they are being iterated over and may include modifications into
 a current iterator while it is being traversed. Also, size and isEmpty
 have been relaxed to give "estimates" for greater performance. Also,
 the intrinsic lock of concurrent collections will not lock the entire
-collection::
+collection:
+
+.. code-block:: java
 
     public interface ConcurrentMap<K,V> extends Map<K,V> {
         // Insert into map only if no value is mapped from K
@@ -391,7 +405,9 @@ graph traversal problem (gc heap for example):
 * LinkedBlockingDeque - A linked list BlockingDeque
 
 If you implement runnable, you cannot ignore the InterruptedException
-that may be thrown when a thread blocking call has been made::
+that may be thrown when a thread blocking call has been made:
+
+.. code-block:: java
 
     public class TaskRunnable implements Runnable {
         BlockingQueue<Task> queue;
@@ -418,7 +434,9 @@ in the java bcl:
 Latches are a gate to block threads until some event
 happens, and then allow threads to proceed (can only block
 once). Can use a CountDownLatch to make sure all threads
-are initialized before starting their work::
+are initialized before starting their work:
+
+.. code-block:: java
 
     public class TestHarness {
         public long timeTasks(int nThreads, final Runnable task)
@@ -457,7 +475,9 @@ If the task is completed, `get` returns the result of the
 operation immediately.  Otherwise, it will block until:
 the task completes, the get times out, or the task throws (one of
 checked exception thrown by the callable, a runtime exception, or
-an Error)::
+an Error):
+
+.. code-block:: java
 
     public ExpensiveObject preload() throws ExecutionException, InterruptedException {
         FutureTask<ExpensiveObject> future = new FutureTask<ExpensiveObject>(
@@ -486,7 +506,9 @@ is a mutex to allow for mutual exclusion (non-reentrant).
 The semaphore is not limited to the number of permits it
 is initialized with and another thread can release for
 any other thread (no permit association) for things like
-deadlock prevention (which locks do not allow)::
+deadlock prevention (which locks do not allow):
+
+.. code-block:: java
 
     public class BoundedHashSet<T> {
         private final Set<T> set;
@@ -547,7 +569,9 @@ Chapter 6: Task Execution
 
 java.util.concurrent provides a flexible thread pool
 implementation based on the Executor framework that accepts
-new tasks to perform in the pool::
+new tasks to perform in the pool:
+
+.. code-block:: java
 
     public interface Executor {
         void execute(Runnable command);
@@ -564,7 +588,9 @@ and monitoring. It is based on the producer/consumer model:
 
 
 Can make a custom Executor, for example one that makes a new
-thread for each task or a single threaded implementation::
+thread for each task or a single threaded implementation:
+
+.. code-block:: java
 
     public class ThreadPerTaskExecutor implements Executor {
         public void execute(Runnable command) {
@@ -607,7 +633,9 @@ Executors static class:
   relative).
 
 To address managing Executor instances, the ExecutorService interface
-extends Executor to add a number of lifecycle methods::
+extends Executor to add a number of lifecycle methods:
+
+.. code-block:: java
 
     public interface ExecutorService extends Executor {
         void shutdown(); // gracefully finish all tasks and stop
@@ -629,7 +657,9 @@ One can create result bearing tasks with the `Callable<T>` interface
 four states: Created, Submitted, Started, and Completed. Tasks that
 have not been started can easily be cancelled, while tasks that have
 started may be able to if they are responsive to interruption. Results
-are represented as a Future::
+are represented as a Future:
+
+.. code-block:: java
 
     public interface Future<V> {
         boolean cancel(boolean mayInterruptIfRunning);
@@ -645,7 +675,9 @@ a `Callable` or `Runnable` or manually wrapping the two
 with a `FutureTask`. Can also overload `newTaskFor` in the
 ExecutorService implementation which allows one to change
 how the `FutureTask` is generated (Can make more secure
-tasks with `PriviledgedAction`)::
+tasks with `PriviledgedAction`):
+
+.. code-block:: java
 
     protected <T> RunnableFuture<T> newTaskFor(Callable<T> task) {
         return new FutureTask<T>(task);
@@ -655,7 +687,9 @@ If there are many Futures that are being submitted and one would
 like the next result as it becomes available, they can use a
 `CompletionService` which combines an `ExecutorService` with a
 `BlockingQueue` (`ExecutorCompletionService`). One can now use
-`take` and `poll` to query for the next completed future::
+`take` and `poll` to query for the next completed future:
+
+.. code-block:: java
 
     private class QueueingFuture<V> extends FutureTask<V> {
         QueueingFuture(Callable<V> c) { super(c); }
@@ -671,7 +705,9 @@ Can wait a certain amount of time for a task to finish (or just
 discard the result) by using the timeout overload of `Future.get`.
 If it timesout, it will raise a TimeoutException.  The task
 should then be stopped to prevent an unused resource from using
-CPU time::
+CPU time:
+
+.. code-block:: java
 
     Page renderPageWithAd() throws InterruptedException {
         long endNanos = System.nanoTime() + TIME_BUDGET;
@@ -723,7 +759,9 @@ so will call the interrupted static method to clear the
 interrupt flag, and then throw an InterruptedException
 to the calling code. There is no gurantee on how long this
 will take to happen (although in practice it is usually
-quick)::
+quick):
+
+.. code-block:: java
 
     class PrimeProducer extends Thread {
         private final BlockingQueue<BigInteger> queue;
@@ -737,7 +775,7 @@ quick)::
                 while (!Thread.currentThread().isInterrupted())
                     queue.put(p = p.nextProbablePrime());
             } catch (InterruptedException consumed) {
-                /* Allow thread to exit */
+                // Allow thread to exit
             }
         }
         public void cancel() { interrupt(); }
@@ -749,7 +787,9 @@ There are two ways to handle `InterruptionException`:
 * reset the interrupted status so higher up code can worry
 
 To do the first, simply add `InterruptionException` to the
-exception specification::
+exception specification:
+
+.. code-block:: java
 
     BlockingQueue<Task> queue;
     ...
@@ -762,7 +802,9 @@ the standard solution is to restore the interruption status
 by calling `interrupt()` again. To finish local work, save
 the result of the interruption, continue looping until you
 are finished with your work, and then set the current
-interruped status before you exit::
+interruped status before you exit:
+
+.. code-block:: java
 
     public Task getNextTask(BlockingQueue<Task> queue) {
         boolean interrupted = false;
@@ -787,7 +829,9 @@ at the correct size.
 
 Here is an example of correctly making a task that can be
 run for a specified amount of time before being stopped
-(this is implemented with Future)::
+(this is implemented with Future):
+
+.. code-block:: java
 
     public static void timedRun(Runnable r, long timeout, TimeUnit unit)
         throws InterruptedException {
@@ -806,7 +850,9 @@ run for a specified amount of time before being stopped
         }
     }
 
-Here is an example of overriding a thread's cancel method::
+Here is an example of overriding a thread's cancel method:
+
+.. code-block:: java
 
     public class ReaderThread extends Thread {
         private final Socket socket;
@@ -838,7 +884,9 @@ Here is an example of overriding a thread's cancel method::
 
 In order to empty a queue, you need an isShutdown flag and
 then a reservation count that is incremented on publish and
-decremented on consume::
+decremented on consume:
+
+.. code-block:: java
 
     public class LogService {
         private final BlockingQueue<String> queue;
@@ -874,7 +922,7 @@ decremented on consume::
                             String msg = queue.take();
                             synchronized (this) { --reservations; }
                             writer.println(msg);
-                        } catch (InterruptedException e) { /* retry */ }
+                        } catch (InterruptedException e) { }
                     }
                 } finally {
                     writer.close();
@@ -908,7 +956,9 @@ message. This ensures that all the current messages are consumed
 and nothing after the stop message is consumed. If there are N
 consumers, then N poison messages must be placed on the queue.
 It should be noted that this only works with unbounded queues
-as if the queue is bounded, the stop message may block forever::
+as if the queue is bounded, the stop message may block forever:
+
+.. code-block:: java
 
     public class IndexingService {
         private static final File POISON_MESSAGE = new Flie("");
@@ -963,7 +1013,9 @@ as if the queue is bounded, the stop message may block forever::
 
 If you have a number of one off tasks that must be completed
 before the method is finished, just encapsulate the executor
-inside of the method call and block::
+inside of the method call and block:
+
+.. code-block:: java
 
     boolean checkMail(Set<String> hosts, long timeout, TimeUnit unit)
         throws InterruptedException {
@@ -988,7 +1040,9 @@ inside of the method call and block::
 
 If you need to handle uncaught exceptions in an application,
 subclass the uncaughtExceptionHandler that you provide via
-a ThreadFactory::
+a ThreadFactory:
+
+.. code-block:: java
 
     public class UEHLogger implements Thread.UncaughtExceptionHandler {
         public void uncaughtException(Thread t, Throwable e) {
@@ -1004,7 +1058,9 @@ defensive, and make no assumptions about the state of the service.
 Can be used to delete temporary files, close log, etc. If the shutdown
 handlers make use of mutual resources (a logger for example), then
 run all the tasks in a single handler, otherwise each handler is run
-concurrently::
+concurrently:
+
+.. code-block:: java
 
     public void start() {
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -1074,7 +1130,9 @@ database connections).
 
 If the factory methods for thread pools supplied by Executors
 are not sufficient, you can use the ctor supplied by the
-ThreadPoolExecutor (you can also use `prestartAllCoreThreads`)::
+ThreadPoolExecutor (you can also use `prestartAllCoreThreads`):
+
+.. code-block:: java
 
     public ThreadPoolExecutor(int corePoolSize,
         int maximumPoolSize,
@@ -1124,7 +1182,9 @@ existing ones that can be used:
   pool to the work queue, to the application, to the TCP
   layer, and eventually to the client.
 
-The policy can be set as follows::
+The policy can be set as follows:
+
+.. code-block:: java
 
     ThreadPoolExecutor executor = new ThreadPoolExecutor(
         N_THREADS, N_THREADS, 0L, TimeUnit.MILLISECONDS,
@@ -1133,7 +1193,9 @@ The policy can be set as follows::
 
 A custom thread factory can also be specified to do things
 like give threads custom names, add debug logging, etc;
-simply implement the `ThreadFactory` interface::
+simply implement the `ThreadFactory` interface:
+
+.. code-block:: java
 
     public interface ThreadFactory {
         Thread newThread(Runnable task);
@@ -1155,7 +1217,9 @@ simply implement the `ThreadFactory` interface::
 Executors also includes a factory method, `unconfigurableExecutorService`
 which wraps an existing ExecutorService such that it cannot
 be configured after creation. Otherwise, all options can be
-changed after the fact (except for the SingleThreadExecutor)::
+changed after the fact (except for the SingleThreadExecutor):
+
+.. code-block:: java
 
     ExecutorService exec = Executors.newCachedThreadPool();
     if (exec instanceof ThreadPoolExecutor)
@@ -1189,7 +1253,9 @@ Chapter 9: GUI Applications
 ============================================================ 
 
 Here is an example of creating a SwingUtility class using
-the executor::
+the executor:
+
+.. code-block:: java
 
     public class SwingUtilities {
         private static final ExecutorService exec =
@@ -1224,7 +1290,9 @@ the executor::
     }
 
 And here is an example of creating an Executor using the
-supplied SwingUtilities::
+supplied SwingUtilities:
+
+.. code-block:: java
 
     public class GuiExecutor extends AbstractExecutorService {
         // Singletons have a private constructor and a public factory
@@ -1262,7 +1330,9 @@ Chapter 14: Building Custom Synchronizers
 ============================================================ 
 
 In order to block a queue on conditions instead of using a
-check and then sleep operation, use condition queues::
+check and then sleep operation, use condition queues:
+
+.. code-block:: java
 
     @ThreadSafe
     public class BoundedBuffer<V> extends BaseBoundedBuffer<V> {
@@ -1289,7 +1359,9 @@ check and then sleep operation, use condition queues::
     }
 
 The general structure of a state dependent method is as
-follows::
+follows:
+
+.. code-block:: java
 
     void stateDependentMethod() throws InterruptedException {
         synchronized(lock) {
@@ -1324,7 +1396,9 @@ of the following conditions hold:
   enables at most one thread to proceed.
 
 This is an example of a thread gate using the wait and notify
-of the intrinsic lock::
+of the intrinsic lock:
+
+.. code-block:: java
 
     @ThreadSafe
     public class ThreadGate {
@@ -1351,7 +1425,9 @@ of the intrinsic lock::
     }
 
 Here is a more granular example using explicit locks and
-multiple condition variables::
+multiple condition variables:
+
+.. code-block:: java
 
     @ThreadSafe
     public class ConditionBoundedBuffer<T> {
@@ -1400,7 +1476,9 @@ multiple condition variables::
     }
 
 Here is an example of implementing a simple semaphore using
-a lock::
+a lock:
+
+.. code-block:: java
 
     @ThreadSafe
     public class SemaphoreOnLock {
@@ -1443,7 +1521,9 @@ a lock::
 
 All of the concurrent primitives in java.util.concurrent are
 implemented using the AbstractQueuedSynchronizer. They are
-generally structured as follows::
+generally structured as follows:
+
+.. code-block:: java
 
     boolean acquire() throws InterruptedException {
         while (state does not permit acquire) {
@@ -1467,7 +1547,9 @@ generally structured as follows::
 
 
 Here is an example of implementing a simple binary latch
-using the AQS::
+using the AQS:
+
+.. code-block:: java
 
     @ThreadSafe
     public class OneShotLatch {
@@ -1494,7 +1576,9 @@ tryAcquireShared and tryReleaseShared.  If you need an
 exclusive lock, override: tryAcquire, tryRelease, and
 isHeldExclusively.
 
-Here is the ReentrantLock tryAcquire implementation::
+Here is the ReentrantLock tryAcquire implementation:
+
+.. code-block:: java
 
     protected boolean tryAcquire(int ignored) {
         final Thread current = Thread.currentThread();
@@ -1511,7 +1595,9 @@ Here is the ReentrantLock tryAcquire implementation::
         return false;
     }
 
-Here is the implementation of Semaphore::
+Here is the implementation of Semaphore:
+
+.. code-block:: java
 
     protected int tryAcquireShared(int acquires) {
         while (true) {
@@ -1573,7 +1659,9 @@ a defeated thread can try again (update with my result), perform
 some recovery action (the current balance is different), or do
 nothing (someone may have already done our work). This is an
 example of a non-blocking counter using CAS (AtomicInteger would
-have been a simpler solution)::
+have been a simpler solution):
+
+.. code-block:: java
 
     @ThreadSafe
     public class CasCounter {
@@ -1604,7 +1692,9 @@ array element (unlike volatile array which is just reference).
 CAS performs better for lower levels of contention, locks
 perform better for higher levels of contention.
 
-What follows is a non-blocking stack using Treiber's algorithm::
+What follows is a non-blocking stack using Treiber's algorithm:
+
+.. code-block:: java
 
     @ThreadSafe
     public class ConcurrentStack<E> {
@@ -1638,7 +1728,9 @@ What follows is a non-blocking stack using Treiber's algorithm::
         }
     }
 
-Here is an example of the Michael-Scott Non-Blocking Queue::
+Here is an example of the Michael-Scott Non-Blocking Queue:
+
+.. code-block:: java
 
     @ThreadSafe
     public class LinkedQueue<E> {
@@ -1677,7 +1769,9 @@ Here is an example of the Michael-Scott Non-Blocking Queue::
     }
 
 If you are creating many AtomicXXX types, you can create a
-single `AtomicReferenceFieldUpdater` that can be reused::
+single `AtomicReferenceFieldUpdater` that can be reused:
+
+.. code-block:: java
 
     private class Node<E> {
         private final E item;

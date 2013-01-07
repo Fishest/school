@@ -1309,21 +1309,214 @@ supplied SwingUtilities:
         // Plus trivial implementations of lifecycle methods
     }
 
+Here is an example of binding a long running task to a GUI
+event:
+
+.. code-block:: java
+
+    ExecutorService backgroundExec = Executors.newCachedThreadPool();
+    // ...
+
+    button.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            backgroundExec.execute(new Runnable() {
+                public void run() { doBigComputation(); }
+        });
+    }});
+
+
+------------------------------------------------------------
+section keynotes:
+------------------------------------------------------------
+
+* The Swing single thread rule: Swing components and models
+  should be created, modified, and queried only from the
+  event dispatching thread.
+* Consider a split model design when a data model must be
+  shared by more than one thread and implementing a thread
+  safe data model would be inadvisable because of blocking,
+  consistency, or complexity reasons.
+
+
 ============================================================ 
 Chapter 10:
 ============================================================ 
+
+------------------------------------------------------------
+section keynotes:
+------------------------------------------------------------
+
+* A program will be free of lock-ordering deadlocks if all
+  threads acquire the locks they need in a fixed global
+  order.
+* Invoking an alien method with a lock held is asking for
+  liveness trouble. The alien method might acquire other locks
+  (risking deadlock) or block for an unexpectedly long time,
+  stalling other threads that need the lock you hold.
+* Strive to use open calls throughout your program. Programs
+  that rely on open calls are far easier to analyze for
+  deadlock freedom than those that allow calls to alien
+  methods with locks held.
+* Avoid the temptation to use thread priorities, since they
+  increase platform dependence and can cause liveness problems.
+  Most concurrent applications can use the default priority
+  for all threads.
+
 
 ============================================================ 
 Chapter 11:
 ============================================================ 
 
+There are three ways to reduce lock contention:
+
+* Reduce the duration for which locks are held
+* Reduce the frequency with which locks are requested
+* Replace exclusive locks with coordination mechanisms that
+  permit greater concurrency.
+
+------------------------------------------------------------
+section keynotes:
+------------------------------------------------------------
+
+* Scalability describes the ability to improve throughput or
+  capacity when additional computing resources (such as
+  additional CPUs, memory, storage, or I/O bandwidth) are
+  added.
+* Avoid premature optimization. First make it right, then
+  make it fast if it is not already fast enough.
+* Measure, don't guess.
+* Don't worry excessively about the cost of uncontended
+  synchronization. The basic mechanism is already quite fast,
+  and JVMs can perform additional optimizations that further
+  reduce or eliminate the cost. Instead, focus optimization
+  efforts on areas where lock contention actually occurs.
+* The principal threat to scalability in concurrent
+  applications is the exclusive resource lock.
+* Allocating objects is usually cheaper than synchronizing.
+
+
 ============================================================ 
 Chapter 12:
 ============================================================ 
 
+------------------------------------------------------------
+section keynotes:
+------------------------------------------------------------
+
+* The challenge to constructing effective safety tests for
+  concurrent classes is identifying easily checked properties
+  that will, with high probability, fail if something goes
+  wrong, while at the same time not letting the failure
+  auditing code limit concurrency artificially. It is best
+  if checking the test property does not require any
+  synchronization.
+* Tests should be run on multiprocessor systems to increase
+  the diversity of potential interleavings. However, having
+  more than a few CPUs does not necessarily make tests more
+  effective. To maximize the chance of detecting timing
+  sensitive data races, there should be more active threads
+  than CPUs, so that at any given time some threads are running
+  and some are switched out, thus reducing the predictability
+  of interactions between threads.
+* Writing effective performance tests requires tricking the
+  optimizer into not optimizing away your benchmark as dead
+  code. This requires every computed result to be used
+  somehow by your program in a way that does not require
+  synchronization or substantial computation.
+
+
+
 ============================================================ 
 Chapter 13:
 ============================================================ 
+
+Instead of using intrinsic locks, one can use explicit locks
+which have the following interface:
+
+.. code-block:: java
+
+    public interface Lock {
+        void lock();
+        void lockInterruptibly() throws InterruptedException;
+        boolean tryLock();
+        boolean tryLock(long timeout, TimeUnit unit) throws InterruptedException;
+        void unlock();
+        Condition newCondition();
+    }
+
+Here is the general framework for using these locks:
+
+.. code-block:: java
+
+    Lock lock = new ReentrantLock();
+    // ...
+    lock.lock();
+    try { 
+        // update the object state
+    } finally {
+        lock.unlock();
+    }
+
+There are also read write locks which share the following
+interface:
+
+.. code-block:: java
+
+    public interface ReadWriteLock {
+        Lock readLock();
+        Lock writeLock();
+    }
+
+And it can be used as follows:
+
+.. code-block:: java
+
+    public class ReadWriteMap<K,V> {
+        private final Map<K,V> map;
+        private final ReadWriteLock lock = new ReentrantReadWriteLock();
+        private final Lock r = lock.readLock();
+        private final Lock w = lock.writeLock();
+
+        public ReadWriteMap(Map<K,V> map) {
+            this.map = map;
+        }
+
+        public V put(K key, V value) {
+            w.lock();
+            try {
+                return map.put(key, value);
+            } finally {
+                w.unlock();
+            }
+        }
+        // Do the same for remove(), putAll(), clear()
+
+        public V get(Object key) {
+            r.lock();
+            try {
+                return map.get(key);
+            } finally {
+                r.unlock();
+            }
+        }
+        // Do the same for other read-only Map methods
+    }
+
+
+------------------------------------------------------------
+section keynotes:
+------------------------------------------------------------
+
+* Performance is a moving target; yesterday's benchmark
+  showing that X is faster than Y may already be out of date
+  today.
+* ReentrantLock is an advanced tool for situations where
+  intrinsic locking is not practical. Use it if you need its
+  advanced features: timed, polled, or interruptible lock
+  acquisition, fair queuing, or non block structured locking.
+  Otherwise, prefer synchronized.
+
+
 
 ============================================================ 
 Chapter 14: Building Custom Synchronizers
@@ -1786,3 +1979,111 @@ In order to prevent the ABA problem (changing a value from A to
 B and back to A) can be prevented by adding a version number to
 the changed value. This can be performed by
 `AtomicStampedReference` or `AtomicMarkableReference`
+
+============================================================ 
+Chapter 16: Java Memory Model
+============================================================ 
+
+The rules for happens before are:
+
+* Program order rule: each action in a thread happens before
+  every action in that thread that comes later in the program
+  order.
+* Monitor lock rule: an unlock on a monitor lock happens before
+  every subsequent lock on that same monitor lock.
+* Volatile variable rule: a write to a volatile field happens
+  before every subsequent read of that same field.
+* Thread start rule: a call to Thread.start on a thread happens
+  before every action in the started thread.
+* Thread termination rule: any action in a thread happens
+  before any other thread detects that thread has terminated,
+  either by successfully return from `Thread.join` or by
+  `Thread.isAlive` returning false.
+* Interruption rule: a thread calling interrupt on another
+  thread happens before the interrupted thread detects the 
+  interrupt (either by having InterruptedException thrown,
+  or invoking isInterrupted or interrupted).
+* Finalizer rule: the end of a constructor for an object
+  happens before the start of the finalizer for that object.
+* Transitivity: if A happens before B, and B happens before C,
+  then A happens before C.
+
+One can piggyback on the synchronization of other artifacts,
+which is what the inner class of Future does:
+
+.. code-block:: java
+
+    // Inner class of FutureTask
+    private final class Sync extends AbstractQueuedSynchronizer {
+        private static final int RUNNING = 1, RAN = 2, CANCELLED = 4;
+        private V result;
+        private Exception exception;
+
+        void innerSet(V v) {
+            while (true) {
+                int s = getState();
+                if (ranOrCancelled(s))
+                    return;
+                if (compareAndSetState(s, RAN))
+                    break;
+            }
+            result = v;
+            releaseShared(0);
+            done();
+        }
+
+        V innerGet() throws InterruptedException, ExecutionException {
+            acquireSharedInterruptibly(0);
+            if (getState() == CANCELLED)
+                throw new CancellationException();
+            if (exception != null)
+                throw new ExecutionException(exception);
+            return result;
+        }
+    }
+
+With the exception of immutable objects, it is not safe to use
+an object that has been initialized by another thread unless
+the publication happens before the consuming thread uses it.
+
+The following are a few methods of performing resource
+initialization:
+
+.. code-block:: java
+
+    @ThreadSafe // heavyweight lazy initialization
+    public class SafeLazyInitialization {
+        private static Resource resource;
+
+        public synchronized static Resource get() {
+            if (resource == null)
+                resource = new Resource();
+            return resource;
+        }
+    }
+
+    @ThreadSafe // lightweight eager initialization
+    public class EagerInitialization {
+        private static Resource resource = new Resource();
+
+        public synchronized static Resource get() {
+            return resource;
+        }
+    }
+
+    @ThreadSafe // lightweight lazy initialization
+    public class EagerInitialization {
+        private static class ResourceHolder {
+            public static Resource resource = new Resource();
+        }
+
+        public synchronized static Resource get() {
+            return ResourceHolder.resource;
+        }
+    }
+
+Initialization safety makes visibility guarantees only for
+the values that are reachable through final fields as of the
+time the constructor finishes.  For values reachable through
+non-final fields, or values that may change after construction,
+you must use synchronization to ensure visibility.

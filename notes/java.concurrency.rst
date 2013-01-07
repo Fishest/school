@@ -1184,6 +1184,62 @@ Section Keynotes:
   constraints in the code or configuration file where the
   Executor is configured.
 
+============================================================ 
+Chapter 9: GUI Applications
+============================================================ 
+
+Here is an example of creating a SwingUtility class using
+the executor::
+
+    public class SwingUtilities {
+        private static final ExecutorService exec =
+            Executors.newSingleThreadExecutor(new SwingThreadFactory());
+        private static volatile Thread swingThread;
+
+        private static class SwingThreadFactory implements ThreadFactory {
+            public Thread newThread(Runnable r) {
+                swingThread = new Thread(r);
+                return swingThread;
+            }
+        }
+
+        public static boolean isEventDispatchThread() {
+            return Thread.currentThread() == swingThread;
+        }
+
+        public static void invokeLater(Runnable task) {
+            exec.execute(task);
+        }
+
+        public static void invokeAndWait(Runnable task)
+            throws InterruptedException, InvocationTargetException {
+
+            Future f = exec.submit(task);
+            try {
+                f.get();
+            } catch (ExecutionException e) {
+                throw new InvocationTargetException(e);
+            }
+        }
+    }
+
+And here is an example of creating an Executor using the
+supplied SwingUtilities::
+
+    public class GuiExecutor extends AbstractExecutorService {
+        // Singletons have a private constructor and a public factory
+        private static final GuiExecutor instance = new GuiExecutor();
+
+        private GuiExecutor() { }
+        public static GuiExecutor instance() { return instance; }
+        public void execute(Runnable r) {
+            if (SwingUtilities.isEventDispatchThread())
+                r.run();
+            else
+                SwingUtilities.invokeLater(r);
+        }
+        // Plus trivial implementations of lifecycle methods
+    }
 
 ============================================================ 
 Chapter 10:
@@ -1498,3 +1554,141 @@ Section Keynotes:
 ============================================================ 
 Chapter 15: Atomic Variables and Non-Blocking Syn
 ============================================================ 
+
+Instead of using heavy weight locks, finer grained operations
+can be used (which aer effectively used to implement the
+higher level primitives):
+
+* compare and swap (CAS) - cas(ref, old, new) sets the ref to
+  the new value only if the current value is the old value.
+  Otherwise it does nothing.  Regardless, it returns the
+  current value of ref.
+* compare and set - the same as above, but returns true if set
+  and false otherwise.
+* load linked/store conditional
+* atomic increment/decrement/swap
+
+In the case of failing a CAS operation, since it was not blocked
+a defeated thread can try again (update with my result), perform
+some recovery action (the current balance is different), or do
+nothing (someone may have already done our work). This is an
+example of a non-blocking counter using CAS (AtomicInteger would
+have been a simpler solution)::
+
+    @ThreadSafe
+    public class CasCounter {
+        private SimulatedCAS value;
+        public int getValue() {
+            return value.get();
+        }
+
+        public int increment() {
+            int v;
+            do {
+                v = value.get();
+            } while (v != value.compareAndSwap(v, v + 1));
+            return v + 1;
+        }
+    }
+
+There are four scalar Atomic types: AtomicInteger, AtomicLong,
+AtomicBoolean, and AtomicReference.  To use other types, you
+can cast them in and out and for float types, use
+floatToIntBits or doubleToLongBits. These are all mutable and
+do not extend the immutable primitives.
+
+There are also the same types for atomic array operations.
+This has volatile semantics for the array reference and the
+array element (unlike volatile array which is just reference).
+
+CAS performs better for lower levels of contention, locks
+perform better for higher levels of contention.
+
+What follows is a non-blocking stack using Treiber's algorithm::
+
+    @ThreadSafe
+    public class ConcurrentStack<E> {
+        private AtomicReference<Node<E>> top = new AtomicReference<Node<E>>();
+
+        public void push(E item) {
+            Node<E> newHead = new Node<E>(item);
+            Node<E> oldHead;
+            do {
+                oldHead = top.get();
+                newHead.next = oldHead;
+            } while (!top.compareAndSet(oldHead, newHead));
+        }
+
+        public E pop() {
+            Node<E> newHead;
+            Node<E> oldHead;
+            do {
+                oldHead = top.get();
+                if (oldHead == null)
+                    return null;
+                newHead = oldHead.next;
+            } while (!top.compareAndSet(oldHead, newHead));
+            return oldHead.item;
+        }
+
+        private static class Node<E> {
+            public final E item;
+            public Node<E> next;
+            public Node(E item) { this.item = item; }
+        }
+    }
+
+Here is an example of the Michael-Scott Non-Blocking Queue::
+
+    @ThreadSafe
+    public class LinkedQueue<E> {
+        private static class Node<E> {
+            private E item;
+            private AtomicReference<Node<E>> next;
+            public Node(E item, Node<E> next) {
+                this.item = item;
+                this.next = new AtomicReference<Node<E>>(next);
+            }
+        }
+
+        private final Node<E> dummy = new Node<E>(null, null);
+        private final AtomicReference<Node<E>> head
+            = new AtomicReference<Node<E>>(dummy);
+        private final AtomicReference<Node<E>> tail
+            = new AtomicReference<Node<E>>(dummy);
+
+        public boolean put(E item) {
+            Node<E> newNode = new Node<E>(item, null);
+            while (true) {
+                Node<E> curTail = tail.get();
+                Node<E> tailNext = curTail.next.get();
+                if (curTail == tail.get()) {
+                    if (tailNExt != null) { // intermediate state, lets help
+                        tail.compareAndSet(curTail, tailNext);
+                    } else {
+                        if (curTail.next.compareAndSet(nul, newNode)) {
+                            tail.compareAndSet(curTail, newNode);
+                            return true; // if this fails, the next thread will finish
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+If you are creating many AtomicXXX types, you can create a
+single `AtomicReferenceFieldUpdater` that can be reused::
+
+    private class Node<E> {
+        private final E item;
+        private volatile Node<E> next;
+        public Node(E item) { this.item = item; }
+    }
+
+    private static AtomicReferenceFieldUpdater<Node. Node> nextUpdater
+        = AtomicReferenceFieldUpdater.newUpdater(Node.Class, Node.Class, "next");
+
+In order to prevent the ABA problem (changing a value from A to
+B and back to A) can be prevented by adding a version number to
+the changed value. This can be performed by
+`AtomicStampedReference` or `AtomicMarkableReference`

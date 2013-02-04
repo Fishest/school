@@ -157,6 +157,15 @@ IEnumerable <: List):
 4.5 Variance
 ------------------------------------------------------------
 
+Three types of variance:
+
+* Invariant types cannot be coerced at all
+  (function taking Boolean cannot take a String without coercion)
+* Covariant types can be coerced down the type hierarchy
+  (function returning List can coerce child ArrayList)
+* Contravariant types can be coerced up the type hierarchy
+  (function taking List can take super type ArrayList)
+
 Can specify the variance of types in scala:
 
 * class C[+A] is covariant

@@ -268,3 +268,211 @@ it sends a reject message back through the flow trackers which choose
 another host to route to:
 
 * A TTL is added to the message so that it isn't rejected forever
+
+============================================================
+Amazon Web Services
+============================================================
+
+------------------------------------------------------------
+S3
+------------------------------------------------------------
+
+In order to allow S3 to evenly shard your data, try not to
+use keys of the form `<database>/<date>/<name>` as you will
+eventually hit a scaling load (when a lot of keys hash to the
+same bucket). Instead, you can do something like::
+
+    key = "#{database}/#{date.now}/#{name}"
+    key = hash(key) + "/" + key
+
+Which will allow your keys to be evenly distributed throughout
+S3 for as long as you are using it.
+
+============================================================
+Quorums and Chains: Consensus Beyond Paxos
+============================================================
+
+------------------------------------------------------------
+Summary
+------------------------------------------------------------
+
+What if the central storage fails (durability)::
+
+    client -> writer(n) -> storage
+    client -> reader(n) -> storage
+
+We can add a copy or backup of the data on every committ;
+what if we get too much load to continue this (availability)::
+
+    client -> writer -> storage -> backup
+    client -> writer -> xxxxxxx -> backup
+                     -> storage <- backup
+    client -> writer -> storage -> backup
+
+We can add a hot stand by, but what if those get out of sync
+or are partitioned::
+
+    client -> writer -> storage -|
+    client -> reader -> storage -|
+
+------------------------------------------------------------
+Chain Architecture
+------------------------------------------------------------
+
+Nodes chain off of each other and effectively serialize the
+events.
+
+------------------------------------------------------------
+Quorum
+------------------------------------------------------------
+
+On write, the writer must contact a majority of the storage
+nodes, if it does, it is granted a write quorum and is
+allowed to write. The same is true for a reader.
+
+With (3) storage nodes, the reader and writer need 2 nodes
+for quorum and thus there will be node intersection between
+the two events.
+
+To handle which version of the data is correct, simply use
+timestamps to retrieve the latest version of the data. And
+for writers, the latest time writer gets the ability to
+write. Problems:
+
+* out of sync clocks
+* bad timestamps
+* what is the specification (what does "works" mean)
+
+Can do a two phase write where we get the current highest
+write version and then make ours higher (so the order is
+preserved).
+
+------------------------------------------------------------
+Atomic Register Specification
+------------------------------------------------------------
+
+The best way to determine if a distributed system works is
+to create a model and:
+
+* establish if it works (correctness)
+* establish when it works (liveness)
+* establish theoretical peformance
+
+There exists one such partial order such that each read
+operation sees the last write operation:
+
+* The operations are serializable (isolated)
+* A_e -> B_s <=> A -> B (operations are partially ordered)
+* (A -> B) ^ ~(B -> A) <=> A || B (concurrent operations)
+
+Then look at the possible states as a graph (acyclic if
+possible) then determine:
+
+* can take a step from every state (liveness)
+* no infinite traces (termination)
+* every trace is correct (correctness; automate with TLA+)
+
+Problems with atomic registers (dynamo doesn't use them):
+
+* no atomic test and set
+* write does not return the previous value
+* no way to lock
+
+------------------------------------------------------------
+Asyncronous Message Passing
+------------------------------------------------------------
+
+Given a collection of processes that can receive messages:
+
+1. select a message
+2. deliver the mssage
+3. update the process state machine with message
+4. process can send new messages
+
+a. process may fail and no longer receive messages
+b. null messages are ok (to change state of machine)
+c. can deliver in a finite number of steps (messages are not dropped)
+
+This model is completely deterministic given the order of
+message delivery, failure detection is impossible, and
+the messaging is asynchronous meaning it cannot handle timeouts.
+
+To reason about the system, define the state machiens for
+the processes and apply the model::
+
+    Reader Process
+    ---------------------------------------------------
+    state    message     new state           messages
+    ---------------------------------------------------
+    any      write       if T > t, update    ack
+    any      read        no change           time,value
+
+    Writer Process
+    ---------------------------------------------------
+    state    message     new state           messages
+    ---------------------------------------------------
+    init     write(x)    reading             read
+    reading  time,value  if Q, writing       write(T, x)
+    writing  ack         if Q, done          reply
+
+    T = new time (higher time)
+    t = existing time
+    Q = quorum
+
+------------------------------------------------------------
+ABD Algorithm
+------------------------------------------------------------
+
+Here is how a writer works in the ABD algorithm:
+
+1. Client puts a message in buffer requesting a write
+2. Writer pulls a message from the buffer and processes it
+3. The writer sends a number of read messages to get a quorum
+4. Any storage node gets a read message and sends a message with
+   the read value.
+5. Once the writer gets its quorum, it sends the write messages
+   to the buffer.
+6. The write message gets delivered to a storage node (all of
+   them in time). And They each return an ack message to the
+   buffer.
+7. The writer gets back its quorum of acks and then sends a
+   response back to the client.
+
+------------------------------------------------------------
+Consensus
+------------------------------------------------------------
+
+Powered by Replicated State Machines:
+
+* A write once abstraction
+* proposers all attempt to write values, only one succeeds
+* readers get the recent value or none at all
+* required properties: valid, correct
+
+This can easily be created with a chain replication:
+
+* just ignore all but the first write
+* allows pipelining (writes can quickly flow without blocking)
+* but not fault tolerant
+
+------------------------------------------------------------
+Paxos Consensus
+------------------------------------------------------------
+
+* Quorum based algorithm
+* proposer is two rounds and does not always succeed (not
+  guranteed to terminate), FLP Impossibility Proof
+* storage nodes host the state machine
+* Chubby, alf, zookeeper
+* no pipelining (batching and windowing)
+* requires redrives in the event of contention
+
+------------------------------------------------------------
+Dynamic Configuartion
+------------------------------------------------------------
+
+* each node in the chain has an active config prefix (not all)
+* can create a dynamic chain architecture
+* swami decides on join and leave events
+* chain nodes upgrade at their own pace
+* no reconfiguration event

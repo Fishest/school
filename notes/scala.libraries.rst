@@ -32,7 +32,9 @@ There are a number of traits that can be mixed in:
 FlatSpec Example
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-What follows is a template for a basic ScalaTest unit test using the FlatSpec trait::
+What follows is a template for a basic ScalaTest unit test using the FlatSpec trait:
+
+.. code-block:: scala
 
     import org.junit.runner.RunWith
     import collection.mutable.Stack
@@ -65,7 +67,9 @@ What follows is a template for a basic ScalaTest unit test using the FlatSpec tr
 FunSpec Example
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-What follows is a template for a basic ScalaTest unit test using the FunSpec trait::
+What follows is a template for a basic ScalaTest unit test using the FunSpec trait:
+
+.. code-block:: scala
     
     import org.scalatest.{FunSuite, BeforeAndAfter}
     import org.scalatest.mock.MockitoSugar
@@ -103,12 +107,97 @@ What follows is a template for a basic ScalaTest unit test using the FunSpec tra
 Sharing Fixtures
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The get-fixture method::
+Using get-fixture method:
 
-  def TestFixture = new {
-    val result = mock[QueryResult]
-    val client = mock[AmazonDynamoDBClient]
-  }
+.. code-block:: scala
+
+    def TestFixture = new {
+      val result = mock[QueryResult]
+      val client = mock[AmazonDynamoDBClient]
+    }
     
-        test("testing with mockito works correctly") {
-            val F     = new TestFixture
+    test("testing with mockito works correctly") {
+        val F = new TestFixture
+        when(F.client.call(any())) thenReturn(F.result)
+
+        val request = new Request
+        val response = F.client.call(request)
+        response should equal F.result
+    }
+
+Instantiating fixture-context objects methods:
+
+.. code-block:: scala
+
+    trait Builder {
+        val builder = new StringBuilder("scala is ")
+    }
+
+    trait Buffer {
+        val buffer = ListBuffer("scala", "is")
+    }
+
+    test("testing should be productive") in new Builder {
+        builder.append("productive");
+        assert(builder.toString === "scala is productive")
+    }
+
+    test("testing should be productive") in new Builder with Buffer {
+        builder.append("clear")
+        buffer += ("concise")
+        assert(builder.toString === "scala is clear")
+        assert(buffer === List("scala", "is", "concise"))
+    }
+
+
+One instance per test method allows the tests to be run in their own
+instance of the suite with their own copy of the instance variables,
+(it should be noted that there is no cleanup with this method):
+
+.. code-block:: scala
+
+    // if you can set your tests up like this, then you can easily
+    // switch to the ParrallelTestExecution trait which extends this
+    // and allows all the tests in this suite to be run in parallel.
+    class ExampleSuite extends FlatSpec with OneInstancePerTest {
+        val builder = new StringBuilder("scala is ")
+        val buffer = ListBuffer("scala", "is")
+
+        "testing" should "be productive" in {
+            builder.append("productive");
+            assert(builder.toString === "scala is productive")
+        }
+
+        it should "be clear" in {
+            builder.append("clear")
+            buffer += ("concise")
+            assert(builder.toString === "scala is clear")
+            assert(buffer === List("scala", "is", "concise"))
+        }
+    }
+
+You can also override the lifecycle methods in scalatest to perform
+side effect creating actions as well as cleaning up after them:
+
+.. code-block:: scala
+
+    class ExampleSpec extends FlatSpec {
+        // NoArgTest contains an apply method to run the test,
+        // but it also contains the test name and the configuration map
+        // which can be used for your fixture
+        override def withFixture(test: NoArgTest) {
+            try super.withFixture(test)
+            catch {
+                // if test failure, log the directory
+                val current = new File(".")
+                val files = current.list()
+                info("Directory Snapshot: " + files.mkString(", "))
+                throw e
+            } finall {
+                // any post test cleanup, like deleting dirs
+            }
+        }
+
+        "this test" should "succeed" in { assert(1 + 1 === 2) }
+        "this test" should "fail" in { assert(1 + 2 === 2) }
+    }

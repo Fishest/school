@@ -24,7 +24,9 @@ Summary
 Basic Actions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Example of verification of method invocations::
+Example of verification of method invocations:
+
+.. code-block:: java
 
     import java.util.List;
     import static org.mockito.Mockito.*;
@@ -40,7 +42,9 @@ Example of stubbing methods from an interface (by default, mockito returns the
 appropriate default values for various types: null for references, empty
 collections, or the default primitive value) (methods are stubbed uniquely by
 <method-name, argument>, so if the same pair is stubbed multiple times, only
-the last stub will be persisted)::
+the last stub will be persisted):
+
+.. code-block:: java
 
     import java.util.List;
     import static org.mockito.Mockito.*;
@@ -52,7 +56,9 @@ the last stub will be persisted)::
     mock.get(0); // returns "first"
     mock.get(1); // throws
 
-Example of using argument matchers::
+Example of using argument matchers:
+
+.. code-block:: java
 
     import java.util.List;
     import static org.mockito.Mockito.*;
@@ -64,7 +70,9 @@ Example of using argument matchers::
 
     verify(mock).get(anyInt());
 
-Example of mocking a method that returns void::
+Example of mocking a method that returns void:
+
+.. code-block:: java
 
     import java.util.List;
     import static org.mockito.Mockito.*;
@@ -79,7 +87,9 @@ Mockito Verification
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can verify that a method was called with some matcher a number of different
-ways::
+ways:
+
+.. code-block:: java
 
     verify(mock).add("one"); // times(1) is the default
     verify(mock, times(1)).add("one");
@@ -129,7 +139,9 @@ a list of the various available matchers:
 * `endsWith(String)` - matches a string that ends with a value
 
 Custom matchers can be supplied with the `argThat()` matchers. Simply supply a
-matcher that extends ArgumentMatcher<T>::
+matcher that extends ArgumentMatcher<T>:
+
+.. code-block:: java
 
     class IsListOfTwoElements extends ArgumentMatcher<List> {
         public boolean matches(Object list) {
@@ -153,7 +165,9 @@ matcher that extends ArgumentMatcher<T>::
 Mockito Stubbing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you need to stub consecutive calls, use the iterator style stubbing::
+If you need to stub consecutive calls, use the iterator style stubbing:
+
+.. code-block:: java
 
     // can mix and match results like return and throw
     when(mock.get("arg"))
@@ -165,7 +179,9 @@ If you need to stub consecutive calls, use the iterator style stubbing::
         .thenReturn("a", "b", "c");
 
 If you need to add side effects to your call, then you can use the `Answer`
-interface::
+interface:
+
+.. code-block:: java
 
     when(mock.method(any())).thenAnswer(new Answer() {
         Object answer(InvocationOnMock invocation) {
@@ -176,7 +192,9 @@ interface::
     });
 
 If the method returns void (or does something a little weird), then you can use one
-of the following::
+of the following:
+
+.. code-block:: java
 
     doReturn("value").when(mock).call();
     doNothing()).when(mock).clear();
@@ -189,7 +207,9 @@ Mockito Annotations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Instead of manually wiring up the mocks in each call, mockito allows interfaces
-to be annotated with `@Mock` and then autowirted with a startup call::
+to be annotated with `@Mock` and then autowirted with a startup call:
+
+.. code-block:: java
 
     public class ExampleServiceTest {
         @Mock private ServiceClient client;
@@ -218,7 +238,9 @@ Mockito Spying
 
 Mockito basically allows AOP style spying on real objects (calling through).
 This can be used to verify invocations on objects as follows (note, final
-methods cannot be mocked)::
+methods cannot be mocked):
+
+.. code-block:: java
 
     import java.util.List;
     import static org.mockito.Mockito.*;
@@ -232,7 +254,9 @@ methods cannot be mocked)::
     verify(spy).add("one");
     verify(spy).add("two");
 
-You can also use the argument captor for post call verification::
+You can also use the argument captor for post call verification:
+
+.. code-block:: java
 
     ArgumentCaptor<Person> argument = ArgumentCaptor.forClass(Person.class);
     Person mock = mock(Person.class);

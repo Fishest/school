@@ -188,8 +188,7 @@ side effect creating actions as well as cleaning up after them:
         override def withFixture(test: NoArgTest) {
             try super.withFixture(test)
             catch {
-                // if test failure, log the directory
-                val current = new File(".")
+                val current = new File(".") // if test failure, log the directory
                 val files = current.list()
                 info("Directory Snapshot: " + files.mkString(", "))
                 throw e
@@ -201,3 +200,220 @@ side effect creating actions as well as cleaning up after them:
         "this test" should "succeed" in { assert(1 + 1 === 2) }
         "this test" should "fail" in { assert(1 + 2 === 2) }
     }
+
+If you need to pass a fixture object into a test and perform cleanup
+at the end of the test, you can use the loan-fixture method:
+
+.. code-block:: scala
+
+    import java.util.concurrent.ConcurrentHashMap
+
+    // a simulation of a database server
+    object DBServer {
+      type DB = StringBuffer
+      private val databases = new ConcurrentHashMap[String, DB]
+      def createDB(name: String): DB = {
+        val db = new StringBuffer
+        databases.put(name, db)
+        db
+      }
+      def removeDB(name: String) {
+        databases.remove(name)
+      }
+    }
+
+
+    import org.scalatest.FlatSpec
+    import DBServer._
+    import java.util.UUID.randomUUID
+    import java.io._
+
+    class ExampleSpec extends FlatSpec {
+
+      def withDatabase(test: DB => Any) {
+        val dbname = randomUUID.toString
+        val db = createDB(dbname)
+        try {
+          db.append("scalatest is ") // perform setup
+          test(db)
+        } finally removeDB(dbname)   // perform cleanup
+      }
+
+      def withFile(test: (File, FileWriter) => Any) {
+        val file = File.createTempFile("hello", "world)
+        val writer = new FileWriter(file)
+        try {
+          writer.write("scalatest is ") // perform setup
+          test(file, writer)
+        } finally writer.close()        // perform cleanup
+      }
+
+      "testing" should "be productive" in withFile { (file, writer) =>
+        writer.write("productive")
+        writer.flush()
+        assert(file.length === 24)
+      }
+
+      "testing" should "be readable" in withDatabase { db =>
+        db.append("readable")
+        assert(db.toString === "scalatest is readable")
+      }
+
+      it should "be concise" in withDatabase { db =>
+        withFile { (file, writer) =>
+          db.append("clear")
+          writer.write("concise")
+          writer.flush()
+          assert(db.toString === "scalatest is clear")
+          assert(file.length === 21)
+        }
+      }
+    }
+
+If all or most tests need the same fixture, then you can override the
+`withFixture` method to apply a fixture.Suite:
+
+.. code-block:: scala
+
+    import org.scalatest.fixture
+    import java.io._
+
+    class ExampleSpec extends fixture.FlatSpec {
+      case class F(file: File, writer: FileWriter)
+      type FixtureParam = F // must overload the input to test
+
+      def withFixture(test: OneArgTest) {
+        val file = File.createTempFile("hello", "world")
+        val writer = new FileWriter(file)
+        try {
+          writer.write("scalatest is ")                  // setup the fixture
+          withFixture(test.toNoArgTest(F(file, writer))) // load the fixture
+        } finally writer.close()                         // clean up the fixture
+      }
+
+      "testing" should "be easy" in { f =>
+        f.writer.write("easy")
+        f.writer.flush()
+        assert(f.file.length === 17)
+      }
+
+      it should "be fun" in { f =>
+        f.writer.write("fun")
+        f.writer.flush()
+        assert(f.file.length === 16)
+      }
+    }
+
+If you need simple setup and teardown to run before each test, just mixin the
+BeforeAndAfter trait. The only way that before and after can interact with the
+Suite is through modifying some state (changing vars or modifying vals). As
+such, these tests cannot be run in parallel without synchronization:
+
+.. code-block:: scala
+
+    import org.scalatest._
+    import collection.mutable.ListBuffer
+
+    class ExampleSpec extends FlatSpec with BeforeAndAfter {
+      val builder = new StringBuilder
+      val buffer  = new ListBuffer[String]
+
+      before {
+        builder.append("scalatest is ")
+      }
+
+      after {
+        builder.clear()
+        buffer.clear()
+      }
+
+      "testing" should "be easy" in {
+        builder.append("easy")
+        assert(builder.toString === "scalatest is easy")
+        assert(buffer.isEmpty)
+        buffer += "sweet"
+      }
+
+      it should "be fun" in {
+        builder.append("fun")
+        assert(builder.toString === "scalatest is fun")
+        assert(buffer.isEmpty)
+      }
+    }
+
+If you have many fixtures, you can compose them with stackable traits:
+
+.. code-block:: scala
+
+    import org.scalatest._
+    import collection.mutable.ListBuffer
+
+    trait Builder extends AbstractSuite { this: Suite =>
+      val builder = new StringBuilder
+
+      // to be stackable, the suite must call the super.withFixture
+      // of the stacked suite above it.
+      abstract override def withFixture(test: NoArgTest) {
+        builder.append("scalatest is ")
+        try super.withFixture(test)
+        finally builder.clear()
+      }
+    }
+
+    trait Buffer extends AbstractSuite { this: Suite =>
+      val buffer = new ListBuffer[String]
+
+      abstract override def withFixture(test: NoArgTest) {
+        try super.withFixture(test)
+        finally builder.clear()
+      }
+    }
+
+    // the order in which you mixin the traits determines which
+    // is initialized first. So here, Buffer is super to Builder.
+    class ExampleSpec extends FlatSpec with Builder with Buffer {
+      
+      "testing" should "be easy" in {
+        builder.append("easy")
+        assert(builder.toString === "scalatest is easy")
+        assert(buffer.isEmpty)
+        buffer += "sweet"
+      }
+
+      it should "be fun" in {
+        builder.append("fun")
+        assert(builder.toString === "scalatest is fun")
+        assert(buffer.isEmpty)
+      }
+    }
+
+This can also be designed by implementing the `BeforeAndAfterEach` trait which
+allows one to create setup and teardown methods or by implementing the 
+`BeforeAndAfterAll` which allows one to create classSetup and classTeardown
+methods:
+
+.. code-block:: scala
+
+  import org.scalatest._
+
+  trait Builder extends BeforeAndAfterEach { this: Suite =>
+    val builder = new StringBuilderA
+
+    override def beforeEach() {
+      builder.append("scalatest is")
+      super.beforeEach() // to be stackable
+    }
+
+    override def afterEach() {
+      try super.afterEach() // to be stackable
+      finally builder.clear()
+    }
+  }
+
+  class ExampleSpec extends FlatSpec with Builder {
+    "testing" should "be easy" in {
+      builder.append("easy")
+      assert(builder.toString === "scalatest is easy")
+      buffer += "sweet"
+    }
+  }

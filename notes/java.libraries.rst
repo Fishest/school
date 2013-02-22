@@ -3,6 +3,61 @@ Java Libraries
 ================================================================================
 
 --------------------------------------------------------------------------------
+JUnit
+--------------------------------------------------------------------------------
+http://junit.sourceforce.com
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Summary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Basic template of a JUnit test:
+
+.. code-block:: java
+
+    import org.juni.*;
+    import static org.junit.Assert.*;
+    import java.util.*;
+
+    private class SampleTest {
+        private List emptyList;
+
+        // code that is run once on test startup
+        @BeforeClass
+        public static void setupClass() { }
+
+        // code that is run once on test shutdown
+        @AfterClass
+        public static void teardownClass() { }
+
+        // code that is run before each test
+        @Before
+        public void setup() {
+            emptyList = new ArrayList();
+        }
+
+        // code that is run after each test
+        @After
+        public void teardown() {
+            emptyList = null;
+        }
+
+        // code that tests a single expectation
+        @Test
+        public void testSomeBehavior() {
+            assertEquals("emptylist should have 0 elements", 0,
+                emptyList.size());
+        }
+
+        // code that tests an exceptional expectation
+        @Test(expected-IndexOutOfBoundsException.class)
+        public void testForException() {
+            emptyList.get(0);
+        }
+    }
+
+
+--------------------------------------------------------------------------------
 Guice
 --------------------------------------------------------------------------------
 http://code.google.com/p/google-guice/

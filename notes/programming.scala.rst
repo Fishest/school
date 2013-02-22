@@ -155,3 +155,72 @@ private members. Without a common class, it becomes a standalone object.
    }
 
 
+--------------------------------------------------------------------------------
+Stackable Trait Pattern
+--------------------------------------------------------------------------------
+
+The stackable trait pattern basically allows you to define mixin decorators
+that can will defer to a concrete implementation of an interface. Here is an
+example to add new functionality to a `IntQueue`:
+
+.. code-block:: scala
+
+    abstract class IntQueue {
+      def put(x: Int): Unit
+      def get(): Int
+    }
+
+We start with the core functionality defined as follows:
+
+.. code-block:: scala
+
+    import scala.collection.mutable.ArrayBuffer
+
+    class CoreIntQueue extends IntQueue {
+      val buffer = new ArrayBuffer[Int]
+
+      def put(x: Int) { buffer += x }
+      def get() = buffer.remove(0)
+    }
+
+Now we want to define some advanced behavior that we would like to add
+to our `IntQueue`:
+
+.. code-block:: scala
+
+    trait Doubling extends IntQueue {
+      abstract override def put(x: Int) { super.put(x * 2) }
+    }
+
+    trait Incrementing extends IntQueue {
+      abstract override def put(x: Int) { super.put(x + 1) }
+    }
+
+    trait Filtering extends IntQueue {
+      abstract override def put(x: Int) {
+        if (x >= 0) super.put(x)
+      }
+    }
+
+Now we can mix in the features that we like into the instance of our
+queue:
+
+.. code-block:: scala
+
+    class DoublingIntQueue extends BasicIntQueue with Doubling
+    val queue = new DoublingIntQueue
+    queue.put(10)
+    queue.get()  // 10: Int
+
+    val queue = new BasicIntQueue with Filtering
+    queue.put(-10)
+    queue.put(10)
+    queue.get()  // 10: Int
+
+    val queue = new BasicIntQueue with Filtering with Incrementing
+    queue.put(-1)
+    queue.put(0)
+    queue.put(1)
+    queue.get()   // 0: Int
+    queue.get()   // 1: Int
+    queue.get()   // 2: Int

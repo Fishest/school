@@ -240,7 +240,7 @@ at the end of the test, you can use the loan-fixture method:
       }
 
       def withFile(test: (File, FileWriter) => Any) {
-        val file = File.createTempFile("hello", "world)
+        val file = File.createTempFile("hello", "world")
         val writer = new FileWriter(file)
         try {
           writer.write("scalatest is ") // perform setup
@@ -401,7 +401,7 @@ methods:
 
     override def beforeEach() {
       builder.append("scalatest is")
-      super.beforeEach() // to be stackable
+      super.beforeEach()    // to be stackable
     }
 
     override def afterEach() {

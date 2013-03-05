@@ -224,3 +224,13 @@ queue:
     queue.get()   // 0: Int
     queue.get()   // 1: Int
     queue.get()   // 2: Int
+
+Here is a helpful trait that can be used with stackable to create
+virtual inheritence:
+
+.. code-block:: scala
+
+    trait Lifecycle {
+      def startup(): Unit
+      def shutdown(): Unit
+    }

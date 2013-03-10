@@ -7,6 +7,11 @@ Git SCM
 Summary
 --------------------------------------------------------------------------------
 
+Git is a distributed SCM that views differences to the filesystem as the unit of
+change instead of changes to individual files. Every change is marked with a
+unique SHA-1 hash. Each user has a complete copy of the repository when they
+check it out.
+
 --------------------------------------------------------------------------------
 Getting Code
 --------------------------------------------------------------------------------

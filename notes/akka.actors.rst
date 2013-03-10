@@ -32,6 +32,12 @@ chain to the parent who can make a better decision.
 Don't worry about the number of actors (millions) as each actor is only 300
 bytes. Just worry about the system and the messages.
 
+.. notes::
+
+   Unbounded indeterminism are key attributes of concurrent programming.
+   In a pure actor system (erlang) every object is an actor.
+   Original OO was objects communicating via messaging.
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 A Few Rules
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -96,4 +102,4 @@ follows are a few of the important ones:
   Provides a means of making durable messages. The currently available data
   stores are:
 
-page 11
+page 11: Akka

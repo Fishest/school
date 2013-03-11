@@ -1,4 +1,135 @@
 ============================================================
+Time in Distributed Systems
+============================================================
+
+------------------------------------------------------------
+Summary
+------------------------------------------------------------
+
+Time is an ordering of events in a sequential order. Events
+can happen before each other (in either order) or even at 
+the same time::
+
+    E1 -> E2 // e1 happens before e2
+    E2 -> E1 // e2 causes e1
+    E2 || E1 // e1 and e2 happen at the same time
+
+    // or more generically
+    E_past -> E_now
+    E_now  -> E_future
+    E_now || E_concurrent
+    E_concurrent || E_concurrent
+
+Using clocks adds Lamport's Clock Condition::
+
+   E1 happens at T1 // event1 happens at time1
+   E2 happens at T2 // event2 happens at time2
+   E1 -> E2         // event1 causes event2
+   then T2 > T1     // time2 is larger than time1
+
+However, if you change your frame of reference and thus your
+clock, you change the number's assigned to events and perhaps
+the ordering of concurrent events (but never causal events so
+partial ordering is maintained).
+
+.. notes::
+
+   "Time is what keeps keeps everything from happening at once"
+   "Clocks assign numbers to events"
+   Cache Coherency Protocol (SMP Caches)
+
+------------------------------------------------------------
+Lamport Clocks
+------------------------------------------------------------
+
+There are three cases that need to be handled:
+
+1. The clock has to be incremented after an event (by any amount)
+2. After sending a message, time can stay the same, however, after
+   receiving a message, the receive event must come from the future
+   of the source and destination.
+3. Unrelated concurrent processes do not need to sync times
+
+This can be seen as follows::
+
+    Case 1:
+    ---[24]A[25]------[88]B[89]------------>
+
+
+    Case 2:
+    --------[13]---[26]-------------------->
+                  /
+    --------[25]---[25]-------------------->
+
+
+    Case 3:
+    --------[13]---A[14]------------------->
+
+    --------[25]---B[26]------------------->
+
+Lamport Clocks only deal with messages in their own systems
+which causes a lot of problem cases dealing with:
+
+* Complexity
+* Failure
+* Covert Channels
+
+------------------------------------------------------------
+ALF Locks
+------------------------------------------------------------
+
+Using distributed locks removes the case of concurrent events;
+there is only past and present (before and after `unlock`).
+The problem with this is that it can introduce innefficieny
+into the system.
+
+In the case of network partition, we have the following solutions:
+
+* Block indefinately to wait for an unlock
+* ALF releases the lock after some time (but the user may come back
+  thinking it still has the lock and doing writes).
+* Introduce transactions into the database system (integrating ALF and
+  S3 into database).
+* ALF gives a lock with a timeout duration (not a timeout time because
+  of Segal's Law: "a man with a watch always knows the time. A man
+  with two watches is never sure.")
+
+System clocks are horrible for ordering; unix clock can go back in
+in time, can be reset, and have horrible precision. Instead use the
+chip clock (rdtsc) which can be used to compute duration (but not
+global time)::
+
+    T*   Ts                Tu
+    ------- [E]---------------------------->
+         < /   wait time   >
+    -----[lock]------------[unlock]-------->
+
+    * Ts is the staleness that occurs because of the time to
+      transmit the message (it cuts into the wait time). When
+      you hear some news, it is already old.
+
+    * Tu is the forced unlock time where both parties know that
+      the lock is no longer held (Ts + delta)
+
+In paxos, the lock is achieved at some time before the requesting
+node is alerted of it. This is the start of the staleness. In order
+to determine a tight bound of the staleness (impossible to be exact)
+the relation between previous events must be used to generate a delta
+with the chip clock.
+
+In practice, a delta is not given, but instead ALF keeps pinging the
+client to let them know that the lock is still valid (and the staleness
+is reset). When the ALF client thinks that you are failed, it will
+revoke the lock, which means that the staleness is starting to be
+computed. When the maximum wait time is achieved, the client is supposed
+to cancel its work as it no longer has the lock. The programming model
+hides this heartbeating behind a call-back when the failure happens::
+
+    // assume we are now partitioned as our staleness is too high
+    alf_client.on_failure = (error) ->
+      stop_using_locks()
+
+============================================================
 Why Distributed Transactions Suck
 ============================================================
 

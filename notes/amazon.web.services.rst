@@ -262,3 +262,310 @@ The architecture looks something like this::
     client -> VIP -> load balancers -> SQSFrontEnd -> SQSMetadata
                                     |> SQSBackEnd  |> S3
                                     |> AMP Cluster
+
+--------------------------------------------------------------------------------
+Amazon Simple Workflow Service (SWF)
+--------------------------------------------------------------------------------
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Summary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+SFW is a distributed workflow system that is composed of logical units of work
+(tasks) and controllers (deciders). It manages task delivery and maintaining
+state between tasks. Every piece of the system is distributed and can be
+restarted in the case of failure exactly where it left off. It handles all the
+plumbing like concurrency, durability, task retrying, consistency, etc.
+
+The history of each workflow is recorded and stored for up to 90 days. It is
+programatically accessed as a JSON document of a collection of attributes::
+
+    [
+      {
+        "eventId": 11,                           # unique event id
+        "eventTimestamp": 123456789,             # time event started
+        "eventType": "WorkflowExecutionStarted", # type of event
+        "workflowExecutionStartedAttributes": {  # attributes for event type
+          ...        
+        }
+      },
+    ]
+
+
+.. notes::
+
+   - Tasks are durably stored and guranteed to be delivered at most once
+   - Task results (success or failure) are stored durably
+   - Task lists are automatically load balanced via dynamic consistent queues
+   - New tasks arrive via HTTP long poll
+   - Can associate a workflow with a unique id, it also generates a unique run id
+   - Each workflow's history is recorded and stored for up to 90 days
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Example
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The basic units of a SWF process are: deciders, workers, and workflow starters.
+The workflow starter is any part of an application that can kick off a new
+workflow: website, mobile application, etc.
+
+The decider, whos job it is to control the workflow coordination logic, takes
+over. After every action in SWF, a decider is chosen and fed the history of
+the workflow up to that point. The decider then returns a `Descision` back to
+SWF which indicates the next portion of the workflow to start. This can mean
+scheduling the next task to start, starting a child workflow, failing, or marking
+this workflow as complete.
+
+The activity worker is a process or thread that performs activity tasks which
+are the units of work of the workflow. Each worker polls SWF for its next task
+to perform. A worker can be for a specific task or for a range of tasks.
+
+Data can be exchanged between parts of the system by way of strings that are
+user defined:
+
+* Workers can receive data from and return data to SWF
+* Deciders can do the same
+* Pointers to larger data (say stored in S3) can be passed around
+ 
+Workflows are registered in domains (namespaces). There can be one or more
+workflows per domain, however only workflows in the same domain can operate
+with each other.
+
+The system artifacts are created as follows:
+
+* `RegisterWorkflowType(domain, name, version)`
+* `RegisterActivityType(domain, name, version)`
+* `token = PollForDecisionTask()`
+* `token = PollForActivityTask()`
+* `StartWorkflowExecution(domain, workflowId, runId)`
+
+Tasks(activity, decision) are scheduled by putting them on a specific task
+list queue. The workers can then poll on the default queue for their type
+or they can poll a specific queue. By placing tasks on different queues, you
+are effectively routing tasks through the system. You can have systems like
+the following:
+
+* One worker polling 1 or more tasks lists (each list unique for a task)
+* One worker polling 1 task list (that may contain many task types)
+* Many workers polling 1 or more of tasks lists (of same or differnet tasks)
+
+Once a workflow has started, it is in the open state. It can then be
+transitioned to the following states:
+
+* **complete** - `CompleteWorkflowExecution`
+* **canceled** - `CancelWorkflowExecution`
+* **failed** - `FailWorkflowExecution` (used if the workflow has entered a
+  state outside of the realm of normal completion)
+* **timed-out**
+* **continued** - `ContinueAsNewWorkflowExecution` (for long running workflows
+  with very large histories)
+* **terminated** - `TerminateWorkflowExecution` (stopped in the AWS console)
+
+Workers recieve new tasks by way of long polling. They call the SWF service
+when they are able to process a new task. If a task is available in the queue
+they specify, it is returned. If not, SFW will hold the connection open for
+60 seconds and if after that time there is no task, it will return a task
+with an empty taskToken which is an indication to start another long poll.
+
+Finally, you can set timeouts on the following workflow portions:
+
+* Workflow start to close
+* Decision task start to close
+* Activity task start to close
+* Activity heartbeat
+* Activity task scheduled to start
+* Activity task scheduled to close (usually less than sum of scheduled to start
+  and start to close)
+
+.. note::
+   - A task is assigned to only one activity worker
+   - Tasks are ordered on a best effort basis, but order is not guranteed
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Advanced
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The decider can start a timer that will fire and add an event to the execution
+history before proceeding. This can be useful for adding delays to the system
+or pauses to wait for signals to arrive:
+
+1. Create and start a timer to wait for a signal
+2. When a decision is received check if it is a signal or the timer
+3. If it was the signal, cancel the timer and process the signal
+4. Note that both can happen at once, so interpret this how you want
+5. If the timer fires before the signal, fail or carry on with your logic
+
+The decider can perform workflow splits based on the results of tasks.
+
+Signals can be sent to a running workflow to inject information or let the
+workflow know about information changes. This can be done by calling the
+`SignalWorkflowExecution` method which will add an event to the history log
+and scheduling a new decision task.
+
+Markers can be added in the workflow history to add extra information to the
+deciders.
+
+You can tag workflows with up to five(5) tags that can be used when querying
+as filters (say with `ListOpenWorkflowExecutions`).
+
+.. note:: If a signal is sent to a workflow that is not open will result in
+   a `SignalWorkflowExeception`.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SWF API
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Activity workers `PollForActivityTask` to get a new task. After it has operated
+on the task, it responds using `RespondActivityTaskCompleted` if successful or
+`RespondActivityTaskFailed` if failed. It can also cancel a task with
+`RespondActivityTaskCanceled`
+
+Deciders `PollForDecisionTasks` to get a new task. After viewing the history and
+making a decision, the decider responds with `RespondDecisionTaskComplete` to
+complete the task and return zero or more next decisions.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Flow Framework
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The flow framework attempts to hide a lot of the workflow boilerplate in the form
+of an AOP library using aspectJ. In order to interface with it, simply decorate
+the interfaces with appropriate annotations:
+.. code-block:: java
+
+    //------------------------------------------------------------
+    // Task Activities Definition
+    //------------------------------------------------------------
+    // The framework will generate a client off of this interface
+    // automatically that can be used by the workflow. It should
+    // be noted that although tasks that are related should be 
+    // defined in the same interface, they do not have to operate
+    // in the same worker process.
+    //------------------------------------------------------------
+    @Activities(version="1.0")
+    @ActivityRegistrationOptions(
+        defaultTaskScheduleToStartTimeoutSeconds = 60, 
+        defaultTaskStartToCloseTimeoutSeconds = 5)
+    public interface HelloWorldActivities {
+        public String getName();
+        public void printGreeting(String greeting);
+    }
+
+    public class HelloWorldActivitiesImpl implements HelloWorldActivities {
+
+        @Override
+        public String getName(){
+            try {
+                Thread.sleep(10000); 
+            }
+           catch(InterruptedException e){
+                System.out.println("Thread interrupted");   
+            }
+            return "World";
+        }
+
+        @Override
+        public void printGreeting(String greeting) {
+            System.out.println(greeting);
+        }
+
+    }
+
+    //------------------------------------------------------------
+    // Workflow Definition
+    //------------------------------------------------------------
+    // There should be a single method decorated with @Execute
+    // which is the entry point for the workflow. This code is run
+    // within a decider entity which polls for tasks and starts
+    // the workflow entry.
+    //------------------------------------------------------------
+    @Workflow
+    @WorkflowRegistrationOptions(defaultExecutionStartToCloseTimeoutSeconds = 60)
+    public interface HelloWorldWorkflow {
+
+        @Execute(version = "1.0")
+        void startHelloWorld();
+    }
+
+    public class HelloWorldWorkflowImpl implements HelloWorldWorkflow {
+        // this client is generated automatically by the framework
+        private HelloWorldActivitiesClient activitiesClient
+             = new HelloWorldActivitiesClientImpl(); 
+
+        @Override
+        public void startHelloWorld() {
+            //------------------------------------------------------------
+            // This is not a future per-say, it should be passed
+            // to a method decorated with @Asynchronous to be processed.
+            // The framework will make sure the method call happens when
+            // the result is received and not before (simply calling get
+            // here will throw an exception, it will not block).
+            //------------------------------------------------------------
+            Promise<String> name = activitiesClient.getName();
+            printGreeting(name);
+        }
+       
+        // This method will be called when the promise is ready
+        // not before (the call to get will succeed, not block).
+        @Asynchronous
+        private void printGreeting(Promise<String> name) {
+            activitiesClient.printGreeting("Hello " + name.get() + "!");
+        }
+    }
+
+It should be advised that the workflow section of the code is replayed
+each time a task is complete and all the code in it must be deterministic
+(long story short, keep it simply and defer as much as possible to the
+activity tasks):
+
+1. The entry point is replayed until it reaches async methods that have
+   not been completed; tasks are scheduled for these.
+2. As the arguments to the tasks become available, they are are called
+   (this happens by checking the history). Tasks without arguments are
+   simply called. Both of these operations can result in more tasks.
+3. When all the tasks that can be completed are, the framework reports
+   back with a list of tasks to schedule. If there are no more tasks
+   to schedule, the workflow is marked as complete.
+
+Data is marshalled to and from SWF using a `DataConverter`, the default
+of which is the Jackson JSON processor. Results from activities are
+returnd in `Promise<T>`. Sending signals is allowed by marking a signal
+handler with `@Signal` along with the signals it can handle.
+
+.. note::
+   - When you change a workflow or activity, bump its version number
+   - Make the task lists version dependent by appending the version to its name
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Flow Framework Under the Hood
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The magic behind activities in the workflow is that they are all wrapped in
+`Task`, so the hello world defined about can also be written like this:
+.. code-block:: java
+
+    @Override
+    public void startHelloWorld() {
+        final Promise<String> greeting = client.getName();
+        new Task(greeting) {
+            @Override
+            protected void doExecute() throws Throwable {
+                client.printGreeting("Hello " + greeting.get() + "!");
+            }
+        };
+    }
+
+If the method is returning a `Promise<T>`, it should use a `Functor`
+.. code-block:: java
+
+    @Override
+    public void startHelloWorld() {
+        final Promise<String> greeting = new Functor<String>() {
+            @Override
+            protected Promise<String> doExecute() throws Throwable {
+                return client.getGreeting();
+            }
+        }
+        client.printGreeting(greeting);
+    }
+

@@ -607,3 +607,38 @@ Dynamic Configuartion
 * swami decides on join and leave events
 * chain nodes upgrade at their own pace
 * no reconfiguration event
+
+============================================================
+Moving Fast
+============================================================
+
+How to make a great team that can deliver great projects on
+time and fast:
+
+1. Invest in being able to move fast
+2. Have the right people
+3. The key is to learn as fast as possible 
+4. Minimize coordination costs
+5. Localize decision making
+6. Have an appetite for risk
+
+How to minimize coordination costs ("Even well meaning
+gatekeepers slow innovation"):
+
+1. Gate keepers don't scale, remove them
+2. Decentralize and decouple
+3. Self service APIs between teams
+
+Understanding risk in a project:
+
+1. The point is to not minimize risk
+2. Think of risk as a currency
+
+* If you have a simple today, how long would it take to be
+  live? What stands in your way?
+* Are you using or moving towards continuous deployment
+* Do changes required coordination with other people on an
+  hours to days schedule or a seconds-to-minutes schedule.
+* Are there gatekeepers that are not scaling
+* Is measurement and experimentation built into my product
+* Is is easy to learn what is working and what is not

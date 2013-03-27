@@ -642,3 +642,154 @@ Understanding risk in a project:
 * Are there gatekeepers that are not scaling
 * Is measurement and experimentation built into my product
 * Is is easy to learn what is working and what is not
+
+============================================================
+How to Design a Good API and Why it Matters
+============================================================
+
+Public APIs are forever, you only get one chance to get it
+right. Bad APIs result in lots of support calls. Characteristics
+of a good API are:
+
+* easy to learn (feels natural)
+* easy to use (even without documentation)
+* hard to misuse
+* easy to read and maintain code that uses it
+* sufficiently powerful to satisfy requirements
+* easy to extend
+* appropriate to audience
+
+Start writing to your API as soon as possible:
+
+* bounce spec of as many people as possible
+* flesh it out as you gain confidence in the API
+* saves you from implementing things that you will throw away
+* prevents nasty suprises and backed in corners
+* provides unit tests as you go along (TDD)
+* examples live on as the default copy and paste code
+* if you provide a service provider interface, write at least
+  three plugins before you release it.
+
+Maintain realistic expectations:
+
+* most API designs are constrained
+* you will not please everyone
+* displease everyone evenly
+* you will make mistakes in the first version (real world use
+  will flesh out the edge cases)
+* design to evolve
+
+API should do one thing and do it well. Functionality should
+be easy to explain:
+
+* if it is hard to name, it is a bad sign
+* good names drive development
+* always be ameneable to splitting/merging details
+
+API design should be as small as possible, but no smaller:
+
+* API should satisfy its requirements
+* when in doubt, leave it out
+* you can always add, but you cannot remove
+* conceptual weight is more important than bulk
+* resuse interfaces to reduce bulk
+
+Implementation should not affect the API; these confuse the
+users and inhibit the freedom to change implementation:
+
+* do not overspecify the behavior of methods
+* do not specify hash functions
+* all tuning parameters are suspect
+* don't let implementation details to leak to the outside:
+  (exceptions, wire-format, on-disk-storage, implements
+  Serializable)
+
+Minimize accessibility of everything:
+
+* make classes and members as private as possible
+* public classes should have no public fields (except constants)
+* this maximizes information hiding
+* this minimizes coupling
+
+Names matter a lot; it is like a little language for your API:
+
+* be consistent
+* names should be largely self explanitory
+* strive for consistency (don't have delete and remove)
+* strive for symmetry (add, remove)
+
+Documentation matters (Parnas) "Even when we see good design,
+it will not be used without good documentation":
+
+* if it isn't documented, then the user will guess or will use
+  the code as the documentation which couples your design to
+  your internals.
+* fully document public api (class, method, exception, parameter
+  interface, constructor)
+* class: what an instance represents
+* method: contract between method and clients (preconditions,
+  postcondidtions, side effects)
+* parameter: units, ownership, form
+* document state space carefully if mutability is involved
+
+Consider perfomance with API design:
+
+* bad api decisions can limit performance
+* do not warp api to gain performance
+
+API must coexist with the platform:
+
+* do what is customary
+* take advantage of API friendly features
+* know and avoid api traps and pitfalls
+* never simply transliterate APIs
+
+Minimize mutability:
+
+* classes should be immutable unless there is a good reason otherwise
+* if mutable, keep the state space small and well defined
+
+Subclass only when it makes sense (Liskov)
+Document and design for inheritance or else prohibit it:
+
+* make all concrete classes final
+
+Don't make the client do anything the module could do (avoid
+as much boilerplate code as possible).
+
+Don't violate the principal of least astonishment (users of API
+should not be suprised of behavior).
+
+Fail fast and report errors as soon as they occur (ideally at
+compile time is best with static typing and generics). Otherwise,
+the first method call should fail.
+
+Provide programmatic access to all data available in string form,
+for example exception messages should provide getters for fields
+in exception message.
+
+Overload with care; avoid ambiguous overloads.
+
+* Don't have multiple overloads with the same number of arguments
+* Just because you can, doesn't mean you should
+* Sometimes giving something another name is a better idea
+
+Use appropriate parameter and return types:
+
+* favor interface types over classes for parameter types
+* use most specific possible input type
+* don't use string if a better option exists
+* don't use floating point for monetary values
+* use double instead of float
+
+Use consistent parameter ordering across methods. Especially if
+the parameter types are identical.
+
+Avoid long parameter lists:
+
+* keep them below two or three parameters
+* break up methods
+* use classes to help create parameters (builder)
+
+Avoid return values that require exceptional processing
+(empty list instead of a null).

@@ -112,4 +112,63 @@ following:
 2. Encourage Ad-Hoc composition
 3. Recognize sharing as the default
 
-page 26
+Distributed sensor networks and querying of all the nodes can
+be achieved with a tree organization and a tree query algorithm
+(an example is TinyDB). An alternate solution is to have all the
+nodes send their results to a single centralized host.
+
+------------------------------------------------------------
+Chapter 2: Architectures
+------------------------------------------------------------
+
+A distributed system can be made adaptable by monitoring its
+own status in a feedback loop and taking appropriate actions
+as neccessary (autonomic systems).
+
+A `component` is a modular unit with a well defined, required
+and provided interfaces that are replaceable within its
+environment. A `connector` is a mechanism that mediates
+communication, coordination, or cooperation among components.
+
+Architecural Styles
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Using these two units, we can define a number of archicecture
+styles such as (which all aim to achieve distribution transparency):
+
+* **Layered Architecture** - components are orgainzed in a layered
+  fashion such that a component at layer L_1 is allowed to call
+  components at layer L_-1 but not the other way around. Requests
+  go down the layers and results go back up.
+
+* **Object Based Architecture** - Components are based around objects
+  which have RPC calls. This is a generalization of the client server
+  model.
+
+* **Data Centered Architecture** - Components communicate through a
+  single collective data repository (such as a distributed file
+  system) that is passive or active.
+
+* **Event Driven Architecture** - Components communicate through
+  sending events, usually in a publish/subscribe architecture. The
+  middleware takes care of routing published events to the current
+  subscribers and effectively decouples all systems. If we combine
+  event driven and data centric, we get event driven systems where
+  components are decoupled from time; meaning that a component
+  doesn't have to be around when the message is issued. Many systems
+  use a SQL like interface to describe what they want rather than an
+  explicit reference.
+
+System Architectures
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When an operation can be repeated many times without any
+side effects, it is said to be idempotent.
+
+Client server architecture can be connection based (TCP),
+or connectionless end and forget (UDP). The previous works
+best in WAN networks where transmission failures may be
+more common, while the latter may be preferred (and more
+performnat) in LANs.
+
+page 37

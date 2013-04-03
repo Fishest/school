@@ -36,26 +36,28 @@ Common Operations
 
 The following is rough cheat sheet of the common git operations:
 
-* `git add <untracked>` start tracking the file
-* `git add <modified>` add the file to the staging area
-* `git add <merge-conflict>` mark the merge conflict as complete
-* `git rm <tracked>` delete a file from the repository
-* `git rm -f <modified>` force a delete of a modified file
-* `git rm --cached <tracked>` stop tracking a file (leave it on disk)
-* `git mv` move a file in the repository (`mv` ; `git rm` ; `git add`)
-* `git commit` store the staging directory to the database
-* `git commit -a` store all modified tracked files (skip staging)
-* `git commit --amend` performs the last commit again (with possible changes)
-* `git reset HEAD <staged>` unstage a file or all the files
-* `git checkout -- <modified>` reverts the changes to a modifed file
-* `git status` show the current state of the files in the repository
-* `git diff` show diffs of the files that are changed but not staged
-* `git diff --staged` show the changes that are currently staged
-* `git config --list` lists all your current settings
-* `git init`  starts a new empty repository
-* `git clone` adds a remote `origin` and does a `git pull`
-* `git fetch` pulls down branches, but does not merge them
-* `git pull`  does `git fetch` followed by `git merge`
+.. code-block:: bash
+
+    git add <untracked>        # start tracking the file
+    git add <modified>         # add the file to the staging area
+    git add <merge-conflict>   # mark the merge conflict as complete
+    git rm <tracked>           # delete a file from the repository
+    git rm -f <modified>       # force a delete of a modified file
+    git rm --cached <tracked>  # stop tracking a file (leave it on disk)
+    git mv                     # move a file in the repository
+    git commit                 # store the staging directory to the database
+    git commit -a              # store all modified tracked files (skip staging)
+    git commit --amend         # performs the last commit again (with possible changes)
+    git reset HEAD <staged>    # unstage a file or all the files
+    git checkout -- <modified> # reverts the changes to a modifed file
+    git status                 # show the current state of the files in the repository
+    git diff                   # show diffs of the files that are changed but not staged
+    git diff --staged          # show the changes that are currently staged
+    git config --list          # lists all your current settings
+    git init                   # starts a new empty repository
+    git clone                  # adds a remote `origin` and does a `git pull`
+    git fetch                  # pulls down branches, but does not merge them
+    git pull                   # does `git fetch` followed by `git merge`
 
 --------------------------------------------------------------------------------
 Git Log
@@ -109,6 +111,7 @@ Git allows remote repositories to be linked via a number of protocals:
 * **file**  : `/path/to/repo`
 
 What follows is a cheat sheet for the common commands for working with remotes:
+
 .. code-block:: bash
 
     git clone <repository>             # this adds a tracking branch as origin
@@ -144,6 +147,7 @@ be pushed like branches to remotes. There are two kinds of tags:
   does not change).
 
 What follows is a cheat sheet for the common commands for working with tags:
+
 .. code-block:: bash
 
     git tag                          # lists the available tags

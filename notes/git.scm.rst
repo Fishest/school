@@ -179,3 +179,82 @@ Common Aliases
 ================================================================================
 Chapter 3: Git Branching
 ================================================================================
+
+--------------------------------------------------------------------------------
+What is a Branch
+--------------------------------------------------------------------------------
+
+When you commit, git stores a commit object that contains a pointer to the
+snapshot of the content you staged, some metadata, and possibly pointers to
+direct parents of this commit: zero for initial commit, one for a normal commit,
+two or more for merges::
+
+    # -------------------------------------------------------------
+    # commits, trees, and blobs link by sha1 ids
+    # -------------------------------------------------------------
+    [commit: 98ca9..]
+     author  -> 'username'
+     message -> 'commit message'
+     tree    -------------------> [tree: 92ec2..] 
+                                   blob: path, ---> [blob: 911e7..]
+                                   blob: path,----> [blob: 5b1d3..]
+                                                     'blob content'
+
+    # -------------------------------------------------------------
+    # commits link together by parent sha1 ids
+    # -------------------------------------------------------------
+    [commit: 98ca9..] <-- [commit: 98ca9..]
+     tree: 92ec2..         tree: 98237..
+     parent: null          parent: 98ca9..
+
+So a branch is simply a lightweight movable pointer to one of these commits. By
+default you have a branch named `master` which points to the current commit and
+is advanced every time one checks in. By creating a branch `develop`, you just
+have another pointer. To know what branch you are on, git uses a special pointer
+called `HEAD`::
+
+    [HEAD]
+     \/
+    [branch: master ]     [branch: develop]
+     \/                    \/
+    [commit: 98ca9..] <-- [commit: 98ca9..]
+     tree: 92ec2..         tree: 98237..
+     parent: null          parent: 98ca9..
+
+.. note:: When you can merge two branches and one can follow the other's commit
+   history and apply its change cleanly at the end, this is called a
+   `fast-forward` and git does this automatically.
+
+--------------------------------------------------------------------------------
+GitFlow
+--------------------------------------------------------------------------------
+
+It is considered good practice to use branches as much as possible. In your
+daily development, consider using the following branches:
+
+* `master` is used for tracking the mainline
+* `develop` is used as a merge point for upstream changes
+* `feature-<name>` is for working on a new feature
+* `hotfix-<name>` is for working on a quick hotfixes
+* `release-<name>` is for working on code that is soon to be released
+
+For more information follow the official gitflow workflow:
+
+.. image:: http://nvie.com/img/2009/12/Screen-shot-2009-12-24-at-11.32.03.png
+   :target: http://nvie.com/posts/a-successful-git-branching-model/
+
+.. code-block:: bash
+
+    git pull origin            # update master from origin
+    git checkout -b issue-537  # create a new branch and change to it
+                               # git branch issue-537 && git checkout issue-537
+    git commit -am "working"   # commit some code for that issue
+                               # something goes wrong in production
+    git stash                  # save un-commited changes, or commit them
+    git checkout master        # switch back to master
+    git checkout -b hotfix     # create a new hotfix branch for fixing issue
+                               # do the required work to fix issue
+    git checkout master        # switch back to master
+    git merge hotfix           # merge in code for fixing issue
+    git branch -d hotfix       # delete the unused branch
+    git checkout issue-537     # return to your work

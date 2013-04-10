@@ -221,16 +221,60 @@ called `HEAD`::
      tree: 92ec2..         tree: 98237..
      parent: null          parent: 98ca9..
 
+When you merge in git, it will walk back through the hitory of the requested
+merge points until it finds the best common ancestor to start the merge from.
+It will then create a merge snapshot (a merge commit with multiple parents)
+that is the three way merge of the the merge points.
+
 .. note:: When you can merge two branches and one can follow the other's commit
    history and apply its change cleanly at the end, this is called a
    `fast-forward` and git does this automatically.
 
+If git can perform an automatic merge, it will, however if it is unsure (say
+multiple people worked on the same lines of the same file) it will mark merge
+conflicts that the user must manually resolve. Running a `git status` will show
+the files that need to be manually merged and the merge errors will be marked
+in the files like this (betwee <<< and === is the master and between === and >>>
+is your branch)::
+
+    <<<<<<< HEAD:index.html
+    <div id="footer">contact : email.support@github.com</div>
+    =======
+    <div id="footer">
+      please contact us at support@github.com
+    </div>
+    >>>>>>> iss53:index.html
+
+After you change the file with the data that is correct and save the file,
+then just do a `git add` on this file to mark it as resolved. Do this for each
+conflicted file reported by `git status`. You can also use a graphical tool to
+do this for you by calling `git mergetool`. When you are finished with the
+merge, simply `git commit`.
+
 --------------------------------------------------------------------------------
-GitFlow
+Git branch
+--------------------------------------------------------------------------------
+
+What follows is a cheat sheet for working with branches:
+
+.. code-block:: bash
+
+    git branch                # lists all the available local branches
+    git branch -a             # lists all the local and remote branches
+    git branch -v             # shows the last commit on each branch
+    git branch --merged       # show the branches that are merged into HEAD
+    git branch --no-merged    # show the branches that are not merged into HEAD
+    git branch <branch>       # create the specified branch
+    git branch -d <branch>    # delete the specified branch
+
+--------------------------------------------------------------------------------
+Workflow: Example
 --------------------------------------------------------------------------------
 
 It is considered good practice to use branches as much as possible. In your
-daily development, consider using the following branches:
+daily development. The general idea is called topic branches and they can exist
+long term or short term, however, they generally cover some unit of work.
+Consider for example using the following branches:
 
 * `master` is used for tracking the mainline
 * `develop` is used as a merge point for upstream changes
@@ -238,15 +282,16 @@ daily development, consider using the following branches:
 * `hotfix-<name>` is for working on a quick hotfixes
 * `release-<name>` is for working on code that is soon to be released
 
-For more information follow the official gitflow workflow:
+For a more complete example, follow the gitflow workflow:
 
 .. image:: http://nvie.com/img/2009/12/Screen-shot-2009-12-24-at-11.32.03.png
    :target: http://nvie.com/posts/a-successful-git-branching-model/
+   :align: center
 
 .. code-block:: bash
 
     git pull origin            # update master from origin
-    git checkout -b issue-537  # create a new branch and change to it
+    git checkout -b issue-537  # create a new topic branch and change to it
                                # git branch issue-537 && git checkout issue-537
     git commit -am "working"   # commit some code for that issue
                                # something goes wrong in production
@@ -258,3 +303,151 @@ For more information follow the official gitflow workflow:
     git merge hotfix           # merge in code for fixing issue
     git branch -d hotfix       # delete the unused branch
     git checkout issue-537     # return to your work
+
+
+--------------------------------------------------------------------------------
+Remote Branches
+--------------------------------------------------------------------------------
+
+Remote branches are references to the state of branches on your remote
+repositories. They are local branches that cannot be moved. They are moved
+automatically whenever you do network communication. Think of them as bookmarks
+to remind you where the remote repositories were when you last connected::
+
+    <remote>/<branch>          # the format for querying remote branches
+    origin/master              # how to query current master
+    
+    #-------------------------------------------------------------
+    # initial state
+    #-------------------------------------------------------------
+                  [origin/master]
+                   \/
+    [12345..] <-- [23456..]
+                   /\
+                  [master]
+    
+    #-------------------------------------------------------------
+    # after `git fetch origin`
+    #-------------------------------------------------------------
+    
+                                [origin/master]
+                                 \/
+    [12345..] <-- [23456..] <-- [34567..]
+                   /\
+                  [master]
+
+When you fetch code from remotes, it should be noted that you do not have a
+branch you can work on, you just have a `origin/newbranch` pointer.  You can
+merge this pointer into your current branch with `git merge origin/newbranch`
+or you can create your own branch based on the remote one:
+
+.. code-block:: bash
+
+    git checkout -b <branch> <remote>/<branch>   # local/remote names can differ
+    git checkout -b newbranch origin/newbranch   # create a tracking branch
+    git checkout -track origin/newbranch         # the same as above
+
+When you checkout a local branch from a remote branch, a tracking branch is
+created. This allows one to use `git pull` and `git push` to easily interoperate
+with the remote.
+
+--------------------------------------------------------------------------------
+Pushing Branches
+--------------------------------------------------------------------------------
+
+If you already have a remote setup and the branch already exists remotely (and
+you have write access), you can simply push the code to the remote when you are
+ready:
+
+.. code-block:: bash
+
+    git push origin serverfix      # push your serverfix branch changes up
+    git push origin local:remote   # push your branch named `local` to the
+                                   # remote branch named `remote`
+    git push origin :serverfix     # delete the remote branch named serverfix
+
+--------------------------------------------------------------------------------
+Rebasing
+--------------------------------------------------------------------------------
+
+Instead of merging two paths in git, you can re-apply the front-runner to the
+back of existing changes, what is known as rebasing. This works by finding the
+first common ancestor of the two branches, generating diffs of each commit
+since your current local branch, and applying them until you arrive at the
+current state of your branch::
+
+    #-------------------------------------------------------------
+    # initial state
+    #-------------------------------------------------------------
+                           [experiment]
+                                \/
+                       \/  <-- [C3] <--  \/
+    [C0] <-- [C1] <-- [C2] <-- [C4] <-- [C5]
+                                         /\
+                                      [master]
+
+    #-------------------------------------------------------------
+    # after rebase
+    #-------------------------------------------------------------
+    # git checkout experiment
+    # git rebase master
+    #-------------------------------------------------------------
+                                    [experiment]
+                                         \/
+    [C0] <-- [C1] <-- [C2] <-- [C4] <-- [C3']
+                                /\
+                             [master]
+
+There are a number of advantages or reasons for doing work this way:
+
+* It makes the commit history appear linear (even though it was parallel)
+* It makes commits apply cleanly on a remote branch
+* It reduces the burden of an upstream party to just doing a fast-forward
+
+If you have more complex rebasing tasks, you can use the `--onto` flag::
+
+    #-------------------------------------------------------------
+    # initial state
+    #-------------------------------------------------------------
+                             [master]
+                                \/    [server]
+    [C0] <-- [C1] <-- [C5] <-- [C6]      \/
+              /\  <-- [C3] <-- [C4] <-- [C10]
+                       /\  <-- [C8] <-- [C9]
+                                         /\
+                                      [client]
+
+    #-------------------------------------------------------------
+    # after rebase
+    #-------------------------------------------------------------
+    # git rebase --onto master server client    # rebase down
+    # git checkout master                       # switch to master
+    # git merge client                          # fast forward
+    #-------------------------------------------------------------
+                                                [master]
+                                                   \/    
+    [C0] <-- [C1] <-- [C5] <-- [C6] <-- [C8'] <-- [C9']
+              /\  <-- [C3] <-- [C4] <-- [C10]      /\
+                                         /\     [client]
+                                       [server]
+    #-------------------------------------------------------------
+    # after rebase
+    #-------------------------------------------------------------
+    # git rebase [base branch] [topic branch]
+    # git rebase master server                  # rebase down
+    # git checkout master                       # switch to master
+    # git merge server                          # fast forward
+    # git branch -d client                      # remove client branch
+    # git branch -d server                      # remove server branch
+    #-------------------------------------------------------------
+                                                           [master]
+                                                              \/    
+    ... <-- [C6] <-- [C8'] <-- [C9'] <-- [C3'] <-- [C4'] <-- [C10']
+                 
+
+.. note:: Rebasing replays changes from one line of work onto another in
+   the order they were introduced, wheras merging takes the endpoints and
+   merges them together.
+
+.. note:: Do not ever rebase commits that have been pushed to a public
+   repository!

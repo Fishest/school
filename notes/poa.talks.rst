@@ -793,3 +793,26 @@ Avoid long parameter lists:
 
 Avoid return values that require exceptional processing
 (empty list instead of a null).
+
+============================================================
+Designing 100K Services
+============================================================
+
+------------------------------------------------------------
+Summary
+------------------------------------------------------------
+
+Given performance, maintainability, and time to market, ideally
+choose two to optimize for but realistically choose one.
+
+Caching solutions used to increase throughput:
+
+* use redbox style local proxy to remote cache
+* AF_UNIX sockets
+* fewer threads
+* out of order pipeline
+* binary protocol (to increase CPU pipelining)
+* CacheOut/CacheIn use linked list of fixed size memory pages
+ 
+  - this fixes evictions for cases when using sequential memory
+  - results in very little memory fragmentation

@@ -451,3 +451,7 @@ If you have more complex rebasing tasks, you can use the `--onto` flag::
 
 .. note:: Do not ever rebase commits that have been pushed to a public
    repository!
+
+================================================================================
+Chapter 4: Git on the Server
+================================================================================

@@ -139,6 +139,27 @@ each others updates. You supply a condition that must be met on the current data
 otherwise, the write results in an error and will not be persisted (it must be
 retried).
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Tips
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can get the best performance if your hash key is such that it can be split
+between N partitions evenly so that you can get the performance of parallel IO
+from multiple hosts (if you do parallel queries)::
+
+    hash_key  = hash(range_key) % partitions
+    range_key = "%s/%s" % (record_date, record_id)
+
+    queries = (0 to N).par.map(x => client.query(key=x, range=date)
+    sorteds = queries.map(qs => qs.sort())
+    merged  = merge_sort(queries)
+
+If you need to create two indexes (a -> b and b -> a), then you will have to
+do one of the following to assure that the transaction occurs:
+
+1. Create an event store using SQS, file-system, or REDO log (dynamo)
+2. Write to one table and slowly scan the other for inconsistencies
+
 --------------------------------------------------------------------------------
 Amazon Simple Queue Service (SQS)
 --------------------------------------------------------------------------------

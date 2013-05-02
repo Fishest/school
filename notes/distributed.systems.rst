@@ -172,3 +172,30 @@ more common, while the latter may be preferred (and more
 performnat) in LANs.
 
 page 37
+
+
+
+------------------------------------------------------------
+Extras: Protocols
+------------------------------------------------------------
+
+Type-Length-Value (TLV)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+http://en.wikipedia.org/wiki/Type-length-value
+
+Basically to transmit unknown packed data to/from a host, you
+can encode it in the following format:
+
+* **Type** - a byte prefix indicating the type
+* **Length** - the length of the field
+* **Value** - The field value
+
+Some advantages of using this format are:
+
+* TLV sequences are easily searched using generalized parsing functions
+* New message elements which are received at an older node can be safely skipped
+* TLV elements can be placed in any order inside the message body
+* TLV elements are typically used in a binary format (smaller and faster)
+* Easy to read and convert to other types
+

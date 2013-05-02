@@ -455,3 +455,170 @@ If you have more complex rebasing tasks, you can use the `--onto` flag::
 ================================================================================
 Chapter 4: Git on the Server
 ================================================================================
+
+================================================================================
+Git From The Bottom Up
+================================================================================
+
+File contents are stored as blobs and these blobs are named by the sha1 hash of
+their size and contents. This verifies that the blob will never change and the
+same blob will be seen as such anywhere in the system:
+
+.. code-block:: bash
+
+    mkdir sample; cd sample
+    echo "Hello, world!" > greeting
+    git hash-object greeting          # check what the unique hash will be (af5626b...)
+    git init                          # create an initial repository
+    git add greeting;                 # add the file to the index
+    git commit -m "Added my greeting" # commit it to the tree
+    git cat-file -t af5626b           # get the type of object at id (blob)
+    git cat-file blob af5626b         # cat the contents of the file (Hello, world!) 
+
+Blobs are attached as leaf nodes on a commit tree (as an aside, the state of the
+index becomes the tree of the next commit):
+
+.. code-block:: bash
+    
+    git ls-tree HEAD                  # list the files at the current tree HEAD
+    git rev-parse HEAD                # dereference what HEAD points to
+    git cat-file -t HEAD              # get the type of HEAD id (commit)
+    git cat-file commit HEAD          # print the commit details
+    git ls-tree 0563f77               # list the contents of the tree by id
+    find .git/objects -type f | sort  # list all the objects in the git repository
+
+Here is how the trees are actually created (this is basically a `git commit`).
+Note that if we hadn't updated the `refs/head/master` to point to the current
+commit, it would be unreachable and would eventually be cleaned by the `gc`
+command:
+
+.. code-block:: bash
+
+    echo "Hello, world!" > greeting
+    git init                          # create an initial repository
+    git add greeting;                 # add the file to the index
+    git log                           # this will fail as there are no commits
+    git ls-files --stage              # will list the staged blobs from the .git/index
+    git write-tree                    # store the index into a tree object
+    echo "Added my greeting" | git commit-tree 0563f77 # adds tree to commit object
+                                      # to add a parent (merge) use -p option
+    echo 5f1bc... > .git/refs/heads/master # update the current master pointer
+    git update-ref refs/heads/master 5f1bc857 # safer alternative to above
+    git symbolic-ref HEAD refs/heads/master # point HEAD to the current master
+    git log                           # view our manual commit
+
+A branch is nothing more than a named reference to a commit.  Tags are the same,
+however they can have their own descriptions (like commits). We can move around
+in the tree at will (note `git checkout` only ever changes the working tree while
+`git reset` will change the current branch's HEAD reference):
+
+.. code-block:: bash
+
+    git reset --hard 5f1bc85          # move to a given revision and erase uncommited changes
+    git checkout 5f1bc85              # safer alternative to above
+    git checkout -f 5f1bc85           # same as above, but will also erase uncommited changes
+
+So the whole view of git looks like the following where the history is managed
+by a number of commits pointing back to their parent (and HEAD pointing to
+current).  Each commit contains a tree which may contain more trees which
+contain blob objects at their leaves::
+
+   HEAD
+    (c) ----------> t
+     |             / \
+    (c)           t   t
+     |           /   / \
+    (c)         b   b   b
+
+The git index can be used to have fine grained control about what goes into the
+next commit (you can also use things like stacked git and quilt to test permutations
+of patches to see how the tree operates under different conditions):
+
+.. code-block:: bash
+
+    git add --patch file.c           # select individual hunks to commit next
+    git commit -m "first commit"     # commit this part of the file
+    git add file.c                   # add the remaining changes
+    git commit -m "second commit"    # commit the rest of the file
+
+`git reset` is a reference editor, index editor, and tree editor (can change
+working tree and current HEAD reference). You should never modify an existing
+commit that has been pushed upstream otherwise everyone else's trees will
+diverge if you push the modified commit:
+
+.. code-block:: bash
+
+   # ------------------------------------------------------------
+   # git reset --mixed (or no option)
+   # will revert parts of your index and reset your HEAD.
+   # ------------------------------------------------------------
+   git add file.c                    # add changes to the index
+   git reset                         # delete changes staged to index
+   git add file.c                    # file still exists to add back
+
+   # ------------------------------------------------------------
+   # git reset --soft
+   # will just change your HEAD to a different commit
+   # ------------------------------------------------------------
+   git reset --soft HEAD^            # backup head to its parent
+   git update-ref HEAD HEAD^         # equivalent command
+   git commit --amend                # if you just need to change the last commit
+
+   # ------------------------------------------------------------
+   # git reset --hard
+   # will change your HEAD and delete all files to make the tree
+   # look like that commit.
+   # ------------------------------------------------------------
+   git reset --hard HEAD~3           # throw away changes and look like HEAD~3
+   git reset --soft HEAD~3           # the next two combined are equal to this
+   git reset --hard
+
+   # ------------------------------------------------------------
+   # If you run a git reset --hard and want to restore your changes
+   # you have to reset from the reflog
+   # ------------------------------------------------------------
+   git stash                         # store changes
+   git reset --hard HEAD~3           # go back in time
+   git reset --hard HEAD@{1}         # restore from reflog before the change
+   git stash apply                   # reapply changes
+
+   # ------------------------------------------------------------
+   # alternative to git reset
+   # ------------------------------------------------------------
+   git stash                         # save current changes
+   git checkout -b new-branch HEAD~3 # make new branch from HEAD~3
+
+   git branch -D master              # delete old master
+   git branch -m new-master master   # make my branch the new master
+
+Every change that is made to a repository (regardless if it is saved or not)
+is stored in the reflog.  These are independent of other operations on the
+repository. Thus any operations can be unlinked from the tree and then still
+exist for a month (until they are garbage collected):
+
+.. code-block:: bash
+    
+    git reflog                      # list all the operations in the reflog
+    git stash                       # creates a blob in the reflog for current state
+    git stash list                  # show current stashes
+    git reflog show stash           # equivalent command as above
+    git stash apply                 # apply stash head to the tree
+    git log stash@{9}               # show stash details
+    git show stash@{9}              # show what is contained in the stash
+    git checkout -b test stach@{9}  # create a branch from the stash
+    git stash clear                 # remove all stashes
+    git reflog expire --expire=30.days refs/stash # remove stashes older than 30 days
+
+You could even create a cron job that creates stashes every hour or so as a
+perpetual backup into your working state:
+
+.. code-block:: bash
+
+    $cat <<EOF > /usr/local/bin/git-snapshot
+    #!/bin/sh
+    git stash && git stash apply
+    EOF
+
+    $ chmod +x $_
+    $ git snapshot
+

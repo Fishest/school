@@ -1,5 +1,9 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Apache Camel in Action
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 ================================================================================
-Apache Camel Introduction
+Chapter 1: Meeting Camel
 ================================================================================
 
 --------------------------------------------------------------------------------
@@ -115,7 +119,7 @@ The endpoint URI is disected as follows::
 
 
 ================================================================================
-Routing with Camel
+Chapter 2: Routing with Camel
 ================================================================================
 
 * A message router consumes messages from an input channel
@@ -123,7 +127,7 @@ Routing with Camel
 * The conditions and processing steps between them are decoupled.
 
 ================================================================================
-Transforming Data with Camel
+Chapter 3: Transforming Data with Camel
 ================================================================================
 
 * Data format transformation - the data format of the message is converted
@@ -197,7 +201,7 @@ Type Conversion
     chain.convertBodyTo(String.class)
 
 ================================================================================
-Camel with Beans
+Chapter 4: Camel with Beans
 ================================================================================
 
 * Functions by using the Service Activator EIP (pg 98)
@@ -230,7 +234,7 @@ Camel with Beans
   - These can be used to specify how input parameters are created
 
 ================================================================================
-Handling Exceptions in Camel (pg 120)
+Chapter 5: Handling Exceptions in Camel
 ================================================================================
 
 * based on if the error is recoverable, camel willl retry, propagate the error to
@@ -340,7 +344,7 @@ Handling Exceptions in Camel (pg 120)
   - retryWhile - build customized retry logic for messages
 
 ================================================================================
-Testing with Camel
+Chapter 6: Testing with Camel
 ================================================================================
 
 * The following are a number of helper test classes:
@@ -439,10 +443,38 @@ Testing with Camel
 
 
 ================================================================================
-Components
+Chapter 7: Components
 ================================================================================
 
 * direct:name - sync direct connect two routes
 * seda:name - async direct connect two routes (with blocking queues)
 * mock:name - can run asserts on the context (think jmock)
 * velocity:name - run the message through the velocity tempalte engine
+
+================================================================================
+Chapter 8: Enterprise Integration Patterns
+================================================================================
+
+================================================================================
+Chapter 9: Using Transactions
+================================================================================
+
+================================================================================
+Chapter 10: Concurrency and Scalability
+================================================================================
+
+================================================================================
+Chapter 11: Developing Camel Projects
+================================================================================
+
+================================================================================
+Chapter 12: Management and Monitoring
+================================================================================
+
+================================================================================
+Chapter 13: Running and Deploying
+================================================================================
+
+================================================================================
+Chapter 12: Bean Routing and Remoting
+================================================================================

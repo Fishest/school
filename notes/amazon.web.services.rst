@@ -184,7 +184,7 @@ SQS offeres reliable and scalable hosted queues for storing messages:
 + Batch operations for most methods
 + Variable message size (max of 64 kb):
 
-  For larger messages, srot them in S3 or SimpleDB and send the
+  For larger messages, store them in S3 or SimpleDB and send the
   URI of the resource as the message.
 
 + ACLs on the queue (who can send and who can receive):

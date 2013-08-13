@@ -609,6 +609,11 @@ exist for a month (until they are garbage collected):
     git stash clear                 # remove all stashes
     git reflog expire --expire=30.days refs/stash # remove stashes older than 30 days
 
+.. note::
+
+   If you write references to non standard locations, with will not garbage
+   collect them (say archiving branches instead of deleting them).
+
 You could even create a cron job that creates stashes every hour or so as a
 perpetual backup into your working state:
 
@@ -622,3 +627,37 @@ perpetual backup into your working state:
     $ chmod +x $_
     $ git snapshot
 
+================================================================================
+Git Advanced Talk
+================================================================================
+
+You can cherry pick changes into an add by using `git add --patch`:
+
+.. code-block:: bash
+
+    git status                    # see current repo status
+    git diff --word-diff          # see chunk diffs of files
+    git add --patch               # cherry pick add hunks
+    git diff --staged             # see the diff of staged files
+    git commit                    # commit the hunk
+
+You can rebase your entire history with `git filter-branch`:
+
+.. code-block:: bash
+
+    # replace all instances of the work 'the' with 'yyz'
+    git filter-branch --tree-filter \
+      `perl -p -i -e s/the/yyz/g $(find . -type f` HEAD
+
+Can dump and create tress with:
+
+* `git fast-import` - read a file into a DAG
+* `git fast-export` - dump a DAG into a file
+
+.. code-block:: bash
+
+    git fast-export HEAD > backup.dag
+    sed -ie s/smeyers/jmark/gS
+    mkdir backup; cd backup
+    git init
+    cat ../backup.dag | git fast-import

@@ -160,6 +160,24 @@ do one of the following to assure that the transaction occurs:
 1. Create an event store using SQS, file-system, or REDO log (dynamo)
 2. Write to one table and slowly scan the other for inconsistencies
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ACID Implementation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+By default, dynamo only provides two of the four ACID gurantees: consistency and
+durability. Within a single item, one also gets atomicity and isolation, however
+when one needs to operate on more than one item at once, they no longer have
+these gurantees. However, using the optimistic concurrency control offered by
+dynamo, these guarantees can be met:
+
+* strategy is a multi phage commit protocol
+* to avoid losing state on failure, the coordinater state is stored in dynamodb
+* to avoid the need for failure detection, multiple coordinates can be active
+* multiple coordinates can be working on the same transaction
+* isolation canbe available at many different levels
+
+https://github.com/awslabs/dynamodb-transactions/blob/master/DESIGN.md
+
 --------------------------------------------------------------------------------
 Amazon Simple Queue Service (SQS)
 --------------------------------------------------------------------------------

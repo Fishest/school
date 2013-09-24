@@ -6,6 +6,8 @@ Functional Data Structures in Scala
 List
 --------------------------------------------------
 
+https://github.com/scala/scala/blob/master/src/library/scala/collection/immutable/List.scala
+
 .. code-block:: scala
 
     abstract sealed class List[+T] {
@@ -46,10 +48,27 @@ List
     }
 
 --------------------------------------------------
+Stack
+--------------------------------------------------
+
+https://github.com/scala/scala/blob/master/src/library/scala/collection/immutable/Stack.scala
+
+.. code-block:: scala
+
+    class Stack[+T](xs: List[T]) {
+      def reverse: Stack[T] = new Stack(xs.reverse)
+      def push(x: T): Stack[T] = new Stack(x :: xs)
+      def pop: (T, Stack[T]) =
+        if (isEmpty) fail("empty stack")
+        else (xs.head, new Stack(xs.tail)
+      def isEmpty: xs.isEmpty
+    }
+
+--------------------------------------------------
 Queue
 --------------------------------------------------
 
-This is implemented in terms of a bankers queue
+https://github.com/scala/scala/blob/master/src/library/scala/collection/immutable/Queue.scala
 
 .. code-block:: scala
 
@@ -159,6 +178,8 @@ Binary Search Tree
     }
 
 Example of a Red Black balanced tree:
+
+https://github.com/scala/scala/blob/master/src/library/scala/collection/immutable/RedBlackTree.scala
 
 .. code-block:: scala
     case class RedBranch(value: T, left: Tree[T], right Tree[T]) extends Tree[T] {

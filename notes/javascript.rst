@@ -110,3 +110,134 @@ constructor function, it must be a prototype on the type:
     }
     var a = new Apple();          // the value of a.cost == "unknown"
     Food.prototype.cost = "free"; // the value of a.cost == "free"
+
+-------------------------------------------------
+Mixins
+-------------------------------------------------
+
+This can be done using a mixin extend function
+which can be used to add a mixin to an existing class:
+
+.. code-block:: javascript
+
+    var RoundButton = function(radius, label, action) {
+      this.radius = radius;
+      this.label  = label;
+      this.action = action;
+    }
+    
+    // using a mixin extend function
+    function extend(object, mixin) {
+      for (var fn in mixin) {
+        if (object.hasOwnProperty(fn)) {
+          object[fn] = mixin[fn];
+        }
+      }
+      return object;
+    }
+    
+    var circleMixin = {
+      area: function() { return Math.PI * this.radius * this.radius; },
+      grow: function() { this.radius++; },
+      shrink: function() { this.radius--; }
+    };
+    var buttonMixin {
+      hover = function(flag) { flag ? $.appendClass('hover')   : $.removeClass('hover'); },
+      press = function(flag) { flag ? $.appendClass('pressed') : $.removeClass('pressed'); },
+      fire = function() { return this.action(); }
+    };
+    
+    extend(RoundButton.prototype, circleMixin);
+    extend(RoundButton.prototype, buttonMixin);
+
+We can also allow the mixin to directly inject itself into
+another class:
+
+.. code-block:: javascript
+
+    // allowing the mixin to extend the type
+    var asCircle = function() {
+      this.area: function() { return Math.PI * this.radius * this.radius; };
+      this.grow: function() { this.radius++; };
+      this.shrink: function() { this.radius-- };
+      return this;
+    };
+    
+    var asButton = function() {
+      this.hover = function(bool) {
+        bool ? $.appendClass('hover') : $.removeClass('hover');
+      };
+      this.press = function(bool) {
+        bool ? $.appendClass('pressed') : $.removeClass('pressed');
+      };
+      this.fire = function() { return this.action(); };
+      return this;
+    };
+    
+    asCircle.call(RoundButton.prototype);
+    asButton.call(RoundButton.prototype);
+
+Options can be added to the mixins as well:
+
+.. code-block:: javascript
+
+    // adding options to the mixin
+    var asOval = function(options) {
+      this.grow = function() {
+        this.shortRadius += (options.growBy/this.ratio());
+        this.longRadius  += options.growBy;
+      };
+      this.shrink = function() {
+        this.shortRadius += (options.shrinkBy/this.ratio());
+        this.longRadius  += options.shrinkBy;
+      };
+      return this;
+    };
+    
+    var OvalButton = function(longRadius, shortRadius, label, action) {
+      this.longRadius = longRadius;
+      this.shortRadius = shortRadius;
+      this.label = label;
+      this.action = action;
+    };
+    
+    asOval.call(OvalButton.prototype, { growBy: 2, shrinkBy: 2 });
+    asButton.call(OvalButton.prototype);
+
+Finally we can cache function creation to increase performance.
+In this case we need to curry the option application to the
+mixins:
+
+.. code-block:: javascript
+
+    // with cached closure to prevent recreating functions
+    var asRectange = (function() {
+      function area() { return this.length * this.width; }
+      function grow() { this.length++, this.width++; }
+      function shrink() { this.length--, this.width--; }
+      return function() {
+        this.area = area;
+        this.grow = grow;
+        this.shrink = shrink;
+      };
+    })();
+    
+    // currying to store options
+    Function.prototype.curry = function() {
+      var fn = this;
+      var args = [].slice.call(arguments, 0);
+      return function() {
+        return fn.apply(this. args.concat([].slice.call(arguments, 0));
+      }
+    };
+    
+    var asRectange = (function() {
+      function area() { return this.length * this.width; }
+      function grow(rate) { this.length += rate, this.width += rate; }
+      function shrink(rate) { this.length -= rate, this.width -= rate; }
+      return function(options) {
+        this.area = area;
+        this.grow = grow.curry(options['growBy']);
+        this.shrink = shrink.curry(options['shrinkBy']);
+      };
+    })();

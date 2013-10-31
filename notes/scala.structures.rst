@@ -3,6 +3,29 @@ Functional Data Structures in Scala
 ==================================================
 
 --------------------------------------------------
+Totally Ordered Type
+--------------------------------------------------
+
+Given a compare function, we can provide all the primitives
+needed for a totally ordered type, (note, we can also define
+these operations in terms of `lteq` or `gteq`):
+
+https://github.com/scala/scala/blob/master/src/library/scala/math/Ordering.scala
+
+.. code-block:: scala
+
+    trait Ordering[T] { 
+      def compare(x: T, y: T): Int
+      def eq(x: T, y: T): Boolean   = compare(x, y) == 0
+      def lt(x: T, y: T): Boolean   = compare(x, y)  < 0
+      def gt(x: T, y: T): Boolean   = compare(x, y)  > 0
+      def lteq(x: T, y: T): Boolean = compare(x, y) <= 0
+      def gteq(x: T, y: T): Boolean = compare(x, y) >= 0
+      def max(x: T, y: T): T = if (gteq(x, y)) x else y
+      def min(x: T, y: T): T = if (lteq(x, y)) x else y
+    }
+
+--------------------------------------------------
 List
 --------------------------------------------------
 
@@ -18,6 +41,11 @@ https://github.com/scala/scala/blob/master/src/library/scala/collection/immutabl
       def append(x: T):  List[T] =
         if (isEmpty) Cons(x)
         else Cons(head, tail.append(x))
+
+      def update(n: Int, x: T): List[T] =
+        if (isEmpty) fail("index out of bounds")
+        else if (n == 0) Cons(x, tail)
+        else Cons(head, update(n - 1, x))
 
       def apply(n: Int): T = 
         if (isEmpty) fail("index out of bounds")
@@ -35,6 +63,12 @@ https://github.com/scala/scala/blob/master/src/library/scala/collection/immutabl
           if (a.isEmpty) b
           else loop(a.tail, b.prepend(a.head))
         loop(this, Nil)
+
+      // List(1,2,3,4).suffixes =
+      //   [[1,2,3,4], [2,3,4], [3,4], [4], []]
+      def suffixes: List[List[T]] =
+        if (isEmpty) this
+        else Cons(this, tail.suffixes)
     }
 
     case class Nil extends List[Nothing] {
@@ -97,6 +131,12 @@ Binary Search Tree
       def left: Tree[T]
       def right: Tree[T]
       def isEmpty: Boolean
+
+      def contains(x: T) : Boolean =
+        if (isEmpty) false
+        else if (x == value) true
+        else if (x > value) right.contains(x)
+        else if (x < value) left.contains(x)
 
       def add(x: T): Tree[T] = 
         if (isEmpty) Branch(x)
@@ -177,6 +217,14 @@ Binary Search Tree
       override def isEmpty = false
     }
 
+    object Tree {
+      // Generate a complete binary tree with x stored
+      // at every node and copy as many paths as possible.
+      def complete[T](x: T, d: Int): Tree[T] =
+        lazy val child = complete(x, d - 1)
+        if (d == 0) Leaf else Branch(x, child, child)
+    }
+
 Example of a Red Black balanced tree:
 
 https://github.com/scala/scala/blob/master/src/library/scala/collection/immutable/RedBlackTree.scala
@@ -205,6 +253,30 @@ https://github.com/scala/scala/blob/master/src/library/scala/collection/immutabl
       case (false, _, _) => RedBranch(x, left, right)
     }
 
+--------------------------------------------------
+Map Using A Tree
+--------------------------------------------------
+
+.. code-block:: scala
+
+    // Scala imports an implicit Ordering[K] into
+    // the Map[K, V] extends Tree[(K, V)] to redefine
+    // the ordering operations.
+    type Entry[K, V] = Tuple[K, V]
+    class EntryOrdering extends Ordering[Entry[K, V]] {
+      def compare(x: Entry[K, V], y: Entry[K, V]) =
+        if (x._1 == y._1) 0
+        else if (x._1 < y._1) -1
+        else 1
+    }
+
+    class Map[K,V] Tree[Entry[K,V]] {
+      def put(k: K, v: V): Map[K, V] =
+        if (isEmpty) Branch((k, v))
+        else if (x < value) Branch(value, left.add(x), right)
+        else if (x > value) Branch(value, left, right.add(x))
+        else Branch((k, v), left, right)
+    }
 
 --------------------------------------------------
 Trie

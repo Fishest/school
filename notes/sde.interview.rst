@@ -58,3 +58,74 @@ Last 5 minutes
 * Wrap up and allow them to ask questions
   - Is there anything you would like to know about Amazon, my group, etc.
   - sell the company
+
+
+=================================================
+Subject Matter Questions
+=================================================
+
+-------------------------------------------------
+Concurrency
+-------------------------------------------------
+
+Talk about some concurrency primitives:
+
+* mutex
+
+  - implement a reader / writer lock
+  - wakes up all writers when the write is free: use condition per writer
+  - locks do not happen in order: use a condition queue
+  - readers starve writers: don't allow reads while a writer exists
+  - writers starve readers: randomly choose to wake up reader / writer
+  - pure read workloads cause contention: do a no lock happy path or use lock free
+
+* semaphore
+
+  - how is this different from a mutex
+  - implement with a condition variable and a mutex
+
+* condition variable
+* event flags
+* atomic variables
+
+  - implement this with a mutex
+  - implement this with CAS
+
+* threads / processes
+
+  - what is the difference between a thread and a process
+
+* synchronization barriers
+* STM
+* actors
+
+  - how are actors different than threads
+  - what is the actor protocol
+
+-------------------------------------------------
+Data Structures
+-------------------------------------------------
+
+Give me a structure that has:
+
+* O(1) insert/lookup (tradeoff between hash and list)
+* O(N) insert/lookup (how to make O(1) insert, lookup)
+* O(logN) insert/lookup (what tree tradeoffs can you make)
+
+What are the various ways to implement a list:
+
+* array
+* single / double linked list
+* skip list
+
+-------------------------------------------------
+General
+-------------------------------------------------
+
+If you were given the time to move your experience to the next level:
+
+* What subject would you learn
+* How would you deep dive into the language you use
+* What would you like to build
+
+

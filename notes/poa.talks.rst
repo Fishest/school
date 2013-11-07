@@ -816,3 +816,48 @@ Caching solutions used to increase throughput:
  
   - this fixes evictions for cases when using sequential memory
   - results in very little memory fragmentation
+
+============================================================
+SWF Oracle to DynamoDB
+============================================================
+
+------------------------------------------------------------
+Summary
+------------------------------------------------------------
+
+* Tasks and Decisions go on AMP
+* processor picks them up and gathers state form database
+* updates state based on decisions
+* possibly issue new decisions to AMP
+* partitioning was easy with Oracle (just use hash function on keys)
+* repartitioning was hard with Oracle (...)
+* how to do transactions: write ahead log
+
+  - log is append only
+  - log schema: { seq_id, entry, writer }
+  - rebuild in memory state with log replay if box failure
+  - use checkpointing to reduce log replay size
+
+* have a routing table to have sticky backends handling requests
+
+  - got too big, so had to shard the system
+  - shards model the entire hashable space of workflows (fixed)
+  - backend system then uses consistent hashing to map shards
+  - this is fixed and easy to cache
+
+* when a backend host goes down, shard is rebalanced to a new backend
+
+  - this is implemented with alf to detect ownership change
+  - alf maintains list with heartbeats
+  - when a host goes down, alf pushes new system list to backends
+  - backends take over responsibility of shards (consistent hashing)
+
+* in case of network partitions
+
+  - use conditional check of dynamo to write log (won't stomp state)
+  - prevents logging of old owners with a lease window
+  - will take N write spots in the log (how many writes per operation)
+  - if a user goes down, we write "sealed" into down service spots
+  - this prevents a CAS write by the down spot
+
+* can extend performance of the system by just adding dynamo capacity

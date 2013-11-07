@@ -152,6 +152,7 @@ for {
 //------------------------------------------------------------
 // Video 3
 //------------------------------------------------------------
+
 /**
  * You can use any type with for expressions as long as they
  * implement `map`, `flatMap`, and `withFilter`. It should be
@@ -263,3 +264,83 @@ def test[T](g: Generator[T], numTimes: Int = 100)(test: T => Boolean): Unit = {
   println("test passed " + numTimes + " random tests")
 
 }
+
+//------------------------------------------------------------
+// Video 4 - Monads
+//------------------------------------------------------------
+
+trait M[T] {
+  // usually called bind
+  def flatMap[U](f: T => M[U]): M[U]
+
+  /**
+   * 1. List is a monad with:      unit(x) = List(x)
+   * 2. Set is a monad with:       unit(x) = Set(x)
+   * 3. Option is a monad with:    unit(x) = Some(x)
+   * 4. Generator is a monad with: unit(x) = single(x)
+   */
+  def unit[A](x: A): M[A]
+
+  /**
+   * Map can be defined for every monad with
+   * m map f == m flatMap (x => unit(f(x)))
+   *         == m flatMap (f andThen unit)
+   */
+  def map[A](f: T => A): M[A] 
+}
+
+/**
+ * Monads must respect three algebraic laws:
+ * 1. associativity:
+ *    (m flatMap f) flatMap g == m flatMap (x => f(x) flatMap g)
+ *
+ * 2. left unit:
+ *    unit(x) flatMap f == f(x)
+ *
+ * 3. right unit:
+ *    m flatMap unit == m
+ *
+ * If the monad defines withFilter it is called
+ * a monad with zero.
+ */
+
+/**
+ * Models a value that may exist or not
+ */
+abstract class Options[+T] {
+  def flatMap[U](f: T => Option[U]): Option[U] = this match {
+    case Some(x) => f(x)
+    case None    => None
+  }
+}
+
+/**
+ * Models an operation that may succed or fail
+ * with an exception. Not a monad because left-unit
+ * f(x) could throw an exception and the monad will not.
+ * We can help this by strengthening the monad rules to 
+ * not throw an exception from f.
+ */
+abstract class Try[+T] {
+  def flatMap[U](f: T => Try[U]): Try[U] = this match {
+    case Success(x)    => try f(x) catch { case NonFatal(ex) => Failure(ex) }
+    case fail: Failure => fail
+  }
+  
+  def map[U](f: T => U): Try[U] = this match {
+    case Success(x)    => Try(f(x))
+    case fail: Failure => fail
+  }
+}
+case class Success[T](x: T) extends Try[T]
+case class Failure(ex: Exception) extends Try[Nothing]
+
+object Try {
+  def apply[T](expr: => T): Try[T] =
+    try Success(expr)
+    catch {
+      case NonFatal(ex) => Failure(ex)
+    }
+}
+
+Try(expression)

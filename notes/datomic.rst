@@ -55,7 +55,9 @@ e-id are attributes on the same entity)::
 A query is thus a vector that matches all or part of the datom. Parts that
 are not cared about can be marked with `_`, so the following finds all
 entities that have `:person/name` of `James Cameron` (the trailing `-`
-is a match for the tx-id and can be omitted)::
+is a match for the tx-id and can be omitted):
+
+.. code-block:: clojure
 
     [:find ?e
      :where
@@ -64,7 +66,9 @@ is a match for the tx-id and can be omitted)::
 Multiple data patterns can be issued in a single `:where` clause, however
 they must be bound by a common pattern variable so the query planner can
 resolve what query to make. For example, to find all the actors that
-starred in `Terminator`::
+starred in `Terminator`:
+
+.. code-block:: clojure
 
     [:find ?name
      :where
@@ -78,7 +82,9 @@ Queries
 
 Parameterized queries can be created by using the `in` clause which accepts
 a parameter to query by and the database to query against (implicit if there is
-no `in` clause)::
+no `in` clause):
+
+.. code-block:: clojure
 
     [:find ?title
      :in $ ?name                      // $ id the database to use
@@ -90,7 +96,9 @@ no `in` clause)::
     (q query db "Sylvester Stallone") // find all movies of Stallone's
 
 In the previous, the `$` is actually implicitly included in each data pattern
-as a 5-tuple. This is what code is actually implemented::
+as a 5-tuple. This is what code is actually implemented:
+
+.. code-block:: clojure
 
     [:find ?title
      :in $ ?name
@@ -100,7 +108,9 @@ as a 5-tuple. This is what code is actually implemented::
      [$ ?m :movie/title ?title]]
 
 One can also supply multiple query arguments or tuple arguments that can be
-destructured::
+destructured:
+
+.. code-block:: clojure
 
     [:find ?title
      :in $ [?director ?actor]    // can also be :in $ $director $actor
@@ -113,7 +123,9 @@ destructured::
 
 One can also bind in external data to return in the query (here we pass in
 actor and a relation of `[movie, rating]`, note that `?rating` is not bound
-in any data pattern)::
+in any data pattern):
+
+.. code-block:: clojure
 
      [:find ?title ?rating
       :in $ ?actor [[?title ?rating]]
@@ -122,7 +134,9 @@ in any data pattern)::
       [?m :movie/cast ?p]
       [?m :movie/title ?title]]
 
-One can also query by collections to implement a logical `or` query::
+One can also query by collections to implement a logical `or` query:
+
+.. code-block:: clojure
 
     [:find ?title
      :in $ [?director ...]
@@ -133,7 +147,9 @@ One can also query by collections to implement a logical `or` query::
 
 One can query all the available attributes for a given entity (the first
 query just returns the attribute ids associate with `:person`, the second
-returns the names)::
+returns the names):
+
+.. code-block:: clojure
 
     [:find ?attr
      :where 
@@ -146,7 +162,9 @@ returns the names)::
      [?p ?a]               // find other attributes of this eid
      [?a :db/ident ?attr]] // and match those ids to names
 
-To print the entire database schema that is currently installed::
+To print the entire database schema that is currently installed:
+
+.. code-block:: clojure
 
     [:find ?attr ?type ?card
      :where
@@ -163,7 +181,9 @@ It is also possible to issue queries about transactions and time such as:
 * when was a fact retracted
 * which facts were part of the same transaction
 
-We can query on this by using the fourth value of the tuple::
+We can query on this by using the fourth value of the tuple:
+
+.. code-block:: clojure
 
     [:find ?timestamp
      :where
@@ -177,7 +197,9 @@ Query Functions
 One can use other predicates in the data patterns besides equals. One can use
 any clojure function or java method to perform this filtering. The basic clojure
 functions `(<, >, <=, >=, =, not=)` can be used directly, but other functions
-must be fully namespace qualified like `(my.namespace/awesome? ?movie)`::
+must be fully namespace qualified like `(my.namespace/awesome? ?movie)`:
+
+.. code-block:: clojure
 
     [:find ?title
      :where
@@ -194,7 +216,9 @@ One can also use transformation functions to generate new query vaules to bind
 to (note, these functions must be pure and have the shape
 `[(<fn> <arg1> <arg2> ...) <result-binding>]`). Also, transformation functions
 cannot be nested; each expression must be stored to a temporary binding before
-being applied to the next function::
+being applied to the next function:
+
+.. code-block:: clojure
 
     (defn age [birthday today]
       (quot (- (.getTime today)
@@ -210,7 +234,9 @@ being applied to the next function::
 
 There are also aggregate functions that can be used to combine results
 into a singular result. These include `sum, max, avg, etc` and they are
-written in the `:find` clause::
+written in the `:find` clause:
+
+.. code-block:: clojure
 
     [:find (max ?date)
      :where
@@ -221,7 +247,9 @@ Rules
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Rules allow one to abstract away reusable parts of datalog queries that can be
-grouped into meaningul units with names. For example::
+grouped into meaningful units with names. For example:
+
+.. code-block:: clojure
 
     [(actor-movie ?name ?title)  // can be used to find actor name given title
      [?p :person/name ?name]     // or movie title given actor name
@@ -234,7 +262,9 @@ grouped into meaningul units with names. For example::
 
 The same name can be bound to numerous rules to provide a type of `or` query
 (the first matching rule will be used and following rules will not be
-processed)::
+processed):
+
+.. code-block:: clojure
 
     [[(associated-with ?person ?movie)
       [?movie :movie/cast ?person]]
@@ -248,7 +278,9 @@ processed)::
      (associated-with ?p ?m)
      [?p :person/name ?name]]
 
-Rules can also call themselves (as long as they terminate)::
+Rules can also call themselves (as long as they terminate):
+
+.. code-block:: clojure
 
     [[(friends ?p1 ?p2) [?m :movie/cast ?p1] [?m :movie/cast ?p2]]
      [(friends ?p1 ?p2) [?m :movie/cast ?p1] [?m :movie/director ?p2]]

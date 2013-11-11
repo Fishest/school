@@ -289,3 +289,192 @@ http://cstheory.stackexchange.com/questions/1539/whats-new-in-purely-functional-
 scala.collection.immutable.Vector
 scala.collection.immutable.HashMap
 scala.collection.immutable.HashSet
+
+--------------------------------------------------
+Priority Queue (Heap)
+--------------------------------------------------
+
+.. code-block:: scala
+
+    //
+    // Base trait for a heap using ML style
+    // type declarations for heap, element, and ordering
+    //
+    trait Heap {
+      type H // type of a heap
+      type A // type of an element
+      def order: Ordering[A] // ordering on elements
+
+      def empty: H // the empty heap
+      def isEmpty(h: H): Boolean // whether the given heap h is empty
+
+      def insert(x: A, h: H): H // the heap resulting from inserting x into h
+      def meld(h1: H, h2: H): H // the heap resulting from merging h1 and h2
+
+      def findMin(h: H): A // a minimum of the heap h
+      def deleteMin(h: H): H // a heap resulting from deleting a minimum of h
+    }
+
+A binomial tree is one that satisfies the following properties:
+
+* a binomial tree of rank 0 is a singleton.
+* a binomial tree of rank r + 1 if formed by linking two trees of
+  rank r with one being the left most child of the other.
+* binomial tree of rank r has 2^r nodes
+ 
+A binomial queue is therefore a forest of heap ordered binomial
+trees where no two trees have the same rank. Since there are 2^r
+nodes, the ranks can be thought of a binary number. So a tree with
+21 nodes has trees of rank 10101 (16, 4, 1). Adding a new entry in
+the queue is equivalent to adding a singleton node and merging the
+matching tree ranks from right to left. This can also be seen as
+adding 1 to the binary rank representation (with carry).
+
+Deleting the miminum node in the queue just removes the root from
+the min ranked tree. This resuling tree is thus itself a binomial
+queue that can be melded into the existing queue. It should be noted
+that the queue stores trees in increasing rank for good insert
+performance and the tree's children are in decreasing rank for good
+link perforamance. This is why we reverse the children in the deleteMin.
+
+Also, the rank is usually defined by the parent and children aquire their 
+rank based on their position in the tree, not labeled individually.
+
+.. code-block:: scala
+
+    //
+    // Binomial hepa implementation based on Brodal heaps
+    // - fibonacci heap
+    // - Vuillemin binomial queue
+    //
+    trait BinomialHeap extends Heap {
+
+      type Rank = Int
+      case class Node(x: A, r: Rank=0, c: List[Node]=Nil)
+      override type H = List[Node]
+
+      protected def root(t: Node) = t.x
+      protected def rank(t: Node) = t.r
+      protected def link(t1: Node, t2: Node): Node = // t1.r==t2.r
+        if (order.lteq(t1.x, t2.x)) Node(t1.x, t1.r + 1, t2::t1.c) else Node(t2.x, t2.r + 1, t1::t2.c)
+      protected def ins(t: Node, ts: H): H = ts match {
+        case Nil    => List(t)
+        case tp::ts => // t.r <= tp.r
+          if (t.r < tp.r) t::tp::ts else ins(link(t, tp), ts)
+      }
+
+      override def empty = Nil
+      override def isEmpty(ts: H) = ts.isEmpty
+
+      override def insert(x: A, ts: H)  = ins(Node(x), ts)
+      override def meld(ts1: H, ts2: H) = (ts1, ts2) match {
+        case (Nil, ts)          => ts
+        case (ts, Nil)          => ts
+        case (t1::ts1, t2::ts2) =>
+          if (t1.r < t2.r) t1::meld(ts1, t2::ts2)
+          else if (t2.r < t1.r) t2::meld(t1::ts1, ts2)
+          else ins(link(t1, t2), meld(ts1, ts2))
+      }
+
+      override def findMin(ts: H) = ts match {
+        case Nil    => throw new NoSuchElementException("min of empty heap")
+        case t::Nil => root(t)
+        case t::ts  =>
+          val x = findMin(ts)
+          if (order.lteq(root(t), x)) root(t) else x
+      }
+
+      override def deleteMin(ts: H) = ts match {
+        case Nil   => throw new NoSuchElementException("delete min of empty heap")
+        case t::ts =>
+          def getMin(t: Node, ts: H): (Node, H) = ts match {
+            case Nil     => (t, Nil)
+            case tp::tsp =>
+              val (tq, tsq) = getMin(tp, tsp)
+              if (order.lteq(root(t), root(tq))) (t, ts) else (tq, t::tsq)
+          }
+          val (Node(_, _, c), tsq) = getMin(t, ts)
+          meld(c.reverse, tsq)
+      }
+    }
+
+Another queue is the skew binomial queue which makes use of the
+skew binary numbers idea to reduce carries on insert to at most
+one node.
+
+A skew binomial tree is one that satisfies the following properties:
+
+* a skew binomial tree of rank 0 is a singleton.
+* a skew binomial tree of rank r + 1 if formed in one of three ways:
+
+  - a simple link making one tree of rank r the child of another tree
+    of rank r
+  - a type A skew link, making two trees of rank r children of a tree
+    of rank 0
+  - a type B skew link, making a tree of rank 0 and a tree of rank r
+    the leftmost children of a tree of rank r.
+
+A perfrectly balanced tree only allows simple and typeA links. Otherwise
+a tree allowing all three will have 2^r <= [t] <= 2^(r + 1) - 1 nodes.
+The height of the tree is equal to the rank.
+
+.. code-block:: scala
+
+    trait SkewBinomialHeap extends BinomialHeap {
+      protected def skewLink(t1: Node, t2: Node, t3: Node): Node =
+        if (order.lteq(t2.x, t1.x) and order.lteq(t2.x, t3.x)) Node(t2.x, t2.r + 1, t1::t3::t2.c)
+        else if (order.lteq(t3.x, t1.x) and order.lteq(t3.x and t2.x) Node(t3, t3.r + 1, t1 :: t2 :: t3.c)
+        else Node(t1, t2.r + 1, t2 :: t3)
+
+      protected def uniqify(t: Node): Node = t match {
+        case Nil  => Nil
+        case t:ts => ins(t, ts) // eliminate initial duplicate
+      }
+      protected def meldUnique(ts1: H, ts2: H) = (ts1, ts2) match {
+        case (Nil, ts)          => ts
+        case (ts, Nil)          => ts
+        case (t1::ts1, t2::ts2) =>
+          if (t1.r < t2.r) t1 :: meldUnique(ts1, t2::ts2)
+          else if (t2.r < t1.r) t2 :: meldUnique(t1::ts1, ts2)
+          else ins (link (t1, t2), meldUniq (ts1, ts2))
+      
+      override def insert(x: A, ts: H)  = ts match {
+        case t1::t2::ts  => 
+          if (t1.r == t2.r) skewLink(Node(x), t1, t2) :: ts else Node(x) :: ts
+        case _ => Node(x) :: ts
+
+      override def meld(ts1: H, ts2: H) = meldUnique(uniqify ts1, uniqify ts2)
+      override def deleteMin(ts: H) = ts match {
+        case Nil   => throw new NoSuchElementException("delete min of empty heap")
+        case t::ts =>
+          def getMin(t: Node, ts: H): (Node, H) = ts match {
+            case Nil     => (t, Nil)
+            case tp::tsp =>
+              val (tq, tsq) = getMin(tp, tsp)
+              if (order.lteq(root(t), root(tq))) (t, ts) else (tq, t::tsq)
+          }
+          def split(ts, xs, cs): (H, H) = cs match {
+            case Nil  => (ts, xs)
+            case t::c =>
+              if (c.r == 0) split(ts, root(t) :: xs, c) else split(t::ts, xs, c)
+          }
+          val (Node(_, _, c), tsq) = getMin(t, ts)
+          val (tsq2, xsq) = split([], [], c)
+          xsq.fold(meld(tsq, tsq2))(insert)
+    }
+
+Page 16 osaka brics
+
+Here is an example of mixing in the various traits to create a
+queue of type int with the binomial heap implementation:
+
+.. code-block:: scala
+
+    //
+    // To instantiate an instance of the heap
+    //
+    trait IntHeap extends Heap {
+      override type A  = Int
+      override def order = scala.math.Ordering.Int
+    }
+    val heap = new IntHeap with BinonmailHeap

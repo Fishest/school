@@ -463,7 +463,27 @@ The height of the tree is equal to the rank.
           xsq.fold(meld(tsq, tsq2))(insert)
     }
 
-Page 16 osaka brics
+We can add an O(1) `findMin` operator by wrapping a queue implementation
+in a decotrator and maintaining the current min:
+
+.. code-block:: scala
+
+    trait FindMinHeap(heap: H) extends Heap {
+      type H = heap.H
+      type A = heap.A
+
+      def empty: heap.empty
+      def isEmpty(h: H): Boolean // whether the given heap h is empty
+
+      def insert(x: A, h: H): H // the heap resulting from inserting x into h
+      def meld(h1: H, h2: H): H // the heap resulting from merging h1 and h2
+
+      def findMin(h: H): A // a minimum of the heap h
+      def deleteMin(h: H): H // a heap resulting from deleting a minimum of h
+    }
+
+    case class MinEmpty(heap: H) extends FindMinHeap
+    case class MinRoot(x: A, heap: H) extends FindMinHeap
 
 Here is an example of mixing in the various traits to create a
 queue of type int with the binomial heap implementation:

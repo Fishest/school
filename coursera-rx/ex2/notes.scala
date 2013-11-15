@@ -95,3 +95,196 @@ for (i <- 1 until 10; j <- "abc") {
 (1 until 10) foreach (i =>
   "abc" foreach (j =>
       println(i + " " + j)))
+
+//------------------------------------------------------------
+// Video 4
+//------------------------------------------------------------
+
+def inverter(a: Wire, o: Wire): Unit
+def orGate(a: Wire, b: Wire, o: Wire): Unit
+def andGate(a: Wire, b: Wire, o: Wire): Unit
+def halfAdder(a: Wire, b: Wire, s: Wire, c: Wire): Umit = {
+  val d, e = new Wire
+  orGate(a, b, d)
+  andGate(a, b, c)
+  inverter(c, e)
+  andGate(d, e, s)
+}
+def fullAdder(a: Wire, b: Wire, cin: Wire, sum: Wire, cout: Wire): Unit = {
+  val s, c1, c2 = new Wire
+  halfAdder(b, cin, s, c1)
+  halfAdder(a, s, sum, c2)
+  orGate(c1, c2, cout)
+}
+
+//------------------------------------------------------------
+// Video 5
+//------------------------------------------------------------
+
+trait Simulation {
+  def currentTime: Int = ???
+  def afterDelay(delay: Int)(block: Unit) = ???
+  def run(): Unit = ??
+}
+
+class Wire {
+  private var signal = false
+  private var actions: List[Action] = List()
+  def getSignal: Boolean = signal
+  def setSignal(value: Boolean): Unit =
+    if (value != signal) {
+      signal = value
+      actions foreach (_())
+    }
+
+  def addAction(action: Action): Unit = {
+    actions = action :: actions
+    action()
+  }
+}
+
+//------------------------------------------------------------
+// Video 6
+//------------------------------------------------------------
+
+/**
+ * The agenda is sorted by order of events to be fired
+ * so that most recent events pop off first.
+ */
+trait Simulation {
+  type Action = () => Unit
+  case class Event(time: Int, action: Action)
+  private type Agenda = List[Event]
+  private var agenda: Agenda = List()
+  private var curtime = 0
+
+  def currentTime: Int = curtime
+
+  def afterDelay(delay: Int)(block: => Unit): Unit = {
+    val item = Event(currentTime + delay, () => block)
+    agenda = insert(agenda, item)
+  }
+
+  def run(): Unit {
+    afterDelay(0) {
+      println("simulation started at " + currentTime)
+    }
+    loop()
+  }
+
+  private def insert(agenda: List[Event], event: Event): List[Event] = agenda match {
+    case first :: rest if first.time <= event.time =>
+      first :: insert(rest, event)
+    case _ => event :: agenda
+  }
+
+  private def loop(): Unit = agenda match {
+    case first :: rest =>
+      agenda = rest
+      curtime = first.time
+      first.action()
+      loop()
+    case Nil =>
+  }
+}
+
+/**
+ * Put the basic level gates in here
+ */
+abstract class Gates extends Simulation {
+
+  def InverterDelay: Int
+  def AndGateDelay: Int
+  def OrGateDelay: Int
+
+  def probe(name: String, wire: Wire): Unit {
+    def action(): Unit = {
+      println(s"$name $currentTime value = ${wire.getSignal}")
+    }
+    wire addAction action
+  }
+
+  def nandGate(a: Wire, b: Wire, output: Wire): Unit = {
+    def action(): unit = {
+      val signala = a.getSignal
+      val signalb = b.getSignal
+      afterDelay(AndGateDelay) { output setSignal !(signala & signalb) }
+    }
+    a addAction action
+    b addAction action
+  }
+
+  def norGate(a: Wire, b: Wire, output: Wire): Unit = {
+    def action(): unit = {
+      val signala = a.getSignal
+      val signalb = b.getSignal
+      afterDelay(AndGateDelay) { output setSignal !(signala | signalb) }
+    }
+    a addAction action
+    b addAction action
+  }
+
+  def inverter(input: Wire, output: Wire): Unit = {
+    def action(): unit = {
+      val signal = input.getSignal
+      afterDelay(InverterDelay) { output setSignal !signal }
+    }
+    input addAction action
+  }
+
+  def andGate(a: Wire, b: Wire, output: Wire): Unit = {
+    def action(): unit = {
+      val signala = a.getSignal
+      val signalb = b.getSignal
+      afterDelay(AndGateDelay) { output setSignal (signala & signalb) }
+    }
+    a addAction action
+    b addAction action
+  }
+
+  def orGate(a: Wire, b: Wire, output: Wire): Unit = {
+    def action(): unit = {
+      val signala = a.getSignal
+      val signalb = b.getSignal
+      afterDelay(AndGateDelay) { output setSignal (signala | signalb) }
+    }
+    a addAction action
+    b addAction action
+  }
+}
+
+/**
+ * Put the higher order circuits in here.
+ */
+abstract class Circuits extends Gates {
+
+}
+
+/**
+ * Put timing parameters in here.
+ */
+trait Parameters {
+  def InverterDelay = 2
+  def AndGateDelay  = 3
+  def OrGateDelay   = 5
+}
+
+/**
+ * To run this in a worksheet add the following
+ */
+object simulation extends Circuits with Parameters
+import simulation._
+
+val in1, in2, sum, carry = new Wire
+halfAdder(in1, in2, sum, carry)
+probe("sum", sum)
+probe("carry", carry)
+
+in1 setSignal true
+run()
+
+in2 setSignal true
+run()
+
+in1 setSignal false
+run()

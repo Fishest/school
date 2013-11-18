@@ -54,22 +54,43 @@ abstract class CircuitSimulator extends Simulator {
     a2 addAction andAction
   }
 
-  //
-  // to complete with orGates and demux...
-  //
-
   def orGate(a1: Wire, a2: Wire, output: Wire) {
-    ???
+    def action() {
+      val a1Sig = a1.getSignal
+      val a2Sig = a2.getSignal
+      afterDelay(OrGateDelay) { output.setSignal(a1Sig | a2Sig) }
+    }
+    a1 addAction action
+    a2 addAction action
   }
   
   def orGate2(a1: Wire, a2: Wire, output: Wire) {
-    ???
+    val n1, n2, n3 = new Wire
+    inverter(a1, n1)
+    inverter(a2, n2)
+    andGate(n1, n2, n3)
+    inverter(n3, output)
   }
 
   def demux(in: Wire, c: List[Wire], out: List[Wire]) {
-    ???
+    c match {
+      case Nil =>
+        andGate(in, in, out(0))
+        
+      case c1::Nil =>
+        val cinv = new Wire
+        inverter(c1, cinv)
+        andGate(in, cinv, out(0))
+        andGate(in, c1, out(1))
+        
+      case c1::crest =>
+        val o1, o2 = new Wire
+        val (ol, oh) = out.splitAt(out.length / 2)
+        demux(in, List(c1), List(o1, o2))
+        demux(o1, crest, ol)
+        demux(o2, crest, oh)
+    }
   }
-
 }
 
 object Circuit extends CircuitSimulator {
@@ -94,12 +115,46 @@ object Circuit extends CircuitSimulator {
     run
   }
 
-  //
-  // to complete with orGateExample and demuxExample...
-  //
+  def orGateExample {
+    val in1, in2, out = new Wire
+    orGate(in1, in2, out)
+    probe("in1", in1)
+    probe("in2", in2)
+    probe("out", out)
+    in1.setSignal(false)
+    in2.setSignal(false)
+    run
+
+    in1.setSignal(true)
+    run
+
+    in2.setSignal(true)
+    run
+  }
+  
+  def demuxExample {
+    val in, c, o1, o2 = new Wire
+    demux(in, List(c), List(o1, o2))
+    probe("in", in)
+    probe("c", c)
+    probe("out1", o1)
+    probe("out2", o2)
+    in.setSignal(false)
+    run
+
+    in.setSignal(true)
+    run
+
+    o1.setSignal(true)    
+    run
+    
+    o2.setSignal(true)
+    run 
+  }
 }
 
 object CircuitMain extends App {
-  // You can write tests either here, or better in the test class CircuitSuite.
   Circuit.andGateExample
+  Circuit.orGateExample
+  Circuit.demuxExample
 }

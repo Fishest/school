@@ -29,7 +29,7 @@ class EpidemySimulator extends Simulator {
   import SimConfig._
 
   var initial = (prevalenceRate * population).toInt
-  val persons = (0 until population) map  { id =>
+  val persons: List[Person] = List.range(0, population) map  { id =>
     val person = new Person(id)
     if (coinToss && initial > 0) { 
       person.makeInfected // because we have to have _3_ infections
@@ -55,15 +55,15 @@ class EpidemySimulator extends Simulator {
     def updateStatus() {
       val susceptible  = prob(transmissionRate)
       val transmitable = persons.exists(p => (p.row == row) && (p.col == col) && p.infected) 
-      val infectable   = !(dead || immune)
+      val infectable   = !(dead || immune || infected)
       if (infectable && transmitable && susceptible) { makeInfected }
     } 
     def makeInfected() { infected = true; afterDelay(incubationTime)(makeSick) }
     def makeSick()     { sick = true; afterDelay(dieTime - incubationTime)(makeDead) }
     def makeDead()     { if (prob(dieRate)) { dead = true } else afterDelay(immuneTime - dieTime)(makeImmune) }
-    def makeImmune()   { immune = true; afterDelay(healTime - immuneTime)(makeHealthy) }
-    def makeHealthy()  { sick = false; infected = false; immune = false }
-    def vaccinate()    { immune = true; sick = false; infected = false  }
+    def makeImmune()   { if (!dead) { immune = true; sick = false; afterDelay(healTime - immuneTime)(makeHealthy) } }
+    def makeHealthy()  { if (!dead) { infected = false; immune = false } }
+    def vaccinate()    { if (!dead) { immune = true; sick = false; infected = false }  }
     
     /**
      * This is a predicate to check if a given room is dangerous
@@ -73,6 +73,7 @@ class EpidemySimulator extends Simulator {
       case (r, c) => persons.exists(p =>
         (p.row == r) && (p.col == c) && (p.sick || p.dead))
     }
+    def isRoomSafe(room: (Int, Int)): Boolean = !isRoomInfected(room)
     
     /**
      * This gets the next possible move that the person
@@ -81,11 +82,11 @@ class EpidemySimulator extends Simulator {
     def getMove(): Option[(Int, Int)] = {
       def byFoot = {
         val moves = List(
-          /* up   */ (if (row == 0) roomRows else row - 1, col),
-		  /* right*/ (row, if (col == roomColumns) 0 else col + 1),
-		  /* down */ (if (row == roomRows) 0 else row + 1, col),
-		  /* left */ (row, if (col == 0) roomColumns else col -1)
-        ).filter(isRoomInfected)
+          (if (row == 0) roomRows else row - 1, col),    // up
+		  (row, if (col == roomColumns) 0 else col + 1), // right
+		  (if (row == roomRows) 0 else row + 1, col),    // down
+		  (row, if (col == 0) roomColumns else col -1)   // left
+        ).filter(isRoomSafe)
         
         if (moves.isEmpty) None else Some(moves(randomBelow(moves.size)))
       }

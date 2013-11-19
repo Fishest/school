@@ -96,4 +96,31 @@ ids have the name `English`:
 Each identifier is a triple of: the node that is identified, a namespace,
 and a key within that namespace. Identifiers can use somewhat named ids such
 as `/en/the_police` or they can simply use `/guid/{guid}` if a coherent name
-cannot be made.
+cannot be made. Identifiers are unique within a namespace and can only point
+to a single node. Furthermore, identifiers are not immutable: nodes can be
+given new identifiers and identifiers can be pointed to new nodes.
+
+Every node has a numeric guid that uniquely identifies it and _is_ immutable.
+The tuples in the metaweb graph refer to nodes by their guids, not by their
+identifiers.
+
+Although the database stores items in terms of tuples, it is helpful to view
+the graph in terms of objects; for example::
+
+    {
+      id: "/en/the_police",
+      name: "The Police",
+      /music/artist/album: {
+        id: "/en/zenyatta_mondatta",
+        name: "Zenyatta Mondatta",
+        /music/album/track: {
+          name: "Driven to Tears",
+          /music/track/length: 200.266
+        }
+        /music/album/track: {
+          name: "Canary in a Coalmine",
+          /music/track/length: 146.506
+        }
+      }
+    }
+

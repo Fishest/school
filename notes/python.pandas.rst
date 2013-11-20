@@ -3,6 +3,17 @@ Python Pandas
 ================================================================================
 
 --------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+
+There are two types in pandas:
+
+* `Series` - This is a 1-dimensional type
+* `TimeSeries` - Series with index containing datetime
+* `DataFrame` - This is a 2-dimensional type (container for `Series`)
+* `Panel` - This is a 3-dimensional type (container for `DateFrame`)
+
+--------------------------------------------------------------------------------
 Chapter 2: Ipython
 --------------------------------------------------------------------------------
 
@@ -33,7 +44,7 @@ Here are some useful utilities that can be useful:
     def set_trace():
         from IPython.core.debugger import Pdb
         Pdb(color_scheme='Linux').set_trace(sys._getframe().f_back)
-
+        
     def debug(f, *args, **kwargs):
         from IPython.core.debugger import Pdb
         pdb = Pdb(color_scheme='Linux')

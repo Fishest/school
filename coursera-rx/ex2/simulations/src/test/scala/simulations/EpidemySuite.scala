@@ -42,7 +42,7 @@ class EpidemySuite extends FunSuite {
       assert(chosenOne.col == col && chosenOne.row == row, "Dead person cannot move")
     }
   }
-
+  
   test("life cycle"){
     val es = new EpidemySimulator
 
@@ -97,5 +97,35 @@ class EpidemySuite extends FunSuite {
       infectedTimes = infectedTimes + (if(healthyPerson.infected) 1 else 0)
 	  }
 	  assert(infectedTimes > 0, "A person should get infected according to the transmissibility rate when he moves into a room with an infectious person")
+  }
+  
+  test("do not move to infectious people"){
+    val es = new EpidemySimulator
+
+    val healthyPeople = es.persons.filter(p => p.col == 0 && p.row == 0)
+    println(healthyPeople.length)
+    healthyPeople.foreach(p => {
+      p.infected = false
+      p.sick = false
+      p.dead = false
+      p.immune = false
+    })
+    val deadPeople = es.persons.filter(p => p.col != 0 || p.row != 0)
+    println(deadPeople.length)
+    healthyPeople.foreach(p => {
+      p.infected = true
+      p.sick = true
+      p.dead = true
+      p.immune = false
+    })
+
+    val testDays = 100
+
+    while(!es.agenda.isEmpty && es.agenda.head.time < testDays){
+      es.next
+      assert(healthyPeople.forall(p => {
+        deadPeople.forall(d => d.col != p.col || d.row != p.row)
+      }))
+    }
   }
 }

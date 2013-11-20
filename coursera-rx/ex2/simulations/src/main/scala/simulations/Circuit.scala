@@ -72,17 +72,17 @@ abstract class CircuitSimulator extends Simulator {
     inverter(n3, output)
   }
 
-  def demux(in: Wire, c: List[Wire], out: List[Wire]) {
-    c match {
+  def demux(in: Wire, ctrl: List[Wire], out: List[Wire]) {
+    ctrl match {
       case Nil => andGate(in, in, out(0))
-      case c1::cs =>
-        val cinv, o1, o2 = new Wire
+      case c::cs =>
+        val cv, o1, o2 = new Wire
         val (ol, oh) = out.splitAt(out.length / 2)
-        
-        inverter(c1, cinv)
-        andGate(in, cinv, o1)
-        andGate(in, c1, o2)
-        
+  
+        andGate(in, c, o1)
+        inverter(c, cv)
+        andGate(in, cv, o2)
+      
         demux(o1, cs, ol)
         demux(o2, cs, oh)
     }

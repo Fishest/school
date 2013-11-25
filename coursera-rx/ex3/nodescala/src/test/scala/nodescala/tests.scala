@@ -33,6 +33,26 @@ class NodeScalaSuite extends FunSuite {
       case t: TimeoutException => // ok!
     }
   }
+  
+  test("All futures should succeed") {
+    val xs = Future.always(1) :: Future.always(2) :: Future.always(3) :: Nil
+    val xf = Future.all(xs)
+    
+    assert(Await.result(xf, 1 second) === List(1, 2, 3))
+  }
+  
+  test("Any futures should succeed") {
+    val xs = Future.always(1) :: Future.delay(2 seconds) :: Nil
+    val xf = Future.any(xs)
+    
+    assert(Await.result(xf, 1 second) === 1)
+  }
+  
+  test("delay() actually delays the right amount") {
+    val st = System.currentTimeMillis()
+    Await.ready(Future.delay(3 second), Duration.Inf)
+    assert(System.currentTimeMillis() - st >= Duration(3, SECONDS).toMillis)
+  }
 
   test("CancellationTokenSource should allow stopping the computation") {
     val cts = CancellationTokenSource()

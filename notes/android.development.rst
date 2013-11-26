@@ -40,12 +40,44 @@ Application Components
   activity is independent from the others although they may all work together in
   a single application. All activities are subclasses of `Activity`.
 
+  These can be started by passing an `Intent` to `startActivity` or
+  `startActivityForResult` if a result is required.
+
 * `Services` - These run in the background to perform long running tasks or to
   perform work for remote processes. They have no user interface. These are used
   to say request network resources, play music, etc. All services are subclasses
   of `Service`.
 
+  These can be started by passing an `Intent` to `startService` or
+  `bindService` to bind to a running service.
+
 * `Content Providers` - These manage a shared set of application data. These are
   all subclasses of `ContentProvider`.
 
-* `Broadcast Receivers` -
+  These are started by specifically issuing a request to a `ContentResolver`
+  which has methods to retrieve the supplied content (this abstraction is
+  needed for security concerns).
+
+* `Broadcast Receivers` - These respond to system wide broadcast events. These
+  announcments can be recieved by a number of applications and can also be
+  emitted. The recievers don't have an interface, but can raise a notification
+  in the status bar. These are all subclasses of `BroadcastReciever` and the
+  events are `Intent` objects.
+
+  These can be initiated by passing an `Intent` to `sendBroadcast`,
+  `sendOrderedBroadcast`, or `sendStickyBroadcast`.
+
+All of these components communicate with each other with `Intent` objects which
+are messages to activate a specific component.
+
+--------------------------------------------------------------------------------
+Manifest File
+--------------------------------------------------------------------------------
+
+The manifest file is used to list all the components of the application to the
+android system:
+
+* identifies all the permissions that the application requires (internet, fs, etc)
+* declare the minimum API level the application requires
+* declare hardware and software features that need to be used
+* API libraries that need to be linked against, other than the android API

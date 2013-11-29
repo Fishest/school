@@ -234,6 +234,143 @@ c.isUnsubscribed // false
 // Video 4: Creating Rx Streams
 //------------------------------------------------------------
 
+// The bread and butter of creating observables
+object Observable {
+  def apply[T](s: Observer[T] => Subscription): Observable[T]
+}
+
+/**
+ * We can use this to define some of the basic observables
+ */
+object Observer2 {
+  // An observer that never returns anything
+  def never: Observable[Nothing] = Observable(observer => Subscription {})
+  // An observer that always returns an error
+  def apply[T](error: Throwable): Observable[T] = {
+    Observable(observer => {
+      observer.onError(error)
+      Subscription {}
+    })
+  }
+
+  def startWith[T](xs: T*): Observable[T] = {
+    Observable[T](observer => {
+      for (x <- xs) observer.onNext(x)
+      subscribe(observer)
+    }
+  }
+
+  def filter(p: T => Boolean): Observable[T] = {
+    Observable[T](observer => {
+      subscribe(
+        (t: T)         => if (p(t)) observer.onNext(t)
+        (e: Throwable) => observer.onError(e)
+        ()             => observer.onComplete()
+    })
+  }
+
+  def map[U](f: T => U): Observable[U] = {
+    Observable[U](observer => {
+      subscribe(
+        (t: T)         => observer.onNext(f(t))
+        (e: Throwable) => observer.onError(e)
+        ()             => observer.onComplete()
+    })
+  }
+}
+
+/**
+ * To convert a future to an observable, we need a new
+ * concept called subject. A subject is a collection of 
+ * an Observer and an Observable and is roughly converted
+ * into a channel. Subjects make cold observables hot. 
+ */
+val channel = new PublishSubject[Int]()
+val a = channel.subscribe(x => println(x))
+val b = channel.subscribe(x => println(x))
+channel.onNext(42) // both a and b get 42
+a.unsubscribe
+channel.onNext(44) // only b gets 44
+channel.onCompleted
+val c = channel.subscribe(x => println(x))
+channel.onNext(46) // no subscribers get 46
+
+/**
+ * We can also create a subject that replays all the values
+ * it has seen.
+ */
+val channel = new ReplaySubject[Int]()
+val a = channel.subscribe(x => println(x))
+val b = channel.subscribe(x => println(x))
+channel.onNext(42) // both a and b get 42
+a.unsubscribe
+channel.onNext(44) // only b gets 44
+channel.onCompleted
+val c = channel.subscribe(x => println(x)) // c gets 42, 44, oC
+channel.onNext(46) // no subscribers get 46
+
+/**
+ * The four most common subjects in rx are:
+ *
+ * - publish: sends out the current value (new subscribers get only future)
+ * - replay: caches all the values (new subscribers get all)
+ * - async: caches final value (new subscribers get last)
+ * - behavior: caches latest value (new subscribers get current)
+ */
+object Observable {
+  def apply[T](f: Future[T]): Observable[T] = {
+    val subject = new AsyncSubject[T]()
+    f onComplete {
+      case Success(c) => { subject.onNext(c); subject.onCompleted() }
+      case Failure(e) => { subject.onError(e) }
+    }
+    subject
+  }
+}
+
+/**
+ * We can mirror the try class to observable notifications
+ */
+abstract class Try[+T]
+case class Success[T](elem: T) extends Try[T]
+case class Failure(t: Throwable) extends Try[Nothing]
+
+abstract class Notification[T]
+case class onNext[T](value: T) extends Notification[T]
+case class onError(t: Throwable) extends Notification[Nothing]
+case class onCompleted extends Notification[Nothing]
+
+def materialize: Obsevable[Notification[T]] = ???
+
+/**
+ * We can also block on observables. It should be noted
+ * that all observables are non-blocking, even the reducers.
+ */
+Observable.toBlockingObservable(observable)
+BlockingObservable.from(observable)
+
+val xs = Observable.interval(1 second).take(5)
+val ys = xs.toBlockingObservable.toList     // waits until completed and returns a list
+println(ys)
+val zs:Observable[Int] = xs.sum             // an observable over the entire sum
+val s:Long = zs.toBlockingObservable.single // will throw if there is more than one element
+
+
+object Observable {
+  def reduce(f: (T, T) => T): Observable[T] = ???
+}
+
+/**
+ * De Morgans duality law states that && and || are duals and
+ * negation(!) is the energy between them::
+ *
+ * !(a && b) == !a || !b
+ * !(a || b) == !a && !b
+ *
+ * Observable and Iterable are duals and concurrency is the
+ * energy between them.
+ */
+
 //------------------------------------------------------------
 // Video 5: Schedulers 1
 //------------------------------------------------------------

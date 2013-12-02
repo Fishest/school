@@ -1,6 +1,5 @@
 package suggestions
 package gui
-
 import scala.collection.mutable.ListBuffer
 import scala.collection.JavaConverters._
 import scala.concurrent._
@@ -81,26 +80,35 @@ object WikipediaSuggest extends SimpleSwingApplication with ConcreteSwingApi wit
      */
 
     // TO IMPLEMENT
-    val searchTerms: Observable[String] = ???
+    val searchTerms: Observable[String] = searchTermField.textValues
 
     // TO IMPLEMENT
-    val suggestions: Observable[Try[List[String]]] = ???
+    val suggestions: Observable[Try[List[String]]] =
+      searchTerms.concatRecovered(term => wikiSuggestResponseStream(term))
 
 
     // TO IMPLEMENT
-    val suggestionSubscription: Subscription =  suggestions.observeOn(eventScheduler) subscribe {
-      x => ???
+    val suggestionSubscription: Subscription =  suggestions.observeOn(eventScheduler) subscribe { event => 
+      event match {
+	    case Success(xs)   => { suggestionList.listData = xs }
+	    case Failure(fail) => { status.text = fail.getMessage() }
+	  }
     }
 
     // TO IMPLEMENT
-    val selections: Observable[String] = ???
+    val selections: Observable[String] = button.clicks.
+      filter(_ => !suggestionList.selection.items.isEmpty).
+      map(_    => suggestionList.selection.items(0))
+    
+    // TO IMPLEMENT
+    val pages: Observable[Try[String]] = selections.concatRecovered(term => wikiPageResponseStream(term))
 
     // TO IMPLEMENT
-    val pages: Observable[Try[String]] = ???
-
-    // TO IMPLEMENT
-    val pageSubscription: Subscription = pages.observeOn(eventScheduler) subscribe {
-      x => ???
+    val pageSubscription: Subscription = pages.observeOn(eventScheduler) subscribe { event =>
+     event match {
+       case Success(text) => { editorpane.text = text }
+       case Failure(fail) => { status.text = fail.getMessage() }
+     }
     }
 
   }

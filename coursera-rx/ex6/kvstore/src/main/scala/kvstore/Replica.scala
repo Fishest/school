@@ -35,30 +35,126 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
   import Replicator._
   import Persistence._
   import context.dispatcher
-
-  /*
-   * The contents of this actor is just a suggestion, you can implement it in any way you like.
-   */
   
-  var kv = Map.empty[String, String]
-  // a map from secondary replicas to replicators
+  var seq         = 0L
+  var kv          = Map.empty[String, String]
   var secondaries = Map.empty[ActorRef, ActorRef]
-  // the current set of replicators
   var replicators = Set.empty[ActorRef]
-
+  
+  /**
+   * Arbiter initialization and group membership
+   */
+  arbiter ! Join
+  
+  /**
+   * This is the initial message handling before our
+   * role in the system is decided.
+   */
   def receive = {
     case JoinedPrimary   => context.become(leader)
     case JoinedSecondary => context.become(replica)
   }
 
-  /* TODO Behavior for  the leader role. */
+  /**
+   * This is the message handling logic for the leader role.
+   */
   val leader: Receive = {
-    case _ =>
+    case Insert(key, value, id) => handleInsert(key, value, id)
+    case Remove(key, id)        => handleRemove(key, id)
+    case Get(key, id)           => handleGet(key, id)
+    case Replicas(replicas)     => handleReplicas(replicas)
   }
 
-  /* TODO Behavior for the replica role. */
+  /**
+   * This is the message handling logic for the replica role.
+   */
   val replica: Receive = {
-    case _ =>
+    case Snapshot(key, value, id)  => handleSnapshot(key, value, id)
+    case Get(key, id)              => handleGet(key, id)
+  }
+  
+  /**
+   * This is the message handling logic for receiving the
+   * current state of the existing replicas.
+   */
+  private def handleReplicas(replicas: Set[ActorRef]) {
+    val current = secondaries.keySet
+    val started = replicas diff current
+    val stopped = current diff replicas
+    
+    started foreach { replica =>
+      val replicator = context.actorOf(Replicator.props(replica))
+      replicators += replicator
+      secondaries += replica -> replicator
+    }
+    
+    stopped foreach { replica =>
+      val replicator = secondaries(replica)
+      context.stop(replicator)
+      replicators -= replicator
+      secondaries -= replica
+    }
+    
   }
 
+  /**
+   * Handler for the snapshot operation
+   * @param key The key to add the value at
+   * @param value The value to start at the given key
+   * @param id The client transaction identifier
+   */
+  private def handleSnapshot(key: String, value: Option[String], id: Long) {
+    if (id == seq) {
+	  value match {
+	    case Some(v) => kv += key -> v
+	    case None    => kv -= key
+	  }
+	  seq += 1
+    }
+    if (id <= seq) sender ! SnapshotAck(key, id)   
+  }
+  
+  /**
+   * Handler for the replicate operation
+   * @param key The key to add the value at
+   * @param value The value to start at the given key
+   * @param id The client transaction identifier
+   */
+  private def handleReplicate(key: String, value: Option[String], id: Long) {
+    value match {
+      case Some(v) => kv += key -> v
+      case None    => kv -= key
+    }
+    sender ! Replicated(key, id)   
+  }
+  
+  /**
+   * Handler for the remove operation
+   * @param key The key to remove
+   * @param id The client transaction identifier
+   */
+  private def handleRemove(key: String, id: Long) {
+    kv -= key
+    sender ! OperationAck(id)
+  }
+
+  /**
+   * Handler for the insert operation
+   * @param key The key to add the value at
+   * @param value The value to start at the given key
+   * @param id The client transaction identifier
+   */
+  private def handleInsert(key: String, value: String, id: Long) {
+    kv += key -> value
+    sender ! OperationAck(id)
+  }
+  
+  /**
+   * Handler for the get operation
+   * @param key The key to get the value of
+   * @param id The client transaction identifier
+   */
+  private def handleGet(key: String, id: Long) {
+    sender ! GetResult(key, kv.get(key) ,id)
+  }
 }

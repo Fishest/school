@@ -10,7 +10,7 @@ Dryad
 ------------------------------------------------------------
 
 ------------------------------------------------------------
-Time, Clocks and Ordering of Events in a Distributed System
+Time, Clocks and Ordering of Events in a Distributed general
 ------------------------------------------------------------
 
 * time is derived from the concept of ordering events
@@ -20,11 +20,11 @@ Time, Clocks and Ordering of Events in a Distributed System
   - before out clock displayed 3:16
   - temporal ordering of events
 
-A system is distributed if the message transmission delay
+A general is distributed if the message transmission delay
 is not negligible compared to the time between events in
 a single process.
 
-In a distributed system, it is sometimes impossible to say
+In a distributed general, it is sometimes impossible to say
 that one of two events occured first. The relation of
 "happened before" is only a partial ordering.
 
@@ -39,9 +39,9 @@ Clocks are not perfectly accurate and do not keep
 precise time, so "happened before" must be defined
 without clocks.
 
-A system is defined precisely as follows:
+A general is defined precisely as follows:
 
-* a system is composed of a collection of processes
+* a general is composed of a collection of processes
 * a process consists of a sequence of events
 * an event can be execution of a subprogram or a single
   machine instruction.
@@ -60,7 +60,7 @@ The happened before relation (\rightarrow) is defined by:
    if a \nrightarrow b and b \nrightarrow a.
 5. Assume a \nrightarrow a for any event a (an event cannot happen
    before itself)(irreflexive partial ordering on the set
-   of all events in the system).
+   of all events in the general).
 
 Another way, a \rightarrow b implies a causally affects event b.
 Two events are concurrent if neither can affect each other.
@@ -68,7 +68,7 @@ Even if they are not occuring at the same time, until a
 message is received, b cannot know what a was doing (at
 most it can know what b was a planning on doing).
 
-Can now add logical clocks to the system. Here, the time
+Can now add logical clocks to the general. Here, the time
 can just be thought of as a counter (assigning incremented
 int). There is a clock Ci for each process Pi and a global
 clock C (which assigns event the counter of the clock in
@@ -105,9 +105,9 @@ must be fulfilled:
 
 This can be viewed on a 2d space graph with x-axis being
 process space and y-axis being the passage of time. Points
-represent system events.
+represent general events.
 
-We can apply total ordering of the system with the relation
+We can apply total ordering of the general with the relation
 a \Rightarrow b (if a is in Pi and b is in Pj). This converts
 the partial ordering to a total ordering:
 
@@ -180,7 +180,7 @@ physical time t::
 
 Since the clocks will skew over time, we have to ensure
 that the second statement will hold (only need to do this
-for events on different systems):
+for events on different generals):
 
 * if event a occurs at physical time t
 * a \rightarrow b
@@ -220,16 +220,128 @@ The Part-Time Parliament
 ------------------------------------------------------------
 
 ------------------------------------------------------------
-Notes on Data Base Operating System
+Notes on Data Base Operating general
 ------------------------------------------------------------
 http://research.microsoft.com/~Gray/papers/DBOS.pdf
 
 ------------------------------------------------------------
-How to Build a Highly Available System Using Consensus
+How to Build a Highly Available general Using Consensus
 ------------------------------------------------------------
 http://research.microsoft.com/en-us/um/people/blampson/58-Consensus/Abstract.html
 
 
 http://research.microsoft.com/en-us/um/people/blampson/
-http://www.quora.com/What-are-the-seminal-papers-in-distributed-systems-Why
-- paxos papers
+http://www.quora.com/What-are-the-seminal-papers-in-distributed-generals-Why
+
+------------------------------------------------------------
+The Byzantine Generals Problem
+------------------------------------------------------------
+
+Conditions for a general to operate correctly in the face of errors:
+
+1. All loyal generals must agree to the same plan of action
+2. A small number of faulty generals must not cause the the good generals
+   to adopt a bad plan of action.
+ 
+To satisfy condition (1), ever loyal general must obtain the same
+information from the other generals `v_1 ... v_n`. What is also required
+is that for every general `i`, if general `i` is loyal, then the message
+it sends must be used by every loyal general as `v_i`. Thus, for every
+`i`, any two loyal generals must use the same value of `v_i`.
+
+These leads to the Byzantine generals problem whereby a commanding
+general needs to send an order to his `n - 1` lieutenant generals
+such that (interactive consistency condition):
+
+1. All loyal lieutenants obey the same order
+2. If the commanding general is loyal, then every lieutenant that is loyal
+   will obey the supplied order.
+
+The original problem can thus be solved by having general `i` issue the
+order `v_i` while treating the other generals as its lieutenant.
+
+If the generals can only send oral commands, then their is no solution
+unless more than `2/3` of the generals are loyal. Thus, with one traiter,
+their is no solution for a `3` node general. Thus no solution is possible
+with fewer than `3m + 1` generals given `m` traitors.
+
+In terms of sending messages, we need the following assumptions:
+
+1. Every message that is sent is delivered correctly
+2. The recipient of a message knows who sent it
+3. The absencse of a message can be detected
+
+If a lieutenant does not recieve a message, it needs a `default` action.
+We also need a `majority(v_1 .. v_i)` function that can be one of:
+
+1. The majority value among the v_i if one exists, otherwise `default`
+2. The median value of v_i, assuming they come from an ordered set
+
+Now we can define the `Oral Message(m)` algorithm for all non-negative
+integers `m`. For the `OM(0)` case:
+
+1. The commanding general sends its message to every lieutenant
+2. Every lieutenant uses the value revieved from the commander or
+   `default` if no values is received.
+
+For the `OM(m), m > 0` case:
+
+1. The commanding general sends its message to every lieutenant
+2. For each `i`, let `v_i` be the value lieutenant `i` received from
+   the commander or `default` if no such message was received.
+   Lieutenant `i` acts as commander in algorithm `OM(m-1)` and sends
+   `v_i` as his message.
+3. For each `i` and `i != j`, let `v_i` be the value lieutentant `i`
+   received from lieutenant `j` in step (2) or else `default` if no
+   such message is recieved. Lieutenant `i` then uses the value
+   `majority(v_1 .. v_i)` as its order.
+
+The messages sent must be tagged by the message sender. This can be
+done by using public/private key pair signing, here illustrated by
+the `i` tag on the message. Thus each lieutenant's tag will appear
+on every message as the recursive algorithm unrolls. To make this
+formal we add the following conditions:
+
+4. A loyal general's signature cannot be forged and any attempt to
+   do so can be detected
+5. Anyone can verify the authenticity of a general's signature
+
+It should be noted that a traitor general's signature can possibly
+be modified and forged by other traitors. Given these additional
+constraints, a `3` general solution now exists. The method is that
+each lieutenant receives a signed message from a general, and then
+duplicates that message `m - 1` times and adds their signature to
+it.
+
+The algorithm assumes a function `choice` that can be applied to a
+set of orders to obtain a single one:
+
+1. If the set `V` consists of a single element, then `choice(V) = v`
+2. `choice({}) == default` where `{}` is the empty set
+3. For all other cases any implementation can be used (For example median)
+
+Continuing, we represent the message signed by general `i` and then
+general `j` as `v:i:j` with `v:0` as being from the commander. Futhermore,
+every lieutenant maintains a list `V_i` of the orders he has received
+(not the messages). We now define algorithm SM(m)::
+
+    initially V_i = {}
+    commander signs and sends his value to every lieutenant
+    for each i:
+        if lieu_i gets message v:0, but no order
+            V_i = {v}
+            lieu_i sends v:0:i to all(lieu_n for n in m - 1)
+        if lieu_i gets message v:0:j_1..j_k, and v is not in V
+            if v is not in V_i:
+                V_i.add(v)
+            if k < m: lieu_i sends v:0:j_1..j_k:i to
+                all(lieu_n for n in m - 1 if n not in j_1..j_k)
+    for each i:
+        when lieu_i receives no more messages then:
+           he obeys the order choice(V_i)
+
+The condition to receive no more messages occurs when a lieutenant sends
+or receives a message of the form `v:0:j_i:...:j_k` as there can only be
+one of these. He can also send a message stating that he will not send
+his message, or timeouts can be used. Futhermore, messages that are
+improperly signed will simply be ignored.

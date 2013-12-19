@@ -12,6 +12,8 @@ import akka.actor.PoisonPill
 import akka.actor.OneForOneStrategy
 import akka.actor.SupervisorStrategy
 import akka.util.Timeout
+import akka.actor.Cancellable
+import akka.actor.ReceiveTimeout
 
 object Replica {
   sealed trait Operation {
@@ -30,6 +32,81 @@ object Replica {
   def props(arbiter: ActorRef, persistenceProps: Props): Props = Props(new Replica(arbiter, persistenceProps))
 }
 
+/**
+ * 
+ */
+object Monitor {
+  import Persistence._
+  
+  def props(original: ActorRef, persister: ActorRef, replicas: Set[ActorRef],
+      persist: Persist, success: AnyRef, failure: AnyRef): Props =
+    Props(new Monitor(original, persister, replicas, persist, success, failure))
+}
+
+/**
+ * 
+ */
+class Monitor(responder: ActorRef, persister: ActorRef, replicas: Set[ActorRef]=Set.empty[ActorRef],
+    persistMsg: Persistence.Persist, successMsg: AnyRef, failureMsg: AnyRef) extends Actor {
+  
+  import Replica._
+  import Persistence._
+  import Replicator._
+  import context.dispatcher
+
+  var toPersist = 1
+  var toReplicate = replicas 
+  var cancelPersist = context.system.scheduler.schedule(0.millis, 100.millis) { persister ! persistMsg }
+  var cancelReplicate  = context.system.scheduler.schedule(0.millis, 100.millis) {
+      toReplicate foreach (_ ! Replicate(persistMsg.key, persistMsg.valueOption, persistMsg.id))
+  }
+  
+  handleResponse(false, false) // in case we didn't have any replicas
+  context.setReceiveTimeout(1.seconds)
+  
+  /**
+   * 
+   */
+  def receive = {
+    case Persisted(key, id)  => handleResponse(false, true)
+    case Replicated(key, id) => handleResponse(true, false)
+    case ReceiveTimeout      => handleTimeout()
+    case Replicas(replicas)  => handleReplicaUpdate(replicas)
+  }
+  
+  private def handleReplicaUpdate(replicas: Set[ActorRef]) {
+    toReplicate = toReplicate diff replicas
+    handleResponse(false, false)
+  }
+  
+  /**
+   * 
+   */
+  private def handleResponse(replicated: Boolean, persisted: Boolean) {
+    if (persisted) toPersist  -= 1
+    if (replicated) toReplicate -= sender
+    
+    if (toPersist  == 0 && !cancelPersist.isCancelled) cancelPersist.cancel
+    if (toReplicate.size == 0 && !cancelPersist.isCancelled) cancelReplicate.cancel    
+    if (toPersist + toReplicate.size == 0) {
+      responder ! successMsg
+      context.stop(self)
+    }
+  }
+  
+  /**
+   * 
+   */
+  private def handleTimeout() {
+    responder ! failureMsg
+    context.stop(self)
+  }
+}
+
+/**
+ * The actor responsible for storing the current state of the key-value store.
+ * There is a primary and secondary version of this.
+ */
 class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
   import Replica._
   import Replicator._
@@ -37,9 +114,17 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
   import context.dispatcher
   
   var seq         = 0L
-  var kv          = Map.empty[String, String]
+  var database    = Map.empty[String, String]
   var secondaries = Map.empty[ActorRef, ActorRef]
   var replicators = Set.empty[ActorRef]
+  var persistance = context.actorOf(persistenceProps)
+  
+  /**
+   * This is the supervisor strategy for the persistence actor
+   */
+  override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 5, withinTimeRange = 1.second) {
+    case _: PersistenceException  => Restart
+  }
   
   /**
    * Arbiter initialization and group membership
@@ -59,10 +144,10 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
    * This is the message handling logic for the leader role.
    */
   val leader: Receive = {
-    case Insert(key, value, id) => handleInsert(key, value, id)
-    case Remove(key, id)        => handleRemove(key, id)
-    case Get(key, id)           => handleGet(key, id)
-    case Replicas(replicas)     => handleReplicas(replicas)
+    case Insert(key, value, id)    => handleInsert(key, value, id)
+    case Remove(key, id)           => handleRemove(key, id)
+    case Get(key, id)              => handleGet(key, id)
+    case Replicas(replicas)        => handleReplicas(replicas - self)
   }
 
   /**
@@ -84,19 +169,25 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
     
     started foreach { replica =>
       val replicator = context.actorOf(Replicator.props(replica))
+      var sequence = 0
       replicators += replicator
       secondaries += replica -> replicator
+      
+      database foreach { case (k, v) =>
+        replicator ! Replicate(k, Some(v), sequence)
+        sequence += 1
+      }
     }
     
     stopped foreach { replica =>
       val replicator = secondaries(replica)
       context.stop(replicator)
+      context.children foreach (_ ! Replicas(Set(replicator)))
       replicators -= replicator
       secondaries -= replica
-    }
-    
+    }    
   }
-
+  
   /**
    * Handler for the snapshot operation
    * @param key The key to add the value at
@@ -106,26 +197,27 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
   private def handleSnapshot(key: String, value: Option[String], id: Long) {
     if (id == seq) {
 	  value match {
-	    case Some(v) => kv += key -> v
-	    case None    => kv -= key
+	    case Some(v) => database += key -> v
+	    case None    => database -= key
 	  }
 	  seq += 1
-    }
-    if (id <= seq) sender ! SnapshotAck(key, id)   
+	    
+	  val persist = Persist(key, value, id)
+	  val success = SnapshotAck(key, id)
+	  val failure = SnapshotAck(key, id)
+      context.actorOf(Monitor.props(sender, persistance, replicators, persist, success, failure))
+    } else if (id < seq) {
+      sender ! SnapshotAck(key, id)
+    }   
   }
   
   /**
-   * Handler for the replicate operation
-   * @param key The key to add the value at
-   * @param value The value to start at the given key
+   * Handler for the get operation
+   * @param key The key to get the value of
    * @param id The client transaction identifier
    */
-  private def handleReplicate(key: String, value: Option[String], id: Long) {
-    value match {
-      case Some(v) => kv += key -> v
-      case None    => kv -= key
-    }
-    sender ! Replicated(key, id)   
+  private def handleGet(key: String, id: Long) {
+    sender ! GetResult(key, database.get(key) ,id)
   }
   
   /**
@@ -134,8 +226,8 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
    * @param id The client transaction identifier
    */
   private def handleRemove(key: String, id: Long) {
-    kv -= key
-    sender ! OperationAck(id)
+    database -= key
+    handleBroadcast(key, None, id)
   }
 
   /**
@@ -145,16 +237,20 @@ class Replica(val arbiter: ActorRef, persistenceProps: Props) extends Actor {
    * @param id The client transaction identifier
    */
   private def handleInsert(key: String, value: String, id: Long) {
-    kv += key -> value
-    sender ! OperationAck(id)
+    database += key -> value
+    handleBroadcast(key, Some(value), id)
   }
   
   /**
-   * Handler for the get operation
-   * @param key The key to get the value of
+   * Handler for broadcasting new values to replicate and persist
+   * @param key The key to add the value at
+   * @param value The value to broadcast for the given key
    * @param id The client transaction identifier
    */
-  private def handleGet(key: String, id: Long) {
-    sender ! GetResult(key, kv.get(key) ,id)
+  private def handleBroadcast(key:String, value: Option[String], id: Long) {
+    val persist = Persist(key, value, id)
+    val success = OperationAck(id)
+    val failure = OperationFailed(id)
+    context.actorOf(Monitor.props(sender, persistance, replicators, persist, success, failure))
   }
 }

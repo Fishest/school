@@ -861,3 +861,62 @@ Summary
   - this prevents a CAS write by the down spot
 
 * can extend performance of the system by just adding dynamo capacity
+
+============================================================
+Amazon Kinesis
+============================================================
+
+------------------------------------------------------------
+Summary
+------------------------------------------------------------
+
+* elastic beanstalk
+* streaming map reduce
+* stream composed of data records, partitioned by a key into shards
+  each shard hits a worker, sequence numbers on data records handle
+  ordering, final result hits some datastore
+* source -> kinesis -> kinesis application -> RDBMS
+* client library handles creating shard counts (implement `IRecordProcessor`)
+  - stored in local dynamoDB table
+  - each worker locks a shard in dynamo to take ownership
+  - workers are in ec2 autoscaling groups (scaled with cloudwatch)
+  - workers that are unbalanced weighted coin toss rebalance
+  - failed workers have their shard locks time out; eventually rebalance
+  - can have multi-datacenter with two autoscaling groups (datacenter)
+* checkpoint / replay design pattern (appendlog)
+  - application desides when to checkpoint
+  - checkpoint is specific to a application and shard
+  - checkpoint hash is `shardId-seqNum`
+  - lock table is { shardId, lock, seqNum }
+  - on failure, new shard gets stale lock and takes over
+  - Then reads seqNum, restores state, and reads records after seqNum
+* dynamic resharding
+  - md5_hash(string) % shard_count
+  - Put(record)  -> VIP -> proxy-server
+  - proxy-server -> VIP -> Get(...)    
+  - split overloaded hash bucket (next bit of md5 hash)
+  - explicit ordering: s2 > s1            (seq are ordered)
+  - implicit ordering: s3 > { s2, s1 }    (close seq are near each other)
+  - seqNum: {epoch}.{shardId}.{subSeqNum} (preservers order after shard)
+  - each shard has an id generator (snowflake) (epochs can be different across shards)
+  - on reshard a new epoch boundary is created (increment epoch)
+  - these shard epochs can then diverge (think of shards as split queues)
+  - if a shard is closed (passed final epoch), a redirect is returned
+  - redirect instructs client to requeue a record to the supplied queue
+  - on finishing a shard, worker checkpoints and gets a new shard
+* big data architecture
+  - kinesis -> (kinesis apps) -> s3 -> redshift
+  - archive data into s3 (to replay / audit)
+  - generate reports to redshift for customers
+  - generate results to third-party services (ec2)
+  - easy to write `connectors` from kinesis
+  - allows for easy transformations of data to third-party
+
+.. code-block:: java
+
+    // pseudo worker code
+    iterator = getShardIterator(stream, shardId, sequence);
+    while (true) {
+        [records, iterator] = getRecords(stream, iterator)
+        process(records)
+    }

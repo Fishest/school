@@ -160,6 +160,10 @@ do one of the following to assure that the transaction occurs:
 1. Create an event store using SQS, file-system, or REDO log (dynamo)
 2. Write to one table and slowly scan the other for inconsistencies
 
+To get the ability to do a `ENDS_WITH` query, simply create a secondary index
+on a new stored field which is the reversed value of a word and do a `STARTS_WITH`
+query on it.
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ACID Implementation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -920,3 +920,65 @@ Summary
         [records, iterator] = getRecords(stream, iterator)
         process(records)
     }
+
+============================================================
+QLDB - AppendLog
+============================================================
+
+------------------------------------------------------------
+Summary
+------------------------------------------------------------
+
+The QLDB (Quantum Logging – Quantum as in atomic transactions)
+provides three features:
+
+* implements atomic multi-item transactions over Dynamo-DB
+* provides tools to maintain real time alternate views of the data
+* provides a change journal with every change made to the store
+
+History is roughly:
+
+* Cards -> Random Disk Access -> BTree -> ISAM file (BDB)
+* ACID Transactions (All or None, , Don't Lose My Data)
+* SQL, Transaction Log / Locks, CAP
+* BASE Transactions (Be Sure to Answer, Sort of Right, Eventually Consistent)
+  - Riak, Cassandra, Voldermort, DynamoDB
+  - key-value store     -> per item transactions and CAS
+  - pessimistic locking -> aquire lock, modify, release lock
+  - optimistic locking  -> read item and version, write one version higher if unchanged
+ 
+Use the transaction log to specify intent to modify the data
+in the specified table. Write modify intents and commit in
+the log for each modification. Use locks on the table to prevent
+multiple concurrent modifications to the database.
+
+Solution is QueryLog(QL). Code is visually the same, but it is
+wrapped in a transaction closure and executed in a query manager.
+
+* reads simply read from the database (DynamoDB)
+* writes write commands to a log context (not to the system)
+* uncommitted writes are stored to Alf Bus as punch cards in a buffer
+* committed writes are stored on a linear tape
+* a reader process reads the tape asynchronously and writes to the database
+* snapshots aggregated are stored in the datastore (versioned)
+* snapshot isolation
+  - reads happen at the requested snapshot (sequence number of snapshot)
+  - read set, write set (from database), and commands are the context
+  - alf bus takes this total context and attempt to write to the tape
+  - can only write if anything in the tape after snapshot will be in conflict
+  - failures must simply be tried again (CAS)
+* QueryLog is now the datastore and database is now a convenient cache
+  - can always rebuild any snapshot by applying all log entries
+  - can have as many datastores as we want with different views of the data
+  - can materialize views with precomputed queries
+  - optimistic locking is great for low contention
+  - high contention writing must essentially be serialized (with lots of retries)
+* Result is QLDB -> { QLDB, QLDynamoDB, QLDDBExample }
+  - can be a client library or a coral service
+
+lookup names:
+alv
+desantis
+gene
+jaso
+ericb

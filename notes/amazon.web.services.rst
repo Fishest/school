@@ -164,6 +164,12 @@ To get the ability to do a `ENDS_WITH` query, simply create a secondary index
 on a new stored field which is the reversed value of a word and do a `STARTS_WITH`
 query on it.
 
+To implement a cluster master, heartbeat to an item and have cluster members
+periodically read from that item (say logical time).  If the heartbeat stops
+or doesn't update in a specific amount of time, have a new master grab the
+item lock (the member id guid is sufficient) with a CAS and continue heartbeating.
+The other cluster members will fail to grab the CAS and will continue listening.
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ACID Implementation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

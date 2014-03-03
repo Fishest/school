@@ -13,7 +13,9 @@ holds for all trees t of a certain type:
 2. for each type of internal node t with subtrees s1..sn
    show that P(s1) && .. && P(sn) implies P(t)
 
-We can show an example of this::
+We can show an example of this:
+
+.. code-block:: scala
 
     abstract class IntSet {
       def incl(x: Int): IntSet
@@ -23,23 +25,23 @@ We can show an example of this::
     case class NonEmpty(elem: Int, left: IntSet, right: IntSet)
       extends IntSet
 
-    1. Empty contains x        = false
+1. `Empty contains x = false`
 
-       a. By definition of the empty contains method
+   a. By definition of the empty contains method
 
-    2. (s incl x) contains x   = true
+2. `(s incl x) contains x = true`
 
-       a. Base case empty by (1)
-       b. Base case NonEmpty by definition of contains method
-       c. case where s includes x, reduces to s and true by (b)
-       d. case where s does not include x
+   a. Base case empty by (1)
+   b. Base case NonEmpty by definition of contains method
+   c. case where s includes x, reduces to s and true by (b)
+   d. case where s does not include x
 
-          i.  x < y: (s.l incl x) contains x => (b)
-          ii. x > y: (s.r incl x) contains x => (b)
+      i.  `x < y: (s.l incl x) contains x => (b)`
+      ii. `x > y: (s.r incl x) contains x => (b)`
 
-    3. (s incl x) contains y   = s contains y if x != y
+3. `(s incl x) contains y = s contains y if x != y`
 
-      a. Need to show incl,contains for all cases x < y < z
+  a. Need to show incl.contains for all cases `x < y < z`
 
 ------------------------------------------------------------
 7.2: Streams
@@ -47,7 +49,9 @@ We can show an example of this::
 
 To find the second prime between a range, however the first
 implementation creates an entire list of values just to find
-the second prime, can we avoid this::
+the second prime, can we avoid this:
+
+.. code-block:: scala
 
     ((1000 to 10000) filter isPrime)(1)
 
@@ -74,7 +78,9 @@ Streams support almost all method of List, the only exception
 is the cons operator `::` which will create a list. The alternative
 is the Stream.cons operator `#::` which creates a stream.
 
-How would we implement streams::
+How would we implement streams:
+
+.. code-block:: scala
 
     trait Stream[+A] extends Seq[A] {
       def isEmpty: Boolean
@@ -109,7 +115,9 @@ How would we implement streams::
 is called lazy evaluation and is different to by-name evaluation
 since the evaluation is only performed once and then stored for
 futher evaluations (haskell does this for everything by default,
-scala must be explicit)::
+scala must be explicit):
+
+.. code-block:: scala
 
     def x = expression      // by-name evaluation
     val x = expression      // strict evaluation
@@ -135,14 +143,18 @@ scala must be explicit)::
 7.4: Computing with Infinite Sequences
 ------------------------------------------------------------
 
-Here are examples of infinite streams::
+Here are examples of infinite streams:
+
+.. code-block:: scala
 
     def from(n: Int): Stream[Int] = n #:: from(n + 1)
     val naturals = from(0)
     val multiplesOfFour = naturals map (_ * 4)
     val first100 = (multipleOsFour take 100).toList
 
-Implementation of Sieve of Eratosthenes::
+Implementation of Sieve of Eratosthenes:
+
+.. code-block:: scala
 
     def sieve(s: Stream[Int]): Stream[Int]a =
       s.head #:: sieve(s.tail filter (_ % s.head != 0))
@@ -165,7 +177,9 @@ What about square roots::
 7.5: Case Study: The Water Pouring Problem
 ------------------------------------------------------------
 
-The framework::
+The framework:
+
+.. code-block:: scala
 
     /**
      * A functional solution to the water pouring problem

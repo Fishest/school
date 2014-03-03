@@ -975,3 +975,11 @@ wrapped in a transaction closure and executed in a query manager.
   - high contention writing must essentially be serialized (with lots of retries)
 * Result is QLDB -> { QLDB, QLDynamoDB, QLDDBExample }
   - can be a client library or a coral service
+
+============================================================
+Timer Service
+============================================================
+
+------------------------------------------------------------
+Summary
+------------------------------------------------------------

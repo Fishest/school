@@ -12,7 +12,9 @@ Differences between arrays and Lists in Scala:
 * Lists are recursive (arrays are flat)
 * Lists are homogenous (all values are the same type)
 
-List examples::
+List examples:
+
+.. code-block:: scala
 
     val empty = List()
     val numbers = List(1, 2, 3, 4)
@@ -24,18 +26,20 @@ List examples::
 
 Basic List operations:
 
-* head: returns the first element of the lilst
-* tail: returns a list of all elements but the first
-* isEmpty: returns 'true' if the list is empty, otherwise 'false'
+* `head`: returns the first element of the lilst
+* `tail`: returns a list of all elements but the first
+* `isEmpty`: returns `true` if the list is empty, otherwise `false`
 
 Can pattern match the list like:
 
-* x :: xs (head, tail)
-* Nil (empty list)
-* x :: Nil (list of length 1)
-* List(a, b, c) (list of length 3)
+* `x :: xs`       - head, tail
+* `Nil`           - empty list
+* `x :: Nil`      - list of length 1
+* `List(a, b, c)` - list of length 3
 
-Example of pattern matching::
+Example of pattern matching:
+
+.. code-block:: scala
 
     def insert(x: T, xs: List[T]): List[T] = xs match {
       case List()  => List(x)
@@ -53,19 +57,21 @@ Example of pattern matching::
 
 What follows are a few more list functions:
 
-* list.length: the number of elements in the list
-* list.last: the last element in the list
-* list.init: a new list of all elements but the last
-* list.take(n): a list consisting of the first n values
-* list.drop(n): a list consisting of all values but first n
-* list(n): value at index n in list
-* list.reverse: reverses a lits
-* list.updated(n, x): create a new list with element n change to x
-* xs ++ ys: combine two lists
-* list.indexOf(x): return the index of element x or None
-* list.contains(x): true if the list contains x, else false
+* `list.length`: the number of elements in the list
+* `list.last`: the last element in the list
+* `list.init`: a new list of all elements but the last
+* `list.take(n)`: a list consisting of the first n values
+* `list.drop(n)`: a list consisting of all values but first n
+* `list(n)`: value at index n in list
+* `list.reverse`: reverses a lits
+* `list.updated(n, x)`: create a new list with element n change to x
+* `xs ++ ys`: combine two lists
+* `list.indexOf(x)`: return the index of element x or `None`
+* `list.contains(x)`: `true` if the list contains x, else `false`
 
-Examples of how some of these are implemented::
+Examples of how some of these are implemented:
+
+.. code-block:: scala
 
     def length[T](xs: List[T]): Int = xs match {
       case List()  => 0
@@ -111,7 +117,9 @@ Examples of how some of these are implemented::
 5.3 Pairs and Tuples
 ------------------------------------------------------------
 
-How to use tuples::
+How to use tuples:
+
+.. code-block:: scala
 
     val pair = ("answer", 42) 
     val (label, value) = pair
@@ -121,7 +129,9 @@ How to use tuples::
 
     case class Tuple2[T1, T2](_1: +T1, _2: +T2)
 
-Example merge sort implementation::
+Example merge sort implementation:
+
+.. code-block:: scala
 
     def merge(xs: List[T], ys: List[T]): List[T] = (xs, ys) match {
       case (Nil, ys) => ys
@@ -144,7 +154,9 @@ Example merge sort implementation::
 5.4 Implicit Parameters
 ------------------------------------------------------------
 
-Parameterize the merge on T so can make msor generic::
+Parameterize the merge on `T` so can make `msort` generic:
+
+.. code-block:: scala
 
    def msort[T](xs: List[T])(lt: (T, T) => Boolean): List[T] =
    ...
@@ -176,11 +188,13 @@ A function can take an implicit parameter:
 
 There are several recurring patterns while working on lists:
 
-1. map: transforming each element in a list
-2. filter: retrieveing a list of elements satisfying a condition
-3. reduce: combining elements of a list using an operator
+1. `map`: transforming each element in a list
+2. `filter`: retrieveing a list of elements satisfying a condition
+3. `reduce`: combining elements of a list using an operator
 
-Examples of their usage::
+Examples of their usage:
+
+.. code-block:: scala
 
     // simplified version (not tail recursive)
     abstract class List[T] {
@@ -217,17 +231,19 @@ Examples of their usage::
 
 There are a number of other higher order filter functions:
 
-* xs filterNot p - xs filter(x => !p(x))
-* xs partition p - (xs filter p, xs filterNot p)
-* xs takeWhile p - takes longest prefix of match
-* xs dropWhile p - takes the remainder of takeWhile
-* xs span p      - (xs takeWhile p, xs dropWhile p)
+* `xs filterNot p` - `xs filter(x => !p(x))`
+* `xs partition p` - (`xs filter p`, `xs filterNot p`)
+* `xs takeWhile p` - takes longest prefix of match
+* `xs dropWhile p` - takes the remainder of `takeWhile`
+* `xs span p`      - (`xs takeWhile p`, `xs dropWhile p`)
 
 ------------------------------------------------------------
 5.6 Reduction on Lists
 ------------------------------------------------------------
 
-Examples using the higher order list fold operations::
+Examples using the higher order list fold operations:
+
+.. code-block:: scala
 
     def sum(xs: List[Int]): Int = xs match {
       case Nil     => 0
@@ -237,8 +253,10 @@ Examples using the higher order list fold operations::
     def sum(xs: List[Int])  = (0 :: xs) reduceLeft((x, y) => x + y)
     def prod(xs: List[Int]) = (1 :: xs) reduceLeft((x, y) => x * y)
 
-reduceLeft does not work on empty lists, foldLeft does by taking an
-initial accumulator::
+`reduceLeft` does not work on empty lists, `foldLeft` does by taking an
+initial accumulator:
+
+.. code-block:: scala
 
     def sum(xs: List[Int])  = (xs foldLeft 0)(_ + _)
     def prod(xs: List[Int]) = (xs foldLeft 1)(_ * _)
@@ -255,8 +273,10 @@ initial accumulator::
       }
     }
 
-reduceLeft and foldLeft reduce to the left, there are also reduceRight
-and foldRight that reduces to the right::
+`reduceLeft` and `foldLeft` reduce to the left, there are also `reduceRight`
+and `foldRight` that reduces to the right:
+
+.. code-block:: scala
 
     abstract class List[T] {
       def reduceRight(op: (T, T) => T): T = this match {
@@ -273,7 +293,9 @@ and foldRight that reduces to the right::
 
 If the operator is associative and commutative, left and right will
 return the same results. However, some results may only be appropriate
-for one version::
+for one version:
+
+.. code-block:: scala
 
     // here foldLeft would not work correctly as :: isn't on T
     def concat[T](xs: List[T], ys: List[T]): List[T] = 
@@ -291,21 +313,21 @@ for one version::
 
 For list concat, we prove that it is correct by:
 
-* Nil ++ xs
-* xs ++ Nil
-* (xs ++ ys) ++ zs == xs ++ (ys ++ zs)
+* `Nil ++ xs`
+* `xs ++ Nil`
+* `(xs ++ ys) ++ zs == xs ++ (ys ++ zs)`
 
 Structural induction can be used to prove functions:
 
 * referential transparency can be used to reduce functions as
   pure functional languages are side effect free.
-* for lists, show P(Nil) holds
-* for lists, show if P(xs) holds, then P(x :: xs) holds
-* fold/unfold method to inductio
+* for lists, show `P(Nil)` holds
+* for lists, show if `P(xs)` holds, then `P(x :: xs)` holds
+* fold/unfold method to induction
 
-1. Show that we have P(x) for the base case
-2. For all values >= b, showthe induction step (if we have P(x)
-   then we also have P(x + 1)
+1. Show that we have `P(x)` for the base case
+2. For all values >= b, show the induction step (if we have `P(x)`
+   then we also have `P(x + 1)`
 
 
 ------------------------------------------------------------

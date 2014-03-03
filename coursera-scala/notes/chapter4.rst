@@ -9,10 +9,12 @@ Chapter 4
 Cons list is an immutable linked list that is constructed
 from two building blocks:
 
-1. Nil - the empty list
-2. Cons cell - a cell containing an element and remainder
+1. `Nil` - the empty list
+2. `Cons cell` - a cell containing an element and remainder
 
-Example::
+Example:
+
+.. code-block:: scala
 
     trait List[+T] {
       def isEmpty: Boolean
@@ -47,7 +49,9 @@ Example::
 4.2 Objects Everywhere
 ------------------------------------------------------------
 
-How can we describe Boolean outside of JVM primitives::
+How can we describe Boolean outside of JVM primitives:
+
+.. code-block:: scala
 
     package idealized.scala
 
@@ -99,7 +103,9 @@ How can we describe Boolean outside of JVM primitives::
 4.3 Functions as Objects
 ------------------------------------------------------------
 
-How scala treats functions::
+How scala treats functions:
+
+.. code-block:: scala
 
   trait Function1[A, B] {
     def apply(x: A) : B
@@ -136,19 +142,19 @@ Two ways to perform polymorphism:
 
 Can specify a number of type bounds:
 
-* [S <: T] is an upper bound (S is a subtype of T)
-* [S >: T] is an lower bound (S is a supertype of T)
-* [S >: T <: V] bound in an interval range
+* `[S <: T]` is an upper bound (S is a subtype of T)
+* `[S >: T]` is an lower bound (S is a supertype of T)
+* `[S >: T <: V]` bound in an interval range
 
 When types are wrapped, we have to consider variance:
 
-* List[S] <: List[T] covariance
-* List[S] >: List[T] contravariance
+* `List[S] <: List[T]` covariance
+* `List[S] >: List[T]` contravariance
 * otherwise is nonvariant
 
-Liskov says that if A <: B, then everything one can do with
+Liskov says that if `A <: B`, then everything one can do with
 a type of B one should be able to do with a type of A (so
-IEnumerable <: List):
+`IEnumerable <: List`):
 
 * in java, arrays are covariant
 * in scala, arrays are not covariant
@@ -168,15 +174,17 @@ Three types of variance:
 
 Can specify the variance of types in scala:
 
-* class C[+A] is covariant
-* class C[-A] is contravariant
-* class C[A]  is nonvariant
+* `class C[+A]` is covariant
+* `class C[-A]` is contravariant
+* `class C[A]`  is invariant
 
 Mutable types should not be covariant, immutable can be::
 
 Functions are contravaiant in their agrument types and
 covariant in their result type. Invariant types can
-appear anywhere::
+appear anywhere:
+
+.. code-block:: scala
 
     package scala;
     trait Function[-T, +U] {
@@ -190,7 +198,9 @@ appear anywhere::
 4.6 Decomposition
 ------------------------------------------------------------
 
-Expression example::
+Expression example:
+
+.. code-block:: scala
 
     trait Expression {
       def isNumber: Boolean
@@ -224,7 +234,9 @@ Expression example::
 
     val result = eval(new Sum(new Number(1), new Number(2)))
 
-How can we make eval lighter::
+How can we make eval lighter:
+
+.. code-block:: scala
 
     // java style test and cast
     type.isInstanceOf[T]: Boolean
@@ -252,7 +264,9 @@ The sole purpose of test and access methods is to reverse
 the construction process. This is a common problem, so fp
 languages automate it with pattern matching.
 
-This is facilited with case classes, which are used like::
+This is facilited with case classes, which are used like:
+
+.. code-block:: scala
 
     trait Expression
     case class Number(n: Int) extends Expression
@@ -277,8 +291,8 @@ This is facilited with case classes, which are used like::
 
 Can pattern match on the following:
 
-* constructors: Number(n)
-* variables: a,b,c
-* wildcard: _
-* constants: (1, true, 'a')
-* combined: case Sum(Number(1), Number(n)) => n
+* constructors: `Number(n)`
+* variables: `a,b,c`
+* wildcard: `_`
+* constants: `(1, true, 'a')`
+* combined: `case Sum(Number(1), Number(n)) => n`

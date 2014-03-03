@@ -17,8 +17,10 @@ access than the middle or end). Vectors are trees of
 - cons for list is O(1), O(logN) for vector
 - have to clone parents to root to keep Vector immutable
 
-List and Vector are subclasses of Seq which is a subset of
-Iterable. Arrays and Strings are implicitly converted to Seq::
+`List` and `Vector` are subclasses of `Seq` which is a subset of
+`Iterable`. Arrays and Strings are implicitly converted to `Seq`:
+
+.. code-block:: scala
 
     val a = Array(1, 2, 3, 4)
     val m = a map (x => x * 2)
@@ -26,7 +28,9 @@ Iterable. Arrays and Strings are implicitly converted to Seq::
     val u = s filter (c => c.isUpper)
 
 Ranges allow us to specify evenly spaced range values, they
-are represented as a class with fields(start, stop, step)::
+are represented as a class with fields(start, stop, step):
+
+.. code-block:: scala
 
     val r: Range = 1 until 5
     val s: Range = 1 to 5
@@ -35,17 +39,19 @@ are represented as a class with fields(start, stop, step)::
 
 There are a number of operations on Seq:
 
-- xs exists p  = checks if the predicate exists once in xs
-- xs forall p  = checks if the predicate exists for all xs
-- xs zip ys    = List[(T, U)]
-- pair unzip   = (List[T], List[U])
-- xs flatMap f = applies all elements to f and concats result
-- xs sum       = the aggregate sum of the elements
-- xs product   = the aggregate product of the elements
-- xs max       = the largest value in xs
-- xs min       = the smallest value in xs
+- `xs exists p`  = checks if the predicate exists once in xs
+- `xs forall p`  = checks if the predicate exists for all xs
+- `xs zip ys`    = `List[(T, U)]`
+- `pair unzip`   = `(List[T], List[U])`
+- `xs flatMap f` = applies all elements to f and concats result
+- `xs sum`       = the aggregate sum of the elements
+- `xs product`   = the aggregate product of the elements
+- `xs max`       = the largest value in xs
+- `xs min`       = the smallest value in xs
 
-Examples::
+Examples:
+
+.. code-block:: scala
 
     // to list all the combinations of 1..M and 1..N
     (1 to M) flatMap (x => (1 to N) map (y => (x, y)))
@@ -62,7 +68,9 @@ Examples::
 ------------------------------------------------------------
 
 Can replace nested loops with higher order functions on
-sequences::
+sequences:
+
+.. code-block:: scala
 
     val n = 7
     (1 until n) map (i =>
@@ -90,7 +98,9 @@ sequences::
 - If there are several, the last should vary faster than the
   first.
 
-Can use {} instead of () so you don't have to put ; between::
+Can use {} instead of () so you don't have to put ; between:
+
+.. code-block:: scala
 
     // prime tuples
     for {
@@ -110,7 +120,9 @@ Can use {} instead of () so you don't have to put ; between::
 ------------------------------------------------------------
 
 Sets have most of the operations on sequences. They can be
-created in a few ways::
+created in a few ways:
+
+.. code-block:: scala
 
     val fruit = Set("apple", "banana", "pear")
     val s = (1 to 6).toSet
@@ -121,7 +133,9 @@ Principals of sets:
 2. Sets do not have duplicate values
 3. The fundamental operation is contains: `s contains 5`
 
-Solution to N-Queens::
+Solution to N-Queens:
+
+.. code-block:: scala
 
     object nqueens {
       def queens(n: Int): Set[List[Int]] = {
@@ -158,7 +172,9 @@ Solution to N-Queens::
 ------------------------------------------------------------
 
 The for notation is essentially equivalent to the common
-operations for querying a database::
+operations for querying a database:
+
+.. code-block:: scala
 
     case class Book(title: String, authors: List[String])
     ...
@@ -185,7 +201,9 @@ operations for querying a database::
 ------------------------------------------------------------
 
 The syntax of for is closely related to the higher order
-functions map, flatMap, and filter::
+functions `map`, `flatMap`, and `filter`:
+
+.. code-block:: scala
 
     def mapFun[T, U](xs: List[T], f: T => U): List[U] =
       for (x <- xs) yield f(x)
@@ -196,7 +214,9 @@ functions map, flatMap, and filter::
     def filterFun[T](xs: List[T], f: T => Boolean): List[T] =
       for (x <- xs if p(x)) yield x
 
-However, scala converts these the other way during compilation::
+However, scala converts these the other way during compilation:
+
+.. code-block:: scala
 
     // for (x <- e1) yield e2
     e1.map(x => e2)
@@ -238,7 +258,9 @@ map, flatMap, and withFilter for these types:
 6.6 Maps
 ------------------------------------------------------------
 
-Maps are both iterables and functors::
+Maps are both iterables and functors:
+
+.. code-block:: scala
 
     val romanNumerals : Map[String, Int]
     val romanNumerals = Map('I' -> 1, 'V' -> 5, 'X' -> 10)
@@ -254,7 +276,9 @@ Maps are both iterables and functors::
       case Some(value) => value
     }
 
-What are options::
+What are options:
+
+.. code-block:: scala
 
     trait Option[+A]
     case class Some[+A](value: A) extends Option[A]
@@ -263,14 +287,18 @@ What are options::
     None    // no value for option
     Some(x) // some value in option
 
-Sorting lists::
+Sorting lists:
+
+.. code-block:: scala
 
     val fruit = List("apple", "pear", "orange", "pineapple")
     fruit.sortWith(_.length < _.length)
     fruit.sorted
     fruit.groupBy(_.head) // group by first letter in fruit
 
-Let's represent polynomials with maps::
+Let's represent polynomials with maps:
+
+.. code-block:: scala
 
     // 3x^2 + 2x + 1 -> Map(2 -> 3.0, 1 -> 2, 0 -> 1)
     class Polynomial(val terms0: Map[Int, Double]) {
@@ -301,7 +329,9 @@ Let's represent polynomials with maps::
       new Polynomial((other.terms foldLeft terms)(addTerm))
 
 Can convert a map from a partial function into a total
-function like::
+function like:
+
+.. code-block:: scala
 
     val capitals = capitalOfCountry withDefaultValue "<unknown>"
     capitals("andorra") // "<unknown>"
@@ -310,9 +340,11 @@ function like::
 6.6 Putting the Pieces Together
 ------------------------------------------------------------
 
-Solving phone mnemonics::
+Solving phone mnemonics:
 
-    val input = source.fromURL("http://lamp.epfl.ch/files/content/sites/"
+.. code-block:: scala
+
+    val input = Source.fromURL("http://lamp.epfl.ch/files/content/sites/"
       + "lamp/files/teaching/progfun/linuxwords")
     val words = input.getLines.toList filter(word =>
       word forall(chr => chr.isLetter))

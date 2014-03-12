@@ -164,18 +164,173 @@ one sticky intent is returned for each sticky intent registered for.
 Video 5: Threads, AsyncTasks, and Handlers (1)
 --------------------------------------------------------------
 
+This was basically a review of Java threads. It also made clear
+the common advice to not run long running tasks on the main UI
+thread. Furthermore, UI update cannot be performed on a non-UI
+thread:
+
+.. code-block:: java
+
+    // both of the following methods can be used to run code
+    // on the UI thread of a view or activity.
+    boolean View.post(Runnable action);
+    void Activity.runOnUiThread(Runnable action);
+
+    // to perform a long activity with a result on a given
+    // view, run a thread and then post to the UI thread
+    new Thread(new Runnable() {
+        public void run() {
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.background);
+            view.post(new Runnable() {
+                public void run() {
+                    view.setImageBitmap(bitmap)
+                }
+            });
+    ).start();
+
 --------------------------------------------------------------
 Video 6: Threads, AsyncTasks, and Handlers (2)
 --------------------------------------------------------------
+
+`AsyncTask` is supplied by Android to provide a structured way
+to manage work involving background and UI threads. The
+background thread performs work and indicates its progress in some
+way. The UI thread performs task setup, publishing intermediate
+progress, and using the final result:
+
+.. code-block:: java
+
+    // simply implement this generic task worker
+    class AsyncTask<Params, Progress, Result> {   // specify the parameter types
+        void onPreExecute();                      // run on UI thread before background work
+        void doInBackground(Params... params);    // runs on background thread
+        void publishProgress(Progress... values); // called from background
+        void onProgressUpdate(Progress... values) // invoked on UI thread
+        void onPostExecute(Result result);        // run on UI thread after doInBackground
+    }
+
+`Handler` is used to hand off work between two tasks (between
+any two threads, not just UI). Each `Handler` is associated with
+a thread. One thread can hand off work to another by sending
+messages and posting `Runnables` to a `Handler` associated with
+the other thread:
+
+.. code-block:: java
+
+    // the following can post runnables to the work queue
+    boolean post(Runnable runnable);
+    boolean postAtTime(Runnable runnable, long uptimeMillis);
+    boolean postDelayed(Runnable runnable, long delayedMillis);
+
+    // To work with messages, create a message and set its contents
+    // The overridden handler will then handle these messages on the
+    // UI thread.
+    Message message = handler.obtainMessage(int code, Object param);
+    handler.sendMessage(message);
+    handler.sendMessageAtFrontOfQueue(message);
+    handler.sendMessageAtTime(message, long uptimeMillis);
+    handler.sendMessageDelayed(message, long delayedMillis);
+
+Each android threada is associated with a MessageQueue and a
+Looper. The message queue holds messages and runnables to be
+dispatched by the looper. When a message or runnable is posted
+to a thread, it is added to that thread's message queue to be
+processed when it is dequeue by the looper. If the object in
+the queue is a Runnable, the thread simply calls `run()` on it.
+If it is a `Message`, the `handleMessage()` method is called.
 
 --------------------------------------------------------------
 Video 7: Alarms
 --------------------------------------------------------------
 
+`Alarms` are a mechanism for sending `Intents` at some point in
+the future. This allows one application to make code execute,
+even when that application is no longer running. Once registered,
+`Alarms` remain active even if the device is asleep. The alarm
+can then be configured to wake the sleeping device or retain
+the alarm event until the next time the device is woken up.
+Alarms continue to run until the device is shut down, at which
+point all the alarms are cancelled. Examples of using alarms:
+
+* MMS for the retry scheduler
+* Settings for the bluetooth discoverable timeout
+* Phone for user information cache (timeout reprime)
+
+`Alarms` are created and managed by interacting with the
+`AlarmManager`:
+
+.. code-block:: java
+
+    // to create alarms, use one of the supplied methods
+    // the last method allows android to optimize or batch the
+    // events to prevent waking up the device too many times.
+    AlarmManager manager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+    manager.set(int type, long triggerAtTime, PendingIntent operation);
+    manager.setRepeating(int type, long triggerAtTime, long interval, PendingIntent operation);
+    manager.setInexactRepeating(int type, long triggerAtTime, long interval, PendingIntent operation);
+    manager.cancel(intent);
+
+    // If you use the last method, you must use one of the following
+    // interval options, otherwise the method devolves to setRepeating
+    INTERVAL_FIFTEEN_MINUTES
+    INTERVAL_HALF_HOUR
+    INTERVAL_HOUR
+    INTERVAL_HALF_DAY
+    INTERVAL_DAY
+
+There are a number of configurability options involving the
+alarms. The first of which is how time is interpreted:
+
+* Realtime - relative to system clock
+* Elapsed - relative to system uptime
+
+Next, the choice needs to be made what to do when the
+alarm goes off when the device is sleeping:
+
+* Wake up device and deliver intent
+* Wait to deliver intent until device wakes up
+
+All of these options are reflected in the following type
+constants:
+
+* RTC_WAKEUP
+* RTC
+* ELAPSED_REALTIME
+* ELAPSED_REALTIME_WAKEUP
+
+To create a `PendingIntent`, there are a few methods:
+
+.. code-block:: java
+
+    PendingIntent getActivity(Context context, int requestCode,
+        Intent intent, int flags, Bundle options);
+
+    PendingIntent getBroadcast(Context context, int requestCode,
+        Intent intent, int flags);
+
+    PendingIntent getService(Context context, int requestCode,
+        Intent intent, int flags);
+
 --------------------------------------------------------------
 Video 8: Networking (1)
 --------------------------------------------------------------
 
+Basically a recap of sockets, HTTP, JSON, and XML. Android
+supplies a collection of utilities alongside the java BCL to
+help perform networking:
+
+* `Socket`
+* `HttpURLConnection`
+* `AndroidHttpClient`
+
+.. TODO::
+   Copy implementation code
+
 --------------------------------------------------------------
 Video 9: Networking (2)
 --------------------------------------------------------------
+
+Basically a recap of JsonParser.
+
+.. TODO::
+   Copy implementation code

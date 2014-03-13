@@ -107,8 +107,6 @@ def solve_it(stream):
     '''
     capacity, items = initialize_items(stream)
     if len(items) <= 200:
-        value, taken = dynamic_terse2_solution(capacity, items)
-        print "terse: ", value
         value, taken = dynamic_solution(capacity, items)
     else:
         value, taken = greedy_solution(capacity, items)

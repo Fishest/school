@@ -16,8 +16,9 @@ struct Item {
     int value;
 };
 
-#define WEIGHT 1000000
-static int lookup[WEIGHT][2] = { 0 };
+#define WEIGHT 100000
+//#define WEIGHT 1000000
+static int lookup[WEIGHT] = { 0 };
 
 /**
  *
@@ -28,18 +29,17 @@ void dynamic_quick_solution(int capacity, const std::vector<Item>& items) {
     // the keep list
 
     for (int index = 1; index < count; ++index) {
-        for (int weight = 0; weight <= capacity; ++weight) {
-            lookup[weight][0] = lookup[weight][1];
+        for (int weight = capacity; weight >= 0; --weight) {
             Item item = items[index - 1];
             if (item.weight <= weight) {
-                int possible = item.value + lookup[weight - item.weight][0];
-                lookup[weight][1] = std::max(lookup[weight][0], possible);
+                int possible = item.value + lookup[weight - item.weight];
+                lookup[weight] = std::max(lookup[weight], possible);
             }
         }
     }
 
     int weight = capacity;
-    int value  = lookup[weight][1];
+    int value  = lookup[weight];
 
     std::cout << "starting the item lookup: " << value << std::endl;
 }
@@ -73,7 +73,8 @@ void print_items(const std::vector<Item> items) {
 
 int main(int argc, char** argv) {
     int capacity = WEIGHT;
-    std::vector<Item> items = read_items("data/ks_10000_0");
+    std::vector<Item> items = read_items("data/ks_40_0");
+    //std::vector<Item> items = read_items("data/ks_10000_0");
     //print_items(items);
     dynamic_quick_solution(capacity, items);
 }

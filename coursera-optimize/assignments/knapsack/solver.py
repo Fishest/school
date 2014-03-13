@@ -1,5 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+'''
+TODO:
+
+* finish c++ implementation
+* https://class.coursera.org/optimization-002/forum/thread?thread_id=171
+* branch and bound
+* numpy sparse
+'''
 
 from collections import namedtuple
 Item = namedtuple("Item", ['index', 'value', 'weight'])
@@ -28,6 +36,31 @@ def dynamic_solution(capacity, items):
         if lookup[weight][index] != lookup[weight][index - 1]:
             selected[index - 1] = 1
             weight -= items[index - 1].weight # item.index = index - 1
+    return value, selected
+
+def dynamic_terse_solution(capacity, items):
+    ''' Given a capacity and a collection of items, solve
+    the knapsack problem using a dynamic programming approach.
+
+    This works by only using a single column to store the previous
+    values and thus saving (len(items) - 1) * capacity * sizeof(int)
+    amount of memory.
+
+    :param capacity: The total capacity of the knapsack
+    :param items: The possible items to choose from
+    :returns: The optimal solution
+    '''
+    lookup = [0] * (capacity + 1)
+    for item in items:
+        for weight in range(capacity, -1, -1):
+            if item.weight <= weight:
+                possible = item.value + lookup[weight - item.weight]
+                lookup[weight] = max(lookup[weight], possible)
+
+    weight   = capacity
+    value    = lookup[weight]
+    selected = [0]
+
     return value, selected
 
 def greedy_solution(capacity, items):
@@ -74,6 +107,8 @@ def solve_it(stream):
     '''
     capacity, items = initialize_items(stream)
     if len(items) <= 200:
+        value, taken = dynamic_terse2_solution(capacity, items)
+        print "terse: ", value
         value, taken = dynamic_solution(capacity, items)
     else:
         value, taken = greedy_solution(capacity, items)

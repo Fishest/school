@@ -1,48 +1,79 @@
+/**
+ * compile with:
+ * g++ -std=c++11 solver.cc -o solver
+ */
+#include <fstream>
 #include <iostream>
 #include <vector>
 #include <algorithm>
 
+/**
+ * A simple poco that is used to hold the settings for
+ * each item.
+ */
 struct Item {
     int weight;
     int value;
 };
 
-void dynamic_solution(int capacity, const std::vector<Item>& items) {
+#define WEIGHT 1000000
+static int lookup[WEIGHT][2] = { 0 };
+
+/**
+ *
+ */
+void dynamic_quick_solution(int capacity, const std::vector<Item>& items) {
     const int count = items.size() + 1;
-    int lookup[10][5] = { 0 };
-    // int lookup[capacity][count] = { 0 };
+    // vector<vector<int>> -> when the value changes, add that capacity to
+    // the keep list
 
     for (int index = 1; index < count; ++index) {
         for (int weight = 0; weight <= capacity; ++weight) {
-            lookup[weight][index] = lookup[weight][index - 1];
-            Item item = items.at(index - 1);
+            lookup[weight][0] = lookup[weight][1];
+            Item item = items[index - 1];
             if (item.weight <= weight) {
-                int possible = item.value + lookup[weight - item.weight][index - 1];
-                lookup[weight][index] = std::max(lookup[weight][index], possible);
+                int possible = item.value + lookup[weight - item.weight][0];
+                lookup[weight][1] = std::max(lookup[weight][0], possible);
             }
         }
     }
 
     int weight = capacity;
-    int value  = lookup[weight][count - 1];
-    int selected[5] = { 0 };
-    std::cout << value << std::endl;
+    int value  = lookup[weight][1];
 
-    for (int index = count - 1; index > 0; --index) {
-        if (lookup[weight][index] != lookup[weight][index - 1]) {
-            std::cout << 1 << " ";
-            selected[index - 1] = 1;
-            weight -= items.at(index - 1).weight;
-        } else {
-            std::cout << 0 << " ";
-        }
+    std::cout << "starting the item lookup: " << value << std::endl;
+}
+
+/**
+ *
+ */
+std::vector<Item> read_items(const std::string& filename) {
+    int weight, value, capacity = -1, item_count = -1;
+    std::vector<Item> items;
+
+    std::ifstream stream(filename);
+    stream >> item_count >> capacity;
+
+    while (stream >> value >> weight) {
+        items.push_back({ value, weight });
     }
-    std::cout << std::endl;
 
+    return std::move(items);
+}
+
+/**
+ *
+ */
+void print_items(const std::vector<Item> items) {
+    for (auto item : items) {
+        std::cout << "weight " << item.weight << " value " << item.value << std::endl;
+    }
+    std::cout << "total items: " << items.size() << std::endl;
 }
 
 int main(int argc, char** argv) {
-    int capacity = 9;
-    std::vector<Item> items {{4, 5}, {5, 6}, {2, 3}};
-    dynamic_solution(capacity, items);
+    int capacity = WEIGHT;
+    std::vector<Item> items = read_items("data/ks_10000_0");
+    //print_items(items);
+    dynamic_quick_solution(capacity, items);
 }

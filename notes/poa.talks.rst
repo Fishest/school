@@ -983,3 +983,59 @@ Timer Service
 ------------------------------------------------------------
 Summary
 ------------------------------------------------------------
+
+============================================================
+Big Data Stream Processing
+============================================================
+
+------------------------------------------------------------
+Summary
+------------------------------------------------------------
+
+There are some differences in design that must be handled with big data processing:
+
+* can only see data once and then it is gone
+* need to be able to react to streams in real time
+* not a general messaging framework, work queue, amp, or sqs
+* no message acknolowedgements
+* no message retries
+
+How to design a stream processing system:
+
+* create a stream 
+* create N stream processors
+  - load balance the streams
+  - send streams to routher of hash(key) -> processor
+  - router also queues the incoming streams to be delivered
+  - create many partitions and assign M partitions to each processor
+  - load balancing is just assigning a partition piece to a new machine
+  - have in memory locality of all data for a given key (hashmaps)
+* time is maintained by sliding windows
+  - partition aggregate data in 10 minute windows
+  - to get hour queries, just sum the last 6 buckets
+  - to add a new window, drop the oldest bucket and create a new one
+* results can then be published in a number of ways
+  - create a new stream to be consumed
+  - support online queries to the store
+  - publish to memcached or dynamodb
+  - poller on the processor -> stores in file db -> dumps to s3
+
+Design consdierations:
+
+* model your data messages to know the overall stream size
+  - small size is better (compression)
+  - low delay is also better (batching)
+* failure and replication
+  - compure the model twice by sending the same partition to M hosts
+  - this handles single node failures
+  - to handle hot deploys, checkpoint current model to disk with timestamp
+  - when loading, check if the checkpoint is still valid
+  - sending too fast causes receiver to get behind (old data) or drop data
+
+* flow control
+  - communicate delays between systems and queue between sources
+  - sleep between sends for X ms to control rate
+  - maintain rate by additive increase and multiplicative decrease
+  - start slow and ramp up quickly
+  - maintain a current failure rate
+  - randomly drop data in proportion to failure rate

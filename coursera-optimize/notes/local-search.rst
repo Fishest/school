@@ -76,3 +76,49 @@ The constraints for N-Queens can be modeled as the following::
         row[i] != row[j] - (j - 1);
       }
     }
+
+--------------------------------------------------------------
+Car Sequencing
+--------------------------------------------------------------
+
+The general strategy for solving this problem is to swap
+neiboring car configurations to minimize the current number of
+violations. So, find a car configuration in violation and swap
+it with another one. We so swaps instead of assignments as this
+maintains a large number of constraints from the beginning of
+the problem that don't have to be checked again (hard constraint
+vs soft constraint).
+
+
+--------------------------------------------------------------
+Magic Square
+--------------------------------------------------------------
+
+The constraints for a magic square can be modeled as followins::
+
+    range R = 1..n;
+    range D = 1..n^2;
+    int   T = n * (n^2 - 1) / 2;
+    var {int} s[R,R] in D;
+    solve {
+      foralll (i in R) {
+        sum (j in R) s[i, j] = T;
+        sum (j in R) s[j, i] = T;
+      }
+      sum (i in R) s[i, i] = T;
+      sum (i in R) s[i, n-i + 1] = T;
+      alldifferent(all(i in R, j in R) s[i,j]);
+    }
+
+Here the `alldifferent` is the hard constraint while the
+inequalities are the soft constraints. We can solve the
+hard constraint from the beginning by simply assigning
+all the numbers randomly and then swapping until the soft
+constraints are met.
+
+If we just use neighboring swaps in this situation, then
+we only have 0/1 violations which adds no extra information
+to our search and devolves into a purely random walk. So,
+for an equation `l = r`, we can use `abs(l - r)` as a 
+measure of the violations. This will drive the search
+much more efficiently.

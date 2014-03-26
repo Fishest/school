@@ -150,12 +150,29 @@ receives the event.
 To handle multiple touches as complex gestures, you must
 follow the events that correspond to the complete gesture.
 
-.. include:: ./examples/IndicateTouchLocationActivity.java
+.. include:: examples/IndicateTouchLocationActivity.java
    :code: java
 
 --------------------------------------------------------------
 Video 5: Touch and Gestures (2)
 --------------------------------------------------------------
+
+For complex gestures, Android supplies the `GestureDetector`
+which can recognize some of the more common gestures including
+single tap, double tap, and fling.
+
+To use this, the `Activity` creates a `GestreDetector` that
+implements the `OnGestureListener` interface.
+
+.. include:: examples/ViewFlipperTestActivity.java
+   :code: java
+
+To create custom gestures, use the `GestureBuilder`. When
+you finish performing gestures in the capture application,
+copy the file `/sdcard/gestures` to your `/res/raw` directory.
+
+.. include:: examples/GesturesActivity.java
+   :code: java
 
 --------------------------------------------------------------
 Video 6: Multimedia (1)

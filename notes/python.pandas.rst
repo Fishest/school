@@ -249,6 +249,23 @@ DataFrames using pandas:
     frame.icol                  # select column by integer index
     frame.irow                  # select row by integer index
 
+Pandas indexes have a number of methods based on set logic (all of these
+methods produce new index instances if they are mutators):
+
+.. code-block:: python
+
+    index.append        # concatenate another index
+    index.diff          # compute the index set difference
+    index.intersection  # compute the index set intersection
+    index.union         # compute the index set union
+    index.isin          # compute boolean array of left in right
+    index.delete        # compute index with supplied row deleted (axis=0,1)
+    index.drop          # compute new index with supplied row dropped (axis=0,1)
+    index.insert        # compute new index with new additional rows
+    index.is_monotonic  # True if the index is monotonically increasing
+    index.is_unique     # True if the index has no duplicates
+    index.unique        # compute the array of unique values in the index
+
 When merging data sets, pandas creates the union of the indexes, aligns and pads
 data as neccessary before returing the new object:
 
@@ -304,4 +321,197 @@ Data can be sorted and ranked on both data types:
     f.sort_index(by=['a', 'b'])            # to sort by the values of many columns
     f.rank(axis=1)                         # rank based on the supplied axis
 
-page 132
+Operations on pandas values are designed to deal with missing rows,
+this can be controlled through:
+
+.. code-block:: python
+
+    frame = DataFrame([1.4, np.nan], [7.1, -4.5], [np.nan, np.nan], columns=['one', 'two'], index=['a', 'b', 'c'])
+    frame.sum()                     # [8.5, -4.5]
+    frame.sum(skipna=False)         # [np.nan, np.nan]
+    frame.sum(axis=1, skipna=False) # [np.nan, 2.6, np.nan]
+
+
+Pandas provides a number of functions involving statistics on a 
+dataset out of the box:
+
+.. code-block:: python
+
+    frame.count                    # number of non-NA values
+    frame.describe                 # summary of statistics of series or frame
+    frame.min, frame.max           # the max, min values of each column
+    frame.argmin, frame.argmax     # the indexes of max, min values
+    frame.idxmin, frame.idxmax     # the indexes of max, min values
+    frame.quantile                 # compute the sample quantile range
+    frame.sum                      # sum of the values per axis
+    frame.mean                     # mean of values per axis
+    frame.median                   # median of values per axis
+    frame.mad                      # mean absolute deviation from mean value of values per axis
+    frame.var                      # variance of values per axis
+    frame.std                      # standard deviation of values per axis
+    frame.skew                     # skewnewss (3rd moment) of values per axis
+    frame.kurt                     # kurtosis (4th moment) of values per axis
+    frame.cumsum                   # cumulative sum of values per axis
+    frame.cummin, frame.cummax     # cumulative min, max of values per axis
+    frame.cumprod                  # cummulative product of values
+    frame.diff                     # 1st arithmetic difference between values
+    frame.pct_change               # percent change between values
+
+.. todo:: Page 136 yahoo stock data
+
+Pandas is designed to correctly handle missing data in frames and
+series instances as well as a number of methods for working with
+missing values:
+
+.. code-block:: python
+
+    frame.dropna()                  # drop all rows with NA values
+    frame.dropna(axis=1, how='all') # drop all cols with _all_ NA values
+    frame.dropna(thresh=3)          # drop all rows with at least 3 NA values
+    frame.isnull()                  # boolean array of where NA values
+    frame[frame.notnull()]          # boolean array of where not NA values:w
+    frame.fillna(value)             # replace all NA with value
+    frame.fillna({ 1:, 0.1 })       # replace all NA values in row 1 with value
+    frame.fillna(inplace=True)      # modify the existing instance and do not make a copy
+    frame.fillna(frame.mean())      # replace NA values with each rows mean
+
+Pandas allows for higher dimensional indexes with `MultiIndex`. There is
+also the `Panel` datatype that allows for N dimensional frames:
+
+.. code-block:: python
+
+    series = Series(np.random.randn(10), index=[
+        ['a', 'a', 'a', 'b', 'b', 'b', 'c', 'c', 'd', 'd'],
+        [1,2,3,1,2,3,1,2,2,3]])
+    series.index                       # view the multi-index
+    frame = series.unstack()           # creates a dataframe
+    frame.stack()                      # converts a dataframe to a multi-series
+    frame.swaplevel('key1', 'key2')    # swap the index level
+    frame.sortlevel(1)                 # sort the frame by the specified level
+    frame.swaplevel(0, 1).sortlevel(0) # sort by the new level
+    frame.sum(level=1)                 # all methods can operate on arbitrary levels
+
+There is abiguity about whether to use position or index indexing
+if the index is numeric. Therefore, if you are going to use positional
+based indexing (series[-1]), use `Series.iget_value(idx)`, `Frame.irow(idx)`,
+or `Frame.icol(idx)`. Use the index for all other methods.
+
+--------------------------------------------------------------------------------
+Chapter 6: Data Loading, Storage, and File Formats
+--------------------------------------------------------------------------------
+
+Pandas has a number of methods for easily reading data in various formats. All
+of the following handle the various issues:
+
+* indexing on one or more columns and setting column names
+* type detection and conversion including custom types
+* datetime parsing including aggregating values over many columns
+* iterating over chunks of large files
+* unclean data issues like skipping bad rows
+
+.. code-block:: python
+
+    read_csv         # read from a delimited file, url, or stream (, delim)
+    read_table       # read from a delimited file, url, or stream (\t delim)
+    read_fwf         # read data in fixed width columns (no delim)
+    read_clipboard   # read table from the current clipboard
+
+    read_csv('file.csv', header=None)           # if you want pandas to assign column names
+    read_csv('file.csv', names=['a', 'b', 'c']) # for setting your own column names
+    read_csv('file.csv', index_col='c')         # for setting the index
+    read_csv('file.csv', sep='\s+')             # for columns seperated by variable spacing
+    read_csv('file.csv', skiprows=[0,1,2])      # for skipping bad rows or comments
+    read_csv('file.csv', na_values=['Nil'])     # specify what values should be skipped
+    read_csv('file.csv', na_values={'a':'Nil'}) # specify skip values per column
+    read_csv('file.csv', nrows=5)               # only read N rows from the dataset
+    read_csv('file.csv', chunksize=1000)        # read and parse the file in chunks
+    Series.from_csv('file.csv')                 # to read into a Series
+
+Reading in chunks can be used to efficiently aggregate statistics from a file:
+
+.. code-block:: python
+
+    chunks = read_csv('file.csv', chunksize=1000)
+    totals = Series([])
+    for chunk in chunks:
+        totals = totals.add(chunk['key'].value_counts(), fill_value=0)
+    totals = totals.order(ascending=False)
+
+Data can also be written out from a data frame:
+
+.. code-block:: python
+
+    frame.to_csv(sys.stdout, sep='|')           # write the frame to stdout
+    frame.to_csv('file.cvs', na_rep='NULL')     # define how missing values should be displayed
+    frame.to_csv('file.cvs', index=0, header=0) # disable printing of column and row headers
+    frame.to_csv('file.cvs', cols=['a', 'b'])   # print only a subset of columns in specified order
+
+.. note:: For more complicated schemes, use the built in python csv
+   module and define your own cvs.Dialect.
+
+.. todo:: Explore hdf5 with pytables and h5py. These should be used for
+   write once and read many applications.
+
+What follows is an example of using pandas with the twitter web api:
+
+.. code-block:: python
+
+    import requests
+    import json
+
+    query  = 'http://search.twitter.com/search.json?q=python%20pandas'
+    result = requests.get(query)
+    data   = json.loads(result.text)
+    fields = ['created_at', 'from_user', 'id', 'text']
+    frame  = DataFrame(data['results'], columns=fields)
+
+What follows is an example of using pandas with the beautifulsoup:
+
+.. code-block:: python
+
+    from pandas.io.parsers import TextParser
+    from BeautifulSoup import BeautifulSoup
+    from urllib2 import urlopen
+
+    def _unpack(row, kind='td'):
+        return [val.text for val in row.findAll(kind)]
+
+    def parse_options_data(table):
+        rows = table.findAll('tr')
+        header = _unpack(rows[0], kind='th')
+        data = [_unpack(r) for r in rows[1:]]
+        return TextParser(data, names=header).get_chunk()
+
+    buffer = urlopen('http://finance.yahoo.com/q/op?s=AAPL+Options')
+    soup   = BeautifulSoup(buffer)
+    urls   = [link.get('href') for link in soap.body.findAll('a')]
+    tables = soap.body.findAll('table')
+    calls  = parse_options_data(tables[9])
+    puts   = parse_options_data(tables[13])
+
+What follows is an example of using pandas with a database:
+
+.. code-block:: python
+
+    import sqlite3
+
+    table = """
+    CREATE TABLE test
+    (a VARCHAR(20), b VARCHAR(20),
+    c REAL, d INTEGER
+    );"""
+
+    con = sqlite3.connect(':memory:')
+    con.execute(table)
+    con.commit()
+
+    data = [('Atlanta', 'Georgia', 1.25, 6),
+        ('Tallahassee', 'Florida', 2.6, 3),
+        ('Sacramento', 'California', 1.7, 5)]
+    stmt = "INSERT INTO test VALUES(?, ?, ?, ?)"
+    con.executemany(stmt, data)
+    con.commit()
+
+    cursor = con.execute('select * from test')
+    rows   = cursor.fetchall()
+    frame  = DataFrame(rows, columns=zip(*cursor.description)[0])

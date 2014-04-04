@@ -514,4 +514,77 @@ What follows is an example of using pandas with a database:
 
     cursor = con.execute('select * from test')
     rows   = cursor.fetchall()
-    frame  = DataFrame(rows, columns=zip(*cursor.description)[0])
+    frame  = DataFrame(rows, columns=zip(cursor.description)[0])
+
+--------------------------------------------------------------------------------
+Chapter 7: Data Wrangling
+--------------------------------------------------------------------------------
+
+Pandas has a few methods for combining and merging various datasets, say from a
+normalized database. The common methods are as follows:
+
+.. code-block:: python
+
+    pd.merge(f1, f2)                              # merge the two datasets with an implicit key
+    pd.merge(f1, f2, on='key')                    # merge the two datasets on the specified key
+    pd.merge(f1, f2, on=['key1', 'key2'])         # merge the two datasets on many keys
+    pd.merge(f1, f2, left_on='k1', right_on='k2') # merge with different key names
+    pd.merge(f1, f2, how='outer')                 # inner by default; options are { left, right, outer }
+
+    f1 = DataFrame({'key': ['a', 'b', 'c'], 'data2':range(3) })
+    f2 = DataFrame({'key': ['b', 'b', 'a', 'c', 'a', 'a', 'b'], 'data2':range(7) })
+    pd.merge(f1, f2)                              # a many to one merge, many to many is the cartesian product
+    pd.merge(f1, f2, suffixes=['_l', '_r'])       # break merging ties with column suffixes
+    pd.merge(f1, f2, right_index=True)            # to merge with the left, right, or both indexes
+    f1.join(f2)                                   # shorthand method if you are joining on indexes
+
+Pandas also extends the numpy concat operations to handle a number of issues:
+
+.. code-block:: python
+
+    s1 = Series([0, 1], index=['a', 'b'])
+    s2 = Series([2, 3, 4], index=['c', 'd', 'e'])
+    s3 = Series([5, 6], index=['f', 'g'])
+    pd.concat([s1, s2, s3])                       # no index overlap simply glues the values
+    pd.concat([s1, s2, s3], axis=1)               # concat on the columns and return a DataFrame
+
+    f1.combine_first(f2)                          # can be though of patching values in f1 with f2
+
+Pandas allows you to stack and unstack `DataFrames` and `Series`:
+
+.. code-block:: python
+
+    series = frame.stack('column')                # stack a frame onto a series
+    series.unstack('column')                      # unstack the series back to a dataframe
+    frame.stack()                                 # by default the leftmost column is used
+
+Pandas allows you to clean your `DataFrames` with a number of operations:
+
+.. code-block:: python
+
+    frame.duplicates()                            # returns a bool array of duplicated values
+    frame.drop_duplicates()                       # returns a new frame with duplicates removed
+    frame.drop_duplicates(['k1', 'k2'])           # drop duplicates on the following columns
+    frame.drop_duplicates(take_last=True)         # default takes the first duplicate, this takes the last
+
+Here is an example of cleaning existing data
+
+.. code-block:: python
+
+    meat_to_animal = {
+        'bacon': 'pig',
+        'pulled pork': 'pig',
+        'pastrami': 'cow',
+        'corned beef': 'cow',
+        'honey ham': 'pig',
+        'nova lox': 'salmon'
+    }
+    frame = DataFrame({'food': ['bacon', 'pulled pork', 'bacon', 'Pastrami',
+        'corned beef', 'Bacon', 'pastrami', 'honey ham', 'nova lox'],
+        'ounces': [4, 3, 12, 6, 7.5, 8, 3, 5, 6]})
+    frame['animal'] = frame['food'].map(str.lower).map(meat_to_animal)
+
+    frame.index = frame.index.map(str.upper)         # we can modify the index with a map operation
+    frame.rename(index=str.title, columns=str.upper) # helper that does the same; also takes dict mapping
+
+.. todo:: page 197 binning

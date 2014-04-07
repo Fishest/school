@@ -18,41 +18,136 @@ https://w.amazon.com/index.php/Machine_Learning_Bootcamp
 Summary
 --------------------------------------------------------------------------------
 
-.. todo:: summary slides
-.. todo:: model slides
+There are two main kinds of machine learning:
 
-Possible loss functions:
+* **Supervised**
+  Given data with labels, can we predict a label for a new example. The primary
+  uses for supervised learning are to classification, regression, and ranking.
+  Popular algorithms are: linear models, decision trees, random forests,
+  K-nearest neighbors, neural networks, and bayesian learning.
+* **Unsupervised**
+  Given unlabeld data, can we learn something about it. The primary uses for
+  unsupervised learning are for clustering, manifold learning, dimensionality
+  reduction, association rule mining, and topic models (LDA). Popular algorithms
+  are K-means, PCA, and hidden markov models.
 
-- squared loss  - linear regression
-- logistic loss - logistic regression
-- hinge loss    - svm
+.. image:: http://scikit-learn.org/stable/_static/ml_map.png
+   :target: http://scikit-learn.org/stable/user_guide.html
+   :align: center
 
-Classifier:
+In supervised learning there are two main types:
 
-- if decide(kernel(w, x))
-  - kernel = w . x
-  - decide = lambda v: v > threshold, lambda v: sign(v)
+* **Classification** - If the label is a (+) / (-) class or multiclass and we want to
+  predict the label of a new example. Algorithms include logistic regression, decision
+  trees (leaf is the label), random forests (ensemble), support vector machines,
+  and naive bayes.
+* **Regression** - If the label is numeric (real) and we want to predict future
+  values. Algorithms include linear regression, regression trees (leaf is numeric value),
+  and kernel regression.
 
-Gradient Descent:
+At the end of the day, given a dataset `X` and a collection of lables `y`, we
+are attempting to learn a function `F(x)` such that given a new example `x'`
+we will correctly predict its label `y'`. We do this by selecting a function
+that will minimize the loss function `F' = argmin_F [ \sum Loss(y_i, F(x_i)) ]`.
+Some possible loss functions that we can use are:
 
-- BFGS, L-BFGS - update approximage inverse of Hessian H and gradient of the overall loss function
-- stochastic gradient descent (SGD) - update weights for single example (online)
+* **Squared Loss**  - `L(y, F(x)) = (y - F(x))^2`
+* **Logistic Loss** - `L(y, F(x)) = log(1 + \e^(-y * F(x)))` logistic regression if `y = {-1, +1}`
+* **Hinge Loss**    - `L(y, F(x)) = max(0, 1 - y * F(x))` support vector machine if `y = {-1, +1}`
 
-Regularization prevents overfitting by penalizing large weight values:
+A linear classifier can thus be represented as the following:
 
-- l1 reg - add `\lam_1 . |w|_1` to the loss function (abs)
-- l2 reg - add `\lam_2 . |w|_2` to the loss function (norm)
+.. code-block:: text
 
-simple models with small number of parameters have high bias and low variance:
+    decide(kernel(w, x))
+    w      = train(X, y)             # the learned weights
+    kernel = w . x                   # dot product
+    decide = lambda v: v > threshold # classifier
+    decide = lambda v: v             # regression
 
-- seen in linear models with few features
-- reduce bias by increasing model complexity (increase features, decrease regularization)
+We learn the weights by using *Gradient Descent* to minimize the loss
+function that we have selected. This can intuitively be thought as
+moving down the gradient (derivative) of the loss function to reach
+the lowest minima we can find:
 
-complex models with large number of parameters have low bias and high variance
+* **Gradient Descent** - `W = W - n * dL/dW` where `n` is the learning parameter
+* **BFGS, L-BFGS** -  `W = W - H^-1 * dL/dW` where `H^-1` is the approximate inverse
+  of the Hessian matrix (matrix of partial derivatives of the loss function).
+- **Stochastic (SGD)** - update weights for single example (online)
 
-- linear models with many sparse features, decision trees
-- reduce variance by increasing training data
-- can also decrease model complexity (features selection, regularize, clean/normalize dataset)
+Regularization prevents overfitting by penalizing bad weight parameters
+(L1 penalizes zero weight values, L2 penalizes large weight values):
+
+* **L1 regularization** - adds `\lam_1 . |W|_1` to the loss function (`\sum |W|` abs)
+* **L2 regularization** - adds `\lam_2 . |W|_2` to the loss function (`\sum W^2` norm)
+* **Elastic Nea / Lassot** - is a combination of L1 and L2
+
+*Decision Trees* are a simple supervised algoritm that work as follows:
+
+* Split the dataset top down in a greedy fashion along some attribute
+* This attribute should encourage purity in the split datasets
+* Common purity measurements are entropy, gini index, and variance
+* Entropy = `-\sum_c p_c * log(p_c)` where `p_c` is the fraction of examples
+  with class label `c`
+* The split dataset is pushed into child nodes left < c and right > c
+* Recurse and continue until the node entroy is low, a height is reached, or
+  some other termination metric
+* To predict with this new tree, run the new example against the class lable
+  splits until it arrives at a leaf.
+* For classification take the mode of the class lable values
+* For regression take the mean of the numeric label values
+
+Although trees are easy to train and interpret, they are very prone having
+high variance and are susceptible to overfitting (also, their boundaries are
+rectilinear). This can be solved by using an ensemble of trees:
+
+1. Bootstrap the samples (introduced diversity)
+2. Construct N trees considering random subset of attributes to split on (reduces correlation)
+3. Run example through all trees and collect the corresponding labels (reduces variance)
+3a. For classification take majority vote of the lable set
+3b. For regression take the average of the lable set
+
+.. image:: http://scikit-learn.org/stable/_images/plot_classifier_comparison_1.png
+   :target: http://scikit-learn.org/stable/auto_examples/plot_classifier_comparison.html
+   :align: center
+
+*K Nearest Neighbors* is another simple algorithm that can learn complex models,
+but needs to store all the training examples to predict with. It works as follows:
+
+.. code-block:: python
+
+    def predict(n, k):
+        points = sorted(distance(x, n) for x in model)[:k]
+        return majority(points)
+
+    distance = euclidean_distance
+    majority = majority_vote      # for classification
+    majority = mean               # for regression
+
+*K-Means* is an unsupervised algorithm that can learn arbitrary clusters of 
+unlabeld data. It works as follows:
+
+.. code-block:: python
+
+    def train(k, dataset):
+        centroids = initialize_clusters(k) # random or data based
+        while not converged(k):            # rounds, small movement, etc
+            groups = { k: [] for k in centroids }
+            for e in dataset:
+                groups[min((distance(c, e), c)[1] for c in centroids)].append(e)
+            centroids = [average(entries) for entries in groups.items()]
+        return centroids
+
+    def predict(entry, centroids):
+        return min((distance(entry, c) for c in centroids))[1]
+
+    distance = euclidean_distance
+
+--------------------------------------------------------------------------------
+Bayesian Learning
+--------------------------------------------------------------------------------
+
+.. todo::
 
 --------------------------------------------------------------------------------
 Problem Definition
@@ -147,7 +242,9 @@ convergence of gradient descent based learning algorithms.
 
 .. note::
    Feature scaling rescales attribute values so that they have zero-mean
-   and unit-variance, and falls in similar ranges.
+   and unit-variance, and falls in similar ranges. This can be done by
+   setting `x` = (x - mean(X)) / stddev(X)` where `stddev = max(X) - min(X)`.
+
 
 To handle extremely large datasets, some algorithms train models on random
 samples that are much smaller in size. You can preserve class proportions
@@ -167,13 +264,42 @@ majority and minority classes. This can also be used to heavily penalize
 misclassified examples in situations where failed predictions are not
 acceptable (adult classificatin).
 
-.. todo:: feature target correlation
-
 --------------------------------------------------------------------------------
 Data Visualization (R)
 --------------------------------------------------------------------------------
 
-https://w.amazon.com/index.php?title=Machine_Learning_Bootcamp/Income_Classification/Data_Visualization_and_Analysis
+All Machine Learning tasks require that developers understand the data. By using
+data visualization tools, one can:
+
+* Understand the data better
+* Gain insight into the data
+* Uncover underlying structure
+* Identify important features and detect outliers
+
+There are a number of things to look for when you are investigating the dataset;
+the following is a list of such things:
+
+* **Feature / Target Summaries**
+  Summary reports can detect outliers and skew in the feature or target data
+  distribution. Histograms of indiviual features can be helpful to view data
+  summaries.
+
+* **Feature / Target Correlations**
+  Knowing the correlation between each feature and the target class is helpful
+  in feature selection since a high correlation score implies that there is a
+  relationship between the feature and the target class. In general, you want
+  to keep the features with high correlation since they are the ones with signal,
+  and filter out the features with low correlation since they are most likely noisy.
+  This can be examined by looking ate individual feature histograms split by
+  the target labels. *Mutual Information* can be calculated as
+  `I(X, Y) = \sum_y \sum_x p(x,y) log(p(x,y) / (p(x) * p(y)))`. Finally a
+  *covariance matrix* or *Pearsons correlation coefficient* can be used.
+
+* **Feature / Feature Correlations**
+  Understanding the correlation between features can tell you which features are
+  redundant. For example, if features `f_1` and `f_2` are highly correlated, then
+  you may be able to reduce data dimensionality by selecting only one of them.
+  These can be investigated with scatter plots with smoothers.
 
 .. code-block:: r
 
@@ -184,38 +310,81 @@ https://w.amazon.com/index.php?title=Machine_Learning_Bootcamp/Income_Classifica
     library('ggplot2') # loads the ggplot library for easy plotting
     qplot(data=income, x=age,main="Histogram of Age",binwidth=3)
     qplot(data=income, x=age, main="Class-wise Histogram of Age",  binwidth=3, position="dodge", fill=class)
+    age.sal.xtab=xtabs(~age+class, data=income) # distribution of age groups with label
+
 
 --------------------------------------------------------------------------------
 Feature Engineering
 --------------------------------------------------------------------------------
 
-https://w.amazon.com/index.php/Machine_Learning_Bootcamp/Income_Classification/Feature_Engineering
+The process of manipulating raw data into new and more useful representations or
+features is called feature engineering. It is the most critical and time-consuming
+step of predictive model building requiring lots of trial and error combined with
+domain knowledge and ingenuity. These new features may have more predictive power
+than the original raw data which can boost the model performance. These are
+generally higher level models. In many cases, linear models with simple features
+may not be able to capture complex correlations between the data and the associated
+labels.  One way to improve these models is to introduce non-linearity through
+feature transformations. There are many types of these feature transformations:
 
-We may need to construct new features with predictive power from the original
-raw data; this may boost the model performance. This are generally higher level
-models. There are many types of feature transformations:
+* **Non-Linear** - such as numeric binning and combinations of existing features
+  (e.g. quadratic features).
+* **Domain-Specific** - such as text features, features that capture the structure
+  of web pages, and specialized features (e.g., SIFT) for image data.
+* **Data-Driven** - such as meta features derived from clusters within the data.
+* **Feature Selection** - selecting a subset of relevant features from a much larger
+  set. The insights gained from data visualization can be used to retain features
+  that are highly correlated with the target label. This is typically done to elimiate
+  noisy or leaky features.
 
-- non-linear feature transformation for linear models
-- domain specific transformations for text
--
-
-Numeric value binning allows us to introudce non-linearity into linear models.
+Numeric value binning allows us to introduce *non-linearity* into linear models.
 We simply replace a linear value with the bin class value it falls into.
 Discretizing numeric values using binning enables models to capture multimodal
 relationships of the form: `if age <= 15 or age > 60: the person should earn < $50K`.
-There are a number of binning strategies:
+Binning allows the classfier to not be distracted by the precision of the number
+attribute if it isn't necessarily needed (is there a difference in the prediction
+if the user is 30 or 32).  There are a number of binning strategies (although the
+best decisions of bin size should be based on experimentation):
 
 - equal ranges
 - equal number of examples
 - maximize purity measure (entropy)
+- supervised binning algorithms based on information gain (classification)
+- supervised binning algorithms based on variance reduction (regression)
 
-Quadratic features allows
+EML allows this in the recipie file by using rules of the form
+`<feature>:quantile_bin:<bin_count>`; for example:
+
+.. code-block:: text
+
+    hours-per-week:quantile_bin:10
+    age:quantile_bin:10
+    capital-gain:quantile_bin:10
+    capital-loss:quantile_bin:10
+
+Another way to introduce non-linear features is with quadratic features.
+Quadratic features combine existing features and can generalize to combine
+any number of features, which is referred to as the *cartesian product* of
+features. In general, you should group base features (income related, family
+related, etc) and then combine features from different groups to make new
+quadratic features. This is especially helpful if the combined feature is a
+text variable containing a sequence of tokens (ex. a book title or binding
+descriptors may help in deciding if the book is a text book or trade fiction).
+In EMR this is performed as follows:
+
+.. code-block:: text
+
+    processor.cartesian.1: relationship, marital-status
+    processor.cartesian.2: relationship, (age:quantile_bin:10)
+    processor.cartesian.3: relationship, occupation
+    processor.cartesian.4: marital-status, (age:quantile_bin:10)
 
 Other non-linear feature transformations:
 
 * log feature values ensure a more linear dependence with output values
 * product/ratio of feature values
-* use leaves of decision tree as features (train boosted ensemble)
+* use leaves of fixed depth decision tree as features (train boosted ensemble)
+* train on a subset of data, leafs are binary bins, run each example through the tree
 * this captures complex relationship between feature values and target
 
 .. note:: linear models are more scalable than non-linear models
@@ -230,13 +399,22 @@ There may also be domain specific transformations depending on the data:
 * TF-IDF normalization (corpus wide normalization)
 *
 
+It is important to include as many features as possible as this will improve
+prediction accuracy by discovering interesting and useful patterns in the data.
+It is not possible to know all the features that have signal, so it is best to
+include all the featuers and allow the training algorithm to pick the features
+with the strongest correlations. This should be balanced with not including
+noisy features that have little or no predictive power as they overfit the data.
+Once again, the learning algorithm can return importance scores on the features
+which an be used to prune away unimportant attributes.
+
 --------------------------------------------------------------------------------
 Feature Selection
 --------------------------------------------------------------------------------
 
-Often less features is oftern better as it generalizes the behavior and will
-prevent overfitting. Many of the features may be strongly correlated or highly
-redundantw which will affect the performance of the model (overfitting).
+Often having less features is often better as the model generalizes the behavior
+and will prevent overfitting. Many of the features may be strongly correlated or
+highly redundant which will affect the performance of the model (overfitting).
 
 To select features that have the highest predictive power:
 
@@ -247,7 +425,7 @@ To select features that have the highest predictive power:
 - features with high importance scores (weights) during model training
 - remove features with all zero weights
 
-Dimensionality Reduction (random projections, PCA)
+.. todo:: Dimensionality Reduction (random projections, PCA)
 
 
 Here is an example recipie file for EML that defines a number of features:
@@ -327,18 +505,82 @@ dataset and associated configuration:
         --labelColumn class
     eml describe evaluation --id ev-2014-04-02-81740-long-lip
 
+
 --------------------------------------------------------------------------------
 Evaluating a Trained Model
 --------------------------------------------------------------------------------
 
-https://w.amazon.com/index.php/Machine_Learning_Bootcamp/Income_Classification/Model_Evaluation
+The output of a ML classifier is a prediction score that is then applied to a
+threshold: if it is above the threshold it is (+), else it is (-). The problem
+with having the classifier choose the threshold directly is:
 
-Classification evaluation metrics (confusion metrics)
+* **High Precision** - when all positive predictions need to be correct at the
+  expense of some positive examples being labled negative.
+* **High Recall** - when as many positive examples as possible need to be labled,
+  at the expense of some negative examples being misclassified as positive
 
+One way to evaluate the model is to simply calculate the percentage of correctly
+classified examples over the total dataset size. This would give us the percent
+correctly classified. The problem with this is:
 
+* if the dataset is unbalanced, we can simply just guess the majority classifier
+  and achieve 90% accuracy without training a model (e.g. just say no one has
+  cancer).
+* if the costs of getting a false positive and false negative are not equal, then
+  we should allow the user to control the tradeoff (e.g. classifying an email as
+  spam vs classifying someone as not having cancer).
 
-To evaluate the result of our model, we can take the result of the EML testing
-step and load them into R:
+*Ultimately, when solving a business problem, the most important metrics are the
+ones that are used to measure the problem.* However, it is often not feasible to
+collect the business metric directly with each iteration of the ML process. As
+such, the next best thing is to find a metric that can be used to evaluate the ML
+model and can also be shown to be a good proxy for the business metric, specifically:
+it would be good to show that when the ML metric improves, so does the business metric.
+Finding an appropriate ML metric is an important part of the ML process.
+
+As a start, the current trend for evaluating a model is the *confusion matrix* which is
+a table of all possible combinations of obtained and correct answers. For a binary
+classifier this is a 2x2 matrix:
+
+.. code-block:: text
+
+                        actual(1)             actual(0)
+    --------------------------------------------------
+    prediction(1): true  positive (tp)   false positive (fp)
+    prediction(0): false negative (fn)   true  negative (tn)
+
+    precision (p) = TP / (TP + FP) - ability of classifier to not label (+) as (-)
+    recall    (r) = TP / (TP + FN) - ability of classifier to find all (+) examples
+    f1-score (f1) = (2 * p * r) / (p + r) - single metric linking the two
+
+    true  (+) rate = TP / (TP + FP) - fraction of (+) examples classified correctly
+    false (+) rate = FP / (FP + TN) - fraction of (-) examples classified incorrectly
+
+The precision and recall are directly related. You can increase the recall by
+lowering the precision and vice versa. One problem with precision and recall is
+that they are high level metrics that may not capture the variety and subtlety
+of a model's performance (does it perform well on some examples but poorly on
+others). The *receiver operating characteristic (ROC) curve* is very useful for
+understanding the subtlety in ML performance.  We can then plot an ROC graph
+by “sweeping” through the range of all possible thresholds (say from -1 to 1,
+one might consider 100 equally-spaced scores as thresholds). For each threshold,
+the TPR and FPR are calculated, and the results are plotted on a graph where the
+y axis is TPR, and the x axis is FPR. The ideal curve should fit to the upper
+right hand corner while a random classifier will be a diagonal line. If the
+curve hugs the bottom right corner, you can simply invert the output to make it
+a good classifier.
+
+.. image:: images/roc-curve.png
+   :align: center
+
+Finally, we can retrieve a metric from the ROC curve by taking the *area under the curve
+(AUC)*. The perfect classifier will be 1.0 while the inverted classifier will be 0.0.
+The completely random classifier will be 0.5, therefore we want to maximize
+`| auc - 0.5|`. It should be noted that EML will select as a threshold the point in
+the ROC curve where the difference between TPR and FPR values is at its maximum.
+
+To evaluate the result of our model in EML, we can take the results of the previous
+testing step and load them into R:
 
 .. code-block:: r
 
@@ -357,13 +599,38 @@ step and load them into R:
     abline(c(0, 1), col="gray70", lty=2)
     grid(col="orange")
 
+When we test our model against a fairly selected dataset, it may underperform. This is
+caused by one of two conditions:
+
+* **Underfitting**
+  This is caused by high *bias* which is a measure of the systematic error in the model
+  predictions (difference between average prediction and true target). This is usually
+  indicative of a model that is too simple and has a small number of features (usually
+  linear models). The error rate will be high on the training and test dataset. This
+  problem can be solved by increasing the features of the model and decreasing the
+  regularization parameters.
+* **Overfitting**
+  This is caused by high *variance* (the stability or variance in predictions across
+  different data samples). This is usually indicative of a model that is too complex
+  and has too many features. The error rate will be high only on the test dataset.
+  This problem can be solved by increasing the training set, decreasing features,
+  and increasing regularization. This is also seen in linear models with many
+  sparse features and decision tress (may need to switch model).
+
+.. image:: images/bias-variance.png
+   :align: center
+
+.. image:: images/bias-variance-tradeoff.png
+   :align: center
+
 --------------------------------------------------------------------------------
 Generating Predictions
 --------------------------------------------------------------------------------
 
-https://w.amazon.com/index.php/Machine_Learning_Bootcamp/Income_Classification/Model_Deployment
 The EML tool allows for bulk predictions as well as online predictions (with a specified
 SLA). To perform the batch prediction, simply upload in batch the data to be
+
+
 evaluated and the poll on the prediction results:
 
 .. code-block:: bash
@@ -390,6 +657,7 @@ data distribution:
 - if the monitoring is not prohibitive, a new batch model can be trained when needed
 - can also simply train a new model daily, weekly, or monthly
 
+
 --------------------------------------------------------------------------------
 Classifier Scores to Probabilities
 --------------------------------------------------------------------------------
@@ -397,36 +665,15 @@ Classifier Scores to Probabilities
 * binning method
 * modeling via a logistic function
 
---------------------------------------------------------------------------------
-Modeling Tips
---------------------------------------------------------------------------------
-
-* The more training examples, the better
-  Large training sets lead to better generalization to unseen examples
-
-* The more features, the better
-  Invest time in feature engineering to construct features with signal
-
-* Evaluate model performance on a separate test set
-  Tune model parameters on separate validation set, no the test set
-
-* Pay attention to the training data quality
-  Garbage in, garbage out; remove outliers and target leakers
-
-* Select evaluation metrics that reflect business objectives
-  AUC may not always be appropriate: log-likelyhood, precision at K
-
-* Retrain the models periodically
-  Ensure that the distributions of training and test are in sync
 
 --------------------------------------------------------------------------------
-Classifier Tips
+Classifier / Modeling Tips
 --------------------------------------------------------------------------------
 
 *The following are some best practices for building high-performance predictive
 models using EML:*
 
-* **The more training examples, the better**
+* **The More Training Examples, the Better**
 
   ML models make predictions for a new example based on target labels for similar
   examples in the training data. Consequently, with more training examples, the
@@ -437,7 +684,7 @@ models using EML:*
   generalization. As a rule of thumb, simple (linear) models with lots of data
   beat complex (nonlinear) models with modest amounts of it.
 
-* **The more features, the better**
+* **The More Features, the Better**
 
   More features can improve predictive performance by discovering interesting and
   useful patterns. So in any ML project, it is important to invest sufficient time
@@ -458,7 +705,7 @@ models using EML:*
   convergence of model training algorithms. Lowercasing, punctuation removal, stemming
   and stop word removal are also useful transformations to consider for text attributes.
 
-* **Tune model training parameters**
+* **Tune Model Training Parameters**
 
   It is important to explore the parameter space (e.g. number of passes, number of hash
   bits, learning parameters, regularization) during model training - the parameter values
@@ -470,7 +717,7 @@ models using EML:*
   Similarly, increasing hash bits has the effect of reducing collisions, and so should be
   done for large feature spaces. 
 
-* **Avoid evaluating model performance on training data**
+* **Avoid Evaluating Model Performance on Training Data**
 
   A good predictive model generalizes beyond the examples in the training set and performs
   well on unseen data. So it is imperative to use a separate test dataset (different from
@@ -479,9 +726,12 @@ models using EML:*
   a simple model that memorizes the training data in its entirety - such a model will
   perfectly predict the training data but will typically fail drastically when making
   predictions about new or unseen data. This is because the model has not learned to
-  generalize.
+  generalize. A good strategy is to take all available labeled data, and randomly split
+  it into training and test datasets. The ratio of 70..80% training, to 20..30% evaluation,
+  is commonly used. This ratio ensures that the training and evaluation data are independent
+  of each other, and, hopefully, random selection eliminates the selection bias.
 
-* **Avoid using test data to tune parameters**
+* **Avoid Using Test Data to Tune Parameters**
 
   Using test data to tune model parameters during training can lead to overfitting.
   The correct way to tune parameters is to split the training data into a training set
@@ -657,3 +907,10 @@ linear regression. What follows are the details of EML's implementation:
   dimensionality reduction technique that randomly projects disjoint subsets of
   features onto different hash values. The default value for the number of hash
   bits is `18`.
+
+
+--------------------------------------------------------------------------------
+Validation Techniques
+--------------------------------------------------------------------------------
+
+.. todo:: http://research.cs.tamu.edu/prism/lectures/iss/iss_l13.pdf

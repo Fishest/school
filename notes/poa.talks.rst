@@ -1039,3 +1039,72 @@ Design consdierations:
   - start slow and ramp up quickly
   - maintain a current failure rate
   - randomly drop data in proportion to failure rate
+
+============================================================
+Time and Order in Kinesis
+============================================================
+
+The main takeaways from this talk on distributed systems are:
+
+* ordering events is a hard problem in distributed systems
+* tracking additional information may be the solution
+* solutions to ordering are imperfect and come with tradeoffs
+
+------------------------------------------------------------
+Summary
+------------------------------------------------------------
+
+Capacity is managed in kinesis by using shards. To scale out,
+we simply create more shards. There is a point of time when
+this sharding should happen. We can order events by reading
+from shard_1 and then shard_2:
+
+* we can mark this time split with system time
+* if a clock is after the threshold, write to shard_2
+* but time in distributed systems is not consistent
+* this will not produce a correct ordering
+
+A client writing to the frontend works as follows (the client is
+the user and the frontend is the kinesis service):
+
+* The first write can be sent using the frontend system time
+* the frontend returns a token of the time it wrote with
+* The second write is sent with the original token
+* The next frontend makes sure the new time is slightly larger
+* This is the case even if it's system time is lower
+* This is a client sequencer / sequence number (monotonically increasing)
+
+The kinesis analysis server can then read from the shards
+by maintaining an offset pointer. It then reads latest by
+supplying its offset and getting all new writes after it as
+well as its new offset.
+
+* client sequencers do not solve the read after write order (analysis server)
+* the analysis server may have already read past the client write point
+* we can bound clock skew to <= 1 second
+* report writes as faield if they take more than ~1 second
+* we delay reads to 2 seconds in the past
+* The 2 seconds is to account for the clock skew and read timeout (1 + 1)
+
+The time can be managed by a conductor who publishes the
+current time which is read by all the frontends. The time
+is monotonically increasing based on write events.
+
+* only increment once a second, and only increment by 1
+* we only need a counter as time will be delayed by operations
+* don't need real time, we need a logical clock (epoch counter)
+* shift to new shard is based on an epoch count
+* conductor writes epochs to a well known row in dynamo that frontends read
+* conductor is a distributed system, but can scale independing of frontends
+
+Can we understand how far the analysis server is behind
+actual time, in terms of seconds instead of epochs?
+
+* we can see the frontends current epoch and alaysis offset
+* publish this as a graph of diffs (how many epochs is it behind)
+* we can publish three epochs (current, current - 1, current - 2)
+* we can read two epochs in the past instead of 2 seconds ago
+* for outage, new epoch is (07:05:31, 07:05:01, 07:05:00)
+* system can catch up to latest in two epochs
+* metrics can be published in real time instead of epochs
+* this is simply keeping a bounded amount of epoch history

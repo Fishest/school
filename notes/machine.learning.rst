@@ -391,13 +391,23 @@ Other non-linear feature transformations:
 
 There may also be domain specific transformations depending on the data:
 
-* multi-word concepts with frequent N-grams
-* parts of speech / ontology tagging (focus on words with specific roles)
-* stop words removal / stemming (helps to focus on semantics)
-* lowercasing / punctionation removal (standardizes the syntax)
-* cutting off very high / lower percentiles
+* Multi-word concepts with frequent N-grams
+* Parts of speech / ontology tagging (focus on words with specific roles)
+* Stop words removal / stemming (helps to focus on semantics)
+* Lowercasing / punctionation removal (standardizes the syntax)
+* Cutting off very high / lower percentiles
 * TF-IDF normalization (corpus wide normalization)
-*
+* Orthogonal Sparse Bigram (ODB) to preserve spatial information
+
+In EMR, here is a way of performing N-gram feature extraction while
+removing punctuation and lowercasing all the N-grams (note, OSB essentially
+does n-gram splitting over a window of words):
+
+.. code-block:: text
+
+    description:lowercase, no_punct, ngram:2
+    item_name:lowercase, no_punct, ngram:2
+    description:osb:3 # osb:2 is essentially a bigram
 
 It is important to include as many features as possible as this will improve
 prediction accuracy by discovering interesting and useful patterns in the data.
@@ -407,6 +417,11 @@ with the strongest correlations. This should be balanced with not including
 noisy features that have little or no predictive power as they overfit the data.
 Once again, the learning algorithm can return importance scores on the features
 which an be used to prune away unimportant attributes.
+
+Simple feature transformations of numeric features can improve model performance
+by ensuring a better model fit with the target variable. Consider a variable `x`
+which is related to the ouput by `y = x^2`. Taking the square root of the
+variable makes it linerally correlated with the target variable.
 
 --------------------------------------------------------------------------------
 Feature Selection
@@ -484,11 +499,11 @@ the data. For a small dataset, the number of interations may need to be larger
 while on a very large dataset, a single pass may be sufficient.
 
 What follows is an example run of the EML service with the previously cleaned
-dataset and associated configuration:
+dataset and associated configuration to train a linear classifier:
 
 .. code-block:: bash
 
-    echo -e "PredictionType:binary\nPasses:10" > income_params.txt
+    echo -e "PredictionType:binary\nPasses:100\nL2:1E-8" > income_params.txt
     eml upload train.csv
     eml upload test.csv
     eml create predictor                     \
@@ -505,6 +520,27 @@ dataset and associated configuration:
         --labelColumn class
     eml describe evaluation --id ev-2014-04-02-81740-long-lip
 
+What follows is an example run of the EML service with the previously cleaned
+dataset and associated configuration to train a linear regression:
+
+.. code-block:: bash
+
+    echo -e "PredictionType:regression\nPasses:10" > income_params.txt
+    eml upload train.csv
+    eml upload test.csv
+    eml create predictor                     \
+        --labelColumn log_pm                 \
+        --recipe ./price_recipe.txt          \
+        --dataFileType csv                   \
+        --trainingParams ./income_params.txt \
+        --trainingFile s3://eml-training-data-123456789101/train.csv
+    eml describe predictor --id pr-2014-04-11-67217-shaky-desk
+
+    eml create evaluation --id pr-2014-04-11-67217-shaky-desk                    \
+        --evaluationFile s3://eml-training-data-657675388327/price_test_data.csv \
+        --dataFileType csv                                                        \
+        --labelColumn log_pm
+    eml describe evaluation --id ev-2014-04-11-68019-sour-whip
 
 --------------------------------------------------------------------------------
 Evaluating a Trained Model
@@ -615,13 +651,30 @@ caused by one of two conditions:
   and has too many features. The error rate will be high only on the test dataset.
   This problem can be solved by increasing the training set, decreasing features,
   and increasing regularization. This is also seen in linear models with many
-  sparse features and decision tress (may need to switch model).
+  sparse features and decision tress (may need to switch model). This also happens
+  when the model learns random errors or noise that have no correlation to the target
+  label.
 
 .. image:: images/bias-variance.png
    :align: center
 
 .. image:: images/bias-variance-tradeoff.png
    :align: center
+
+--------------------------------------------------------------------------------
+Evaluating a Regression Model
+--------------------------------------------------------------------------------
+
+The prediction score output by a regression model is the predicted target value.
+The two metrics commonly used to measure the regression model performance are:
+
+* **Root Mean Squared Error (RMSE)** - `\sqrt{ \sum_y { y - y')^2 } / n }`
+* **Mean Absolute Percent Error (MAPE)** -  `(1/n) * \sum_y { | y - y' / y | }`
+* `y` is the actual value, `y'` is the predicted value, `n` is the example count
+
+*RMSE* aims to reduce the absolute error and gives more importance to minimzing
+the error for large target values. *MAPE* focuses on reducing the relative
+error and tries to minimize the error for smaller target values.
 
 --------------------------------------------------------------------------------
 Generating Predictions
@@ -898,7 +951,7 @@ linear regression. What follows are the details of EML's implementation:
   weight values which helps to prevent overfitting. L1 regularization has the effect
   of reducing the number of non-zero weights, while L2 regularization results in
   lower overall weight values. The default values for the L1 and L2 regularization
-  parameters are `0`.
+  parameters are `0`. In practice, values in the range of `1E-10` to `1E-2` work well.
 
 * **Feature Hashing**
 

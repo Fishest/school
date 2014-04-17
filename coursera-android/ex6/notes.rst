@@ -178,6 +178,97 @@ copy the file `/sdcard/gestures` to your `/res/raw` directory.
 Video 6: Multimedia (1)
 --------------------------------------------------------------
 
+Android provides support for encoding and decoding a variety
+of common media formats allowing one to play and record audio,
+still images, and video:
+
+* **AudioManager**
+  Manages volume, system sound effects, and ringer mode control.
+  After acquiring an instance of the manager, one can load and play
+  sound effects, manage the system volume, and manage peripherals.
+  To work with the `AudioManager`, one needs to get a handle by:
+  `Context.getSystemService(Context.AUDIO_SERVICE)`
+
+.. include:: examples/AudioVideoAudioManagerActivity.java
+   :code: java
+
+* **SoundPool**
+  Represents a collection of audio samples (streams) and allows one
+  to play a number of them together.
+
+* **RingTone**
+* **RingtonManager**
+  Provides access to audio clips used for incoming phone calls,
+  notifications, alarms, etc. This allows applications to get
+  and set ringtones and to play and stop playing them.
+
+.. include:: examples/AudioVideoRingtoneManagerActivity.java
+   :code: java
+
 --------------------------------------------------------------
 Video 7: Multimedia (2)
 --------------------------------------------------------------
+
+* **MediaPlayer**
+  Controls playback of audio and video streams and files. It
+  also allows applications to control the playback of these
+  files. The operation of the playback is governed by a somewhat
+  complex state machine. The media player is governed by the
+  following methods:
+
+  - `setDataSource` - set the data source to play
+  - `prepare` - initialize the underlying video for playing (sync)
+  - `start` - start the media in the playing state
+  - `stop` - stop the media from playing
+  - `pause` - pause the media from playing
+  - `seekTo` - seek to a particular spot in the media
+  - `release` - release the underlying handles to the media
+
+  There exists the `VideoView` which is a `SurfaceView` that
+  wraps the `MediaPlayer` making it easy to incorporate the
+  `MediaPlayer` into one's application.
+
+.. todo:: Add the state machine logic for the media player
+.. include:: examples/AudioVideoVideoPlayActivity.java
+   :code: java
+
+* **MediaRecorder**
+  This is used to record audio and video and operates with a
+  state machine just like the `MediaPlayer`. This is controlled
+  with the following methods:
+
+  - `setAudioSource` - Sets the source for the incoming audio (microphone) 
+  - `setVideoSource` - Sets the source for the incoming video (camera)
+  - `setOutputFormat` - Sets the output format for the media
+  - `prepare` - Initializes the underlying recorder
+  - `start` - Starts recording
+  - `stop` - Stops recording
+  - `release` - Releases all the underlying recorder resources
+
+.. include:: examples/AudioRecordingActivity.java
+   :code: java
+
+* **Camera**
+  This is a client for working with the underlying camera hardware.
+  It manages camera settings, starting and stoping camera previews,
+  and capturing images and videos. In order to use the camera, perform
+  the following steps:
+  
+  1. Get a `Camera` instance
+  2. Set the `Camera` parameters as neccessary
+  3. Setup the preview display
+  4. Start the preview
+  5. Take a picture and process the data
+  6. Release the camera when not in use
+
+  To use the camera, you will need to add a few flags to your android
+  resource file:
+
+.. code-block:: xml
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+
+.. include:: examples/AudioVideoCameraActivity.java
+   :code: java

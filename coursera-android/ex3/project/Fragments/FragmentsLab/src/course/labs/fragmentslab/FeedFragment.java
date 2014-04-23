@@ -18,9 +18,7 @@ public class FeedFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-
 		return inflater.inflate(R.layout.feed, container, false);
-
 	}
 
 	@Override
@@ -29,22 +27,16 @@ public class FeedFragment extends Fragment {
 
 		// Read in all Twitter feeds 
 		if (null == feedFragmentData) { 
-			
 			feedFragmentData = new FeedFragmentData(getActivity());
-
 		}
 	}
 
 
 	// Display Twitter feed for selected feed
-
 	void updateFeedDisplay(int position) {
-
 		Log.i(TAG, "Entered updateFeedDisplay()");
 				
 		mTextView = (TextView) getView().findViewById(R.id.feed_view);
 		mTextView.setText(feedFragmentData.getFeed(position));
-
 	}
-
 }

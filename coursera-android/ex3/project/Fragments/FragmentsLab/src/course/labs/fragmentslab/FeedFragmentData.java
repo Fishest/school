@@ -35,16 +35,12 @@ public class FeedFragmentData {
 
 		for (int id : IDS) {
 
-			InputStream inputStream = mContext.getResources().openRawResource(
-					id);
-			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					inputStream));
-
+			InputStream inputStream = mContext.getResources().openRawResource(id);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 			StringBuffer buffer = new StringBuffer("");
 			
 			
 			// Read raw data from resource file
-			
 			try {
 
 				String line = "";
@@ -86,26 +82,19 @@ public class FeedFragmentData {
 			try {
 
 				tweet = feed.getJSONObject(j).getString("text");
-				JSONObject user = (JSONObject) feed.getJSONObject(j)
-						.get("user");
+				JSONObject user = (JSONObject) feed.getJSONObject(j).get("user");
 				name = user.getString("name");
 
 			} catch (JSONException e) {
-
 				Log.i(TAG, "JSONException while processing feed");
 			}
-
 			textFeed.append(name + " - " + tweet + "\n\n");
 		}
-
 		return textFeed.toString();
 	}
 	
-// Return the Twitter feed data for the specified position as a single String
-	
- String getFeed (int position) {
-		
+	// Return the Twitter feed data for the specified position as a single String
+	String getFeed (int position) {
 		return mFeeds.get(IDS[position]);
-	
 	}
 }

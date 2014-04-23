@@ -11,7 +11,6 @@ import android.widget.Button;
 public class GoToDangerousActivity extends Activity {
 	
 	private static final String TAG = "Lab-Permissions";
-
 	private static final String DANGEROUS_ACTIVITY_ACTION = "course.labs.permissions.DANGEROUS_ACTIVITY";
 
 	@Override
@@ -24,21 +23,13 @@ public class GoToDangerousActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-
 				startDangerousActivity();
-
 			}
 		});
-
 	}
 
 	private void startDangerousActivity() {
-
 		Log.i(TAG, "Entered startDangerousActivity()");
-
 		startActivity(new Intent(DANGEROUS_ACTIVITY_ACTION));
-		
-
 	}
-
 }

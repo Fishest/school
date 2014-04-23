@@ -16,7 +16,6 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,7 +34,7 @@ public class ToDoManagerActivity extends ListActivity {
 
 	// IDs for menu items
 	private static final int MENU_DELETE = Menu.FIRST;
-	private static final int MENU_DUMP = Menu.FIRST + 1;
+	private static final int MENU_DUMP   = Menu.FIRST + 1;
 
 	ToDoListAdapter mAdapter;
 
@@ -46,44 +45,32 @@ public class ToDoManagerActivity extends ListActivity {
 		// Create a new TodoListAdapter for this ListActivity's ListView
 		mAdapter = new ToDoListAdapter(getApplicationContext());
 
-		// Put divider between ToDoItems and FooterView
-		getListView().setFooterDividersEnabled(true);
-
-		//TODO - Inflate footerView for footer_view.xml file
-
-		TextView footerView = null;
-
-		//TODO - Add footerView to ListView
-
+		TextView footerView = (TextView)getLayoutInflater().inflate(R.layout.footer_view, null);
 		footerView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-
 				log("Entered footerView.OnClickListener.onClick()");
-
-				//TODO - Attach Listener to FooterView. Implement onClick().
-
+				Intent intent = new Intent(ToDoManagerActivity.this, AddToDoActivity.class);
+				startActivityForResult(intent, ADD_TODO_ITEM_REQUEST);
 			}
 		});
 
-		//TODO - Attach the adapter to this ListActivity's ListView
-
+		// Put divider between ToDoItems and FooterView
+		getListView().setFooterDividersEnabled(true);
+		getListView().addFooterView(footerView);
+		setListAdapter(mAdapter);
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
 		log("Entered onActivityResult()");
-
-		// TODO - Check result code and request code.
-		// If user submitted a new ToDoItem
-		// Create a new ToDoItem from the data Intent
-		// and then add it to the adapter
-
+		if (resultCode == RESULT_OK && requestCode == ADD_TODO_ITEM_REQUEST) {
+			ToDoItem item = new ToDoItem(data);
+			mAdapter.add(item);
+		}
 	}
 
 	// Do not modify below here
-
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -97,11 +84,7 @@ public class ToDoManagerActivity extends ListActivity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-
-		// Save ToDoItems
-
 		saveItems();
-
 	}
 
 	@Override

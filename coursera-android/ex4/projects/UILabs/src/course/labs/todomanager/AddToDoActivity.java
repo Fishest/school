@@ -85,75 +85,52 @@ public class AddToDoActivity extends Activity {
 		});
 
 		// OnClickListener for the Cancel Button, 
-
 		final Button cancelButton = (Button) findViewById(R.id.cancelButton);
 		cancelButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				log("Entered cancelButton.OnClickListener.onClick()");
-
-				//TODO - Implement onClick().  
-
+				setResult(RESULT_CANCELED);
+				finish();
 			}
 		});
 
 		//OnClickListener for the Reset Button
-
 		final Button resetButton = (Button) findViewById(R.id.resetButton);
 		resetButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				log("Entered resetButton.OnClickListener.onClick()");
-
-				//TODO - Reset data fields to default values
-				
-
-			
-			
-			
+				mDefaultPriorityButton.setChecked(true);
+				mDefaultStatusButton.setChecked(true);
+				mTitleText.setText("");
+				setDefaultDateTime();
 			}
 		});
 
 		// OnClickListener for the Submit Button
-		// Implement onClick().
-		
 		final Button submitButton = (Button) findViewById(R.id.submitButton);
 		submitButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				log("Entered submitButton.OnClickListener.onClick()");
 
-				// Gather ToDoItem data  
-				
-				//TODO - Get Priority
-				Priority priority = null;
-
-				//TODO -  Get Status
-				Status status = null;
-
-				//TODO -  Title
-				String titleString = null;
-
-				// Date
+				Priority priority = getPriority();
+				Status status = getStatus();
+				String titleString = mTitleText.getText().toString();
 				String fullDate = dateString + " " + timeString;
 
 				// Package ToDoItem data into an Intent
-				Intent data = new Intent();
-				ToDoItem.packageIntent(data, titleString, priority, status, fullDate);
-
-				//TODO - return data Intent and finish
-				
-
-				
-				
-			}
+				Intent intent = new Intent();
+				ToDoItem.packageIntent(intent, titleString, priority, status, fullDate);
+				setResult(RESULT_OK, intent);
+				finish();			}
 		});
 	}
 
 	// Do not modify below here
 	
-	// Use this method to set the default date and time
-	
+	// Use this method to set the default date and time	
 	private void setDefaultDateTime() {
 
 		// Default is current time + 7 days
@@ -229,7 +206,6 @@ public class AddToDoActivity extends Activity {
 	}
 
 	// DialogFragment used to pick a ToDoItem deadline date
-
 	public static class DatePickerFragment extends DialogFragment implements
 			DatePickerDialog.OnDateSetListener {
 
@@ -258,7 +234,6 @@ public class AddToDoActivity extends Activity {
 	}
 
 	// DialogFragment used to pick a ToDoItem deadline time
-
 	public static class TimePickerFragment extends DialogFragment implements
 			TimePickerDialog.OnTimeSetListener {
 
@@ -300,5 +275,4 @@ public class AddToDoActivity extends Activity {
 		}
 		Log.i(TAG, msg);
 	}
-
 }

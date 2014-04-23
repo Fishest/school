@@ -35,16 +35,14 @@ public class DownloaderTask extends AsyncTask<String, Void, String[]> {
 	private static final boolean HAS_NETWORK_CONNECTION = true;
 
 	// Raw feed file IDs used if you do not have a stable connection
-	public static final int txtFeeds[] = { R.raw.tswift, R.raw.rblack,
-			R.raw.lgaga };
+	public static final int txtFeeds[] = { R.raw.tswift, R.raw.rblack, R.raw.lgaga };
 
 	// Constructor
 	public DownloaderTask(MainActivity parentActivity) {
 		super();
-
+		
 		mParentActivity = parentActivity;
 		mApplicationContext = parentActivity.getApplicationContext();
-
 	}
 
 	@Override
@@ -52,7 +50,6 @@ public class DownloaderTask extends AsyncTask<String, Void, String[]> {
 		log("Entered doInBackground()");
 
 		return download(urlParameters);
-
 	}
 
 	private String[] download(String urlParameters[]) {
@@ -121,7 +118,6 @@ public class DownloaderTask extends AsyncTask<String, Void, String[]> {
 		if (mParentActivity != null) {
 			mParentActivity.setRefreshed(result);
 		}
-
 	}
 
 	// If necessary, notifies the user that the tweet downloads are complete.
@@ -131,15 +127,11 @@ public class DownloaderTask extends AsyncTask<String, Void, String[]> {
 	private void notify(final boolean success) {
 		log("Entered notify()");
 
-		final Intent restartMainActivtyIntent = new Intent(mApplicationContext,
-				MainActivity.class);
+		final Intent restartMainActivtyIntent = new Intent(mApplicationContext, MainActivity.class);
 		restartMainActivtyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
 		if (success) {
-
-			// Save tweets to a file
 			saveTweetsToFile();
-
 		}
 
 		// Sends an ordered broadcast to determine whether MainActivity is
@@ -150,10 +142,8 @@ public class DownloaderTask extends AsyncTask<String, Void, String[]> {
 		// The result Activity.RESULT_OK, indicates that MainActivity is active and
 		// in the foreground.
 
-		mApplicationContext.sendOrderedBroadcast(
-				new Intent(MainActivity.DATA_REFRESHED_ACTION), 
-				null,
-				new BroadcastReceiver() {
+		mApplicationContext.sendOrderedBroadcast( new Intent(MainActivity.DATA_REFRESHED_ACTION), null,
+			new BroadcastReceiver() {
 
 					final String failMsg = "Download has failed. Please retry Later.";
 					final String successMsg = "Download completed successfully.";
@@ -163,52 +153,30 @@ public class DownloaderTask extends AsyncTask<String, Void, String[]> {
 
 						log("Entered result receiver's onReceive() method");
 
-						// TODO: Check whether the result code is RESULT_OK
+						if (getResultCode() != Activity.RESULT_OK) {
 
-						if (/*change this*/ true) {
-
-							// TODO:  If so, create a PendingIntent using the
-							// restartMainActivityIntent and set its flags
-							// to FLAG_UPDATE_CURRENT
+							final PendingIntent pendingIntent = PendingIntent.getActivity(mApplicationContext,
+								0, restartMainActivtyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 							
-							final PendingIntent pendingIntent = null;
-							
-
-
-							// Uses R.layout.custom_notification for the
-							// layout of the notification View. The xml 
-							// file is in res/layout/custom_notification.xml
-
 							RemoteViews mContentView = new RemoteViews(
-									mApplicationContext.getPackageName(),
-									R.layout.custom_notification);
-
-							// TODO: Set the notification View's text to
-							// reflect whether or the download completed
-							// successfully
-
-
+								mApplicationContext.getPackageName(),
+								R.layout.custom_notification);	
+							mContentView.setTextViewText(R.id.text, success ? successMsg : failMsg);
 							
-							// TODO: Use the Notification.Builder class to
-							// create the Notification. You will have to set
-							// several pieces of information. You can use
-							// android.R.drawable.stat_sys_warning
-							// for the small icon. You should also setAutoCancel(true). 
+							Notification.Builder builder = new Notification.Builder(mApplicationContext)
+								.setSmallIcon(android.R.drawable.stat_sys_warning)
+								.setContent(mContentView)
+								.setContentIntent(pendingIntent)
+								.setAutoCancel(true);
 
-							Notification.Builder notificationBuilder = null;
+							NotificationManager manager = (NotificationManager)mApplicationContext
+									.getSystemService(Context.NOTIFICATION_SERVICE);
+							manager.notify(MY_NOTIFICATION_ID, builder.build());
 
-							// TODO: Send the notification
-
-							
-							
 							log("Notification Area Notification sent");
 						}
 					}
-				}, 
-				null, 
-				0, 
-				null, 
-				null);
+				}, null, Activity.RESULT_OK, null, null);
 	}
 
 	// Saves the tweets to a file

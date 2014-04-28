@@ -16,6 +16,7 @@ import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Environment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,7 @@ import course.labs.contentproviderlab.provider.PlaceBadgesContract;
 
 public class PlaceViewAdapter extends CursorAdapter {
 
+	private static final String TAG = "PlaceViewAdapter";
 	private static final String APP_DIR = "ContentProviderLab/Badges";
 	private ArrayList<PlaceRecord> list = new ArrayList<PlaceRecord>();
 	private static LayoutInflater inflater = null;
@@ -64,45 +66,46 @@ public class PlaceViewAdapter extends CursorAdapter {
 		super.swapCursor(newCursor);
 
 		if (null != newCursor) {
+			list.clear();
+			
+			if (newCursor.moveToFirst()) {
+				do {
+					list.add(getPlaceRecordFromCursor(newCursor));
+				} while (newCursor.moveToNext());
+			}
 
-        // TODO - clear the ArrayList list so it contains
-		// the current set of PlaceRecords. Use the 
-		// getPlaceRecordFromCursor() method to add the
-		// current place to the list
-		
-
-            
-            
-            
-            
-            
-            // Set the NotificationURI for the new cursor
+			// Set the NotificationURI for the new cursor
 			newCursor.setNotificationUri(mContext.getContentResolver(),
 					PlaceBadgesContract.CONTENT_URI);
 
 		}
+		
 		return newCursor;
-
 	}
 
 	// returns a new PlaceRecord for the data at the cursor's
 	// current position
 	private PlaceRecord getPlaceRecordFromCursor(Cursor cursor) {
 
-		String flagBitmapPath = cursor.getString(cursor
-				.getColumnIndex(PlaceBadgesContract.FLAG_BITMAP_PATH));
-		String countryName = cursor.getString(cursor
-				.getColumnIndex(PlaceBadgesContract.COUNTRY_NAME));
-		String placeName = cursor.getString(cursor
-				.getColumnIndex(PlaceBadgesContract.PLACE_NAME));
-		double lat = cursor.getDouble(cursor
-				.getColumnIndex(PlaceBadgesContract.LAT));
-		double lon = cursor.getDouble(cursor
-				.getColumnIndex(PlaceBadgesContract.LON));
+		String flagBitmapPath = cursor.getString(cursor.getColumnIndex(PlaceBadgesContract.FLAG_BITMAP_PATH));
+		String countryName = cursor.getString(cursor.getColumnIndex(PlaceBadgesContract.COUNTRY_NAME));
+		String placeName = cursor.getString(cursor.getColumnIndex(PlaceBadgesContract.PLACE_NAME));
+		double lat = cursor.getDouble(cursor.getColumnIndex(PlaceBadgesContract.LAT));
+		double lon = cursor.getDouble(cursor.getColumnIndex(PlaceBadgesContract.LON));
 
-		return new PlaceRecord(null, flagBitmapPath, countryName, placeName,
-				lat, lon);
-
+		return new PlaceRecord(null, flagBitmapPath, countryName, placeName, lat, lon);
+	}
+	
+	private ContentValues getContentFromPlaceRecord(PlaceRecord record) {
+		ContentValues values = new ContentValues();
+		
+		values.put(PlaceBadgesContract.FLAG_BITMAP_PATH, record.getFlagBitmapPath());
+		values.put(PlaceBadgesContract.COUNTRY_NAME, record.getCountryName());
+		values.put(PlaceBadgesContract.PLACE_NAME, record.getPlace());
+		values.put(PlaceBadgesContract.LAT, record.getLat());
+		values.put(PlaceBadgesContract.LON, record.getLon());
+		
+		return values;
 	}
 
 	public int getCount() {
@@ -136,8 +139,7 @@ public class PlaceViewAdapter extends CursorAdapter {
 
 	public void add(PlaceRecord listItem) {
 
-		String lastPathSegment = Uri.parse(listItem.getFlagUrl())
-				.getLastPathSegment();
+		String lastPathSegment = Uri.parse(listItem.getFlagUrl()).getLastPathSegment();
 		String filePath = mBitmapStoragePath + "/" + lastPathSegment;
 
 		if (storeBitmapToFile(listItem.getFlagBitmap(), filePath)) {
@@ -145,16 +147,10 @@ public class PlaceViewAdapter extends CursorAdapter {
 			listItem.setFlagBitmapPath(filePath);
 			list.add(listItem);
 
-			// TODO - Insert new record into the ContentProvider
-
-			
-
-		
-        
-        
-        
-        }
-
+			Log.d(TAG, "adding the next place record: " + listItem.getCountryName());
+			mContext.getContentResolver().insert(PlaceBadgesContract.CONTENT_URI, getContentFromPlaceRecord(listItem));
+			mContext.getContentResolver().notifyChange(PlaceBadgesContract.CONTENT_URI, null);        
+		}
 	}
 
 	public ArrayList<PlaceRecord> getList() {
@@ -164,13 +160,8 @@ public class PlaceViewAdapter extends CursorAdapter {
 	public void removeAllViews() {
 
 		list.clear();
-
-		// TODO - delete all records in the ContentProvider
-
-
-        
-        
-        
+		mContext.getContentResolver()
+			.delete(PlaceBadgesContract.CONTENT_URI, null, null);        
 	}
 
 	@Override

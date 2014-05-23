@@ -1108,3 +1108,29 @@ actual time, in terms of seconds instead of epochs?
 * system can catch up to latest in two epochs
 * metrics can be published in real time instead of epochs
 * this is simply keeping a bounded amount of epoch history
+
+============================================================
+DynamoDB with Kinesis
+============================================================
+
+------------------------------------------------------------
+Summary
+------------------------------------------------------------
+
+* data plane
+* control plane
+* update streams
+* chain replication
+* alfbus required signature and forbidden signature
+  - reject if FS exists
+  - fail if RS does not exist
+  - these signatures are a sliding window of hashset
+  - can verify ordering and de-duplication for an N size window
+* pipelined puts to alfbus
+  - asynchronous stumpy
+  - persistent connections to services
+* storage nodes stream to an agnostic set of alfbus
+  - demux makes an order window buffer
+  - debux then uses control plane to write to table specific stream
+  - this is exposed through the read stream
+  - alf is used to manage the fleet and elect a scheduler node

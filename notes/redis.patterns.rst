@@ -7,8 +7,13 @@ http://shop.oreilly.com/product/0636920020127.do
 http://www.paperplanes.de/2010/2/16/a_collection_of_redis_use_cases.html
 
 --------------------------------------------------------------------------------
-Locks
+Todo
 --------------------------------------------------------------------------------
+
+* locks
+* pub/sum message bus
+* user cardinality
+* score board
 
 --------------------------------------------------------------------------------
 Write Buffer

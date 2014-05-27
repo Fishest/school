@@ -337,7 +337,7 @@ involves minimizing an objective function `f(s)`.
         '''
         possible = initial_solution()  // possibly greedy
         optimal  = possible            // save the best solution
-        for k in range(1 to MaxTrials):
+        for k in range(1, MaxTrials):
             if satisfiable(possible) and f(possible) < f(optimal):
                 optimal = possible
             possible = S(L(N(possible), possible), possible)
@@ -419,5 +419,179 @@ the search towards a global minima and typically does this using
 some memory or learned informatin.
 
 --------------------------------------------------------------
-VIDEO 4-8
+Iterated Local Search (Escaping Local Minima)
 --------------------------------------------------------------
+
+This works by starting from many different points and proceed
+with the gradient descent until you reach a local minima. At
+the end of `N` trials, simply choose the best minima. This
+approach is generic as it can be combined with other metaheuristics
+and also allows for multistarts or restarts.
+
+.. code-block:: python
+
+    def iterated_local_search(f, N, L, S):
+        current = get_initial_solution()
+        minima  = current
+        for _ in range(1, max_searches):
+            current = local_search(f, N, L, S, current)
+            if f(current) < f(minima):
+                minima = current
+            current = generate_new_solution(current)
+        return minima
+
+**Metropolis Heuristic** works by accepting a move if it
+improves the objective value, or in the case it does not
+with some probability. The proability is based on how `bad`
+the move is. This is inspired by statistical physics. The
+probability is chosen as follows:
+
+.. code-block:: python
+
+    def metropolis[t](N, s):
+        n = random.choice(N) # 1/n
+        if f(n) <= f(s): return n
+        elif random.coin(exp(-(f(n) - f(s)) / t)):
+            return n
+        else: return s
+
+This can be combined with changing the temperate to create
+simulated annealing. For this to work, simply start with a
+high temperate (roughly a random walk) and slowly cool until
+the temperature is low enough (it then devolves into a
+greedy search). The movement for the heuristic is then defined
+as follows:
+
+* **large delta**   - small probability of accepting a bad move
+* **large temp(t)** - high probability of accepting a bad move (random walk)
+* **small temp(t)** - low probability of accepting a bad move
+
+.. code-block:: python
+
+    def simulated_annealing(f, N):
+        current = get_initial_solution()
+        temp    = get_initial_temperature()
+        minima  = current
+        for _ in range(1, max_searches):
+            current = local_search(f, N, local_all, metropolis[temp], current)
+            if f(current) < f(minima): minima = current
+            temp = update_temperature(current, temp)
+        return minima
+
+If the neighborhood is connected, then simulated annealing is
+guaranteed to converge to a global optimum. However, if you
+use a slow schedule then the algorithm is actually slower than
+an exhaustive search. In practice this is not the case as a
+linear temperature schedule (`t_{k + 1} = a * t_k`) is reasonably
+fast. Other techniques can be used as well like: restarts, reheats,
+and tabu search.
+
+There are a number of other metaheuristics that can be used as well:
+
+* **variable neighborhood search**
+* **guided local search**
+* **ant-colony optimaztion**
+* **hybrid evolutionary algorithms**
+* **scatter search**
+* **reactive search**
+
+--------------------------------------------------------------
+Tabu Search
+--------------------------------------------------------------
+
+**Tabu Search** basically works by attempting to walk out of a local
+minima to enter a neighboring minima that is better. The technique to
+prevent visiting the same nodes and going back where we came from is
+to label the nodes that we have already visited (marked tabu).
+
+.. code-block:: python
+
+    def local_search(f, N, L, S, s1):
+        current = s1
+        optimal = current
+        tabuset = set([current])
+        for k in range(1, MaxTrials):
+            if satisfiable(current) and f(current) < f(optimal):
+                optimal = current
+            current = S(L(N(current), tabuset), tabuset)
+        return optimal
+
+    def not_tabu(N, tabuset):
+        return set(n for n in N if n not in tabuset)
+
+    def tabu_search(f, N, s):
+        return local_search(f, N, not_tabu, best_neighbor)
+
+However, tabu search has one major issue which is that it is
+expensive to maintain the list of visited nodes. The solution
+to this is to keep a short term memory with a small suffix of
+visited nodes (called the tabu list). This list can also be
+resized dynamically:
+
+* decrease when the selected node degrades the objective
+* increase when the selected node improves the objective
+
+However, this may still be too big which may require us to
+store and compare the entire solution. We can instead keep
+an abstraction of the suffix (many solutions). One solution
+is to store the transitions, not the states:
+
+1. keep an iteration counter `it`
+2. keep a data structure `tabu[i,j]` which stores
+
+   a. an iteration number when pair `(i,j)` can be swapped
+   b. not legal to swap this pair before
+   c. `\is_tabu   i,j -> tabu[i, j] >= it`
+   d. `\make_tabu i,j -> tabu[i, j]  = it + L`
+
+3. assume a tabu list size of `L`
+4. if all the moves are tabu
+
+   a. simply wait and don't move
+   b. the counter keeps incrementing
+   c. at some point some move will not be tabu any more
+
+In practice, the implementation does not perform the swaps
+to find the best ones. The effect of the potential moves
+is computed incrementally (differentiation).
+
+This abstraction is weak in the sense that it cannot
+prevent cycling since the tabu list only considers
+suffixes. However, it is too strong as it may prevent
+the algorithm from going to configurations that have
+not yet been visited. The swaps would produce different
+configurations that are forbidden by the tabu list. We
+can strengthening the abstraction by storing the
+transitions along with the objective values. Then you
+can compare the transition and the objective function
+value to see if we are doing the same transition.
+
+Another example is for the N-Queens problem; the
+abstraction is `tabu[x, v]` where the `x` is the
+row of the queen and `v` is the previous value of
+that queen. This can be made even more coarse:
+
+* make the variable tabu (after an assignment)
+* keep it tabu for a number of iterations
+* asperation criterion (override the tabu status)
+ 
+There are long term memory techniques that can also
+be used to assist tabu search (this works very well
+with simulated annealing):
+
+* **Intensification**
+  This works by storing the high-quality solutions
+  and returning to them periodically, say when you
+  are following a long search that isn't improving.
+
+* **Diversification**
+  This works by randomly chaning some of the values
+  of some of the variables if you are in a current
+  search space that is not improving. This can place
+  you somewhere in the search space which might be
+  closer to an optimal solution.
+
+* **Strategic Oscillation**
+  This works by simply changing the percentage of
+  time spent in the feasible and infeasible regions
+  of the search space.

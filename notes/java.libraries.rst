@@ -174,7 +174,7 @@ ways:
     verifyNoMoreInteractions(mock);
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Mockito/Hamcrest Matchers
+Mockito / Hamcrest Matchers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you use argument matchers, then all arguments must be supplied by matchers,

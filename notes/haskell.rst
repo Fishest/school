@@ -1,3 +1,7 @@
+================================================================================
+Learn You A Haskell For Great Good
+================================================================================
+
 --------------------------------------------------------------------------------
  Starting Out 
 --------------------------------------------------------------------------------
@@ -68,7 +72,9 @@
   - Integral (Int, Integer), Floating (Float, Double)
   - Use fromIntegral to convert Integral to Num
 
-Here are some examples of the class constraints in action::
+Here are some examples of the class constraints in action:
+
+.. code-block:: haskell
 
     ; read
     read "True" || False
@@ -88,7 +94,9 @@ Here are some examples of the class constraints in action::
  Syntax in Functions
 --------------------------------------------------------------------------------
 
-Examples of pattern matching::
+Examples of pattern matching:
+
+.. code-block:: haskell
 
     lucky :: (Integral a) => a -> String
     lucky 7 = "lucky number"
@@ -107,7 +115,9 @@ Examples of pattern matching::
     third  :: (a,b,c) -> c
     third     (_,_,c)  = c
 
-Can pattern match on many things in haskell::
+Haskell allows the user to pattern match on many things:
+
+.. code-block:: haskell
 
     -- list comprehensions
     xs = [(1,2), (3, 4), (5,6)]
@@ -156,17 +166,21 @@ Can pattern match on many things in haskell::
     calcBmi :: (RealFloat a) => [(a, a)] -> [a]
     calcBmi xs = [bmi | (w, h) <- xs, let bmi = w / h ^ 2, bmi >= 25.0]
 
-  - Can match lists on any pattern of `:`
-  - lookup order is defined as top to bottom
-  - always define a catch all, otherwise you are going to throw
-  - in list comprehensions, a failure will just skip the element
-  - to split a patten and keep the original `all@(x:xs)`
-  - guards are basically cond statements (scala style)
-  - if no otherwise is defined and no match is made, an error is thrown
-  - where clauses are local to the guard (not global namespace)
-  - where clauses can be nested
+The following asides may be useful:
 
-Let bindings are expressions give immediate scope (not across guards)::
+- Can match lists on any pattern of `:`
+- lookup order is defined as top to bottom
+- always define a catch all, otherwise you are going to throw
+- in list comprehensions, a failure will just skip the element
+- to split a patten and keep the original `all@(x:xs)`
+- guards are basically cond statements (scala style)
+- if no otherwise is defined and no match is made, an error is thrown
+- where clauses are local to the guard (not global namespace)
+- where clauses can be nested
+
+Let bindings are expressions give immediate scope (not across guards):
+
+.. code-block:: haskell
 
     ; let bindings
     let <bindings> in <expression>
@@ -176,7 +190,9 @@ Let bindings are expressions give immediate scope (not across guards)::
           toparea  = pi * 2 ^ 2
       in  sidearea + 2 * toparea
 
-Case (expressions) are basically pattern matchers::
+Case (expressions) are basically pattern matchers:
+
+.. code-block:: haskell
 
     case expression of pattern -> result
                        pattern -> result
@@ -192,7 +208,9 @@ Case (expressions) are basically pattern matchers::
  Recursion
 --------------------------------------------------------------------------------
 
-In haskell, describe what something is and not how to get it::
+In haskell, describe what something is and not how to get it:
+
+.. code-block:: haskell
 
     replicate' :: (Num i, Ord i) => i -> a -> [a]  -- multiple interfaces for i
     replicate' n x  
@@ -231,12 +249,16 @@ In haskell, describe what something is and not how to get it::
 
 Functions in haskell take a maximum of one argument (the rest are curried).
 Here is a quick example of function application / partially applied functions
-(currying)::
+(currying):
+
+.. code-block:: haskell
   
     let minOf4 = max 4
     minOf4 2
 
-Higher order functions == functions as data::
+Higher order functions == functions as data:
+
+.. code-block:: haskell
 
     apply2 :: (a -> a) -> a -> a -- function -> input -> return
     apply2 f x = f (f x)
@@ -250,7 +272,9 @@ Higher order functions == functions as data::
     flip' f x y = f y x
 
 `map` function takes a function and a list and applies that function to each
-element in the list::
+element in the list:
+
+.. code-block:: haskell
 
     map :: (a -> b) [a] -> [b]
     map _ [] = []
@@ -259,7 +283,9 @@ element in the list::
     [f x | x <- xs] -- essentially map
 
 `filter` takes a predicate and a list and extracts the elements
-where the predicate is true::
+where the predicate is true:
+
+.. code-block:: haskell
 
     filter :: (a -> Bool) -> [a] -> [a]
     filter _ [] = []
@@ -270,12 +296,16 @@ where the predicate is true::
     [x | x <- xs, f x] -- essentially filter
 
 `takeWhile` lets you consume an infinite list until a predicate
-evaluates to false. Also, interesting::
+evaluates to false. Also, interesting:
+
+.. code-block:: haskell
 
     let listofFuncs = map (*) [0..] -- [(0*), (1*), (2*)...]
     ((listofFuncs !! 4) 5)  -- (4*) 5
 
-Here are examples of anonymous functions with lambdas::
+Here are examples of anonymous functions with lambdas:
+
+.. code-block:: haskell
 
     (\xs -> length xs > 15) [1,2,3,4,5]
 
@@ -288,7 +318,11 @@ Here are examples of anonymous functions with lambdas::
     example x y z = x + y + z
     example = \x -> \y -> \z -> x + y + z
 
-Here be folds::
+--------------------------------------------------------------------------------
+Here Be Folds
+--------------------------------------------------------------------------------
+
+.. code-block:: haskell
  
     -- fold left folds from the left
     sum' :: (Num a) => [a] -> a
@@ -307,7 +341,9 @@ Here be folds::
     -- foldl1 foldr1 use the first or last value as the starting accumulator
     -- make sure there is at least one element though or they will throw
 
-You can rebuild the world with folds::
+You can rebuild the world with folds:
+
+.. code-block:: haskell
 
     max :: (Ord a) => [a] -> a
     max = foldr1 (\x acc -> if x > acc then x else acc)
@@ -332,13 +368,17 @@ You can rebuild the world with folds::
 
     foldl f a xs = foldr (\x g a -> g(f x a)) id xs a
 
-Scanning records the intermediate accumulator states::
+Scanning records the intermediate accumulator states:
+
+.. code-block:: haskell
 
     scanl (+) 0 [3,5,2,1] -- [0,1,3,8,11]
     scanr (+) 0 [3,5,2,1] -- [11,8,3,1,0]
     -- scanl1 and scanr1 also exist
 
-Can change the function application to right associative with $::
+Can change the function application to right associative with `$`:
+
+.. code-block:: haskell
 
     sum (map sqrt [1..130])
     sum $ map sqrt [1..130] -- same effect
@@ -350,7 +390,9 @@ Can change the function application to right associative with $::
     -- so we can map the application on to other functions
     map ($ 3) [(4+), (10*), (^2), sqrt]
 
-Can also do function composition with this operator (.)::
+Can also do function composition with this operator `(.)`:
+
+.. code-block:: haskell
 
     (.) :: (b -> c) -> (a -> b) -> a -> c
     f . g = \x -> f $ g x
@@ -376,7 +418,9 @@ Can also do function composition with this operator (.)::
 --------------------------------------------------------------------------------
 
 The Prelude module is imported by default and contains all common methods.
-Modules must be imported before defining any functions::
+Modules must be imported before defining any functions:
+
+.. code-block:: haskell
 
     import <module name>                        -- import all of module
     import <module name> (function1, function2) -- only import fx1 and fx2
@@ -384,7 +428,9 @@ Modules must be imported before defining any functions::
     import qualified <module name>              -- import with fq name
     import qualified <module name> as M         -- import with fq name of M
 
-Contents of Data.List::
+Contents of Data.List:
+
+.. code-block:: haskell
 
     intersperse '.' "name"          -- "n.a.m.e"
     intercalate [1,1] [[2,2],[3,3]] -- [2,2,1,1,3,3]
@@ -437,7 +483,9 @@ Contents of Data.List::
     
     sortBy (compare `on` sum) [[1,2,3],[4,5,6], [7,8,9]]
 
-Data.Char is full of methods to test if the char is X::
+Data.Char is full of methods to test if the char is X:
+
+.. code-block:: haskell
 
     any isSpace "my name is" -- True
     all isSpace "my name is" -- False
@@ -794,7 +842,9 @@ in xs. They can also be partially applied::
     [(+), (*)] <$> [1,2] <*> [3,4] -- [4,5,5,6,3,4,6,8]
     (+) <$> (+3) <*> (*100) $ 5 -- 508
 
-ZipList can be used to apply a list of applicative functors to a list of elements::
+ZipList can be used to apply a list of applicative functors to a list of elements:
+
+.. code-block:: haskell
 
     -- ZipList doesn't implement show, so getZipList is used
     -- (,) == \x y -> (x,y)
@@ -808,7 +858,9 @@ ZipList can be used to apply a list of applicative functors to a list of element
     -- liftA2 converts a binary function to an applicative function
     liftA2 (:) (Just 3) (Just [4]) -- Just [3,4]
 
-How could we apply a list of applicatives (say [Just 1, Just 2, Just 3]::
+How could we apply a list of applicatives (say [Just 1, Just 2, Just 3]:
+
+.. code-block:: haskell
 
     sequenceA :: (Applicative f) => [f a] -> f [a]  
     sequenceA [] = pure []  
@@ -816,7 +868,9 @@ How could we apply a list of applicatives (say [Just 1, Just 2, Just 3]::
     -- or with a fold
     sequenceA = foldr (liftA2 (:)) (pure [])  
 
-An example of checking a value against a list of predictes::
+An example of checking a value against a list of predictes:
+
+.. code-block:: haskell
 
     map (\f -> f 7) [(>4),(<10),odd]		-- [True,True,True]  
     and $ map (\f -> f 7) [(>4),(<10),odd]	-- True
@@ -824,14 +878,16 @@ An example of checking a value against a list of predictes::
     sequenceA [(>4),(<10),odd] 7
     and $ sequenceA [(>4),(<10),odd] 7
 
-  - sequenceA converts (Num a) => [a -> Bool] into (Num a) => a -> [Bool]
+    // sequenceA converts (Num a) => [a -> Bool] into (Num a) => a -> [Bool]
 
 --------------------------------------------------------------------------------
  newtype
 --------------------------------------------------------------------------------
 
 One can define new types that are simple wrappers with `newtype`, which is
-helpful because it is faster on the runtime than using data::
+helpful because it is faster on the runtime than using data:
+
+.. code-block:: haskell
 
     newtype ZipList a = ZipList { getZipList :: [a] }
     newtype ZipList a = ZipList { getZipList :: [a] } deriving (Eq, Show)
@@ -847,7 +903,9 @@ helpful because it is faster on the runtime than using data::
 --------------------------------------------------------------------------------
 
 A monoid is when you have an associative binary function and a value which
-acts as an identity with respect to that function::
+acts as an identity with respect to that function:
+
+.. code-block:: haskell
 
     -- defined in import Data.Monoid
     mempty			-- polymorphic constant for identity value
@@ -855,7 +913,9 @@ acts as an identity with respect to that function::
     mconcat			-- takes a list of monoid values and reduces them with mappend
                     -- the default implementation is just a foldr with mappend
 
-The monoid laws are as follows::
+The monoid laws are as follows:
+
+.. code-block:: haskell
 
     mempty `mappend` x = x
     x `mappend` mempty = x
@@ -867,7 +927,9 @@ The monoid laws are as follows::
     bool -> False and || (any)
     bool -> True and && (all)
 
-Here is an example newtype wrapper for the monoid::
+Here is an example newtype wrapper for the monoid:
+
+.. code-block:: haskell
 
     newtype All = All { getAll :: Bool }  
         deriving (Eq, Ord, Read, Show, Bounded)  
@@ -884,7 +946,9 @@ Reader/Writer Monad
 State Monad
 --------------------------------------------------------------------------------
 
-How to make the random module stateful::
+How to make the random module stateful:
+
+.. code-block:: haskell
 
     import System.Random  
     import Control.Monad.State  
@@ -903,7 +967,9 @@ How to make the random module stateful::
 Either Monad
 --------------------------------------------------------------------------------
 
-Either a b can either be a Right value (success) or Left (failure)::
+Either a b can either be a Right value (success) or Left (failure):
+
+.. code-block:: haskell
 
     import Control.Monad.Error
 
@@ -914,7 +980,9 @@ Either a b can either be a Right value (success) or Left (failure)::
 Monad Tools
 --------------------------------------------------------------------------------
 
-Here are some helper methods that can be used with monads::
+Here are some helper methods that can be used with monads:
+
+.. code-block:: haskell
 
     liftM (is actually fmap, or <$>)
     fmap  :: (Functor f) => (a -> b) -> f a -> f b
@@ -939,7 +1007,9 @@ Here are some helper methods that can be used with monads::
     liftA2 == liftM2
     liftAN == liftMN
 
-We can flatten any nested monad type with `join`::
+We can flatten any nested monad type with `join`:
+
+.. code-block:: haskell
 
     join :: (Monad m) => m (m a) -> m a
     join mm = mm >>= \x -> x
@@ -953,7 +1023,9 @@ We can flatten any nested monad type with `join`::
     join (Right (Left "shit")) :: Either String Int         -- Left "shit"
     runState (join (State $ \s -> (push 10,1:2:s))) [0,0,0] -- ((), [10, 1,2,0,0,0])
 
-We can filter with context with `filterM`::
+We can filter with context with `filterM`:
+
+.. code-block:: haskell
 
     filter (\x -> x < 4) [1,2,3,4,5,6]
     keepSmall :: Int -> Writer [String] Bool
@@ -971,7 +1043,9 @@ We can filter with context with `filterM`::
     powerset :: [a] -> [[a]]
     powerset xs = filterM (\x -> [True, False]) xs
 
-we can do monadic foldl with `foldM`::
+We can do monadic foldl with `foldM`:
+
+.. code-block:: haskell
 
     foldl :: (a -> b -> a) -> a -> [b] -> a  
     foldl (\acc x -> acc + x) 0 [2,8,3,1]       -- 14
@@ -984,15 +1058,17 @@ we can do monadic foldl with `foldM`::
     foldM binSmalls 0 [2,8,3,1]                 -- Just 14
     foldM binSmalls 0 [2,81,3,1]                -- Nothing
 
-monadic composition is `<=<` which is equal to `.`::
+Monadic composition is `<=<` which is equal to `.`:
 
-    let f = (+1) . (*100)  
+.. code-block:: haskell
+
+    let f = (+1) . (\*100)
     f 4             -- 401
     
     let g = (\x -> return (x+1)) <=< (\x -> return (x*100))  
     Just 4 >>= g    -- 401
 
-    let f = foldr (.) id [(+1),(*100),(+1)]  
+    let f = foldr (.) id [(+1),(\*100),(+1)]  
     f 3             -- 401
 
 
@@ -1007,7 +1083,9 @@ Making a monad
 --------------------------------------------------------------------------------
 
 Deterministic list with Rationals to be precise (1%4 instead of 0.25),
-(note, the percentages should add to 1)::
+(note, the percentages should add to 1):
+
+.. code-block:: haskell
 
     import Data.Ratio
     

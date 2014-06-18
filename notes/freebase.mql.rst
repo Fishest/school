@@ -124,3 +124,4 @@ the graph in terms of objects; for example::
       }
     }
 
+.. todo:: finish notes

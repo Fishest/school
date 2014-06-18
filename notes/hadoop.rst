@@ -29,7 +29,9 @@ Chapter 1
 * mapreduce handles the pipeline between methods (collection and iteration)
   and output final results to files.
 
-Example::
+Example:
+
+.. code-block:: java
 
     map(String filename, String document) {
         List<String> T = tokenize(document);

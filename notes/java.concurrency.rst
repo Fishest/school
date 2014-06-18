@@ -1,17 +1,21 @@
-============================================================ 
+============================================================
+Java Concurrency In Practice
+============================================================
+
+-------------------------------------------------------------
 Chapter 2
-============================================================ 
+-------------------------------------------------------------
 
 One can use the java.util.concurrent.atomic types to perform
 atomic operations using the most performant native operations
 available: cas, load linked/store conditional, or spin locks:
 
-* AtomicReference<T>
-* AtomicInteger
-* AtomicLong
-* AtomicBoolean
-* AtomicReferenceFieldUpdater<T,V>
-* AtomicReferenceArray<T>
+* `AtomicReference<T>`
+* `AtomicInteger`
+* `AtomicLong`
+* `AtomicBoolean`
+* `AtomicReferenceFieldUpdater<T,V>`
+* `AtomicReferenceArray<T>`
 
 The java syncronized block performc implicit locking of any
 reference type (which can be used as implicit locks) this
@@ -41,9 +45,9 @@ then it is allowed to increment the entry count. Otherwise it
 is blocked.
 
 
-------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Section Keynotes:
-------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * To preserve state consistency, update related state
   variables in a single atomic operation.
@@ -51,9 +55,9 @@ Section Keynotes:
   all the variables involved in that invariant must be
   guarded by the same lock.
 
-============================================================ 
+-------------------------------------------------------------
 Chapter 3
-============================================================ 
+-------------------------------------------------------------
 
 Not only do we want to make sure atomic operations are
 synchronized, we also want to make sure other threads see
@@ -139,9 +143,9 @@ possible).  A properly constructed object can be safely published by:
 * Storing a reference to it into a field that is properly guarded by a lock
 
 
-------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Section Keynotes:
-------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * In the absence of synchronization, the compiler, processor,
   and runtime can do some downright weird things to the order
@@ -165,9 +169,9 @@ Section Keynotes:
 * Safely published effectively immutable objects can be used
   safely by any thread without additional synchronization.
 
-============================================================ 
+-------------------------------------------------------------
 Chapter 4
-============================================================ 
+-------------------------------------------------------------
 
 The design process for a thread safe class should include
 these three basic elements:
@@ -279,9 +283,9 @@ the atomic gurantee cannot be held:
     }
 
 
-------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Section Keynotes:
-------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * You cannot ensure thread safety without understanding an
   object's invariants and post conditions. Constraints on the
@@ -298,9 +302,9 @@ Section Keynotes:
   document its synchronization policy for its maintainers.
 
 
-============================================================ 
+-------------------------------------------------------------
 Chapter 5
-============================================================ 
+-------------------------------------------------------------
 
 The synchronized collections include Vector, Hashtable, and
 the Collections.synchronizedXxx factory wrappers. These guard
@@ -555,17 +559,17 @@ particle simulations (update new position of each particle
 before next step). Exchanger is another barrier that allows
 two threads to exchange some data as the barrier step.
 
-------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Section Keynotes:
-------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * For CPU bound problems #CPU or #CPU + 1 is the ideal number
   of threads to use to parallelize a problem. More threads
   will not help.
 
-============================================================ 
+-------------------------------------------------------------
 Chapter 6: Task Execution
-============================================================ 
+-------------------------------------------------------------
 
 java.util.concurrent provides a flexible thread pool
 implementation based on the Executor framework that accepts
@@ -729,9 +733,9 @@ CPU time:
         return page;
     }
 
-============================================================ 
+-------------------------------------------------------------
 Chapter 7: Cancellation and Shutdown
-============================================================ 
+-------------------------------------------------------------
 
 Thread.stop and Thread.suspend should be avoided for managing
 threads. Threads can be stopped for a variety of issues:
@@ -1075,9 +1079,9 @@ Can also create normal threads that are children of the
 current JVM, or daemon threads that can run after the JVM
 parent shutdown.
 
-------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Section Keynotes:
-------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * There is nothing in the API or language specification that
   ties interruption to any specific cancellation semantics,
@@ -1099,9 +1103,9 @@ Section Keynotes:
   managing the lifecycle of services within an application.
 * Avoid finalizers (they jack up the GC)
 
-============================================================ 
+-------------------------------------------------------------
 Chapter 8: Applying Thread Pools
-============================================================ 
+-------------------------------------------------------------
 
 If your thread pool is used to query JDBC, be wary of how
 many connections are allowed in JDBC, otherwise one will be
@@ -1230,9 +1234,9 @@ changed after the fact (except for the SingleThreadExecutor):
 page 111
 
 
-------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Section Keynotes:
-------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * Some tasks have characteristics that require or preclude a
   specific execution policy. Tasks that depend on other tasks
@@ -1248,9 +1252,9 @@ Section Keynotes:
   constraints in the code or configuration file where the
   Executor is configured.
 
-============================================================ 
+-------------------------------------------------------------
 Chapter 9: GUI Applications
-============================================================ 
+-------------------------------------------------------------
 
 Here is an example of creating a SwingUtility class using
 the executor:
@@ -1325,9 +1329,9 @@ event:
     }});
 
 
-------------------------------------------------------------
-section keynotes:
-------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Section Keynotes:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * The Swing single thread rule: Swing components and models
   should be created, modified, and queried only from the
@@ -1338,13 +1342,13 @@ section keynotes:
   consistency, or complexity reasons.
 
 
-============================================================ 
+-------------------------------------------------------------
 Chapter 10:
-============================================================ 
+-------------------------------------------------------------
 
-------------------------------------------------------------
-section keynotes:
-------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Section Keynotes:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * A program will be free of lock-ordering deadlocks if all
   threads acquire the locks they need in a fixed global
@@ -1363,9 +1367,9 @@ section keynotes:
   for all threads.
 
 
-============================================================ 
+-------------------------------------------------------------
 Chapter 11:
-============================================================ 
+-------------------------------------------------------------
 
 There are three ways to reduce lock contention:
 
@@ -1374,9 +1378,9 @@ There are three ways to reduce lock contention:
 * Replace exclusive locks with coordination mechanisms that
   permit greater concurrency.
 
-------------------------------------------------------------
-section keynotes:
-------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Section Keynotes:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * Scalability describes the ability to improve throughput or
   capacity when additional computing resources (such as
@@ -1395,13 +1399,13 @@ section keynotes:
 * Allocating objects is usually cheaper than synchronizing.
 
 
-============================================================ 
+-------------------------------------------------------------
 Chapter 12:
-============================================================ 
+-------------------------------------------------------------
 
-------------------------------------------------------------
-section keynotes:
-------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Section Keynotes:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * The challenge to constructing effective safety tests for
   concurrent classes is identifying easily checked properties
@@ -1426,9 +1430,9 @@ section keynotes:
 
 
 
-============================================================ 
+-------------------------------------------------------------
 Chapter 13:
-============================================================ 
+-------------------------------------------------------------
 
 Instead of using intrinsic locks, one can use explicit locks
 which have the following interface:
@@ -1503,9 +1507,9 @@ And it can be used as follows:
     }
 
 
-------------------------------------------------------------
-section keynotes:
-------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Section Keynotes:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * Performance is a moving target; yesterday's benchmark
   showing that X is faster than Y may already be out of date
@@ -1518,9 +1522,9 @@ section keynotes:
 
 
 
-============================================================ 
+-------------------------------------------------------------
 Chapter 14: Building Custom Synchronizers
-============================================================ 
+-------------------------------------------------------------
 
 In order to block a queue on conditions instead of using a
 check and then sleep operation, use condition queues:
@@ -1810,9 +1814,9 @@ Here is the implementation of Semaphore:
         }
     }
 
-------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Section Keynotes:
-------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * Document the condition predicate(s) associated with a
   condition queue and the operations that wait on them.
@@ -1830,9 +1834,9 @@ Section Keynotes:
   extends Object, which means that it also has wait and notify
   methods. Be sure to use the proper versions await and signal.
 
-============================================================ 
+-------------------------------------------------------------
 Chapter 15: Atomic Variables and Non-Blocking Syn
-============================================================ 
+-------------------------------------------------------------
 
 Instead of using heavy weight locks, finer grained operations
 can be used (which aer effectively used to implement the
@@ -1980,9 +1984,9 @@ B and back to A) can be prevented by adding a version number to
 the changed value. This can be performed by
 `AtomicStampedReference` or `AtomicMarkableReference`
 
-============================================================ 
+-------------------------------------------------------------
 Chapter 16: Java Memory Model
-============================================================ 
+-------------------------------------------------------------
 
 The rules for happens before are:
 

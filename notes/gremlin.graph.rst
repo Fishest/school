@@ -95,3 +95,5 @@ Tree
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The traversal path through the graph can be viewed and represented as a tree.
+
+.. todo:: finish notes

@@ -66,19 +66,21 @@ language into something that you can build an internal DSL on.*
 
 Two(ish) types of DSLs:
 
-  * *imperative dsl* specifies a list of steps to execute (what you
+  * **imperative dsl** specifies a list of steps to execute (what you
     want to do). Example: build scripts.
-  * *declarative dsl* is a specification of a goal (what you want
+  * **declarative dsl** is a specification of a goal (what you want
     done). Example: sql, regex.
   * hyrbrid of the two
 
 A DSL is composed of the following:
 
-  * *syntax* - the core language of the syntax extensions
-  * *api* - the api used in the dsl
-  * *model* - the existing code base or facade to back up to
-  * *engine* - the runtime engine that processes our dsl
+  * **syntax** - the core language of the syntax extensions
+  * **api** - the api used in the dsl
+  * **model** - the existing code base or facade to back up to
+  * **engine** - the runtime engine that processes our dsl
 
 ------------------------------------------------------------
 DDD and DSLs (55)
 ------------------------------------------------------------
+
+.. todo:: page 55

@@ -269,4 +269,4 @@ can be used to send to remote actors without having to query ahead of time.
 Location Transparency
 --------------------------------------------------------------------------------
 
-page 24
+.. todo:: page 24

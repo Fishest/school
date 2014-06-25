@@ -441,7 +441,7 @@ Contents of Data.List:
     and or                          -- boolean and/or on a list
     any (==4) [1,2,3,4]             -- True
     all (==4) [1,2,3,4]             -- False
-    take 5 $ iterate (*2) 1         -- [1,2,4,8,16]
+    take 5 $ iterate (\*2) 1         -- [1,2,4,8,16]
     splitAt 3 "galen"               -- ("gal", "en")
     takeWhile (/=' ') "this is a"   -- "this"
     dropWhile (/=' ') "this is a"   -- " is a"
@@ -502,7 +502,9 @@ Data.Char is full of methods to test if the char is X:
     decode :: Int -> String -> String
     decode shift msg = encode (negate shift) msg
 
-Contents of Data.Map (also known as a dictionary...or an ordered tuple tree)::
+Contents of Data.Map (also known as a dictionary...or an ordered tuple tree):
+
+.. code-block:: haskell
     
     -- to import fully qualified, `import qualified Data.Map as Map`
     fromList                         -- converts a list of tuples to a map
@@ -524,7 +526,9 @@ Contents of Data.Map (also known as a dictionary...or an ordered tuple tree)::
     fromListWith max [(1,0), (1,9)]  -- [(1,9)]
     fromListWith (+) [(1,4), (1,5)]  -- [(1,9)]
     
-Contents of Data.Set::
+Contents of Data.Set:
+
+.. code-block:: haskell
 
     -- to import fully qualified, `import qualified Data.Set as Set`
     fromList "hello world"           -- "dehlorw"
@@ -539,7 +543,9 @@ Contents of Data.Set::
     -- it is faster to get a unique list by converted to and from a set than by using nub
     setNub xs = Set.toList $ Set.fromList xs -- however this breaks the original ordering
 
-To define your own module, simply do the following::
+To define your own module, simply do the following:
+
+.. code-block:: haskell
 
     module Geometry.Sphere -- located in Geometry/Sphere.hs
     ( sphereVolume  -- specifically define which functions are exported
@@ -556,7 +562,9 @@ To define your own module, simply do the following::
  Making Types and Typeclasses
 --------------------------------------------------------------------------------
 
-One can define new data types quickly with the data keyword::
+One can define new data types quickly with the data keyword:
+
+.. code-block:: haskell
 
     data Bool = False | True
     data Point = Point Float Float deriving (Show)
@@ -599,13 +607,17 @@ One can define new data types quickly with the data keyword::
 
 Use maybe if you know why it failed (one error condition). Use either
 if there are multiple reasons why the failure occurred and we need to
-know why::
+know why:
+
+.. code-block:: haskell
     
     data Either a b = Left a | Right b deriving (Eq, Ord, Read, Show)
     Left  "this is the error condition"
     Right "this is the success result"
 
-Type synonyms give us a better name (typedef), are not ctors, just types::
+Type synonyms give us a better name (typedef), are not ctors, just types:
+
+.. code-block:: haskell
 
     type String = [Char]
     type PhoneNumber = String  
@@ -618,7 +630,9 @@ Type synonyms give us a better name (typedef), are not ctors, just types::
     type AssocList k v = [(k,v)]   -- parameterized types
     type IntMap v = Map Int v      -- partially applied types
 
-We can use these to make a tree type::
+We can use these to make a tree type:
+
+.. code-block:: haskell
 
     data Tree a = EmptyTree | Node a (Tree a) (Tree a) deriving (Show, Read, Eq)
     
@@ -642,7 +656,9 @@ We can use these to make a tree type::
     let numbers = [1,5,6,7,4,6,78,56,0]
     foldr treeInsert EmptyTree numbers -- build a tree with fold!
     
-There are also typeclasses (mixins), lets learn how to make them::
+There are also typeclasses (mixins), lets learn how to make them:
+
+.. code-block:: haskell
 
     class Eq a where  
         (==) :: a -> a -> Bool  
@@ -675,7 +691,9 @@ There are also typeclasses (mixins), lets learn how to make them::
  Input / Output
 --------------------------------------------------------------------------------
 
-Example of performing input::
+Example of performing input:
+
+.. code-block:: haskell
 
     putStrLn "something"
     :t putStrLn :: IO ()                    -- IO that returns an empty tuple
@@ -683,7 +701,9 @@ Example of performing input::
     name <- getLine                         -- binds result of IO to name
     :t getLine getline :: IO String
 
-All main functions are placed in a do block::
+All main functions are placed in a do block:
+
+.. code-block:: haskell
 
     main = do
       foo  <- putStrLn "Insert your name "  -- foo contains ()
@@ -766,7 +786,9 @@ All main functions are placed in a do block::
  Reverse Polish
 --------------------------------------------------------------------------------
 
-Here is a simple calculator example::
+Here is a simple calculator example:
+
+.. code-block:: haskell
 
     import Data.List
 
@@ -781,7 +803,9 @@ Here is a simple calculator example::
               folder ys      "sum" = [sum ys]
               folder xs number     = read number:ys
 
-Here are some clever examples::
+Here are some clever examples:
+
+.. code-block:: haskell
 
     groupsOf :: Int -> [a] -> [[a]]
     groupsOf 0 _  = undefined
@@ -793,7 +817,9 @@ Here are some clever examples::
 --------------------------------------------------------------------------------
 
 These are included in Control.Monad.Instances.  The primary interface is fmap
-which is basically bind that maps over the monad internals::
+which is basically bind that maps over the monad internals:
+
+.. code-block:: haskell
 
     fmap reverse getline
     fmap 2+ [1,2,3,4,5]
@@ -805,7 +831,7 @@ which is basically bind that maps over the monad internals::
 
     -- so fmap lifts the value inside the functor
     :m + Control.Monad.Instances
-    fmap (*3) (+100) 4
+    fmap (\*3) (+100) 4
 
   - These are the rules that govern functors::
 
@@ -818,12 +844,16 @@ which is basically bind that maps over the monad internals::
 
 These are included in Control.Applicative and are basically mapping a partially
 applied function into a functor. A function can then be applied to this that
-takes said function as a parameter::
+takes said function as a parameter:
+
+.. code-block:: haskell
 
       let a = fmap (*) [1,2,3,4]    -- [Integer -> Integer]
       fmap (\f -> f 9) a            -- [9, 18, 27, 36]
 
-Applicative defines two methods: pure and <*>::
+Applicative defines two methods: pure and `<*>`:
+
+.. code-block:: haskell
 
     -- pure is the simplest context value (Just for Maybe)
     Just (+3) <*> Just 9            -- Just 12
@@ -837,10 +867,12 @@ Applicative defines two methods: pure and <*>::
     f <$> x <*> y      == fmap f x <*> y
 
 The list applicative functor applies every function in fs to every element
-in xs. They can also be partially applied::
+in xs. They can also be partially applied:
+
+.. code-block:: haskell
 
     [(+), (*)] <$> [1,2] <*> [3,4] -- [4,5,5,6,3,4,6,8]
-    (+) <$> (+3) <*> (*100) $ 5 -- 508
+    (+) <$> (+3) <*> (\*100) $ 5 -- 508
 
 ZipList can be used to apply a list of applicative functors to a list of elements:
 
@@ -850,7 +882,7 @@ ZipList can be used to apply a list of applicative functors to a list of element
     -- (,) == \x y -> (x,y)
     -- (,,) == \x y z -> (x,y,z)
     getZipList $ (+) <$> ZipList [1,2,3] <*> ZipList [100, 100, 100]
-    getZipList $ pure (*2) <*> ZipList [100, 100, 100]
+    getZipList $ pure (\*2) <*> ZipList [100, 100, 100]
     getZipList $ (,,) <$> ZipList "dog" <*> ZipList "cat" <*> ZipList "rat"
     zipWith (\a b -> (a,b)) [1,2,3] ['a', 'b', 'c'] -- [(1,'a'),(2,'b'),(3,'c')]
     -- also zipWith3...zipWith7

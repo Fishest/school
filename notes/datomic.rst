@@ -3,6 +3,43 @@ Datomic Database
 ================================================================================
 
 --------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+
+Datomic is designed to be programmed using data. Transactions, queries and query
+results are all represented as simple list and map data structures.
+
+Datomic provides five storage options listed below::
+
+    ----------------------------------------------------------------
+    Storage    Where                          Purpose
+    ----------------------------------------------------------------
+    mem        Your process, no durability    Experimenting, Testing
+    dev        Process on local machine       Development
+    sql        SQL Database                   Production
+    inf        Infinispan memory cluster      Production
+    ddb        Amazon Dynamo DB table         Production
+
+    datomic:[storage]://[db-name]
+
+To create and work with a database, we can do the following:
+
+.. code-block:: java
+
+    String path = "datomic:mem://seattle"
+    Peer.createDatabase(path)
+    Connection connection = Peer.connect(path)
+
+.. todo:: http://docs.datomic.com/tutorial.html
+
+--------------------------------------------------------------------------------
+Graph Database
+--------------------------------------------------------------------------------
+
+http://hashrocket.com/blog/posts/using-datomic-as-a-graph-database
+.. todo::  example of this
+
+--------------------------------------------------------------------------------
 Datalog
 --------------------------------------------------------------------------------
 

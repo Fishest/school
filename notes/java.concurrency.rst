@@ -17,7 +17,7 @@ available: cas, load linked/store conditional, or spin locks:
 * `AtomicReferenceFieldUpdater<T,V>`
 * `AtomicReferenceArray<T>`
 
-The java syncronized block performc implicit locking of any
+The java syncronized block performs implicit locking of any
 reference type (which can be used as implicit locks) this
 protects all mutable state in the instance:
 

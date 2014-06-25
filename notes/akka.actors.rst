@@ -269,4 +269,447 @@ can be used to send to remote actors without having to query ahead of time.
 Location Transparency
 --------------------------------------------------------------------------------
 
-.. todo:: page 24
+Akka succeeds where other remoting protocols before have failed as it was
+designed from the start to work remotely and deal with the consequences of this
+up front:
+
+* all message must be serializable (including closure actor factories)
+* all communication must be asynchronous as message can be quick or slow
+* all transports are controlled by configuration, the api does not change
+* all actor communication is symmetric (a -> b and b -> a)
+* there are no actors that just accepts and no actors that only connect
+* parallel actors can be created just by specifying `withRouter`
+
+--------------------------------------------------------------------------------
+Akka and the Java Memory Model
+--------------------------------------------------------------------------------
+
+Akka guarantees the two following rules:
+
+* **The Actor Send Rule**
+  The send of the message to an actor happens before the receive of that message
+  by the same actor.
+
+* **The Actor Subsequent Processing Rule**
+  Processing of one message happens before processing of the next message by the
+  same actor. In short this means that changes to internal fields are visible
+  when the next message is processed even without `volatile`.
+
+In terms of futures, the general rules to follow are:
+
+* only close over final variables or fields
+* otherwise mark the fields as volatile to observe changes
+* if you close over a reference, make sure it is thread safe
+* avoid locking as it will affect the actor system performance
+* do not close over local actor state (like sender) and expose it to other threads
+
+Akka also offers a software transactional memory (STM) implementation that
+offers the following rule:
+
+* **The Transactional Reference Rule**
+  A successful write during commit, on an transactional reference, happens
+  before every subsequent read of the same transactional reference
+
+In short, make as much as possible immutable (messages and state) and you will
+simply avoid a number of issues.
+
+--------------------------------------------------------------------------------
+Message Delivery Reliability
+--------------------------------------------------------------------------------
+
+The rules for message sends are as follows:
+
+* at-most-once delivery, i.e. no guaranteed delivery
+* message ordering per sender–receiver pair
+
+It should be noted that there are three general categories of message delivery
+that are supported by messaging systems:
+
+* **At Most Once Delivery**
+  This means that for each message handed to the mechanism, that message is
+  delivered zero or one times; in more casual terms it means that messages may
+  be lost.
+
+* **At Least Once Delivery**
+  This means that for each message handed to the mechanism potentially multiple
+  attempts are made at delivering it, such that at least one succeeds; again,
+  in more casual terms this means that messages may be duplicated but not lost.
+
+* **Exactly Once Delivery**
+  This means that for each message handed to the mechanism exactly one delivery
+  is made to the recipient so the message can neither be lost nor duplicated.
+
+Akka can enable `Ack / Retry` messaging protocols by using channels along with
+message persistance. By including a unique identifier (guid) with each message
+and tracking it in the business layer. An alternative to this would be to make
+the business layer idempotent based on the operation or the tracking number.
+Another method of enabling this is by using event sourcing along with akka
+persistance. Finally, one can implement a custom mailbox to enable acking at
+that level.
+
+--------------------------------------------------------------------------------
+Dead Letter Queues
+--------------------------------------------------------------------------------
+
+Messages that cannot be delivered will be sent to the synthetic actor at the
+`/deadLetters` path. It should be noted that this is a best effort delivery and
+mail even fail within a local JVM. The dead letter actor can be used to log
+messages that fail to arrive to actors. To receive the dead letters, simply
+subscribe to `akka.actor.DeadLetter` on the event stream. The actor will then
+receive all local messages sent to the dead letter queue (not over the network).
+To receive all the messages from remote systems, an actor must receive from
+each machine and then route to a single endpoint.
+
+--------------------------------------------------------------------------------
+Akka Configuration
+--------------------------------------------------------------------------------
+
+Akka is configured using the TypeSafe config library which is implemented in
+java with no dependencies. The configuration allows one to tune all portions
+of the actor system including:
+
+* logging level and logging backend
+* enabling message remoting
+* customer message serializers
+* definition of routers
+* tuning of various dispatchers
+
+All the configuration is stored in instances of the `ActorSystem`. it can be
+configured as follows:
+
+.. code-block:: scala
+
+    val config = ConfigFactory.load()
+    val system = ActorSystem("application", config)
+
+    // is equivalent to the following
+    val system = ActorSystem.create()
+
+    // to print out the current settings
+    System.out.prinln(system.settings());
+
+    // to configure multiple actor systems
+    val config  = ConfigFactory.load()
+    val system1 = ActorSystem("app1", config.getConfig("app1").withFalback(config))
+    val system2 = ActorSystem("app2", config.getConfig("app2").withFalback(config))
+
+By default the configuration is read from the root of the classpath at the
+following files in order:
+
+1. `application.conf`
+2. `application.json`
+3. `application.properties`
+4. `reference.conf` - if you are writing an akka library
+
+The default configuration file can be changed using the property
+`-Dconfig.resource=/<new-name.conf>`. What follows is an example
+akka configuration file:
+
+.. code-block:: text
+
+    # to include another file, like development.conf
+    include "development"
+
+    akka {
+      # Loggers to register (akka.event.Logging$DefaultLogger logs to STDOUT)
+      loggers = ["akka.event.slf4j.Slf4jLogger"]
+
+      # Log levelOptions: OFF, ERROR, WARNING, INFO, DEBUG
+      loglevel = "DEBUG"
+
+      # Log level for the very basic logger activated during ActorSystem startup.
+      # This logger prints the log messages to stdout (System.out).
+      # Options: OFF, ERROR, WARNING, INFO, DEBUG
+      stdout-loglevel = "DEBUG"
+
+      actor {
+        provider = "akka.cluster.ClusterActorRefProvider"
+        default-dispatcher {
+          # Throughput for default Dispatcher, set to 1 for as fair as possible
+          throughput = 10
+        }
+      }
+      remote {
+        # The port clients should connect to. Default is 2552.
+        netty.tcp.port = 4711
+      }
+    }
+
+To debug your configuration, simply use the following:
+
+.. code-block:: scala
+
+    import com.typesafe.config._
+    val config = ConfigFactor.parseString("a.b=12")
+    val string = config.root.render
+
+--------------------------------------------------------------------------------
+Actors
+--------------------------------------------------------------------------------
+
+To create an actor, simply extend the `Actor` class and implement the `receive`
+method which is `PartialFunction[Any, Unit]`:
+
+.. code-block:: scala
+
+    import akka.actor.Actor
+    import akka.actor.Props
+    import akka.event.Logging
+
+    class SimpleActor(argument: String) extends Actor {
+        val log = Logging(context.system, this)
+
+        //
+        // If a default handler is not supplied, a message for which
+        // there is no partial function will result in a
+        // akka.actor.UnhandledMessage(message, sender, recipiient)
+        // being published to the event stream.
+        //
+        def receive = {
+          case "test" => log.info("received test")
+          case other  => log.info("received unknown message ${other}")
+        }
+    }
+
+    //
+    // Best practice for creating an actor is to provide a factory
+    // method in a companion object.
+    //
+    object SimpleActor {
+        def props(argument: String): Props = Props(new SimpleActor(argument0))
+    }
+
+In order to create and configure an actor, `Props` are used which are immutable
+recipies for creating said actors:
+
+.. code-block:: scala
+
+    val props1 = Props[SimpleActor]                       // cannot supply arguments
+    val props2 = Props(new SimpleActor("arguments"))      // only use outside of an actor
+    val props3 = Props(classOf[SimpleActor], "arguments") // validates constructor
+
+Using those recipies, we can use the actor system or context to create an actual
+actor reference:
+
+.. code-block:: scala
+
+    import akka.actor.ActorSystem
+
+    //
+    // Names should be given to actors to help debugging. They must
+    // not start with $ and they must be unique (in the full path).
+    // So two different parents can have children with the same name.
+    //
+    val system = ActorSystem("simple-system")
+    val parent = system.actorOf(Props[ParentActor], name="parent")
+
+    //
+    // The actorOf creates an immutable actorRef that points directly
+    // to the given actor. This type is serializable and can be sent
+    // over the network to another system.
+    //
+    class ParentActor extends Actor {
+      //
+      // The created actor is automatically started asynchronously
+      //
+      val child = context.actorOf(Props[ChildActor], "argument")
+      def receive {}
+    }
+
+
+.. todo
+.. image:: images/actor-lifecycle.png
+   :target: http://doc.akka.io/docs/akka/2.3.3/general/addressing.html
+   :align: center
+
+There are two methods of communicating with actors:
+
+* `!` or `tell` - is a fire and forget message
+* `?` or `ask`  - returns a `Future` for a possible reply
+
+The ask pattern leads to examples like the following:
+
+.. code-block:: scala
+
+    import akka.pattern.{ ask, pipe }
+    import system.dispatcher // The ExecutionContext that will be used
+
+    case class Result(x: Int, s: String, d: Double)
+    case object Request
+
+    //
+    // The ask works by creating an internal actor to track the state of
+    // the message. The implicit timeout is used to fail the future.
+    //
+    implicit val timeout = Timeout(5 seconds)   // needed for ‘?‘ below
+    val future: Future[Result] = for {
+        x <- ask(actorA, Request).mapTo[Int]    // call pattern directly
+        s <- (actorB ask Request).mapTo[String] // call by implicit conversion
+        d <- (actorC ? Request).mapTo[Double]   // call by symbolic name
+    } yield Result(x, s, d)                     // async composition of three futures
+
+    //
+    // Using the pipe operation instead of manually installing
+    // onComplete handlers prevents closing over local state which
+    // will can a failure.
+    //
+    future pipeTo actorD                        // install an onComplete send to actorD
+    pipe(future) to actorD                      // equivalent to above
+
+    //
+    // To send a failure response back from the asked actor
+    // one must send a akka.actor.Status.Failure(ex)
+    // 
+    try {
+        val result = operation()
+        sender() ! result
+    } catch {
+        case ex: Exception =>
+            sender() ! akka.actor.Status.Failure(ex)
+            throw ex
+    }
+
+The following is an example of the remaining parts of the akka api:
+
+.. code-block:: scala
+
+    //
+    // To install a default response actor as the dead letter queue
+    //
+    var actor = system.deadLetters
+
+    //
+    // To send a message to another actor while keeping the original
+    // sender, use foward. This is useful for message routers, load
+    // balances, and repliators.
+    //
+    target forward message
+
+    //
+    // To get a handle to the original sender of a message, use the
+    // sender() method. This can be stored to maintain a reference
+    // for later usage.
+    //
+    case request =>
+        sender ! process(request) // by default sender is the deadLetter
+
+    //
+    // To get an alert if the actor has not received a message in a
+    // defined time period, use the receive timeout. Note, the timeout
+    // may trigger and get enqueued behind the next message that
+    // arrives to the actor.
+    //
+    context.setReceiveTimeout(30 milliseconds)
+
+    def receive = {
+        case ReceiveTimeout =>
+          context.setRecieveTimeout(Duration.Undefined)  // to turn it off
+          throw new RuntimeException("receive timed out")
+    }
+
+    //
+    // An actor can be stopped by calling stop on its context or
+    // actorRef. This is asynchronous so the command may return before
+    // the actor is actually stopped.
+    //
+    context.stop()
+    actor ! akka.actor.PoisonPill // another way to stop an actor
+    actor ! Kill                  // yet another way
+
+Actors can change their recieve loop implemenation on the fly with
+`become` and `unbecome`:
+
+.. code-block:: scala
+
+    class HotSwapActor extends Actor {
+        import context._
+
+        def angry: Receive = {
+            case "foo" => sender() ! "I am already angry?"
+            case "bar" => become(happy)
+        }
+
+        def happy: Receive = {
+            case "bar" => sender() ! "I am already happy :-)"
+            case "foo" => become(angry)
+        }
+
+        def receive = {
+            case "foo" => become(angry)
+            case "bar" => become(happy)
+        }
+    }
+
+Actors can also queue up messages that should be processed later
+by using a stash:
+
+.. code-block:: scala
+
+    import akka.actor.Stash
+
+    //
+    // The stash is backed by an immutable vector, however
+    // it is ephemeral just like the actors mailbox so if 
+    // it goes down, so does the stash.
+    //
+    class ActorWithProtocol extends Actor with Stash {
+        def receive = {
+            case "open" =>
+                unstashAll()
+                context.become({
+                    case "write" => // do writing...
+                    case "close" =>
+                        unstashAll()
+                        context.unbecome()
+                    case message => stash()
+                }, discardOld = false) // stack on top instead of replacing
+            case message => stash()
+        }
+    }
+
+Actor implementation can also be chained like mixins to reuse
+common receive loops:
+
+.. code-block:: scala
+
+    trait ProducerBehavior { this: Actor =>
+        val producerBehavior: Receive = {
+            case Produce =>
+                sender() ! Give("thing")
+        }
+    }
+
+    trait ConsumerBehavior { this: Actor with ActorLogging =>
+        val consumerBehavior: Receive = {
+            case actor: ActorRef =>
+                actor ! Produce
+            case Give(thing) =>
+                log.info("Got a thing! It’s {}", thing)
+        }
+    }
+
+    class Producer extends Actor with ProducerBehavior {
+        def receive = producerBehavior
+    }
+
+    class Consumer extends Actor with ActorLogging with ConsumerBehavior {
+        def receive = consumerBehavior
+    }
+
+    class ProducerConsumer extends Actor
+        with ActorLogging
+        with ProducerBehavior
+        with ConsumerBehavior {
+
+        def receive = producerBehavior orElse consumerBehavior
+    }
+
+    // the producer consumer protocol
+    case object Produce
+    final case class Give(thing: Any)
+
+--------------------------------------------------------------------------------
+Initialization Patterns
+--------------------------------------------------------------------------------
+
+.. todo:: page 85

@@ -417,3 +417,223 @@ methods:
       buffer += "sweet"
     }
   }
+
+--------------------------------------------------------------------------------
+ScalaRx
+--------------------------------------------------------------------------------
+
+`Project Homepage https://github.com/lihaoyi/scala.rx`_
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Primitives
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ScalaRx supplies a number of dataflow primitives (think gpars) that can be used
+to construct dataflow graphs. In general, Scala.Rx revolves around constructing
+dataflow graphs which automatically keep things in sync, which you can easily
+interact with from external, imperative code:
+
+* `Var`
+  Is a smart variable which you can get using `a()` and set using `a() = value`.
+  Whenever its value changes, it pings any downstream entity which needs to be
+  recalculated. Are generally used as inputs into a dataflow graph.
+
+* `Rx`
+  Is a reactive definition which automatically captures any `Var` or other `Rx`
+  which get called in its body, flagging them as dependencies and re-calculating
+  whenever one of them changes. Like a `Var`, you can use the `a()` syntax to
+  retrieve its value, and it also pings downstream entities when the value changes.
+  Side effects should not be performed here as an `Rx` may run many times for
+  each change (make them pure). Are generally used as nodes in a dataflow graph.
+
+* `Obs`
+  Is an observer on one or more `Var` or `Rx`, performing some side-effect when
+  the observed node changes value and sends it a ping. These are guranteed to
+  run only once after all the involved `Rx` have stabilized. Continuing, `Obs`
+  will perform an initial run when it is declared to store the first value,
+  this can be skipped by supplying `skipInitial=true`. When an `Obs` is
+  garbage collected, its callback will stop triggering. Are generally used as
+  outputs from the dataflow graph.
+
+.. code-block:: scala
+
+    import rx._
+
+    val a = Var(1)
+    val b = Var(2)
+    val c = Rx { a() + b() }
+    val d = Rx { c() * 4 }
+
+    println(c())  // 3
+    println(d())  // 12
+    a() = 4
+    println(c())  // 6
+    println(d())  // 24
+
+    var count = 0;                            // mutable side-effect from o
+    val o = Obs(a) { count = a() + 1 }        // re-run on all changes to a
+    val x = a.foreach { x => count = x + 1 }  // equivalent to above
+    o.kill()                                  // stop all further updates
+    x.killAll()                               // stop all further updates from descendents
+
+    val e = Rx { a() / b() }
+    e.toTry                                   // Success(0)
+    b() = 0
+    e.toTry                                   // Failure(java.lang.ArithmeticException)
+
+`Rx` blocks can be nested to form complex associations:
+
+.. code-block:: scala
+
+    import scala.util.Random.{ nextFloat => random }
+
+    trait Webpage {
+        val time = Var(random())
+        def html: Rx[String]
+        def update { time() = random() }
+    }
+    sealed class Google extends Webpage {
+        val html = Rx { "this is google: " + time() }
+    }
+    sealed class Yahoo extends Webpage {
+        val html = Rx { "this is yahoo: " + time() }
+    }
+
+    val url  = Var("www.google.com")
+    val page = Rx {
+        url() match {
+            case "www.google.com" => new Google()
+            case "www.yahoo.com"  => new Yahoo()
+        }
+    }
+
+    println(page().html())
+    page().update()
+    println(page().html())
+    page() = "www.yahoo.com"
+    println(page().html())
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Primitive Combinators
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ScalaRx also defines a number of combinators on the primitives to avoid
+having to re-create the common operations: `map`, `filter`, `reduce`. It
+should be noted that the counterparts `mapAll`, `filterAll`, and `reduceAll`
+exist to operate on `Try[S]` in case failures can occur:
+
+.. code-block:: scala
+
+    val a = Var(2)
+    val b = Rx { a() * 2 }  // a.map(_ * 2)
+    val c = a.map(_ + 2)    // Rx { a() + 2 }
+    val d = c.filter(_ > 3) // d() == 4
+    a() = 1                 // d() == 4
+    a() = 5                 // d() == 5
+
+    val e = a.reduce(_ + _) // e() == 5
+    a() = 6                 // e() == 11
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Asynchronous Combinators
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: scala
+
+    import scala.concurrent.Promise
+    import scala.concurrent.ExecutionContext.Implicits.global
+    
+    val p = Promise[Int]()
+    val a = Rx{
+      p.future
+    }.async(10)
+    println(a()) // 10
+    
+    p.success(5)
+    println(a()) // 5
+
+
+ScalaRx can use the akka scheduler to implement a timer service
+that can be used to schedule recurring events:
+
+.. code-block:: scala
+
+    import scala.concurrent.duration._
+    implicit val scheduler = new AkkaScheduler(akka.actor.ActorSystem())
+    
+    val timer = Timer(100 millis)
+    var count = 0
+    val o = Obs(timer) {
+        count = count + 1
+    }
+    
+    println(count) // 3
+    println(count) // 8
+    println(count) // 13
+
+This same construct is used to implement delays in event propigation:
+
+.. code-block:: scala
+
+    import scala.concurrent.duration._
+    implicit val scheduler = new AkkaScheduler(akka.actor.ActorSystem())
+
+    val a = Var(10)
+    val b = a.delay(250 millis)
+
+    a() = 5
+    println(b()) // 10
+    eventually {
+        println(b()) // 5
+    }
+
+    a() = 4
+    println(b()) // 5
+    eventually {
+        println(b()) // 4
+    }
+
+And futhermore debounce logic to allow for a value to settle before
+being emitted:
+
+.. code-block:: scala
+
+    import scala.concurrent.duration._
+    implicit val scheduler = new AkkaScheduler(akka.actor.ActorSystem())
+
+    val a = Var(10)
+    val b = a.delay(250 millis)
+
+    a() = 5
+    println(b())     // 5
+
+    a() = 4
+    println(b())     // 5
+    eventually {
+        println(b()) // 4
+    }
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Primitive Debugging
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ScalaRx maintains the dataflow graph which can be used to inspect why a value is
+what it is. Furthermore, it allows one to name the variables so that introspection
+can produce readable messages:
+
+.. code-block:: scala
+
+    val a = Var(1, name="a")
+    val b = Var(2, name="b")
+    val c = Rx(name="c"){ a() + b() }     // 3
+    val d = Rx(name="d"){ c() * 5 }       // 15
+    val e = Rx(name="e"){ c() + 4 }       // 7
+    val f = Rx(name="f"){ d() + e() + 4 } // 26
+
+    println(f.parents)                                 // List(Rx#, Rx#)
+    println(f.parents.collect{ case r: Rx[_] => r() }) // List(7, 15)
+    println(c.descendants.map(_.name))                 // List(e, d, f, f)
+
+    f.ancestors
+     .map{ case r: Rx[_] => r.name + " " + r() }
+     .foreach(println)

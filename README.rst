@@ -94,3 +94,18 @@ This is the code and notes for the coursera functional
 programming in Scala class taught by Martin Odersky. The
 code is obviously in Scala.
 
+------------------------------------------------------------
+coursera-rx
+------------------------------------------------------------
+
+This is the code and notes for the coursera reactive
+programming in Scala class taught by Martin Odersky. The
+code is in Scala.
+
+------------------------------------------------------------
+coursera-optimize
+------------------------------------------------------------
+
+This is the code and notes for the coursera optimization
+class taught by __. The code is a mixture of python and c++.
+

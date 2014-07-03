@@ -3,6 +3,7 @@ Scalaz
 ================================================================================
 
 .. todo:: http://vimeo.com/10482466
+.. todo:: http://eed3si9n.com/learning-scalaz/Combined+Pages.html
 
 --------------------------------------------------------------------------------
 Summary
@@ -569,7 +570,234 @@ we use scala tags. There are 8 possible tags defined for monoids:
     lengthCompare("zen", "ants")  // Ordering.LT
     lengthCompare("zen", "ant")   // Ordering.GT
 
-.. todo:: http://eed3si9n.com/learning-scalaz/Combined+Pages.html
+--------------------------------------------------------------------------------
+Functor Laws
+--------------------------------------------------------------------------------
+
+All functors respect a few laws which. The first functor law states that if we
+`map` the `id` function over a functor, the functor that we get back should
+be the same as the original functor:
+
+.. code-block:: scala
+
+    List(1, 2, 3) map {identity} assert_=== List(1, 2, 3)
+
+The second functor law state that composing two functions and then mapping the
+resulting function over a functor should be the same as first mapping one
+function over the functor and then mapping the other one:
+
+.. code-block:: scala
+
+    (List(1, 2, 3) map {{(_: Int) * 3} map {(_: Int) + 1}}) assert_===
+    (List(1, 2, 3) map {(_: Int) * 3} map {(_: Int) + 1})
+
+Scalaz verifies this with the `FunctorLaw` trait:
+
+.. code-block:: scala
+
+    trait FunctorLaw {
+      // The identity function, lifted, is a no-op
+      def identity[A](fa: F[A])(implicit FA: Equal[F[A]]): Boolean =
+        FA.equal(map(fa)(x => x), fa)
+
+      // a series of maps can be rewritten as a single map on a composed function
+      def associative[A, B, C](fa: F[A], f1: A => B, f2: B => C)(implicit FC: Equal[F[C]]): Boolean =
+        FC.equal(map(map(fa)(f1))(f2), map(fa)(f2 compose f1))
+    }
+
+    functor.laws[List].check
+
+--------------------------------------------------------------------------------
+Applicative Laws
+--------------------------------------------------------------------------------
+
+.. code-block:: scala
+
+    trait ApplicativeLaw extends FunctorLaw {
+      def identityAp[A](fa: F[A])(implicit FA: Equal[F[A]]): Boolean =
+        FA.equal(ap(fa)(point((a: A) => a)), fa)
+
+      def composition[A, B, C](fbc: F[B => C], fab: F[A => B], fa: F[A])(implicit FC: Equal[F[C]]) =
+        FC.equal(ap(ap(fa)(fab))(fbc), ap(fa)(ap(fab)(ap(fbc)(point((bc: B => C) => (ab: A => B) => bc compose ab)))))
+
+      def homomorphism[A, B](ab: A => B, a: A)(implicit FB: Equal[F[B]]): Boolean =
+        FB.equal(ap(point(a))(point(ab)), point(ab(a)))
+
+      def interchange[A, B](f: F[A => B], a: A)(implicit FB: Equal[F[B]]): Boolean =
+        FB.equal(ap(point(a))(f), ap(f)(point((f: A => B) => f(a))))
+    }
+
+--------------------------------------------------------------------------------
+Semigroup Laws
+--------------------------------------------------------------------------------
+
+.. code-block:: scala
+
+    //
+    // A semigroup in type F must satisfy two laws:
+    // *  closure       - `∀ a, b in F, append(a, b)` is also in `F`. This is enforced by the type system.
+    // *  associativity - `∀ a, b, c` in `F`, the equation `append(append(a, b), c) = append(a, append(b , c))` holds.
+    //
+    trait SemigroupLaw {
+      def associative(f1: F, f2: F, f3: F)(implicit F: Equal[F]): Boolean =
+        F.equal(append(f1, append(f2, f3)), append(append(f1, f2), f3))
+    }
+
+    semigroup.laws[Int].check
+    semigroup.laws[Int @@ Tags.Multiplication].check
+
+--------------------------------------------------------------------------------
+Monoid Laws
+--------------------------------------------------------------------------------
+
+.. code-block:: scala
+
+    // 
+    // Monoid instances must satisfy the semigroup laws and 2 additional laws:
+    // * left identity  - `forall a. append(zero, a) == a`
+    // * right identity - `forall a. append(a, zero) == a`
+    // 
+    trait MonoidLaw extends SemigroupLaw {
+      def leftIdentity(a: F)(implicit F: Equal[F]) = F.equal(a, append(zero, a))
+      def rightIdentity(a: F)(implicit F: Equal[F]) = F.equal(a, append(a, zero))
+    }
+
+    monoid.laws[Int].check
+    monoid.laws[Int @@ Tags.Multiplication].check
+
+We can make `Option` a monoid by simply applying the append of its internal values
+as monoids if they exist and zero otherwise:
+
+.. code-block:: scala
+
+    implicit def optionMonoid[A: Semigroup]: Monoid[Option[A]] = new Monoid[Option[A]] {
+      def append(f1: Option[A], f2: => Option[A]) = (f1, f2) match {
+        case (Some(a1), Some(a2)) => Some(Semigroup[A].append(a1, a2))
+        case (Some(a1), None)     => f1
+        case (None, Some(a2))     => f2
+        case (None, None)         => None
+      }
+
+      def zero: Option[A] = None
+    }
+
+    "hello".some |+| "world".some
+    (none: Option[String]) |+| "world".some
+    "hello".some |+| (none: Option[String])
+
+If we would like the `Option` monoid to simply choose the first or last
+value that exists, we can use the tagged types:
+
+.. code-block:: scala
+
+    Tags.First('a'.some) |+| Tags.First('b'.some)            // a.some
+    Tags.First(none: Option[Char]) |+| Tags.First('b'.some)  // b.some
+    Tags.Last('a'.some) |+| Tags.Last('b'.some)              // b.some
+    Tags.Last("a".some) |+| Tags.Last(none: Option[Char])    // a.some
+
+--------------------------------------------------------------------------------
+Foldable
+--------------------------------------------------------------------------------
+
+Once we have monoids, we can make a typeclass for types that can be folded over
+(all monoids are included in this set). The trait for this is `Foldable`:
+
+.. code-block:: scala
+
+    trait Foldable[F[_]] { self =>
+      // map each element of the structure to a [[scalaz.Monoid]], and combine the results
+      def foldMap[A,B](fa: F[A])(f: A => B)(implicit F: Monoid[B]): B
+    
+      // right-associative fold of a structure
+      def foldRight[A, B](fa: F[A], z: => B)(f: (A, => B) => B): B
+    }
+
+Using this, scalaz goes absolutely apeshit in defining a number of fold
+operations:
+
+.. code-block:: scala
+
+    // wraps a value `self` and provides methods related to `Foldable`
+    trait FoldableOps[F[_],A] extends Ops[F[A]] {
+      implicit def F: Foldable[F]
+
+      final def foldMap[B: Monoid](f: A => B = (a: A) => a): B = F.foldMap(self)(f)
+      final def foldRight[B](z: => B)(f: (A, => B) => B): B = F.foldRight(self, z)(f)
+      final def foldLeft[B](z: B)(f: (B, A) => B): B = F.foldLeft(self, z)(f)
+      final def foldRightM[G[_], B](z: => B)(f: (A, => B) => G[B])(implicit M: Monad[G]): G[B] = F.foldRightM(self, z)(f)
+      final def foldLeftM[G[_], B](z: B)(f: (B, A) => G[B])(implicit M: Monad[G]): G[B] = F.foldLeftM(self, z)(f)
+      final def foldr[B](z: => B)(f: A => (=> B) => B): B = F.foldr(self, z)(f)
+      final def foldl[B](z: B)(f: B => A => B): B = F.foldl(self, z)(f)
+      final def foldrM[G[_], B](z: => B)(f: A => ( => B) => G[B])(implicit M: Monad[G]): G[B] = F.foldrM(self, z)(f)
+      final def foldlM[G[_], B](z: B)(f: B => A => G[B])(implicit M: Monad[G]): G[B] = F.foldlM(self, z)(f)
+      final def foldr1(f: (A, => A) => A): Option[A] = F.foldr1(self)(f)
+      final def foldl1(f: (A, A) => A): Option[A] = F.foldl1(self)(f)
+      final def sumr(implicit A: Monoid[A]): A = F.foldRight(self, A.zero)(A.append)
+      final def suml(implicit A: Monoid[A]): A = F.foldLeft(self, A.zero)(A.append(_, _))
+      final def toList: List[A] = F.toList(self)
+      final def toIndexedSeq: IndexedSeq[A] = F.toIndexedSeq(self)
+      final def toSet: Set[A] = F.toSet(self)
+      final def toStream: Stream[A] = F.toStream(self)
+      final def all(p: A => Boolean): Boolean = F.all(self)(p)
+      final def ∀(p: A => Boolean): Boolean = F.all(self)(p)
+      final def allM[G[_]: Monad](p: A => G[Boolean]): G[Boolean] = F.allM(self)(p)
+      final def anyM[G[_]: Monad](p: A => G[Boolean]): G[Boolean] = F.anyM(self)(p)
+      final def any(p: A => Boolean): Boolean = F.any(self)(p)
+      final def ∃(p: A => Boolean): Boolean = F.any(self)(p)
+      final def count: Int = F.count(self)
+      final def maximum(implicit A: Order[A]): Option[A] = F.maximum(self)
+      final def minimum(implicit A: Order[A]): Option[A] = F.minimum(self)
+      final def longDigits(implicit d: A <:< Digit): Long = F.longDigits(self)
+      final def empty: Boolean = F.empty(self)
+      final def element(a: A)(implicit A: Equal[A]): Boolean = F.element(self, a)
+      final def splitWith(p: A => Boolean): List[List[A]] = F.splitWith(self)(p)
+      final def selectSplit(p: A => Boolean): List[List[A]] = F.selectSplit(self)(p)
+      final def collapse[X[_]](implicit A: ApplicativePlus[X]): X[A] = F.collapse(self)
+      final def concatenate(implicit A: Monoid[A]): A = F.fold(self)
+      final def traverse_[M[_]:Applicative](f: A => M[Unit]): M[Unit] = F.traverse_(self)(f)
+    }
+
+--------------------------------------------------------------------------------
+Monads
+--------------------------------------------------------------------------------
+
+*Monads are a natural extension applicative functors, and they provide a
+solution to the following problem: If we have a value with context, `m a`, how
+do we apply it to a function that takes a normal a and returns a value with a
+context.*
+
+.. code-block:: scala
+
+    trait Bind[F[_]] extends Apply[F] { self =>
+      // Equivalent to `join(map(fa)(f))`
+      def bind[A, B](fa: F[A])(f: A => F[B]): F[B]
+    }
+
+    // since this extends applicative, there is no confusion between
+    // return vs pure; they both use point
+    trait Monad[F[_]] extends Applicative[F] with Bind[F] { self =>
+    }
+
+    // wraps a value `self` and provides methods related to `Bind`
+    trait BindOps[F[_],A] extends Ops[F[A]] {
+      implicit def F: Bind[F]
+
+      import Liskov.<~<
+    
+      def flatMap[B](f: A => F[B]) = F.bind(self)(f)
+      def >>=[B](f: A => F[B]) = F.bind(self)(f)
+      def ∗[B](f: A => F[B]) = F.bind(self)(f)
+      def join[B](implicit ev: A <~< F[B]): F[B] = F.bind(self)(ev(_))
+      def μ[B](implicit ev: A <~< F[B]): F[B] = F.bind(self)(ev(_))
+      def >>[B](b: F[B]): F[B] = F.bind(self)(_ => b)
+      def ifM[B](ifTrue: => F[B], ifFalse: => F[B])(implicit ev: A <~< Boolean): F[B] = {
+        val value: F[Boolean] = Liskov.co[F, A, Boolean](ev)(self)
+        F.ifM(value, ifTrue, ifFalse)
+      }
+    }
+
+    3.some flatMap { x => (x + 1).some }              // 4.some
+    (none: Option[Int]) flatMap { x => (x + 1).some } // none
 
 --------------------------------------------------------------------------------
 Tips and Tricks
@@ -578,3 +806,35 @@ Tips and Tricks
 If you need to paste a large amount of code into a `sbt console`, simply type
 `:paste` and then you are in a paste session. When you are done pasting your
 blob, just type `<ctrl> + d` and the whole chunk will be evaluated at once.
+
+Case classes have a default copy constructor that uses the current values
+as named default arguments:
+
+.. code-block:: scala
+
+    case class Point(x: Int, y: Int) {
+      def moveLeft(d: Int)  = copy(x = x - d)
+      def moveRight(d: Int) = copy(x = x + d)
+      def moveUp(d: Int)    = copy(y = y + d)
+      def moveDown(d: Int)  = copy(y = y - d)
+    }
+    val point = Point(2, 4)
+    val moved = point.moveLeft(4)
+
+Long story short, bind works, `>>=` is an alias for it, `>>` is the
+s-combinator, and scala has the `for-expression` instead of the haskel
+`do-expression`. A cool thing, pattern matching works in for expressions:
+
+.. code-block:: scala
+
+    val first = for {
+        (x :: xs) <- "hello".toList.some
+    } yield x
+
+    first assert_=== 'h'.some
+
+    val what = for {
+        (x :: xs) <- "".toList.some
+    } yield x
+
+    what assert_=== (none: Option[Char])

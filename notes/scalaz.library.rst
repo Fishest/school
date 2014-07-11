@@ -473,6 +473,9 @@ methods:
     sequenceA(List(1.some, 2.some))   // Some(List(1, 2))
     sequenceA(1.some :: None :: Nil)) // None
 
+In summary functions are applicative functors. They allow us to operate on the
+eventual results of functions as if we already had their results.
+
 --------------------------------------------------------------------------------
 Kinds
 --------------------------------------------------------------------------------
@@ -799,6 +802,489 @@ context.*
     3.some flatMap { x => (x + 1).some }              // 4.some
     (none: Option[Int]) flatMap { x => (x + 1).some } // none
 
+Long story short, bind works, `>>=` is an alias for it, `>>` is the
+s-combinator, and scala has the `for-expression` instead of the haskel
+`do-expression`. A cool thing, pattern matching works in for expressions:
+
+.. code-block:: scala
+
+    val first = for {
+        (x :: xs) <- "hello".toList.some
+    } yield x
+
+    first assert_=== 'h'.some
+
+    val what = for {
+        (x :: xs) <- "".toList.some
+    } yield x
+
+    what assert_=== (none: Option[Char])
+
+--------------------------------------------------------------------------------
+List Monad
+--------------------------------------------------------------------------------
+
+In this monadic view, List context represent mathematical value that could have
+multiple solutions:
+
+.. code-block:: scala
+
+    ^(List(1, 2, 3), List(10, 100, 100)) {_ * _}  // applicative with multiple results
+    List(3, 4, 5) >>= {x => List(x, -x)}          // non-determinism with bind
+    for {                                         // for expressions work like bind
+        n <- List(1, 2)
+        ch <- List('a', 'b')
+    } yield (n, ch)
+
+    for {
+        x <- 1 \|-> 50 if x.shows contains '7'
+    } yield x
+
+If there is a monad that acts like a monoid, the `MonoidPlus` typeclass adds
+some extra operations:
+
+.. code-block:: scala
+
+    trait MonadPlus[F[_]] extends Monad[F] with ApplicativePlus[F] { self => }
+    trait ApplicativePlus[F[_]] extends Applicative[F] with PlusEmpty[F] { self => }
+
+    // the zero group operation at the type level
+    trait PlusEmpty[F[_]] extends Plus[F] { self =>
+        def empty[A]: F[A]
+    }
+
+    // the plus group operation at the type level
+    trait Plus[F[_]]  { self =>
+      def plus[A](a: F[A], b: => F[A]): F[A]
+    }
+
+    List(1, 2, 3) <+> List(4, 5, 6)                  // the monad plus operator
+    (1 \|-> 50) filter { x => x.shows contains '7' } // and the filter operation
+
+These tools can be used to implement a solution to the knights quest:
+
+.. code-block:: scala
+
+    case class KnightPos(c: Int, r: Int) {
+        def move: List[KnightPos] =
+          for {
+            KnightPos(c2, r2) <- List(KnightPos(c + 2, r - 1), KnightPos(c + 2, r + 1),
+              KnightPos(c - 2, r - 1), KnightPos(c - 2, r + 1),
+              KnightPos(c + 1, r - 2), KnightPos(c + 1, r + 2),
+              KnightPos(c - 1, r - 2), KnightPos(c - 1, r + 2)) if (
+              ((1 \|-> 8) contains c2) && ((1 \|-> 8) contains r2))
+          } yield KnightPos(c2, r2)
+
+        def three_moves: List[KnightPos] =
+           for {
+             first <- move
+             second <- first.move
+             third <- second.move
+           } yield third
+
+        def can_reach(end: KnightPos) three_moves contains end
+    }
+
+    KnightPos(6, 2) canReachIn3 KnightPos(6, 1) // true
+    KnightPos(6, 2) canReachIn3 KnightPos(7, 3) // false
+
+--------------------------------------------------------------------------------
+Monad Laws
+--------------------------------------------------------------------------------
+
+Monads have to obey three laws:
+
+* **Left Identity**
+
+  If we take a value, put it in a default context with `return` and then feed it
+  to a function by using `>>=`, it’s the same as just taking the value and
+  applying the function to it.
+
+.. code-block:: scala
+
+    (Monad[Option].point(3) >>= { x => (x + 100000).some }) assert_=== 3 \|> { x => (x + 100000).some }
+
+* **Right Identity**
+
+  If we have a monadic value and we use `>>=` to feed it to `return`, the result
+  is our original monadic value.
+
+.. code-block:: scala
+
+    ("move on up".some flatMap {Monad[Option].point(_)}) assert_=== "move on up".some
+
+
+
+* **Associativity**
+  
+  When we have a chain of monadic function applications with `>>=`, it should not
+  matter how they’re nested.
+
+.. code-block:: scala
+
+    Monad[Option].point(Pole(0, 0)) >>= {_.landRight(2)} >>= {_.landLeft(2)} >>= {_.landRight(2)}
+    Monad[Option].point(Pole(0, 0)) >>= { x =>
+       x.landRight(2) >>= { y =>
+       y.landLeft(2)  >>= { z =>
+       z.landRight(2)
+    }}}
+
+Scalaz verifies these using the following concept:
+
+.. code-block:: scala
+
+  trait MonadLaw extends ApplicativeLaw {
+    // Lifted `point` is a no-op
+    def rightIdentity[A](a: F[A])(implicit FA: Equal[F[A]]): Boolean =
+        FA.equal(bind(a)(point(_: A)), a)
+
+    // Lifted `f` applied to pure `a` is just `f(a)`
+    def leftIdentity[A, B](a: A, f: A => F[B])(implicit FB: Equal[F[B]]): Boolean =
+        FB.equal(bind(point(a))(f), f(a))
+
+    //
+    // As with semigroups, monadic effects only change when their
+    // order is changed, not when the order in which they're
+    // combined changes.
+    def associativeBind[A, B, C](fa: F[A], f: A => F[B], g: B => F[C])(implicit FC: Equal[F[C]]): Boolean =
+      FC.equal(bind(bind(fa)(f))(g), bind(fa)((a: A) => bind(f(a))(g)))
+  }
+
+  monad.laws[Option].check
+
+.. todo::  monad.laws[Either].check
+
+--------------------------------------------------------------------------------
+Writer Monad
+--------------------------------------------------------------------------------
+
+To attach a monoid to a value, we just need to put them together in a tuple.
+The Writer type is just a monad wrapper for this:
+
+.. code-block:: scala
+
+    implicit class PairOps[A, B: Monoid](pair: (A, B)) {
+      def applyLog[C](f: A => (C, B)): (C, B) = {
+        val (x, oldlog) = pair
+        val (y, newlog) = f(x)
+        (y, oldlog |+| newlog)
+      }
+    }
+
+Here is the definition in scalaz:
+
+.. code-block:: scala
+
+    type Writer[+W, +A] = WriterT[Id, W, A]
+
+    sealed trait WriterT[F[+_], +W, +A] { self =>
+      val run: F[(W, A)]
+
+      def written(implicit F: Functor[F]): F[W] =
+        F.map(run)(_._1)
+
+      def value(implicit F: Functor[F]): F[A] =
+        F.map(run)(_._2)
+    }
+
+    3.set("Smallish gang.") // Writer[String, Int]
+
+    // import Scalaz._; includes all the following operations
+    // trait ToDataOps extends ToIdOps with ToTreeOps with ToWriterOps
+    //    with ToValidationOps with ToReducerOps with ToKleisliOps
+
+    // however these are the operations that involve the writer monad
+    trait WriterV[A] extends Ops[A] {
+      def set[W](w: W): Writer[W, A] = WriterT.writer(w -> self)
+      def tell: Writer[A, Unit] = WriterT.tell(self)
+    }
+
+    3.set("something") // Writer[String, Int]
+    "something".tell   // Writer[String, Unit]
+    MonadWriter[Writer, String].point(3).run
+
+Here are a few examples of adding logging using the Writer monad:
+
+.. code-block:: scala
+
+    def logNumber(x: Int): Writer[List[String], Int] =
+      x.set(List("Got Number $x"))
+
+    def multWithLog: Writer[List[String], Int] = for {
+      a <- logNumber(3)
+      b <- logNumber(5)
+    } yield a * b
+
+    def gcd(a: Int, b: Int): Writer[List[String], Int] =
+      if (b == 0) for {
+        _ <- List("Finished with $a").tell
+        } yield a // scala yield returns in the monad context
+      else
+        List("$a mod $b = " + b.shows = " + (a % b).shows).tell >>= { _ =>
+          gcd(b, a % b) // this is running in the monad bind
+        }
+      
+    }
+    gcd(8, 3).run
+
+--------------------------------------------------------------------------------
+Reader Monad
+--------------------------------------------------------------------------------
+
+Not only is the function type (->) r a functor and an applicative functor, but
+it is also a monad. A function can be considered a value with a context. The
+context for functions is that that value is not present yet and that we have to
+apply that function to something in order to get its result value:
+
+.. code-block:: scala
+
+    val addStuff: Int => Int = for {
+      a <- (_: Int) * 2
+      b <- (_: Int) + 10
+    } yield a + b
+
+    addStuff(3) // 19
+
+    // using the applicative builder style
+    val addStuff = ({(_: Int) * 2} |@| {(_: Int) + 10}) { _ + _ }
+
+
+The reader monad can be summarized that all instances of it read from a common
+source as if the value is already there.
+
+--------------------------------------------------------------------------------
+State Monad
+--------------------------------------------------------------------------------
+
+A stateful computation is a function that takes some state and returns a value
+along with some new state. That function would have the following type (note,
+unlike other monads, the state monad specifically wraps functions):
+
+.. code-block:: scala
+
+    type State[S, +A] = StateT[Id, S, A]
+    
+    // important to define here, rather than at the top-level, to avoid Scala 2.9.2 bug
+    object State extends StateFunctions {
+      def apply[S, A](f: S => (S, A)): State[S, A] = new StateT[Id, S, A] {
+        def apply(s: S) = f(s)
+      }
+    }
+
+    trait StateT[F[+_], S, +A] { self =>
+      // Run and return the final value and state in the context of `F`
+      def apply(initial: S): F[(S, A)]
+
+      // An alias for `apply`
+      def run(initial: S): F[(S, A)] = apply(initial)
+
+      // Calls `run` using `Monoid[S].zero` as the initial state
+      def runZero(implicit S: Monoid[S]): F[(S, A)] = run(S.zero)
+    }
+
+We can use this to implement a stateful stack:
+
+.. code-block:: scala
+
+    type Stack = List[Int]
+    val pop  = State[Stack, Int]  { case x :: xs => (xs, x) }
+    val push(a: Int) = State[Stack, Unit] { case xs => (a :: xs, Unit) }
+
+    def stackManipulate: State[Stack, Int] = for {
+      _ <- push(3)
+      a <- pop
+      b <- pop
+    } yield b
+
+Scalaz introduces the `State` object and the `StateFunctions` trait which
+define a few helper methods:
+
+.. code-block:: scala
+
+    trait StateFunctions {
+      def constantState[S, A](a: A, s: => S): State[S, A] =
+        State((_: S) => (s, a))
+      def state[S, A](a: A): State[S, A] = State((_ : S, a))
+      def init[S]: State[S, S] = State(s => (s, s))          // pull the state into the value
+      def get[S]: State[S, S]  = init                        // alias of init
+      def gets[S, T](f: S => T): State[S, T] = State(s => (s, f(s)))
+      def put[S](s: S): State[S, Unit] = State(_ => (s, ())) // put some value into the state
+      def modify[S](f: S => S): State[S, Unit] = State(s => {
+        val r = f(s);
+        (r, ())
+      })
+
+      // Computes the difference between the current and previous values of `a`
+      def delta[A](a: A)(implicit A: Group[A]): State[A, A] = State {
+        (prevA) =>
+          val diff = A.minus(a, prevA)
+          (diff, a)
+      }
+    }
+
+    // using these helper functions we can rewrite the stack examples
+    val pop: State[Stack, Int] = for {
+      s <- get[Stack]
+      val (x :: xs) = s
+      _ <- put(xs)
+    } yield x
+
+    def push(x: Int): State[Stack, Unit] = for {
+      xs <- get[Stack]
+      r  <- put(x :: xs)
+    } yield r
+
+--------------------------------------------------------------------------------
+Either Monad, named \/
+--------------------------------------------------------------------------------
+
+.. code-block:: scala
+
+    sealed trait \/[+A, +B] {
+
+      // Return `true` if this disjunction is left
+      def isLeft: Boolean =
+        this match {
+          case -\/(_) => true
+          case \/-(_) => false
+        }
+
+      // Return `true` if this disjunction is right
+      def isRight: Boolean =
+        this match {
+          case -\/(_) => false
+          case \/-(_) => true
+        }
+
+      // Flip the left/right values in this disjunction. Alias for `unary_~`
+      def swap: (B \/ A) =
+        this match {
+          case -\/(a) => \/-(a)
+          case \/-(b) => -\/(b)
+        }
+
+      // Flip the left/right values in this disjunction. Alias for `swap`
+      def unary_~ : (B \/ A) = swap
+
+      // Return the right value of this disjunction or the given default if left. Alias for `|`
+      def getOrElse[BB >: B](x: => BB): BB = toOption getOrElse x
+
+      // Return the right value of this disjunction or the given default if left. Alias for `getOrElse`
+      def \|[BB >: B](x: => BB): BB = getOrElse(x)
+      
+      // Return this if it is a right, otherwise, return the given value. Alias for `|||`
+      def orElse[AA >: A, BB >: B](x: => AA \/ BB): AA \/ BB =
+        this match {
+          case -\/(_) => x
+          case \/-(_) => this
+        }
+
+      // Return this if it is a right, otherwise, return the given value. Alias for `orElse`
+      def |||[AA >: A, BB >: B](x: => AA \/ BB): AA \/ BB = orElse(x)
+    }
+
+    private case class -\/[+A](a: A) extends (A \/ Nothing)
+    private case class \/-[+B](b: B) extends (Nothing \/ B)
+
+To use it, use the helper methods injected via `IdOps`:
+
+.. code-block:: scala
+
+    1.right[String]    // \/-(1)
+    "error".left[Int]  // -\/(error)
+
+    // scalaz either performs right projection unlike the standard library either
+    // which requires you to manually project the right value.
+    "boom".left[Int] >>= { x => (x + 1).right }
+
+    for {
+      e1 <- "event 1 ok".right
+      e2 <- "event 2 failed!".left[String] // the computation stops here
+      e3 <- "event 3 failed!".left[String]
+    } yield (e1 |+| e2 |+| e3)
+   
+    // to check if the either is an error or not
+    1.right.isRight                      // true
+    1.right.isLeft                       // false
+
+    // to safely get the right value
+    "success".right.getOrElse("error")   // \/-(success)
+    "success".right | "error"            // \/-(success)
+
+    // to safely get the left value
+    "failure".left.swap("success")       // -\/(failure)
+    ~"failure".left | "success"          // -\/(failure)
+
+    // to modify the right value
+    1.right map { _ + 2 }                // \/-(3)
+
+    // to retry in case of errors
+    "failure".left.orElse("retry".right) // \/-(retry)
+    "failure".left ||| "retry".right     // \/-(retry)
+
+--------------------------------------------------------------------------------
+Validation
+--------------------------------------------------------------------------------
+
+A data structure that is similar to the `Either` monad is `Validation`. The
+difference is that the validation structure is not a monad, but an applicative
+functor. Instead of chaining the result from one event to the next, it validates
+all the events:
+
+.. code-block:: scala
+
+    sealed trait Validation[+E, +A] {
+      // Return `true` if this validation is success
+      def isSuccess: Boolean = this match {
+        case Success(_) => true
+        case Failure(_) => false
+      }
+
+      // Return `true` if this validation is failure
+      def isFailure: Boolean = !isSuccess
+    }
+
+    final case class Success[E, A](a: A) extends Validation[E, A]
+    final case class Failure[E, A](e: E) extends Validation[E, A]
+
+`ValidationV` introductes a number of helper methods on all the types in the
+standard library:
+
+* `success[X]`
+* `successNel[X]`
+* `failure[X]`
+* `failureNel[X]`
+
+.. code-block:: scala
+
+    "success".success[String]
+    "failure".failure[String]
+
+    ("event 1 ok".success[String] |@| "event 2 failed!".failure[String] |@| "event 3 failed!".failure[String]) {_ + _ + _}
+    // Failure(event 2 failedevent 3 failed)
+
+The problem with the failure messages is that they are all jumbled together.
+The Nel methods use a NonEmptyList to aggregate the results:
+
+.. code-block:: scala
+
+    // A singly-linked list that is guaranteed to be non-empty
+    sealed trait NonEmptyList[+A] {
+      val head: A
+      val tail: List[A]
+      def <::[AA >: A](b: AA): NonEmptyList[AA] = nel(b, head :: tail)
+    }
+
+    1.wrapNel // NonEmptyList(1)
+
+    ("event 1 ok".successNel[String] |@| "event 2 failed!".failureNel[String] |@| "event 3 failed!".failureNel[String]) {_ + _ + _}
+    // Failure(NonEmptyList(event 2 failed, event 3 failed))
+
+It should be noted that `Validation` and `Either` can be converted back and
+forth by using the `validation` and `disjunction` methods.
+
+.. todo:: day8
+
 --------------------------------------------------------------------------------
 Tips and Tricks
 --------------------------------------------------------------------------------
@@ -821,20 +1307,15 @@ as named default arguments:
     val point = Point(2, 4)
     val moved = point.moveLeft(4)
 
-Long story short, bind works, `>>=` is an alias for it, `>>` is the
-s-combinator, and scala has the `for-expression` instead of the haskel
-`do-expression`. A cool thing, pattern matching works in for expressions:
+Since method injection is a common use case for implicits, Scala 2.10 adds a
+syntax sugar called implicit class to make the promotion from a class to an
+enriched class easier:
 
 .. code-block:: scala
 
-    val first = for {
-        (x :: xs) <- "hello".toList.some
-    } yield x
+    implicit class PairOperations[A: Monoid](pair: (A, A)) {
+        def sum: A = pair._1 |+| pair._2
+    }
 
-    first assert_=== 'h'.some
-
-    val what = for {
-        (x :: xs) <- "".toList.some
-    } yield x
-
-    what assert_=== (none: Option[Char])
+    (1, 2, 3, 4, 5, 6).sum
+    ("hello", "world").sum

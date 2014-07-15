@@ -1283,7 +1283,583 @@ The Nel methods use a NonEmptyList to aggregate the results:
 It should be noted that `Validation` and `Either` can be converted back and
 forth by using the `validation` and `disjunction` methods.
 
-.. todo:: day8
+--------------------------------------------------------------------------------
+Monadic Functions
+--------------------------------------------------------------------------------
+
+As monads are applicative functors which are themselves functors, all monads can
+be operated on with the same methods available to them: `map`, `<@>`, etc. Scalaz
+however offers a number of additional methods on monads:
+
+.. code-block:: scala
+
+    // these methods allow one to flatten nested monads
+    trait BindOps[F[_],A] extends Ops[F[A]] {
+      def join[B](implicit ev: A <~< F[B]): F[B] = F.bind(self)(ev(_))
+      def μ[B](implicit ev: A <~< F[B]): F[B] = F.bind(self)(ev(_))
+    }
+
+    val nest: Option[Option[Int]] = Some(9.some)
+    val flat: Option[Int] = nest.join
+    (Option[Option[Int]]: Some(none)).join // None
+    List(List(1,2,3), List(4,5,6)).join    // List(1,2,3,4,5,6)
+
+    // the monadic counterpart of filter
+    trait ListOps[A] extends Ops[List[A]] {
+      final def filterM[M[_] : Monad](p: A => M[Boolean]): M[List[A]] = l.filterM(self)(p)
+    }
+
+    List(1,2,3,4) filterM { x => (x == 2).some }     // only 2
+    List(1,2,3,4) filterM { x => List(true, false) } // all combinations
+
+    // the monadic counterparts to fold
+    def binSmalls(total: Int, next: Int): Option[Int] =
+      if (next > 9) (none: Option[Int])
+      else (total + next).some
+
+    List(2, 8, 3, 1).foldLeftM(0)   { binSmalls }  // Some(14)
+    List(2, 11, 3, 1).foldRightM(0) { binSmalls }  // None
+
+Using these we can implement a reverse polish calculator:
+
+.. code-block:: scala
+
+    def foldRPN(list: List[Double], next: String): Option[List[Double]] = (list, next) match {
+      case (x :: y :: ys, "*") => ((y * x) :: ys).point[Option]
+      case (x :: y :: ys, "+") => ((y + x) :: ys).point[Option]
+      case (x :: y :: ys, "-") => ((y - x) :: ys).point[Option]
+      case (xs, numString) => numString.parseInt.toOption map { _ :: xs }
+    }
+
+    def solveRPN(s: String): Option[Double] = for {
+      List(x) <- s.split(' ').toList.foldLeftM(Nil: List[Double) { foldRPN }
+    } yield x
+
+    solveRPN("1 2 * 4 +")    // Some(6.0)
+    solveRPN("1 2 * 4")      // None
+    solveRPN("1 2 * 4 bad")  // None
+    foldRPN(List(3, 2), "*") // Some(List(6.0))
+    foldRPN(Nil, "*")        // None
+    foldRPN(Nil, "bad")      // None
+
+--------------------------------------------------------------------------------
+Kleisli
+--------------------------------------------------------------------------------
+
+In Scalaz there is a special wrapper for a function of `A => M[B]`:
+
+.. code-block:: scala
+
+    sealed trait Kleisli[M[+_], -A, +B] { self =>
+      def run(a: A): M[B]
+      // alias for `andThen`
+      def >=>[C](k: Kleisli[M, B, C])(implicit b: Bind[M]): Kleisli[M, A, C] =
+        kleisli((a: A) => b.bind(this(a))(k(_)))
+      def andThen[C](k: Kleisli[M, B, C])(implicit b: Bind[M]): Kleisli[M, A, C] = this >=> k
+      // alias for `compose`
+      def <=<[C](k: Kleisli[M, C, A])(implicit b: Bind[M]): Kleisli[M, C, B] = k >=> this
+      def compose[C](k: Kleisli[M, C, A])(implicit b: Bind[M]): Kleisli[M, C, B] = k >=> this
+    }
+
+    object Kleisli extends KleisliFunctions with KleisliInstances {
+      def apply[M[+_], A, B](f: A => M[B]): Kleisli[M, A, B] = kleisli(f)
+    }
+
+    // here is an example of monadic function composition
+    val f = Kleisli { (x: Int) => (x + 1).some   }
+    val g = Kleisli { (x: Int) => (x * 100).some }
+
+    // these can be composed using <=< which runs the rhs first like
+    // f compose g = Some(401)
+    4.some >>= (f <=< g)
+
+    // these can also be composed using >=> which runs the lhs first like
+    // f andThen g = Some(500)
+    4.some >>= (f >=> g)
+
+
+Scalaz also defines the `Reader` monad as a special case of `Kleisli`:
+
+.. code-block:: scala
+
+    type ReaderT[F[+_], E, A] = Kleisli[F, E, A]
+    type Reader[E, A] = ReaderT[Id, E, A]
+    object Reader {
+      def apply[E, A](f: E => A): Reader[E, A] = Kleisli[Id, E, A](f)
+    }
+
+    // which allows for the reader example to be redefined
+    val addStuff: Reader[Int, Int] = for {
+      a <- Reader { (_: Int) * 2  }
+      b <- Reader { (_: Int) + 10 }
+    } yield a + b
+
+--------------------------------------------------------------------------------
+Custom Monad
+--------------------------------------------------------------------------------
+
+What if we want to make our own monad, say a probability monad:
+
+.. code-block:: scala
+
+    case class Prob[A](list: List[(A, Double)])
+
+    trait ProbInstances {
+      def flatten[B](xs: Prob[Prob[B]]): Prob[B] = {
+        def multall(innerxs: Prob[B], p: Double) =
+          innerxs.list map { case (x, r) => (x, p * r) }
+        Prob((xs.list map { case (innerxs, p) => multall(innerxs, p) }).flatten)
+      }
+
+      implicit val probInstance = new Functor[Prob] with Monad[Prob] {
+        def point[A](a: => A): Prob[A] = Prob((a, 1.0) :: Nil)
+        def bind[A, B](fa: Prob[A])(f: A => Prob[B]): Prob[B] = flatten(map(fa)(f)) 
+        override def map[A, B](fa: Prob[A])(f: A => B): Prob[B] =
+          Prob(fa.list map { case (x, p) => (f(x), p) })
+      }
+      implicit def probShow[A]: Show[Prob[A]] = Show.showA
+    }
+
+    case object Prob extends ProbInstances
+
+    // and using it say to model a coin flip
+    sealed trait Coin
+    case object Heads extends Coin
+    case object Tails extends Coin
+    implicit val coinEqual: Equal[Coin] = Equal.equalA
+
+    def coin: Prob[Coin] = Prob(Heads -> 0.5 :: Tails -> 0.5 :: Nil)
+    def loadedCoin: Prob[Coin] = Prob(Heads -> 0.1 :: Tails -> 0.9 :: Nil)
+
+    def flipThree: Prob[Boolean] = for {
+      a <- coin
+      b <- coin
+      c <- loadedCoin
+    } yield { List(a, b, c) all { _ === Tails } }
+
+    flipThree
+
+--------------------------------------------------------------------------------
+Zipper Tree
+--------------------------------------------------------------------------------
+
+Scalaz has an implementation of a multi-tree that we can use:
+
+.. code-block:: scala
+
+    sealed trait Tree[A] {
+      def rootLabel: A               // The label at the root of this tree
+      def subForest: Stream[Tree[A]] // The child nodes of this tree
+    }
+
+    object Tree extends TreeFunctions with TreeInstances {
+      // Construct a tree node with no children
+      def apply[A](root: => A): Tree[A] = leaf(root)
+
+      object Node {
+        def unapply[A](t: Tree[A]): Option[(A, Stream[Tree[A]])] =
+          Some((t.rootLabel, t.subForest))
+      }
+    }
+
+    trait TreeFunctions {
+      // Construct a new Tree node
+      def node[A](root: => A, forest: => Stream[Tree[A]]): Tree[A] = new Tree[A] {
+        lazy val rootLabel = root
+        lazy val subForest = forest
+        override def toString = "<tree>"
+      }
+
+      // Construct a tree node with no children
+      def leaf[A](root: => A): Tree[A] = node(root, Stream.empty)
+    }
+
+    trait TreeV[A] extends Ops[A] {
+      def node(subForest: Tree[A]*): Tree[A] = Tree.node(self, subForest.toStream)
+      def leaf: Tree[A] = Tree.leaf(self)
+    }
+
+    // example of creating a simple tree
+    def freeTree: Tree[Char] =
+         'P'.node(
+           'O'.node(
+             'L'.node('N'.leaf, 'T'.leaf),
+             'Y'.node('S'.leaf, 'A'.leaf)),
+           'L'.node(
+             'W'.node('C'.leaf, 'R'.leaf),
+             'A'.node('A'.leaf, 'C'.leaf)))
+
+If we want to modify this tree, we will have to write some pretty convoluted
+logic, however, we can use the conept of a zipper to ease our development:
+
+*With a pair of Tree a and Breadcrumbs a, we have all the information to rebuild
+the whole tree and we also have a focus on a sub-tree. This scheme also enables
+us to easily move up, left and right. Such a pair that contains a focused part
+of a data structure and its surroundings is called a zipper, because moving our
+focus up and down the data structure resembles the operation of a zipper on a
+regular pair of pants.*
+
+.. code-block:: scala
+
+    sealed trait TreeLoc[A] {
+      import TreeLoc._
+      import Tree._
+
+      val tree: Tree[A]         // The currently selected node
+      val lefts: TreeForest[A]  // The left siblings of the current node
+      val rights: TreeForest[A] // The right siblings of the current node
+      val parents: Parents[A]   // The parent contexts of the current node
+    }
+
+    object TreeLoc extends TreeLocFunctions with TreeLocInstances {
+      def apply[A](t: Tree[A], l: TreeForest[A], r: TreeForest[A], p: Parents[A]): TreeLoc[A] =
+        loc(t, l, r, p)
+    }
+
+    trait TreeLocFunctions {
+      type TreeForest[A] = Stream[Tree[A]]
+      type Parent[A] = (TreeForest[A], A, TreeForest[A])
+      type Parents[A] = Stream[Parent[A]]
+    }
+
+    val treeLoc = freeTree.loc
+
+`TreeLoc` supplies a number of functions for moving around in a tree, very
+similar to a DOM api:
+
+.. code-block:: scala
+
+    sealed trait TreeLoc[A] {
+      // Select the parent of the current node
+      def parent: Option[TreeLoc[A]] = ...
+      // Select the root node of the tree
+      def root: TreeLoc[A] = ...
+      // Select the left sibling of the current node
+      def left: Option[TreeLoc[A]] = ...
+      // Select the right sibling of the current node
+      def right: Option[TreeLoc[A]] = ...
+      // Select the leftmost child of the current node
+      def firstChild: Option[TreeLoc[A]] = ...
+      // Select the rightmost child of the current node
+      def lastChild: Option[TreeLoc[A]] = ...
+      // Select the nth child of the current node
+      def getChild(n: Int): Option[TreeLoc[A]] = ...
+      // Select the first immediate child of the current node that satisfies the given predicate
+      def findChild(p: Tree[A] => Boolean): Option[TreeLoc[A]] = ...
+      // Get the label of the current node
+      def getLabel: A = ...
+      // Modify the current node with the given function
+      def modifyTree(f: Tree[A] => Tree[A]): TreeLoc[A] = ...
+      // Modify the label at the current node with the given function
+      def modifyLabel(f: A => A): TreeLoc[A] = ...
+      // Insert the given node as the last child of the current node and give it focus
+      def insertDownLast(t: Tree[A]): TreeLoc[A] = ...
+    }
+
+    val focus = freeTree.loc
+    val nodeloc  = focus.getChild(2) >>= { _.getChild(1) } >>= { _.getLabel.some }
+    val newFocus = focus.getChild(2) >>= { _.getChild(1) } >>= { _.modifyLabel({ _ => 'P' }).some }
+    val newTree  = newFocus.get.toTree
+    newTree.draw foreach {_.print}
+
+So Scalaz also supplies a zipper for `Stream`:
+
+.. code-block:: scala
+
+    // base trait of a zipper for lists
+    sealed trait Zipper[+A] {
+      val focus: A
+      val lefts: Stream[A]
+      val rights: Stream[A]
+
+      // Possibly moves to next element to the right of focus
+      def next: Option[Zipper[A]] = ...
+      def nextOr[AA >: A](z: => Zipper[AA]): Zipper[AA] = next getOrElse z
+      def tryNext: Zipper[A] = nextOr(sys.error("cannot move to next element"))
+      // Possibly moves to the previous element to the left of focus
+      def previous: Option[Zipper[A]] = ...
+      def previousOr[AA >: A](z: => Zipper[AA]): Zipper[AA] = previous getOrElse z
+      def tryPrevious: Zipper[A] = previousOr(sys.error("cannot move to previous element"))
+      // Moves focus n elements in the zipper, or None if there is no such element
+      def move(n: Int): Option[Zipper[A]] = ...
+      def findNext(p: A => Boolean): Option[Zipper[A]] = ...
+      def findPrevious(p: A => Boolean): Option[Zipper[A]] = ...
+      
+      def modify[AA >: A](f: A => AA) = ...
+      def toStream: Stream[A] = ...
+    }
+
+    // operations to create a zipper
+    trait StreamOps[A] extends Ops[Stream[A]] {
+      final def toZipper: Option[Zipper[A]] = s.toZipper(self)
+      final def zipperEnd: Option[Zipper[A]] = s.zipperEnd(self)
+    }
+
+    val zipper    = List(1, 2, 3, 4, 5).toZipper
+    val nextValue = zipper >>= { _.next }
+    val currValue = zipper >>= { _.next } >>= { _.previous }
+    val modified  = zipper >>= { _.next } >>= { _.modify { _ => 7 }.some }
+    val newList   = modified.toStream.toList
+    val newList   = for {  // can also use the for-syntax
+      zs <- List(1, 2, 3, 4, 5).toZipper
+      n1 <- zs.next
+      n2 <- zs.next
+    } yield { n2.modify { _ => 7 } }
+
+--------------------------------------------------------------------------------
+Id
+--------------------------------------------------------------------------------
+
+The `Id` function or typeclass is really only useful for applying the monad
+theory:
+
+.. code-block:: scala
+
+    type Id[+X] = X
+    trait IdOps[A] extends Ops[A] {
+      // Returns `self` if it is non-null, otherwise returns `d`
+      final def ??(d: => A)(implicit ev: Null <:< A): A =
+        if (self == null) d else self
+      // Applies `self` to the provided function
+      final def \|>[B](f: A => B): B = f(self)
+      final def squared: (A, A) = (self, self)
+      def left[B]: (A \/ B) = \/.left(self)
+      def right[B]: (B \/ A) = \/.right(self)
+      final def wrapNel: NonEmptyList[A] = NonEmptyList(self)
+      // @return the result of pf(value) if defined, otherwise the the Zero element of type B
+      def matchOrZero[B: Monoid](pf: PartialFunction[A, B]): B = ...
+      // Repeatedly apply `f`, seeded with `self`, checking after each iteration whether the predicate `p` holds
+      final def doWhile(f: A => A, p: A => Boolean): A = ...
+      // Repeatedly apply `f`, seeded with `self`, checking before each iteration whether the predicate `p` holds
+      final def whileDo(f: A => A, p: A => Boolean): A = ...
+      // If the provided partial function is defined for `self` run this,
+      // otherwise lift `self` into `F` with the provided [[scalaz.Pointed]]
+      def visit[F[_] : Pointed](p: PartialFunction[A, F[A]]): F[A] = ...
+    }
+
+    1 + 2 + 3 \|> {_.point[List]}
+    1 visit { case x@(2|3) => List(x * 2) }  // List(1)
+    2 visit { case x@(2|3) => List(x * 2) }  // List(4)
+
+--------------------------------------------------------------------------------
+Deprecated Typeclasses
+--------------------------------------------------------------------------------
+
+There are a few special purpose typeclasses in scalaz that are slated for
+removal in future versions:
+
+* `Length` - can retrieve the length of a given structure
+* `Index`  - provides random access and maybe access to a structure
+* `Each`   - run side effects on all elements of a structure
+* `Pointed` - for abstracting over creating a singleton structure
+* `CoPointed` - the dual of pointed
+
+--------------------------------------------------------------------------------
+Monad Transformers
+--------------------------------------------------------------------------------
+
+*It would be ideal if we could somehow take the standard State monad and add
+failure handling to it, without resorting to the wholesale construction of
+custom monads by hand. The standard monads in the mtl library don’t allow us
+to combine them. Instead, the library provides a set of monad transformers to
+achieve the same result.
+
+A monad transformer is similar to a regular monad, but it’s not a standalone
+entity: instead, it modifies the behaviour of an underlying monad.*
+
+Here is an example of creating a stacked `Reader` and `Option`:
+
+.. code-block:: scala
+
+    type ReaderTOption[A, B] = ReaderT[Option, A, B]
+    object ReaderTOption extends KleisliFunctions with KleisliInstances {
+      def apply[A, B](f: A => Option[B]): ReaderTOption[A, B] = kleisli(f)
+    }
+
+    def configure(key: String) = ReaderTOption[Map[String, String], String] { _.get(key) } 
+    def setupConnection = for {
+      host <- configure("host")
+      user <- configure("user")
+      pass <- configure("pass")
+    } yield (host, user, pass)
+
+    val goodConfig = Map("user" -> "name", "host" -> "localhost", "pass" -> "*****")
+    val badConfig  = Map("user" -> "name", "host" -> "localhost")
+
+    setupConnection(goodConfig) // Some((name, localhost, *****)
+    setupConnection(badConfig)  // None
+
+*When we stack a monad transformer on a normal monad, the result is another
+monad. This suggests the possibility that we can again stack a monad transformer
+on top of our combined monad, to give a new monad, and in fact this is a common
+thing to do.*
+
+.. code-block:: scala
+
+    type StateTReaderTOption[C, S, A] = StateT[({type l[+X] = ReaderTOption[C, X]})#l, S, A]
+
+    object StateTReaderTOption extends StateTFunctions with StateTInstances {
+      def apply[C, S, A](f: S => (S, A)) = new StateT[({type l[+X] = ReaderTOption[C, X]})#l, S, A] {
+        def apply(s: S) = f(s).point[({type l[+X] = ReaderTOption[C, X]})#l]
+      }
+      def get[C, S]: StateTReaderTOption[C, S, S] =
+        StateTReaderTOption { s => (s, s) }
+      def put[C, S](s: S): StateTReaderTOption[C, S, Unit] =
+        StateTReaderTOption { _ => (s, ()) }
+    }
+
+--------------------------------------------------------------------------------
+Lenses
+--------------------------------------------------------------------------------
+
+.. code-block:: scala
+
+    case class Point(x: Double, y: Double)
+    case class Color(r: Byte, g: Byte, b: Byte)
+    case class Turtle( position: Point, heading: Double, color: Color) {
+      def forward(dist: Double): Turtle =
+        copy(position = position.copy(
+          x = position.x + dist * math.cos(heading),
+          y = position.y + dist * math.sin(heading)))
+    }
+
+    val color  = Color(255.toByte, 255.toByte, 255.toByte)
+    val turtle = Turtle(Point(2.0, 3.0), 0.0, color)
+    val moved  = turtle.forward(10)
+
+    // long story short, imperative update
+    a.b.c.d.e += 1
+
+    // functional update
+    a.copy(
+      b = a.b.copy(
+        c = a.b.c.copy(
+          d = a.b.c.d.copy(
+            e = a.b.c.d.e + 1))))
+
+Is there a cleaner way to produce an immutable interface to updating possibly
+nested objects without a hierarchy of copy calls? This is essentially what
+lenses do:
+
+.. code-block:: scala
+
+    type Lens[A, B] = LensT[Id, A, B]
+
+     object Lens extends LensTFunctions with LensTInstances {
+       def apply[A, B](r: A => Store[B, A]): Lens[A, B] = lens(r)
+     }
+
+    import StoreT._
+    import Id._
+
+    sealed trait LensT[F[+_], A, B] {
+      def run(a: A): F[Store[B, A]]
+      def apply(a: A): F[Store[B, A]] = run(a)
+
+      def get(a: A)(implicit F: Functor[F]): F[B] =
+        F.map(run(a))(_.pos)
+      def set(a: A, b: B)(implicit F: Functor[F]): F[A] =
+        F.map(run(a))(_.put(b))
+      // Modify the value viewed through the lens
+      def mod(f: B => B, a: A)(implicit F: Functor[F]): F[A] = ...
+      def =>=(f: B => B)(implicit F: Functor[F]): A => F[A] =
+        mod(f, _)
+      // Modify the portion of the state viewed through the lens and return its new value
+      def %=(f: B => B)(implicit F: Functor[F]): StateT[F, A, B] =
+        mods(f)
+      // Lenses can be composed
+      def compose[C](that: LensT[F, C, A])(implicit F: Bind[F]): LensT[F, C, B] = ...
+      // alias for `compose`
+      def <=<[C](that: LensT[F, C, A])(implicit F: Bind[F]): LensT[F, C, B] = compose(that)
+      def andThen[C](that: LensT[F, B, C])(implicit F: Bind[F]): LensT[F, A, C] =
+        that compose this
+      // alias for `andThen`
+      def >=>[C](that: LensT[F, B, C])(implicit F: Bind[F]): LensT[F, A, C] = andThen(that)
+    }
+
+    object LensT extends LensTFunctions with LensTInstances {
+      def apply[F[+_], A, B](r: A => F[Store[B, A]]): LensT[F, A, B] =
+        lensT(r)
+    }
+
+    trait LensTFunctions {
+      import StoreT._
+
+      def lensT[F[+_], A, B](r: A => F[Store[B, A]]): LensT[F, A, B] = new LensT[F, A, B] {
+        def run(a: A): F[Store[B, A]] = r(a)
+      }
+
+      def lensgT[F[+_], A, B](set: A => F[B => A], get: A => F[B])(implicit M: Bind[F]): LensT[F, A, B] =
+        lensT(a => M(set(a), get(a))(Store(_, _)))
+      def lensg[A, B](set: A => B => A, get: A => B): Lens[A, B] =
+        lensgT[Id, A, B](set, get)
+      def lensu[A, B](set: (A, B) => A, get: A => B): Lens[A, B] =
+        lensg(set.curried, get)
+    }
+
+    // a wrapper for setter A => B => A and getter A => B.
+    type Store[A, B] = StoreT[Id, A, B]
+    type \|-->[A, B] = Store[B, A]      // flipped
+    object Store {
+      def apply[A, B](f: A => B, a: A): Store[A, B] = StoreT.store(a)(f)
+    }
+
+Let's just write some examples to see how this all works (basically we are
+describing the changes to the instance up front and then passing in the
+instance to change after the fact, basically the `State` monad):
+
+.. code-block:: scala
+
+    val turtlePosition = Lens.lensu[Turtle, Point] (
+      (a, value) => a.copy(position = value), _.position)
+    val turtleHeading = Lens.lensu[Turtle, Double] (
+      (a, value) => a.copy(heading = value), _.heading)
+
+    val pointX = Lens.lensu[Point, Double] (
+      (a, value) => a.copy(x = value), _.x)
+    val turtleX = turtlePosition >=> pointX // Kleisli composition
+
+    val pointY = Lens.lensu[Point, Double] (
+      (a, value) => a.copy(y = value), _.y)
+    val turtleY = turtlePosition >=> pointY // Kleisli composition
+
+    turtleX.get(turtle)          // 2.0               get
+    turtleX.set(turtle, 5.0)     // Turtle(5.0, ...); set
+    turtleX.mod(_ + 1.0, turtle) // Turtle(3.0, ...); get and set
+    val incX = turtleX =>= { _ + 1.0 } // curried mod
+    incX(turtle)                 // Turtle(3.0, ...); get and set
+
+
+    val incX = for {
+      x <- turtleX %= {_ + 1.0}  // (Double => Double): StateT
+    } yield x                    // (Turtle(Point(3.0,3.0),0.0, Color(-1,-1,-1)), 3.0)
+
+    def forward(dist: Double) = for {
+       heading <- turtleHeading
+       x <- turtleX += dist * math.cos(heading)  // += is a helper operator for
+       y <- turtleY += dist * math.sin(heading)  // numeric lenses
+    } yield (x, y)
+
+Finally, the lens laws are pretty simply and are expressed by the following:
+
+.. code-block:: scala
+
+    // 1. if I get twice, I get the same value
+    // 2. if I get then set it back, nothing changes
+    // 3. if I set then get, I get what I set
+    // 4. if I set twice then get, I get what I set the second time
+    trait LensLaw {
+      def identity(a: A)(implicit A: Equal[A], ev: F[Store[B, A]] =:= Id[Store[B, A]]): Boolean = {
+        val c = run(a)
+        A.equal(c.put(c.pos), a)
+      }
+      def retention(a: A, b: B)(implicit B: Equal[B], ev: F[Store[B, A]] =:= Id[Store[B, A]]): Boolean =
+        B.equal(run(run(a) put b).pos, b)
+      def doubleSet(a: A, b1: B, b2: B)(implicit A: Equal[A], ev: F[Store[B, A]] =:= Id[Store[B, A]]) = {
+        val r = run(a)
+        A.equal(run(r put b1) put b2, r put b2)
+      }
+    }
 
 --------------------------------------------------------------------------------
 Tips and Tricks

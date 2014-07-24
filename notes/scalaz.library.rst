@@ -1862,6 +1862,110 @@ Finally, the lens laws are pretty simply and are expressed by the following:
     }
 
 --------------------------------------------------------------------------------
+Origami Programming
+--------------------------------------------------------------------------------
+
+Folds and unfolds are the natural patterns of computation over recursive
+datatypes; unfolds generate data structures and folds consume them. The dual of
+folding is unfolding. The Haskell standard List library deﬁnes the function
+`unfoldr` for generating lists:
+
+.. code-block:: haskell
+ 
+    // haskell usage of unfold
+    unfoldr (\b -> if b == 0 then Nothing else Just (b, b-1)) 10
+    [10,9,8,7,6,5,4,3,2,1]
+
+In scala, `unfold` operates on streams from the functions introduced
+`StreamFunctions`:
+
+.. code-block:: scala
+
+    val stream = unfold(10) { (x) => if (x == 0) none else (x, x - 1).some }
+    stream         // Stream(10, ?)
+    stream.toList  // List(10, 9, 8, 7, 6, 5, 4, 3, 2, 1)
+
+    def minimumS[A: Order](stream: Stream[A]) = stream match {
+      case x #:: xs => xs.foldLeft(x) { _ min _ }
+    }
+
+    def deleteS[A: Equal](y: A, stream: Stream[A]): Stream[A] = (y, stream) match {
+      case (_, Stream()) => Stream()
+      case (y, x #:: xs) => if (y === x) xs else x #:: deleteS(y, xs)
+    }
+
+    def delmin[A: Order](stream: Stream[A]): Option[(A, Stream[A])] = stream match {
+      case Stream() => none
+      case xs =>
+        val y = minimumS(xs)
+        (y, deleteS(y, xs)).some
+    }
+    def ssort[A: Order](stream: Stream[A]): Stream[A] =
+      unfold(stream){ delmin[A] }
+
+    ssort(Stream(1, 3, 4, 2)).toList
+
+--------------------------------------------------------------------------------
+Monoidal Applicatives
+--------------------------------------------------------------------------------
+
+Scalaz implements Monoid[m].applicative to turn any monoids into an applicative:
+
+.. code-block:: scala
+
+    Monoid[Int].applicative.ap2(1, 1)(0)                     // 2
+    Monoid[List[Int]].applicative.ap2(List(1), List(1))(Nil) // List(1, 1)
+
+--------------------------------------------------------------------------------
+Combining Applicative Functors 
+--------------------------------------------------------------------------------
+
+Like monads, applicative functors are closed under products; so two independent
+idiomatic effects can generally be fused into one, their product:
+
+.. code-block:: scala
+
+    trait Applicative[F[_]] extends Apply[F] with Pointed[F] { self =>
+      // The product of Applicatives `F` and `G`, `[x](F[x], G[x]])`, is an Applicative
+      def product[G[_]](implicit G0: Applicative[G]): Applicative[({type λ[α] = (F[α], G[α])})#λ] =
+        new ProductApplicative[F, G] {
+          implicit def F = self
+          implicit def G = G0
+        }
+    }
+
+    Applicative[List].product[Option]
+    Applicative[List].product[Option].point(1) // (List(1), Some(1))
+    ((List(1), 1.some) |@| (List(1), 1.some)) {_ |+| _} // (List(1, 1), Some(2))
+    ((List(1), 1.success[String]) |@| (List(1), "boom".failure[Int])) {_ |+| _} // (List(1, 1), Failure(boom))
+
+Unlike monads in general, applicative functors are also closed under composition;
+so two sequentially-dependent idiomatic effects can generally be fused into
+one, their composition:
+
+.. code-block:: scala
+
+    trait Applicative[F[_]] extends Apply[F] with Pointed[F] { self =>
+      // The composition of Applicatives `F` and `G`, `[x]F[G[x]]`, is an Applicative
+      def compose[G[_]](implicit G0: Applicative[G]): Applicative[({type λ[α] = F[G[α]]})#λ] = new CompositionApplicative[F, G] {
+        implicit def F = self
+        implicit def G = G0
+      }
+    }    
+
+    Applicative[List].compose[Option]
+    Applicative[List].compose[Option].point(1) // List(Some(1))
+
+
+The two operators `⊗` and `⊙` allow us to combine idiomatic computations in two
+different ways; we call them parallel and sequential composition, respectively.
+
+--------------------------------------------------------------------------------
+Idiomatic Traversal (Idiomatic -> Applicative)
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
 Tips and Tricks
 --------------------------------------------------------------------------------
 

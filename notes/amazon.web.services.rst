@@ -629,6 +629,7 @@ http://aws.amazon.com/kinesis/
 Summary
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. todo:: read up
 
 
 --------------------------------------------------------------------------------
@@ -640,3 +641,87 @@ http://aws.amazon.com/rds/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Summary
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. todo:: read up
+
+--------------------------------------------------------------------------------
+Amazon Sable
+--------------------------------------------------------------------------------
+
+.. todo:: read up
+
+--------------------------------------------------------------------------------
+Amazon Jiffy
+--------------------------------------------------------------------------------
+
+.. todo:: read up
+
+--------------------------------------------------------------------------------
+Amazon S3
+--------------------------------------------------------------------------------
+
+http://aws.amazon.com/s3/
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Tips
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to allow S3 to evenly shard your data, try not to
+use keys of the form `<database>/<date>/<name>` as you will
+eventually hit a scaling load (when a lot of keys hash to the
+same bucket). Instead, you can do something like::
+
+    key = "#{database}/#{date.now}/#{name}"
+    key = hash(key) + "/" + key
+
+Which will allow your keys to be evenly distributed throughout
+S3 for as long as you are using it.
+
+--------------------------------------------------------------------------------
+Amazon Simple Deployment Service (SDS)
+--------------------------------------------------------------------------------
+
+http://aws.amazon.com/sds/
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Summary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In summary, it has a similar architecture as Apollo.
+
+It comes with the following features:
+
+* repeatable and reliable deployment
+* zero downtime rolling updates
+* abort and rollback deployments
+* reuse existing scripts that you know work
+* auto scaling, ELB, cloud formation
+* multiple AWS accounts, instance types, and private VPC subnets
+* support for windows and linux
+
+Works by running an SDS agent on your EC2 instances and applying the neccessary
+tags for each instance (test, prod, etc). Then define an aspect configuration
+file with your code (a YAML file). Next, push your code to S3 and then tell the
+SDS service to deploy that revision. You can now orchestrate your deployment to
+your test tagged environments and when you are sure they are working correctly,
+simply tell SDS to push to production tagged instances.
+
+The configuration file has a number of hooks to tie into the lifecycle of the
+application.  These can be any executable which the hook defines to run as a
+given user with a timeout for how long until the execution has failed. If the
+script does not return an error, it is assumed to succeed:
+
+* start
+* application stop
+* <download>
+* before install
+* <install>
+* after install
+* application start
+* validate service
+* end
+
+One downside at the moment is that the data that is pushed to S3 is defined
+per the application (say installer for windows, rpm/deb for linux, etc).
+Also, in the future, they hope to enable things like
+`Blue Green Deployment <http://martinfowler.com/bliki/BlueGreenDeployment.html>`_.

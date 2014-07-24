@@ -401,25 +401,6 @@ another host to route to:
 * A TTL is added to the message so that it isn't rejected forever
 
 ============================================================
-Amazon Web Services
-============================================================
-
-------------------------------------------------------------
-S3
-------------------------------------------------------------
-
-In order to allow S3 to evenly shard your data, try not to
-use keys of the form `<database>/<date>/<name>` as you will
-eventually hit a scaling load (when a lot of keys hash to the
-same bucket). Instead, you can do something like::
-
-    key = "#{database}/#{date.now}/#{name}"
-    key = hash(key) + "/" + key
-
-Which will allow your keys to be evenly distributed throughout
-S3 for as long as you are using it.
-
-============================================================
 Quorums and Chains: Consensus Beyond Paxos
 ============================================================
 
@@ -980,6 +961,8 @@ wrapped in a transaction closure and executed in a query manager.
 Timer Service
 ============================================================
 
+.. todo:: architecture
+
 ------------------------------------------------------------
 Summary
 ------------------------------------------------------------
@@ -1134,3 +1117,285 @@ Summary
   - debux then uses control plane to write to table specific stream
   - this is exposed through the read stream
   - alf is used to manage the fleet and elect a scheduler node
+
+================================================================================
+Distributed Data Structures
+================================================================================
+
+.. todo:: watch the second half (broken) and fix structures
+
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+
+Can we reduce distributed programming to a single primitive
+that is backed by research: distributed hash table. These can
+scale as long as gear can be supplied:
+
+* unlimited keys
+* unlimited cumulative data
+* unlimited cumulative TPS
+* unlimited DHT functionality: `get`, `set`, `delete`
+* limited single key TPS (cannot scale a single machine)
+* limited non DHT functionality: `list-keys`
+
+We can model any existing data structure in a DHT as all memory allocations
+are just a key to value pair with memory address to data. There are a number
+of problems that we have to overcome with this new solution though:
+
+* **Keys Are Shared**
+
+  If we do not do anything to control it, multiple systems will write to the
+  same keys and collide with each others data. We can avoid namespace collision
+  by randomizing a private key prefix and using your own public names in the
+  application: `private/public`.
+
+* **Data Is Permanent**
+
+  In a single process application in memory, if the application fails, memory
+  is cleared and can simply be started again. In a DHT the data will not be
+  cleaned up and may stay forever. One way to solve this problem is to perform
+  a best effort cleanup with garbage collection. Simply save the keys that were
+  created during the operation and then delete them on a rollback. Otherwise,
+  they can simply be ignored if we can afford the extra space. Comprehensive
+  scan otherwise if we can understand the linkage of the system (linked list).
+
+* **Concurrency Happens**
+
+  Blocking distributes badly if say another piece takes a lock and fails. So
+  instead we use `CAS`. If we know the state of the world, we are allowed to
+  update it. If not, we will fail. This update happens atomically. This gets
+  us to *Lock Free* systems:
+
+  - `get(key) -> (value, version)`
+  - `put(key, version) -> version`
+  - `del(key, version) -> version`
+
+* **Multiple Operations**
+
+  Create a new virtual head node `transaction-<id>`. It can be in three states:
+  open, committed, cancelled. The nodes involved with the transaction are made
+  to point to the head node. They have a condition that:
+
+  * if the txn is open or cancelled, the value is the original
+  * if the txn is committed, the value is the new value
+
+  New nodes can simply interpret the new values based on the txn values or clean
+  up at some time to resolve the new values. Any node can do this as the values
+  are encoded in the txn node. So if the original node crashes during the
+  transaction, the node will go to cancelled and a new reading node can then
+  remove the transaction reference and delete the transaction node.
+
+.. code-block:: javascript
+
+    // original
+    { account: a, balance: $100 }
+    { account: b, balance: $0   }
+
+    // during transaction
+    { transaction: a-b, state: open }
+    { account: a, balance: $100, tx: { id: a-b, committed-value: $90 } }
+    { account: b, balance: $0, tx: { id: a-b, committed-value: $10 } }
+
+    // after transaction (and CAS cleanup)
+    { transaction: a-b, state: committed }
+    { account: a, balance: $90 }
+    { account: b, balance: $10 }
+
+* **Isolation**
+
+  Can use copy on write to provide isolation. Simple create a new copy that
+  you can operate on as much as you want. When you are finished simply `CAS`
+  the head pointer of the new tree with the existing one.
+ 
+* **Performance**
+
+How can we create a stack:
+
+.. code-block:: python
+
+    stack = new Stack() // stack -> k:node0
+    stack.push("a")     // node0 -> v:"a", k:node1
+    stack.push("b")     // node1 -> v:"b"
+
+How can we create a tree:
+
+.. code-block:: python
+
+    stack = new Tree()  // tree  -> k:node0
+    stack.push(5)       // node0 -> v:5, l:node1, r:node2
+    stack.push(2)       // node1 -> v:2
+    stack.push(7)       // node1 -> v:7
+
+How can we create an undirected graph:
+
+.. code-block:: python
+
+    stack = new Graph()  // graph -> k:node0
+    stack.link("a", "b") // node0 -> v:"a", l:node1, r:node2
+    stack.link("a", "c") // node1 -> v:"b", k:none
+
+Notes:
+
+* Heruly Hierarchy of Atomic Operations
+
+================================================================================
+Amazon Instant Video
+================================================================================
+
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+
+Codecs are a compressor / decompressor (like gzip) which convert pixel values
+into the frequency domain. It can roughly be thought of one big FFT:
+
+* sharp edges get converted to high frequencies
+* a flat region is converted to low frequencies
+* heavy use of interframe prediction to take advantage of redundancy
+
+Movies are a collection of Group Of Pictures (GOP). GOPs are a collection of
+frames that are composed of the following frame types:
+
+* **I** - Self contained (intra coded); largest
+* **P** - Predicted frames; reference previous I or P frames
+* **B** - BiDirectional reference frames, reference prior or future I or P frames
+* **b** - non reference B frames - reference prior or future I, P, or B frames
+
+Classic streaming of movies attempted to make the internet work like television:
+
+* assumed multicast was available; tuned over UDP and fallback to custom TCP
+* HTTP was the worst case fallback protocol
+* streaming logic was shared between the server and the client (heavy on server)
+* this made scaling horrible; no proxy or load balancing
+* bitrates switch down with congestion, but not back up
+* stateful protocol represented as a stream of packets
+* customers could play, pause, etc (state on the server)
+
+This didn't work well at all, so now we tried *Adaptive Streaming* which attempted
+to make TV work like the internet:
+
+* small HTTP requests that fit into the edge caches (globally unique fragments)
+* each HTTP request was one fragment containing a GOP
+* bitrate switches happen between fragments (choose the next one we should get)
+* all logic is on the client, the server just sends fragments
+* bitrate is measured via size and download time of each request
+* every fragment download allows us to adjust the bitrate we need in real time
+
+Current AIV settings:
+
+* H.264 encoded with Harmonic ProMedia Carbon - behind the state of the art
+* Microsoft Smooth Streaming - not written with networking in mind
+* Constant Bitrate (CBR) encoding - wastes a lot of unneccessary bits
+* Fixed 2 second GOP and fragment size - wastes a lot of space on I frames
+* 150 - 10,000 Kbps - fixed GOP causes keyframe strobing
+* up to 1980x1080 (1080p)
+* up to 30 fps (24 fps is common)
+
+Future AIV settings:
+
+* x264 encoding (format is H.264); tuned by video quality focused pirates
+* variable chunk size - aligned with biggest scene change (2.5s - 5s)
+* capped VBR - specify max bitrate and visual quality; use only needed bits
+* anamorphic encoding - not all pixels are square
+* enhanced encoding heuristics
+  - time to first byte and time to last byte (get bandwidth and latency)
+  - calculate latency and bandwidth seperately
+  - concurrent downloads (download with current latency before finished)
+  - can log quality and max bitrate for GOP
+  - Rate Distortion Optimization (RDO) problem (minimize rsme)
+* support for HEVC
+  - 25% slower to decode (is more parallizable / GPU)
+  - much slower to encode (can move to hardware asic)
+  - hierarchical quad tree with varying block size
+  - asymetric partitions
+
+================================================================================
+Amazon Datastore Tradeoffs
+================================================================================
+
+
+.. todo:: better notes of the details of each datastore
+
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+
+In choosing a datastore, a number of tradeoffs need to be evaluated to select
+the best data store for the workload:
+
+* the velocity of requests coming in
+* the average item size
+* the ratio of writes vs reads for the workflow
+* the data variety (structure / schema)
+* the volume of data on the store (horizontal scaling)
+* the cost of using the datastore (use the storage calculator)
+* the temperatue of the data:
+
+  - hot
+    volume in MB or GB, item size of B to KB
+
+  - warm
+    volume in MB or GB, item size of B to KB
+
+  - cold
+    volume in GB or TB, item size of B to KB
+
+Amazon has created a number of datastores to handle different collections of
+the above tradeoffs which can be tuned for different workloads:
+
+* **Amazon EMR**
+  
+  - optional schema on read (mapreduce = no, hive = yes)
+  - 100s of petabytes of storage volume (dynamodb or hdfs)
+
+* **Amazon Redshift**
+
+  - strong structure / schema on creation
+  - low petabytes of storage volume
+
+* **Amazon S3**
+
+  - virtulally unlimited storage volume
+  - data is warm to cold depending on use case
+
+* **Amazon Elasticache**
+
+  - 100s of gigabytes of storage volume (in memory)
+  - is used only for hot data (expensive in memory)
+
+* **Amazon Kinesis**
+
+  - low 10s of terabytes of storage volume (how much per 24 hours)
+  - is used only for hot data
+
+* **Amazon DynamoDb**
+
+  - virtulally unlimited storage volume (but slower partitions)
+  - data is hot or warm depending on the use case
+
+* **Amazon RDS**
+
+  - strong structure / schema on creation
+  - 3 terabytes of storage volume
+
+* **Amazon Glacier**
+
+  - virtulally unlimited storage volume
+  - data is mostly cold storage
+
+* **Amazon Cloudsearch**
+
+  - 100s of gigabytes of storage volume (in memory)
+
+* **Amazon Cloudfront**
+
+A single workload may need to use many different datastores for its workload.
+Say a video upload and streaming service:
+
+* the raw file is stored in S3
+* some metadata is stored in dynamodb with a pointer to S3
+* metadata needed for searching is stored in cloudsearch
+* user permissions are stored in RDS
+* hot files can be moved to cloudfront
+* hot metadata can be moved to elasticache

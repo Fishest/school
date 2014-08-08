@@ -950,9 +950,11 @@ Scalaz verifies these using the following concept:
       FC.equal(bind(bind(fa)(f))(g), bind(fa)((a: A) => bind(f(a))(g)))
   }
 
-  monad.laws[Option].check
+  type EitherTList[A, B] = EitherT[List, A, B]
+  type EitherTListInt[A] = EitherT[List, Int, A]
 
-.. todo::  monad.laws[Either].check
+  monad.laws[Option].check
+  monad.laws[EitherTListInt].check  // to bind the types
 
 --------------------------------------------------------------------------------
 Writer Monad
@@ -1964,6 +1966,302 @@ different ways; we call them parallel and sequential composition, respectively.
 Idiomatic Traversal (Idiomatic -> Applicative)
 --------------------------------------------------------------------------------
 
+Traversal involves iterating over the elements of a data structure, in the style
+of a map, but interpreting certain function applications idiomatically. This is
+implemented in scalaz with the `Traverse` typeclass:
+
+.. code-block:: scala
+
+    trait Traverse[F[_]] extends Functor[F] with Foldable[F] { self =>
+      def traverseImpl[G[_]:Applicative,A,B](fa: F[A])(f: A => G[B]): G[F[B]]
+    }
+
+    // the traverse operator is defined in `TraverseOps`
+    trait TraverseOps[F[_],A] extends Ops[F[A]] {
+      final def traverse[G[_], B](f: A => G[B])(implicit G: Applicative[G]): G[F[B]] =
+        G.traverse(self)(f)
+    }
+
+    // the option operator is injected into boolen which expands:
+    // (x > 0) option (x + 1)
+    // if (x > 0) Some(x + 1) else None.
+    List(1, 2, 3) traverse { x => (x > 0) option (x + 1) } // Some(List(2, 3, 4))
+    List(1, 2, 0) traverse { x => (x > 0) option (x + 1) } // None
+
+In the case of a monadic applicative functor, traversal specialises to monadic
+map, and has the same uses. It feels mostly like flatMap except the passed in
+function requires a return of `G[B]` where `[G: Applicative]` instead of `List`.
+For a monoidal applicative functor, traversal accumulates values. The function
+reduce performs that accumulation, given an argument that assigns a value to
+each element:
+
+.. code-block:: scala
+
+    Monoid[Int].applicative.traverse(List(1, 2, 3)) { _ + 1 } // 9
+
+--------------------------------------------------------------------------------
+Shape and Contents
+--------------------------------------------------------------------------------
+
+In addition to being parametrically polymorphic in the collection elements, the
+generic traverse operation is parametrised along two further dimensions: the
+datatype being traversed, and the applicative functor in which the traversal is
+interpreted. Specialising the latter to lists as a monoid yields a generic
+contents operation. 
+
+.. code-block:: scala
+
+    // now we can take any traversable type and extract the contents
+    def contents[F[_]: Traverse, A](f: F[A]): List[A] =
+      Monoid[List[A]].applicative.traverse(f) {List(_)}
+
+    val tree: Tree[Char] = '1'.node('2'.leaf, '3'.leaf)
+    contents(List(1,2,3))   // List(1,2,3)
+    contents(tree)          // List(1,2,3)
+
+    // this uses Id which is the identity monad
+    def shape[F[_]: Traverse, A](f: F[A]): F[Unit] =
+      f traverse {_ => ((): Id[Unit])}
+
+    shape(List(1, 2, 3))    // List((), (), ())
+
+    def decompose[F[_]: Traverse, A](f: F[A]) = (shape(f), contents(f))
+
+    decompose(tree)         // (<tree>, List(1, 2, 3))
+
+--------------------------------------------------------------------------------
+Sequence
+--------------------------------------------------------------------------------
+
+Evaluate each action in the sequence from left to right, and collect the results.
+
+.. code-block:: scala
+
+    final def sequence[G[_], B](implicit ev: A === G[B], G: Applicative[G]): G[F[B]] = {
+      val fgb: F[G[B]] = ev.subst[F](self)
+      F.sequence(fgb)
+     }
+
+     List(1.some, 2.some).sequence // Some(List(1,2)
+     List(1.some, none).sequence   // None
+
+--------------------------------------------------------------------------------
+Collection and Dispersal
+--------------------------------------------------------------------------------
+
+This is mimicking the use of for loop with mutable variable accumulating the
+value outside of the loop. Traverse adds traverseS, which is a specialized
+version of traverse for State monad. Using that we can write collect as
+following:
+
+.. code-block:: scala
+
+    def collect[F[_]: Traverse, A, S, B](t: F[A])(f: A => B)(g: S => S) =
+      t.traverseS[S, B] { a => State { (s: S) => (g(s), f(a)) } }
+
+    val loop = collect(List(1, 2, 3, 4)) {(_: Int) * 2} {(_: Int) + 1}
+
+    loop(0) // (4, List(2, 4, 6, 8))
+
+
+    def label[F[_]: Traverse, A](f: F[A]): F[Int] =
+      (f.traverseS {_ => for {
+        n <- get[Int]
+        x <- put(n + 1)
+      } yield n}) eval 0
+
+     abel(List(10, 2, 8))  / List(0, 1, 2)
+
+--------------------------------------------------------------------------------
+Scalaz Import Guide
+--------------------------------------------------------------------------------
+
+In Scala, imports are used for two purposes:
+
+1. To include names of values and types into the scope
+2. To include implicits into the scope
+
+Implicits are for 4 general purposes:
+
+1. To provide typeclass instances
+2. To inject methods and operators (static monkey patching)
+3. To declare type constraints
+4. To retrieve type information from compiler
+
+Implicits are selected in the following precedence:
+
+1. Values and converters accessible without prefix via local declaration, imports,
+   outer scope, inheritance, and current package object. Inner scope can shadow
+   values when they are named the same.
+
+2. Implicit scope. Values and converters declared in companion objects and
+   package object of the type, its parts, or super types.
+
+When you `import scalaz._` the following are put into the local scope (mostly
+for convenience):
+
+* Typeclasses like `Equal`, `Functor`
+* The type aliases like `Reader[E, A]`, `@@[T, Tag]`
+* The Id monad
+
+As for `import Scalaz._`:
+
+.. code-block:: scala
+
+    package scalaz
+
+    // nothing is defined here, it is just for organization
+    object Scalaz
+      extends StateFunctions        // Functions related to the state monad
+      with syntax.ToTypeClassOps    // syntax associated with type classes
+      with syntax.ToDataOps         // syntax associated with Scalaz data structures
+      with std.AllInstances         // Type class instances for the standard library types
+      with std.AllFunctions         // Functions related to standard library types
+      with syntax.std.ToAllStdOps   // syntax associated with standard library types
+      with IdInstances              // Identity type and instances
+
+    trait StateFunctions {
+      def constantState[S, A](a: A, s: => S): State[S, A] = ...
+      def state[S, A](a: A): State[S, A] = ...
+      def init[S]: State[S, S] = ...
+      def get[S]: State[S, S] = ...
+      def gets[S, T](f: S => T): State[S, T] = ...
+      def put[S](s: S): State[S, Unit] = ...
+      def modify[S](f: S => S): State[S, Unit] = ...
+      def delta[A](a: A)(implicit A: Group[A]): State[A, A] = ...
+    }
+
+    trait AllFunctions
+      extends ListFunctions
+      with OptionFunctions
+      with StreamFunctions
+      with math.OrderingFunctions
+      with StringFunctions
+
+    // IdInstances is basically a type alias and implicits
+    type Id[+X] = X
+
+
+    // These are the instances of all the built in datastructues. It should be
+    // noted that this does not bring in the syntax DSL for the various types.
+    trait AllInstances
+      extends AnyValInstances with FunctionInstances with ListInstances with MapInstances
+      with OptionInstances with SetInstances with StringInstances with StreamInstances with TupleInstances
+      with EitherInstances with PartialFunctionInstances with TypeConstraintInstances
+      with scalaz.std.math.BigDecimalInstances with scalaz.std.math.BigInts
+      with scalaz.std.math.OrderingInstances
+      with scalaz.std.util.parsing.combinator.Parsers
+      with scalaz.std.java.util.MapInstances
+      with scalaz.std.java.math.BigIntegerInstances
+      with scalaz.std.java.util.concurrent.CallableInstances
+      with NodeSeqInstances
+      // Intentionally omitted: IterableInstances
+
+    // These bring in all the injected syntax methods for the typeclasses,
+    // for example: [syntax.ToBindOps] implicitly converts F[A]
+    //  where [F: Bind] into BindOps[F, A] that implements >>= operator.
+    trait ToTypeClassOps
+      extends ToSemigroupOps with ToMonoidOps with ToGroupOps with ToEqualOps with ToLengthOps with ToShowOps
+      with ToOrderOps with ToEnumOps with ToMetricSpaceOps with ToPlusEmptyOps with ToEachOps with ToIndexOps
+      with ToFunctorOps with ToPointedOps with ToContravariantOps with ToCopointedOps with ToApplyOps
+      with ToApplicativeOps with ToBindOps with ToMonadOps with ToCojoinOps with ToComonadOps
+      with ToBifoldableOps with ToCozipOps
+      with ToPlusOps with ToApplicativePlusOps with ToMonadPlusOps with ToTraverseOps with ToBifunctorOps
+      with ToBitraverseOps with ToArrIdOps with ToComposeOps with ToCategoryOps
+      with ToArrowOps with ToFoldableOps with ToChoiceOps with ToSplitOps with ToZipOps with ToUnzipOps with ToMonadWriterOps with ToListenableMonadWriterOpsV
+
+    // These bring in the injected syntax methods for all the data structures defined in scalaz.
+    // These are mostly short-hand to create instances of these types.
+    trait ToDataOps extends ToIdOps with ToTreeOps with ToWriterOps with ToValidationOps with ToReducerOps with ToKleisliOps
+
+    // These are injected into all types for convenience
+    trait IdOps[A] extends Ops[A] {
+      final def ??(d: => A)(implicit ev: Null <:< A): A = ...
+      final def \|>[B](f: A => B): B = ...
+      final def squared: (A, A) = ...
+      def left[B]: (A \/ B) = ...
+      def right[B]: (B \/ A) = ...
+      final def wrapNel: NonEmptyList[A] = ...
+      def matchOrZero[B: Monoid](pf: PartialFunction[A, B]): B = ...
+      final def doWhile(f: A => A, p: A => Boolean): A = ...
+      final def whileDo(f: A => A, p: A => Boolean): A = ...
+      def visit[F[_] : Pointed](p: PartialFunction[A, F[A]]): F[A] = ...
+    }
+
+    trait ToIdOps {
+      implicit def ToIdOps[A](a: A): IdOps[A] = new IdOps[A] {
+        def self: A = a
+      }
+    }
+
+    // These are injected into all types to convert to a tree instance
+    trait TreeOps[A] extends Ops[A] {
+      def node(subForest: Tree[A]*): Tree[A] = ...
+      def leaf: Tree[A] = ...
+    }
+
+    trait ToTreeOps {
+      implicit def ToTreeOps[A](a: A) = new TreeOps[A]{ def self = a }
+    }
+
+    // These add methods and operators to scala's standard types
+    trait ToAllStdOps
+      extends ToBooleanOps with ToOptionOps with ToOptionIdOps with ToListOps with ToStreamOps
+      with ToFunction2Ops with ToFunction1Ops with ToStringOps with ToTupleOps with ToMapOps with ToEitherOps
+
+--------------------------------------------------------------------------------
+Arrow
+--------------------------------------------------------------------------------
+
+An arrow is the term used in category theory as an abstract notion of thing that
+behaves like a function:
+
+.. code-block:: scala
+
+    trait Arrow[=>:[_, _]] extends Category[=>:] { self =>
+      // returns an identity arrow
+      def id[A]: A =>: A
+      // creates an Arrow from a normal function
+      def arr[A, B](f: A => B): A =>: B
+      // creates a new arrow by extending the input and output as pairs
+      def first[A, B, C](f: (A =>: B)): ((A, C) =>: (B, C))
+    }
+
+    trait ArrowOps[F[_, _],A, B] extends Ops[F[A, B]] {
+      // combines two arrows into a new arrow by running two arrows on a pair
+      // of values: one on the first element and the other on the second element.
+      final def ***[C, D](k: F[C, D]): F[(A, C), (B, D)] = F.splitA(self, k)
+      // combines the two arrows by running them both on the same value.
+      final def &&&[C](k: F[A, C]): F[A, (B, C)] = F.combine(self, k)
+    }
+
+    val f = (_:Int) + 1
+    val g = (_:Int) * 100
+    (f *** g)(1, 2)  // (2, 200)
+    (f &&& g)(2)     // (3, 200)
+
+    trait Category[=>:[_, _]] extends Compose[=>:] { self =>
+      // The left and right identity over `compose`
+      def id[A]: A =>: A
+    } 
+
+    trait Compose[=>:[_, _]]  { self =>
+      // composes two arrows into one
+      def compose[A, B, C](f: B =>: C, g: A =>: B): (A =>: C)
+    }
+
+    // The arrow functions have different meanings for different Arrows,
+    // but for functions they are simply `andThen` and `compose`
+    trait ComposeOps[F[_, _],A, B] extends Ops[F[A, B]] {
+      final def <<<[C](x: F[C, A]): F[C, B] = F.compose(self, x)
+      final def >>>[C](x: F[B, C]): F[A, C] = F.compose(x, self)
+    }
+
+--------------------------------------------------------------------------------
+Unapply
+--------------------------------------------------------------------------------
+
+.. todo:: finish
 
 --------------------------------------------------------------------------------
 Tips and Tricks

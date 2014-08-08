@@ -1147,8 +1147,12 @@ of problems that we have to overcome with this new solution though:
 
   If we do not do anything to control it, multiple systems will write to the
   same keys and collide with each others data. We can avoid namespace collision
-  by randomizing a private key prefix and using your own public names in the
-  application: `private/public`.
+  by first prefixing the node with a type flag (stack, node, etc). Furthermore,
+  if we want to hide a node until the operation it is involved in is complete, we
+  can temporarily assign it a randomized name (uuid) until we are finished:
+
+  * `stack/application-name` -> `node/A0`
+  * `2341234sadf23` -> `node/A1`
 
 * **Data Is Permanent**
 
@@ -1162,14 +1166,23 @@ of problems that we have to overcome with this new solution though:
 
 * **Concurrency Happens**
 
-  Blocking distributes badly if say another piece takes a lock and fails. So
-  instead we use `CAS`. If we know the state of the world, we are allowed to
-  update it. If not, we will fail. This update happens atomically. This gets
-  us to *Lock Free* systems:
+  Blocking distributes badly if say another piece takes a lock and fails. We
+  could use time based locks or some other method, otherwise we can use the
+  `CAS` primitive. If we know the state of the world, we are allowed to
+  update it. If not, we will fail. This update happens atomically. At first
+  we can simply spin-loop to try and update the value until we can get through.
+  However, if we have the knowledge to complete the state of the system, we can
+  complete the work for the other threads which gets us to *Lock Free* systems.
+  The value changes we will monitor are the version of the values:
 
   - `get(key) -> (value, version)`
   - `put(key, version) -> version`
   - `del(key, version) -> version`
+
+.. note:: Papers to read
+
+   Dijkstra (all locking primitives reduce to CAS)
+   Maurice Herilhy (all primitives can be wait free)
 
 * **Multiple Operations**
 
@@ -1207,12 +1220,48 @@ of problems that we have to overcome with this new solution though:
   Can use copy on write to provide isolation. Simple create a new copy that
   you can operate on as much as you want. When you are finished simply `CAS`
   the head pointer of the new tree with the existing one.
+
+  For graph changes, create a new temporary node transaction, add both edges,
+  then commit. Cleanup involves updating the original structure after the 
+  commit or after another thread performs a read.
+
+  If there are two transactions going on at once, if a second transaction
+  comes along and sees another node is already involved in the first
+  transaction, it can `CAS` swap the first transaction to cancelled and
+  then remove its reference to the node question. When the second transaction
+  comes back and tries to CAS update its transaction to complete, it will
+  fail and have to start over with a new state of the world.
  
 * **Performance**
+
+  To keep performance, use structure sharing of immutable structures to
+  avoid copying large portions of a structure. So maximize immutability!
+  If a value is not under contention, we don't have to use `CAS`. We
+  can also use the garbage collector to clean up after rollback and success
+  instead of having to write the values ourselfs after transactions.
+
+  If a node is a single point (say a tree head), then we need to distribute
+  the heat across the keys (load balancing). We can do this by creating a new
+  parent node which points to immutable child trees. Hosts can then balance
+  on the sub-tree keys instead of the main root nodea (host-a handles left,
+  host-b handles right). This can continue down the tree to scale.
+
+--------------------------------------------------------------------------------
+Datastructures
+--------------------------------------------------------------------------------
 
 How can we create a stack:
 
 .. code-block:: python
+
+    // ------------------------------------------------------------
+    // To add a value to the stack, we add it and point
+    // to the first node value. We then change the head
+    // pointer to point to the new value (two steps):
+    //     stack -> a
+    //         b -> a
+    //     stack -> b -> a
+    // ------------------------------------------------------------
 
     stack = new Stack() // stack -> k:node0
     stack.push("a")     // node0 -> v:"a", k:node1
@@ -1222,22 +1271,33 @@ How can we create a tree:
 
 .. code-block:: python
 
-    stack = new Tree()  // tree  -> k:node0
-    stack.push(5)       // node0 -> v:5, l:node1, r:node2
-    stack.push(2)       // node1 -> v:2
-    stack.push(7)       // node1 -> v:7
+    // ------------------------------------------------------------
+    // To add a value to the tree, we add the new node pointing to
+    // nothing. Then as long as we do not have to rebalance, we
+    // simply change the pointer (left or right) of the node where
+    // this should be inserted at:
+    //     tree -> a -> None
+    //        b
+    //     tree -> a -> b
+    // ------------------------------------------------------------
+
+    stack = new Tree()  // tree  -> K:node0
+    stack.push(5)       // node0 -> V:5, L:node1, R:node2
+    stack.push(2)       // node1 -> V:2
+    stack.push(7)       // node2 -> V:7
 
 How can we create an undirected graph:
 
 .. code-block:: python
 
-    stack = new Graph()  // graph -> k:node0
-    stack.link("a", "b") // node0 -> v:"a", l:node1, r:node2
-    stack.link("a", "c") // node1 -> v:"b", k:none
+    // ------------------------------------------------------------
+    // We make this an undirected graph such that all edges between
+    // two nodes are added as edges in the edge list of both nodes.
+    // ------------------------------------------------------------
 
-Notes:
-
-* Heruly Hierarchy of Atomic Operations
+    stack = new Graph()  // node-a -> E:[b, c]
+    stack.link("a", "b") // node-b -> E:[a]
+    stack.link("a", "c") // node-c -> E:[a]
 
 ================================================================================
 Amazon Instant Video

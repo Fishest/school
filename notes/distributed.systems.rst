@@ -200,3 +200,5 @@ Some advantages of using this format are:
 * Easy to read and convert to other types
 
 .. todo:: convert page notes
+
+.. todo:: http://courses.csail.mit.edu/6.852/08/lecture.html

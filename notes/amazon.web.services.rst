@@ -45,6 +45,7 @@ The currently available services supplied by AWS are as follows:
   - AWS Data Pipeline
   - AWS Identity and Access Management
   - AWS OpsWorks
+  - Kinesis
 
 * **Application Services**
 
@@ -725,3 +726,259 @@ One downside at the moment is that the data that is pushed to S3 is defined
 per the application (say installer for windows, rpm/deb for linux, etc).
 Also, in the future, they hope to enable things like
 `Blue Green Deployment <http://martinfowler.com/bliki/BlueGreenDeployment.html>`_.
+
+--------------------------------------------------------------------------------
+Amazon SimpleDB
+--------------------------------------------------------------------------------
+
+http://docs.aws.amazon.com/AmazonSimpleDB/latest/DeveloperGuide/Welcome.html
+http://boto.readthedocs.org/en/latest/simpledb_tut.html
+http://aws.amazon.com/articles/1394
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Summary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+SimpleDB works by creating domains for application data. Domains are similar to
+database tables, except that you cannot perform functions across multiple
+domains, such as querying multiple domains or using foreign keys. This should be
+planned for in architecture design. Data can be stored in different domains and
+then searched or joined at the application layer, otherwise it should be in the 
+same domain.
+
+The following components of SimpleDB correspond to each part of a spreadsheet:
+
+* aws account - an entire spreadsheet
+* sdb domain - represents a worksheet
+* sdb items - represent spreadsheet rows (contain one or more key/value pairs)
+* sdb attributes - represent spreadsheet columns (categories of data assigned to items)
+* sdb values - represent spreadsheet cells (instances of item attributes)
+
+Unlike a spreadsheet, simpleDB cells can have multiple values associated with them.
+However like a spreadsheet, new fields can be added to an entry and SimpleDb will
+correctly index them into the structure.
+
+Each AWS account can have up to 250 domains with each domain holding up to 10 GB
+per domain. A good method of scaling SimpleDB up is to partition data between a
+different domain (and thus different clusters).
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Service API
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+SimpleDB has a simple ReST interface based on the operation to be performed:
+
+* `CreateDomain` - Create domains to contain your data (up to 250)
+* `DeleteDomain` - Delete any of your domains
+* `ListDomains` - List all domains within your account
+* `PutAttributes` - Add, modify, or remove data within your Amazon SimpleDB domains
+* `BatchPutAttributes` - Generate multiple put operations in a single call
+* `DeleteAttributes` - Remove items, attributes, or attribute values from your domain
+* `BatchDeleteAttributes` - Generate multiple delete operations in a single call
+* `GetAttributes` - Retrieve the attributes and values of any item id that you specify
+* `Select` - Query the specified domain using a SQL `select` expression
+* `DomainMetadata` - View information about the domain: creation date, item count / size, schema
+
+Simply perform a standard HTTP `GET` or `POST` request with the required fields:
+
+.. code-block:: python
+
+    request = [
+        "https://sdb.eu-west-1.amazonaws.com/",              # endpoint
+        "?Action=PutAttribute",                              # action
+        "&DomainName=MyDomain",                              # database domain
+        "&&AWSAccessKeyId=<your_access_key>",                # authentication
+        "&ItemName=Item123",                                 # primary key
+        "&Attribute.1.Name=Color&Attribute.1.Value=Blue",    # attribute
+        "&Attribute.2.Name=Size&Attribute.2.Value=Med",      # attribute
+        "&Attribute.3.Name=Price&Attribute.3.Value=0014.99", # attribute
+        "&Version=2009-04-15",                               # SimpleDB api version
+        "&Signature=<valid_signature>",                      # message signature
+        "&SignatureVersion=2",                               # signature version
+        "&SignatureMethod=HmacSHA256",                       # method of signing
+        "&Timestamp=2010-01-25T15%3A01%3A28-07%3A00",        # timestamp of action
+    ]   
+    response = http_client.get(''.join(request))
+    # <PutAttributesResponse>
+    #   <ResponseMetadata>
+    #     <StatusCode>Success</StatusCode>
+    #     <RequestId>f6820318-9658-4a9d-89f8-b067c90904fc</RequestId>
+    #     <BoxUsage>0.0000219907</BoxUsage>
+    #   </ResponseMetadata>
+    # </PutAttributesResponse>
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Consistency
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All operations in SimpleDB are eventually consistent. To achieve high performance
+and durability, multiple copies of each domain are kept. Read operations can be
+performed in a consistent or inconsistent manner with the tradeoff being performance
+for the gurantee of the most up to date version of a value. In general if two clients
+are writing data (w_1 and w_2) and two readers are reading (r_1, r_2):
+
+.. code-block:: text
+
+    # read overlaps a write (when does write2 complete?)
+    w_1 r_1       r_1 == (C=[w_1 w_2], NC=[w_1 w_2, None])
+    ------------
+        w_2  r_2  r_2 == (C=[w_2], NC=[w_1 w_2, None])
+
+    # no overlapping operations (linear)
+    w_1   r_1     r_1 == (C=[w_2], NC=[w_1 w_2, None])
+    ------------
+       w_2  r_2   r_2 == (C=[w_2], NC=[w_1 w_2, None])
+
+    # overlapping writes (which wins?)
+    w_1   r_1     r_1 == (C=[w_1 w_2], NC=[w_1 w_2, None])
+    ------------
+     w_2    r_2   r_2 == (C=[w_1 w_2], NC=[w_1 w_2, None])
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Scaling
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To scale a dataset, simply split it into different domains which can be queried
+in parallel. The partition can be made based on the type of data or based on
+an easily split primary key (ex: customer identifier).
+
+In cases where data sets do not partition easily (e.g., logs, events, web crawler
+data), you can use hashing algorithms to create a uniform distribution of items
+among multiple domains.  For example, you can determine the hash of an item name
+using a well-behaved hash function, such as MD5 and use the last 2 bits of the
+resulting hash value to place each item in a specified domain:
+
+* If last two bits equal `00`, place item in `Domain0`
+* If last two bits equal `01`, place item in `Domain1`
+* If last two bits equal `10`, place item in `Domain2`
+* If last two bits equal `11`, place item in `Domain3`
+
+To extend this to more partitions, simply use more bits of the resutling hash
+(3 to 8 domains, 4 to 16, etc).
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Security
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To validate that the request came from the correct authorized party, SimpleDB
+requests that an HMAC signature be included in the message as well as the user's
+public api key:
+
+1. create the request to issue to SimpleDB
+2. create an HMAC-SHA hash of the request + your secret key
+3. send the request to AWS with the signature and your access key
+4. AWS looks up your secret key with your supplied access key
+5. it creates the same HMAC-SHA hash of the request using your secret key
+6. it compares the two signatures and if they are different, the request fails
+7. if the signatures are the same, the request is issued to the underlying data store
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Optmistic Concurrency Control
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To make sure your write does not stomp another write, you can use conditional
+operations based on an attribute for an item. It is suggested that writers use
+a version number or timestamp field that can be tested. to write a new value,
+simply read the current value, then write a new value with the expectation of
+the old value:
+
+.. code-block:: python
+
+    request = [
+        # ...
+        &Attribute.2.Name=VersionNumber
+        &Attribute.2.Value=31
+        &Attribute.2.Replace=true
+        &Expected.1.Name=VersionNumber
+        &Expected.1.Value=30
+        # ...
+    ]
+
+This same technique can be used for:
+
+* versioning
+* atomic counters
+* attribute existence checks (transaction, locks, etc)
+* delete attributes (transaction cleanup / rollback)
+* delete item (garbage collection)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Querying
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+SimpleDB presents a SQL query API that implements most of the common SQL operations
+as well as a few unique qualities:
+
+* select multiple values from an attribute
+* intersection of queries
+* range queries
+
+Large queries, like count, will run for at most 5 seconds before returning their
+current results along with a token that can be used to make another request to
+continue the operation for the next 5 seconds. To get the total result, simply
+keep querying until a continuation token is not returned and aggregate the results.
+
+It should be noted that all values stored in SimpleDB are stored as UTF8 strings.
+This means that for numeric data, all comparisons are performed lexicographically.
+As such, AWS recommends:
+
+* use negative number offsets (store all numbers as positive, add smallest possible value)
+* use zero padding (add leftmost zeros up to largest value in the dataset)
+* store dates in the appropriate format (ISO 8601 with neccessary granularity)
+
+All attributes are indexed individually, however querying where two attributes are
+true may produce two large sets that have to be reduced to one quite small result.
+To prevent this case (where it is needed), create a joint attribute:
+
+.. code-block:: sql
+
+    -- instead of hitting two indexes, combine them to make one
+    select * from myDomain where Type = 'Book' and Price < '9'
+    select * from myDomain where TypePrice > 'Book' and TypePrice < 'Book9'
+
+    -- instead of sorting a non-predicated attribute, combine them into one a prefix query
+    select * from myDomain where user_id = '1234' and bill_time is not null order by bill_time limit 100
+    select * from myDomain where user_id_bill_time like '1234|%' order by user_id_bill_time limit 100
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Throttling
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you attempt to query the serivce to fast, SimpleDB will start returing 5xx
+errors. In this case, one should perform an exponential backoff and retry as
+follows:
+
+.. code-block:: java
+
+    boolean shouldRetry = true;
+    int retries = 0;
+    do {
+      try {
+        // Submit request to Amazon SimpleDB
+        if (status == HttpStatus.SC_OK) {
+          shouldRetry = false;
+          // Process successful response from Amazon SimpleDB
+        } else {
+          if (status == HttpStatus.SC_INTERNAL_SERVER_ERROR
+             || status == HttpStatus.SC_SERVICE_UNAVAILABLE) {
+        shouldRetry = true;
+        long delay = (long) (Math.random() * (Math.pow(4, retries++) * 100L));
+        try {
+          Thread.sleep(delay);
+        } catch (InterruptedException iex){
+          log.error("Caught InterruptedException exception", iex);
+        }
+          } else {
+        shouldRetry = false;
+        // Process 4xx (Client) error
+          }
+        }
+      } catch (IOException ioe) {
+        log.error("Caught IOException exception", ioe);
+      } catch (Exception e) {
+        log.error("Caught Exception", e);
+      } finally {
+        // Perform clean-up as necessary
+      }
+    } while (shouldRetry && retries < MAX_NUMBER_OF_RETRIES);
+

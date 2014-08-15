@@ -481,6 +481,7 @@ Flow Framework
 The flow framework attempts to hide a lot of the workflow boilerplate in the form
 of an AOP library using aspectJ. In order to interface with it, simply decorate
 the interfaces with appropriate annotations:
+
 .. code-block:: java
 
     //------------------------------------------------------------
@@ -592,6 +593,7 @@ Flow Framework Under the Hood
 
 The magic behind activities in the workflow is that they are all wrapped in
 `Task`, so the hello world defined about can also be written like this:
+
 .. code-block:: java
 
     @Override
@@ -605,7 +607,8 @@ The magic behind activities in the workflow is that they are all wrapped in
         };
     }
 
-If the method is returning a `Promise<T>`, it should use a `Functor`
+If the method is returning a `Promise<T>`, it should use a `Functor`:
+
 .. code-block:: java
 
     @Override
@@ -731,9 +734,9 @@ Also, in the future, they hope to enable things like
 Amazon SimpleDB
 --------------------------------------------------------------------------------
 
-http://docs.aws.amazon.com/AmazonSimpleDB/latest/DeveloperGuide/Welcome.html
-http://boto.readthedocs.org/en/latest/simpledb_tut.html
-http://aws.amazon.com/articles/1394
+* http://docs.aws.amazon.com/AmazonSimpleDB/latest/DeveloperGuide/Welcome.html
+* http://boto.readthedocs.org/en/latest/simpledb_tut.html
+* http://aws.amazon.com/articles/1394
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Summary

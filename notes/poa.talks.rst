@@ -1122,8 +1122,6 @@ Summary
 Distributed Data Structures
 ================================================================================
 
-.. todo:: watch the second half (broken) and fix structures
-
 --------------------------------------------------------------------------------
 Summary
 --------------------------------------------------------------------------------
@@ -1370,85 +1368,146 @@ Future AIV settings:
   - hierarchical quad tree with varying block size
   - asymetric partitions
 
+
 ================================================================================
 Amazon Datastore Tradeoffs
 ================================================================================
-
-
-.. todo:: better notes of the details of each datastore
 
 --------------------------------------------------------------------------------
 Summary
 --------------------------------------------------------------------------------
 
-In choosing a datastore, a number of tradeoffs need to be evaluated to select
-the best data store for the workload:
+When scaling to reach a specified SLA, first make stateless layers redundant, but
+if the weakest point is less than that SLA, you can never make to total SLA unless
+you scale the weakest point. This leads to CAP (each point is a range, not boolean).
+
+The tradeoff between each point in CAP can be different for different services /
+components, different workloads, or event different entities! In choosing a
+datastore, these tradeoffs need to be evaluated to select the best data store
+for that workload:
 
 * the velocity of requests coming in
-* the average item size
+* the average item size (volume)
 * the ratio of writes vs reads for the workflow
-* the data variety (structure / schema)
+* the data types (structure / schema) (variety)
 * the volume of data on the store (horizontal scaling)
 * the cost of using the datastore (use the storage calculator)
 * the temperatue of the data:
 
-  - hot
-    volume in MB or GB, item size of B to KB
+  - hot (active real time data)
 
-  - warm
-    volume in MB or GB, item size of B to KB
+    * volume in MB or GB, item size of  B to KB
+    * latency in milliseconds
+    * low to high durability
+    * very high request rate
+    * $1.00 - $10.0 per GB
 
-  - cold
-    volume in GB or TB, item size of B to KB
+  - warm (accessed regularly in soft time)
+
+    * volume in GB or TB, item size of KB to MB
+    * latency in milliseconds or seconds
+    * high durability
+    * high request rate
+    * $0.10 - $1.00 per GB
+
+  - cold (archived low use data)
+
+    * volume in TB or PB, item size of KB to TB
+    * latency in minutes or hours
+    * very high durability
+    * low request rate
+    * $0.01 per GB
+
+The temperature can be though of as how often the data is accessed, how recent
+it is, and how soon it is needed.
+
+--------------------------------------------------------------------------------
+Database Choices
+--------------------------------------------------------------------------------
 
 Amazon has created a number of datastores to handle different collections of
 the above tradeoffs which can be tuned for different workloads:
 
 * **Amazon EMR**
   
-  - optional schema on read (mapreduce = no, hive = yes)
   - 100s of petabytes of storage volume (dynamodb or hdfs)
+  - data is cold to warm
+  - low velocity of reads / writes
+  - optional schema on read (mapreduce = no, hive = yes)
 
 * **Amazon Redshift**
 
-  - strong structure / schema on creation
   - low petabytes of storage volume
+  - data is cold to warm
+  - low velocity of reads / writes
+  - low data variety (strong schema)
 
 * **Amazon S3**
 
   - virtulally unlimited storage volume
-  - data is warm to cold depending on use case
+  - data is cold to warm depending on use case
+  - medium/high velocity of reads / writes
+  - high data variety (key / value)
 
 * **Amazon Elasticache**
 
   - 100s of gigabytes of storage volume (in memory)
   - is used only for hot data (expensive in memory)
+  - very high velocity of reads / writes
+  - high data variety (key / value)
 
 * **Amazon Kinesis**
 
   - low 10s of terabytes of storage volume (how much per 24 hours)
-  - is used only for hot data
+  - is used only for hot data (data only held for 24 hours)
+  - very high velocity of writes
+  - high data variety (key / value)
+
+* **Amazon SimpleDb**
+
+  - 10 gigabytes per domain (250 max)
+  - data is hot or warm depending on the use case
+  - very high velocity of reads depending on consistency
+  - high data variety (primary key required, rest is column store)
 
 * **Amazon DynamoDb**
 
   - virtulally unlimited storage volume (but slower partitions)
   - data is hot or warm depending on the use case
+  - very high velocity of reads depending on consistency
+  - medium data variety (some schema required hash / range keys)
 
 * **Amazon RDS**
 
-  - strong structure / schema on creation
   - 3 terabytes of storage volume
+  - data is warm
+  - medium velocity of reads / writes
+  - low data variety (strong schema)
 
 * **Amazon Glacier**
 
   - virtulally unlimited storage volume
   - data is mostly cold storage
+  - very low velocity of reads / writes (but high volume write)
+  - high data variety (key / value)
 
 * **Amazon Cloudsearch**
 
   - 100s of gigabytes of storage volume (in memory)
+  - data is warm
+  - medium velocity of reads / writes
+  - medium data variety (some schema required search keys)
 
 * **Amazon Cloudfront**
+
+  - virtulally unlimited storage volume
+  - data is warm to hot
+  - very high velocity of reads
+  - high data variety (key / value)
+
+--------------------------------------------------------------------------------
+Database Usage
+--------------------------------------------------------------------------------
 
 A single workload may need to use many different datastores for its workload.
 Say a video upload and streaming service:
@@ -1459,3 +1518,22 @@ Say a video upload and streaming service:
 * user permissions are stored in RDS
 * hot files can be moved to cloudfront
 * hot metadata can be moved to elasticache
+
+When sharding a database to increase scale, one has a few options:
+
+* federation - putting different data sets on different databases (orders, customers)
+* partition  - split data based on a field (date, type)
+* sharding   - split data based on a field range or hash (customers a-l, m-z)
+* copying    - many read-only copies of the same data in different databases
+* clustering - pieces of data split between many databases 
+
+
+============================================================
+Transaction on DynamoDB
+============================================================
+
+https://github.com/awslabs/dynamodb-transactions
+
+------------------------------------------------------------
+Summary
+------------------------------------------------------------

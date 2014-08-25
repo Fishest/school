@@ -225,7 +225,7 @@ Notes on Data Base Operating general
 http://research.microsoft.com/~Gray/papers/DBOS.pdf
 
 ------------------------------------------------------------
-How to Build a Highly Available general Using Consensus
+How to Build a Highly Available General Using Consensus
 ------------------------------------------------------------
 http://research.microsoft.com/en-us/um/people/blampson/58-Consensus/Abstract.html
 
@@ -345,3 +345,22 @@ or receives a message of the form `v:0:j_i:...:j_k` as there can only be
 one of these. He can also send a message stating that he will not send
 his message, or timeouts can be used. Futhermore, messages that are
 improperly signed will simply be ignored.
+
+--------------------------------------------------------------------------------
+Distributed Snapshots: Determining Global State
+--------------------------------------------------------------------------------
+
+Processes in a distributed system communicated by sending and receiving messages.
+A process can record its own state and the messages it sends or receives. It can
+record nothing else. To know its current state, a process *p* must force all the
+other processes to record their state and send messages to *p* at some time which
+will not be at precisely the same moment as a synchronized clock is not shared.
+
+The algorithm to be proposed is useful in answering *stable property* predicates
+on a distributed system *D*. This property is one in with if a predicate *y* based
+on some state *S* of *D* is `y(S) = true`, then all states reachable from state *S*
+will be true as well `forall(S' <- S) y(S') == true`. Examples of these are:
+
+* the computation has terminated
+* the system has deadlocked
+* all hosts in the system are down

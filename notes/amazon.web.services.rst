@@ -62,12 +62,12 @@ Libraries
 
 The following are mature libraries that can be used with various languages:
 
-* `bash`: https://github.com/aws/aws-cli
-* `java`: https://github.com/aws/aws-sdk-java
-* `javascript`: https://github.com/aws/aws-sdk-js
-* `.net`: https://github.com/aws/aws-sdk-net
-* `python`: https://github.com/boto/boto
-* `ruby`: https://github.com/aws/aws-sdk-ruby
+* `bash`       : https://github.com/aws/aws-cli
+* `java`       : https://github.com/aws/aws-sdk-java
+* `javascript` : https://github.com/aws/aws-sdk-js
+* `.net`       : https://github.com/aws/aws-sdk-net
+* `python`     : https://github.com/boto/boto
+* `ruby`       : https://github.com/aws/aws-sdk-ruby
 
 --------------------------------------------------------------------------------
 Amazon DynamoDB
@@ -146,7 +146,9 @@ Tips
 
 You can get the best performance if your hash key is such that it can be split
 between N partitions evenly so that you can get the performance of parallel IO
-from multiple hosts (if you do parallel queries)::
+from multiple hosts (if you do parallel queries):
+
+.. code-block:: scala
 
     hash_key  = hash(range_key) % partitions
     range_key = "%s/%s" % (record_date, record_id)
@@ -328,7 +330,9 @@ restarted in the case of failure exactly where it left off. It handles all the
 plumbing like concurrency, durability, task retrying, consistency, etc.
 
 The history of each workflow is recorded and stored for up to 90 days. It is
-programatically accessed as a JSON document of a collection of attributes::
+programatically accessed as a JSON document of a collection of attributes:
+
+.. code-block:: javascript
 
     [
       {
@@ -622,6 +626,91 @@ If the method is returning a `Promise<T>`, it should use a `Functor`:
         client.printGreeting(greeting);
     }
 
+--------------------------------------------------------------------------------
+Amazon Route 53
+--------------------------------------------------------------------------------
+
+http://aws.amazon.com/route53/
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Summary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. todo:: read up
+
+--------------------------------------------------------------------------------
+Amazon Glacier
+--------------------------------------------------------------------------------
+
+http://aws.amazon.com/glacier/
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Summary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. todo:: read up
+
+--------------------------------------------------------------------------------
+Amazon Elasticache
+--------------------------------------------------------------------------------
+
+http://aws.amazon.com/elasticache/
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Summary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is basically hosted Redis and Memcached.
+
+.. todo:: read up
+
+--------------------------------------------------------------------------------
+Amazon S3
+--------------------------------------------------------------------------------
+
+http://aws.amazon.com/s3/
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Summary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. todo:: read up
+
+--------------------------------------------------------------------------------
+Amazon SNS
+--------------------------------------------------------------------------------
+
+http://aws.amazon.com/sns/
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Summary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. todo:: read up
+
+--------------------------------------------------------------------------------
+Amazon Data Pipeline
+--------------------------------------------------------------------------------
+
+http://aws.amazon.com/datapipeline/
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Summary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. todo:: read up
+
+--------------------------------------------------------------------------------
+Amazon Redshift
+--------------------------------------------------------------------------------
+
+http://aws.amazon.com/redshift/
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Summary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. todo:: read up
 
 --------------------------------------------------------------------------------
 Amazon Kinesis
@@ -634,7 +723,6 @@ Summary
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. todo:: read up
-
 
 --------------------------------------------------------------------------------
 Amazon RDS
@@ -673,7 +761,9 @@ Tips
 In order to allow S3 to evenly shard your data, try not to
 use keys of the form `<database>/<date>/<name>` as you will
 eventually hit a scaling load (when a lot of keys hash to the
-same bucket). Instead, you can do something like::
+same bucket). Instead, you can do something like:
+
+.. code-block:: scala
 
     key = "#{database}/#{date.now}/#{name}"
     key = hash(key) + "/" + key

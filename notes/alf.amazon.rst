@@ -5,6 +5,8 @@ Amazon Alf
 https://blogs.amazon.com/alf_gossip/archive/2010/10/
 https://w.amazon.com/index.php/Alf
 
+.. todo:: LSD
+
 --------------------------------------------------------------------------------
 Summary
 --------------------------------------------------------------------------------
@@ -21,6 +23,20 @@ application to do the following things:
 --------------------------------------------------------------------------------
 Alf Bus
 --------------------------------------------------------------------------------
+
+.. todo:: data plane / control plane
+.. todo:: “The implementation of reliable distributed multiprocess systems”
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Summary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The Alf Bus is a fault tolerant, high performance, durable, log publishing
+service. It’s designed to be used as a commit log underlying strongly consistent
+distributed applications such as databases, key-value stores, and lock managers.
+The bus provides strong consistency guarantees and supports constraints between
+committed records, to enable features like deduplication, sequencing, and
+read-write conflict detection.
 
 --------------------------------------------------------------------------------
 Alf Server / Alf Registry Server

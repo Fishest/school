@@ -1537,3 +1537,15 @@ https://github.com/awslabs/dynamodb-transactions
 ------------------------------------------------------------
 Summary
 ------------------------------------------------------------
+
+============================================================
+Dynamo: Amazon’s Highly Available Key-value Store 
+============================================================
+
+http://www.allthingsdistributed.com/2007/10/amazons_dynamo.html
+
+------------------------------------------------------------
+Summary
+------------------------------------------------------------
+
+ DHTs, consistent hashing, versioning, vector clocks, quorum, anti-entropy based recovery

@@ -191,6 +191,223 @@ dynamo, these guarantees can be met:
 
 https://github.com/awslabs/dynamodb-transactions/blob/master/DESIGN.md
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Architecture
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Dynamo is built to be always writable even in the face of network partitions. As
+such it is eventually consistent based on CAP. It is built for a single domain
+where all the hosts are trusted. It is built for low latency operations (99.9%
+read / write served in ~100ms) with a relatively simple key/value schema (no
+hierarchy).
+
+Unlike Chord, to keep the response time low, multi-hop routing must be avoided.
+As such, dynamo uses a zero-hop DHT approach (each node maintains enough routing
+information to direct to the correct host).
+
+What follows are a list of things that a production level database system must
+provide scalable and robust solutions for:
+
+* data persistence component
+* load balancing
+* membership and failure detection
+* failure recovery
+* replica synchronization
+* overload handling
+* state transfer
+* concurrency and job scheduling
+* request marshalling
+* request routing
+* system monitoring and alarming
+* configuration management
+
+In the dynamo paper, only the aspects of the datastorage are covered:
+
+* **Partitioning**
+
+  Consistent Hashing is used to provide incremental scalability. This allows
+  nodes to enter and leave while only affecting the immediate neighbors in
+  the ring. To balance the load, each node adds `V` virtual token entries in
+  the ring. This means that when a node enters or leaves a ring, the load
+  is reduced / balanced across the entire fleet instead of a node being
+  affected by a herd. Also, the heterogeneity of the data allows `V` to be
+  decided apriori based on the provisioned capacity.
+
+  After writing to a given node, that node will then replicate the value to
+  `N` successor nodes. These are referred to as a preference list. Each node
+  knows the preference list for each key mapped to it. In case the successor
+  virtual node is the same, it is skipped so that the set of nodes is of size
+  `N`. This means that if a node fails, the next `N - 1` nodes in the ring
+  can fulfill the `get(key)` request. These replications happen asynchronously.
+
+* **High Availability for Writes**
+
+  Vector clocks with reconciliation during reads which means version size
+  is decoupled from update reads. The vector clock is essentially a list of
+  `(node, counter)` pairs. One vector clock is associated with each version of
+  an object. This allows the system to see if two objects are ancestors, the
+  same, or divergent by checking the version and nodes of each clock.
+
+  One problem with the vector clocks is that they may grow quite large, however
+  dynamod generally constrains the writes to the top N hosts in the preference
+  list. To solve this problem, dynamo actually stores a triple of
+  `(node, counter, timestamp)`. When the list of the vector clock exceeds a
+  value, say ten entries, the entries with the oldest timestamp are removed.
+  This can cause resolution problems, but it has not been observed in production.
+
+  It should be noted that in the original paper, dynamo allows for plugging in
+  custom conflict resolution (business level merging), but in the current
+  DynamoDB implementation it is simply last write wins (timestamp policy).
+
+.. code-block:: text
+
+    D1 [(Sx, 1)]                   # Sx creates the initial entry
+    D2 [(Sx, 2)]                   # Sx updates its entry
+    D3 [(Sx, 2), (Sy, 1)]          # Sy makes a new update
+    D4 [(Sx, 2), (Sz, 1)]          # Sz branches an independent update
+    D5 [(Sx, 3), (Sy, 1), (Sz, 1)] # Sx merges D3 and D4
+
+* **Handling Temporary Failures**
+
+  A get or put request hits a load balancer which may randomly push the
+  request to a node not in the preference list. In that case, the receiving
+  host forwards the request to one of the preferred hosts that is currently
+  reachable. The writing host will write to `W` hosts while the reader will
+  read from `R` hosts such that `W + R > N` (with both `W` and `R` being less
+  than `N`). In this way, the system can achieve quorum. Note, the requests
+  are hedged against `N` for read / write; as long as `W` or `R` respond
+  quorum is achieved.
+
+  To deal with temporary failure, Sloppy Quorum and hinted handoff are used
+  which provides high availability and durability guarantee when some of the
+  replicas are not available. This works by reading / writing from the first
+  `N` *healthy* hosts. When a write is given to an unintented host in the
+  circle, it is written with some metadata pointing to the intended host in
+  a seperate database. When the host that was down recovers, this database
+  is forwarded to the recovered host and deleted locally.
+
+  If we add nodes from multiple datacenters, backed by high speed networks,
+  to the preference list, we can stand a full datacenter failure for all
+  database data. It should be noted that this technique is most useful for
+  low churn temporary outages, not full scale failures.
+
+* **Recovering From Permanent Failures**
+
+  Anti-entropy (replica synchronization) using Merkle trees which synchronizes
+  divergent replicas in the background. A merkle tree is simply a hierarchy of
+  hashes from root to leaves where leaves are the hashes of keyed values and
+  parent hashes are hashes of a combination of leaves. Thus, when deciding on
+  what data to transfer to resync, two trees just perform a BFS until a value
+  does not match.
+
+  In dynamo, each node keeps a seperate merkle tree for each virtual node range.
+  Every so often, similar virtual nodes compare the root of their tree to see
+  if they are out of sync from each other and if so perform the neccessary sync
+  process.
+  
+
+* **Membership and Failure Detection**
+
+  Gossip-based membership protocol and failure detection which preserves symmetry
+  and avoids having a centralized registry for storing membership and node
+  liveness information. To help this process along, initial nodes known as seeds
+  are primed from static information or a configuration service and all nodes in
+  the ring know about them.
+
+  When a node appears down to another node, the requesting node pulls that node
+  out of its active list and uses other instances to service its request. It then
+  tries every so often to contact the down node and add it back to its active list.
+
+  When nodes are added or removed from the system explicitly, by administrator
+  or otheriwse, a message is passed via gossip to all hosts in the ring. In this
+  way a global decentralized system is not needed as all state changes are moved
+  throughout the system.
+
+  When a new node is added to the system, it gets `N` virtual tokens placed
+  uniformally around the ring and the nodes that were in charge of those ranges
+  perform a handoff process of their data to bootstrap the new node. After acking
+  the handoff, they can delete the previously managed data. When a node leaves the
+  ring, this process happens in reverse.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Implementation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The Dynamo system is composed of three systems (all implemented in Java):
+
+* **Request Coordination**
+
+  Built on top of an event driven messaging substrate, built on NIO, where the
+  messaging is split into multiple stages like SEDA. The coordinator executes
+  the read / write requests on behalf of the client. Every write starts a state
+  machine instance on the node that received the request. The state machine
+  handles all the logic for:
+
+  - identifying the nodes responsible for a key
+  - sending the requests
+  - waiting for responses
+  - potentially doing retries
+  - processing the replies
+  - packaging the response to the client (merging vector clocks)
+  - waits after responding to client to receive late responses
+  - if the late response are stale, it updates them with the resolved data (read repair)
+
+  There are some other optimizations like the fastest read responding node is
+  chosen as the first node in the write preference list (has best chance of read
+  your own writes). Also, a write back in-memory cache can be used to increase
+  performance.
+
+* **Membership / Failure Detection**
+* **Local Persistance Engine**
+
+  This system is pluggable with current adapters for Berkely DB, MySQL, and an
+  in memory buffer with a file backing store. The reason for the pluggable back
+  end is that there are tradeoffs between them: BDB handles lots of small objects
+  well while MySQL handles larger items better.
+
+The system interface is as follows:
+
+* `get(key) -> (contect, object)`
+
+  This uses the key to locate the object replicas in the storage system and then
+  returns an object (or many with conflicting verions) along with an associated
+  context.
+
+* `put(key, context, object)`
+
+  This uses the key to determine where in the storage system to put the object.
+  The context is a collection of metadata about the object like its version. It
+  is not returned to the caller. The key and object are treated as an array of
+  bytes and the key is *MD5* hashed to a 128 bit identifier to determine location.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Tuning
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Internally, the values of `N`, `W`, and `R` can be tuned for specific use cases
+(they basically control consistency, durability, and availability of the system):
+
+* `R` can be set to 1 for a high performance cache / read engine
+* `W` can be set to 1 to never fail a write, but may lead to inconsistency
+* `N` can be set high to ensure the durability of each object
+
+The common setup is `(N, R, W) = (3, 2, 2)` as a good balance of performance,
+SLA meeting, durability, consistency, and availability.
+
+
+
+To Research:
+
+* distributed available files: ficus, coda (system level conflict)
+* 1gen P2P: Gnutella, Freenet
+* 2gen P2P: Chord, Pastry
+* Bolt on P2P: Oceanstore, PAST
+* Bayou disconected database (application level conflicts)
+* GFS / Farsite
+* FAB (splits large files into blocks)
+* Bigtable
+* Antiquity (secure log transfer)
+
 --------------------------------------------------------------------------------
 Amazon Simple Queue Service (SQS)
 --------------------------------------------------------------------------------
@@ -660,9 +877,20 @@ http://aws.amazon.com/elasticache/
 Summary
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This is basically hosted Redis and Memcached.
+This is basically hosted Redis and Memcached. It does supply memcached cluster
+groups and redis slaves (read only). The current redis clustering is not
+supported as of yet.
 
-.. todo:: read up
+The same APIs exposed by the two products are exposed in the client API except
+any management calls. The remaining complexity is configuration of:
+
+* size of host to run an instance on
+* number of instances (hosts) to run
+* regional data copies
+* IAM configuration
+* slave / journal backup options (redis)
+
+.. todo:: example of using it
 
 --------------------------------------------------------------------------------
 Amazon S3

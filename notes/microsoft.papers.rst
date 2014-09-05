@@ -347,7 +347,7 @@ his message, or timeouts can be used. Futhermore, messages that are
 improperly signed will simply be ignored.
 
 --------------------------------------------------------------------------------
-Distributed Snapshots: Determining Global State
+Distributed Snapshots: Determining Global State (Lamport)
 --------------------------------------------------------------------------------
 
 Processes in a distributed system communicated by sending and receiving messages.
@@ -364,3 +364,126 @@ will be true as well `forall(S' <- S) y(S') == true`. Examples of these are:
 * the computation has terminated
 * the system has deadlocked
 * all hosts in the system are down
+
+Using the notion of passing a token between two systems, we can define the following:
+
+* *q* the process named q
+* *p* the process named p
+* *c* the message passing channel from *p* to *q*
+* *c'* the message passing channel from *q* to *p*
+* *s0* the state of a process when it does not have the token
+* *s1* the state of a process when it has the token
+
+The entire system can trivially be represented by the following state diagram:
+
+* a token in c means that it is in transit
+* each block represents a current global state
+* each block includes its possible transition state
+* this is the ideallized version; there may be multiple possible transitions
+* there may be a message in *c* and *c'* at the same time
+* the messages in *c* and *c'* may be received in different order
+
+.. code-block:: text
+
+            { in-p }                                  { in-c } 
+    [p{s1}] --c{s0}--> [q{s0}]      =>        [p{s0}] --c{s1}--> [q{s0}]
+    [p{s1}] <-c'{s0}-  [q{s0}]                [p{s0}] <-c'{s0}-  [q{s0}]
+
+              /\                                        \/ 
+ 
+            { in-c' }                                 { in-q } 
+    [p{s0}] --c{s0}--> [q{s0}]      <=        [p{s0}] --c{s0}--> [q{s1}]
+    [p{s0}] <-c'{s1}-  [q{s0}]                [p{s0}] <-c'{s0}-  [q{s1}]
+
+To make the transition of states apparent, a marker is sent along after a
+block of messages based on the following rules:
+
+* **Marker Sending Rule**
+
+.. code-block:: text
+
+    for a process p:
+      for each channel c out of p:
+        p sends one marker along c
+          after p records its state
+          before p sends further messages along c
+
+* **Marker Receiving Rule**
+
+.. code-block:: text
+
+    for a process q:
+      q receives a marker along c'
+      if q has not recorded its state
+         q records its state 
+         q records the state of c as the empty sequence
+      else
+         q records the state of c as the sequence of messages along c
+           after q saved its state
+           before q received the marker along c
+
+To ensure that the marker algorithm terminates, two conditions must be met:
+
+* **L1** - no marker remains forever in a channel c
+* **L2** - state must be recorded in a finite amount of time after initiation
+
+Thus, if the graph of processes is strongly connected, and at least one process
+spontaneosly records its state, then all processes will record their state in a
+finite amount of time (by induction on L1 and L2).
+
+The remainder of the paper discusses a proof that although messages passing
+through the system may change order, the mechanism defined above gurantees that
+the global state of the system will serialize to a consistent value.
+
+This system should be bolted on top of the existing computation such that it can
+proceed regardless of the computation and will not interfere with the underlying
+computation.
+
+--------------------------------------------------------------------------------
+A Note on Distributed Computing (Waldo)
+--------------------------------------------------------------------------------
+
+The vision of object based distributed computring (eg CORBA) is centered around
+the following principles that may, at first, appear plausible:
+
+* there is a single natural object-oriented design for a given application,
+  regardless of the context in which that application will be deployed
+* failure and performance issues are implementation details and should be left
+  out of initial system design
+* the interface of an object is independent of the context in which it is used
+
+Each incantation of a generalization of local/remote programming has failed for
+the simple reason that programming distributed systems is not the same as
+programming non-distributed applications. This stems from the fact that
+communcating between two systems is not the difficult part of the problem; the
+hard parts are:
+
+* partial failure of various systems
+
+  - losing a network link is different from common hardware failure
+  - an exception isn't just raised; did it complete, can it try again
+  - we can know locally, but what is the state of a global system
+  - failures must be unhandled and catastrophic
+  - otherwise interfaces must be designed correctly for the use case
+
+* lack of a central resource manager
+* ensuring adequate performance (latency);
+  
+  - the boundary can be 4-5 orders of magnitidue difference
+  - ignoring the boundary will lead to horrible performance
+  - what can be remote and what is local must be discovered in design
+
+* dealing with concurrency
+
+  - either the entire system ignores the fact of concurrency
+  - or all parts of the system must deal with the worst case
+
+* differences in memory access paradigms between local / remote machines
+
+  - they argue that one must give up the idea of pointer access
+  - they state a language must exist that use a memory hypervisor (router)
+  - all memory access must go through it (local / remote)
+
+They allow a middle ground where objects are on the same physical machine.
+They state that the other concerns may need to be ameliorated, but the IDL
+generation can use shared memory as an interface to ease latency.

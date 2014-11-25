@@ -938,7 +938,153 @@ http://aws.amazon.com/redshift/
 Summary
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. todo:: read up
+An Amazon Redshift data warehouse is an enterprise-class relational database
+query and management system. When you execute analytic queries, you are
+retrieving, comparing, and evaluating large amounts of data in multiple-stage
+operations to produce a final result. Redshift achieves efficient storage and
+optimum query performance through a combination of massively parallel processing,
+columnar data storage, and efficient targeted data compression encoding schemes.
+
+Redshift communicates with client applications by using standard PostgreSQL JDBC
+and ODBC drivers. These connect to a cluster which is composed of one or more
+compute nodes. If there is more than one, then the clusters are managed by a
+leader node which is what the client connects to. The leader node performs the
+query plan, compiles it, and sends the sharded work to the compute nodes.
+All communication between the leader and nodes happens on a high speed private
+network (compute nodes are not public). Data is actually stored on the compute
+nodes, not on the leader.
+
+The cluster can be scaled up and down based on compute nodes or storage nodes.
+The nodes are then split into slices based on the number of cpu cores on the box.
+The memory and disk are split evenly between these slices. Data is split between
+the slices based on the distribution key.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Performance
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Redshift gets its performance due to the following:
+
+* **Massively Parallel Processing**
+
+  The same compiled query is executed on many compute nodes which also use
+  multiple cores to process a segment of the total data. By choosing a good
+  distribution key, the data will be evenly balanced and little will have to be
+  moved between hosts. Loading in batch can also per parallized.
+
+* **Columnar Data Storage**
+
+  The data is stored in a columnar format which results in less IO requests and 
+  less data loaded from disk. This means more data can be operated on in memory.
+  Furthermore, if the data is sorted appropriately, large chunks of data can be
+  filtered.
+
+* **Data Compression**
+
+  Data compression reduces storage requirements and allows for less IO operations
+  to load data into memory for the query execution. Furthermore, by using adaptive
+  compression types based on the data type, the data can be decompressed on demand
+  during exeuction allowing more data to reside in memory.
+
+* **Query Optimization**
+
+  The query optimizer is MPP aware and is able to take advantage of the comlumnar
+  storage to perform more efficient queries. There are also enhancements to help
+  in performing complex queries and multi-table joins.
+
+* **Compiled Code**
+
+  The code distributed to the compute nodes is compiled by the leader and is cached
+  so only the first call has the overhead of compilation. Two queries are compiled
+  for JDBC and ODBC (they cannot be shared).
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Request Execution
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* **Parser**
+
+  When a new request arrives that includes a SELECT, UPDATE, INSERT, or DELETE
+  statement, the leader node passes the request to the parser. The parser also
+  processes statements that contain a SELECT clause, such as CREATE TABLE AS.
+
+* **Query Tree**
+
+  The parser produces an initial query tree that is a logical representation
+  of the original query or statement. This is input to the Amazon Redshift
+  optimizer, which does a logical transformation of the query performs
+  physical planning that it will use to develop the query execution plan.
+
+* **Logical Transformation**
+
+  The optimizer performs a rewrite of the query that incorporates optimizations such as predicate pushing, correlated subquery decorrelation, join elimination, common subexpression optimization, and several other processes.
+
+* **Query Plan**
+  
+  The final query tree is converted to a query plan. Creating a query plan involves determining which methods and processing steps to use, such as, hash join or merge join, aggregation planning, and join ordering.
+
+You can use the EXPLAIN command to view the query plan, or explain plan. The query plan is a fundamental tool for analyzing and tuning complex queries. For more information about how to use an explain plan to optimize your queries, see Analyzing the query plan.
+
+.. code-block:: sql
+
+    select eventname, sum(pricepaid) from sales, event
+    where sales.eventid = event.eventid
+    group by eventname
+    order by 2 desc;
+
+.. code-block:: sql
+
+    QUERY PLAN
+    XN Merge  (cost=1000451920505.33..1000451920506.77 rows=576 width=27)
+      Merge Key: sum(sales.pricepaid)
+      -> XN Network  (cost=1000451920505.33..1000451920506.77 rows=576 width=27)
+         Send to leader
+         ->  XN Sort  (cost=1000451920505.33..1000451920506.77 rows=576 width=27)
+             Sort Key: sum(sales.pricepaid)
+             ->  XN HashAggregate  (cost=451920477.48..451920478.92 rows=576 width=27)
+                 ->  XN Hash Join DS_DIST_INNER  (cost=47.08..451920458.65 rows=3766 width=27)
+                     Inner Dist Key: sales.eventid
+                     Hash Cond: ("outer".eventid = "inner".eventid)
+                     ->  XN Seq Scan on event  (cost=0.00..87.98 rows=8798 width=21)
+                     ->  XN Hash  (cost=37.66..37.66 rows=3766 width=14)
+                         ->  XN Seq Scan on sales  (cost=0.00..37.66 rows=3766 width=14)
+
+* **Execution Engine**
+  
+  The execution engine assembles a sequence of steps, segments, and streams to execute the query plan supplied by the optimizer. It then generates and compiles C++ code to be executed by the compute nodes. Compiled code executes much faster than interpreted code and uses less compute capacity. When benchmarking your queries, you should always compare the times for the second execution of a query, because the first execution time includes the overhead of compiling the code. For more information, see Benchmarking with Compiled Code.
+
+* **Compute Nodes**
+  
+  The execution engine sends executable code, corresponding to a stream, to each
+  of the compute nodes. This happens over an optimized network with equally optimized
+  memory and disk management.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+System Queries
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To create tables:
+
+.. code-block:: sql
+
+    CREATE DATABASE <tablename>;
+
+To Get the process id of a running query:
+
+.. code-block:: sql
+
+    SELECT pid, user_name, starttime, query
+      FROM stv_recents
+     WHERE status='Running';
+
+    CANCEL <pid>; -- To cancel a running job
+    ABORT         -- To cancel during a transaction
+
+    -- To cancel a job as the superuser (other user's sessions)
+    SET query_group to 'superuser';
+    CANCEL <pid>;
+    RESET query_group;
+
 
 --------------------------------------------------------------------------------
 Amazon Kinesis
@@ -950,7 +1096,104 @@ http://aws.amazon.com/kinesis/
 Summary
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. todo:: read up
+Amazon Kinesis works by having `N` data producers send data to kinesis and `M`
+consumers process that data in real time. The results of the data can be sent
+to another stream, S3, dynamodb, or redshift.
+
+A *stream* is an ordered sequence of data records. Each record is given a
+sequence number which is assigned by kinesis. The records are then assigned to
+different *shards*. Shards are uniquely identified groups of records. Each shard
+provides a fixed unit of capacity of 5 reads per second up to 2MB per second.
+Each shard can support up to 1000 writes per second up to 1MB per second. The
+total capacity of your stream is the sum of the capacities of the shards. These
+can be adjused up or down to meet or remove demand.
+
+A *data record* is the unit of data stored in a kinesis stream. They are composed
+of a sequence number, a partition key, and a data blob (which is an immutable
+sequence of bytes). The maximum size of the blob after base64 encoding is 50 KB.
+
+The partition key is supplied to split the stream into shards. Partition keyss
+are Unicode strings with a maximum length limit of 256 bytes. An MD5 hash
+function is used to map partition keys to 128-bit integer values and to map
+associated data records to shards. The key is specified by the application.
+
+*Producers* put data into a kinesis stream, for example log data, click streams,
+social firehouse, wiki edits, etc. *Consumers* get records from the stream and
+process them. These are known as *kinesis applications*. These usually run on an
+EC2 fleet.
+
+What follows is an example usage:
+
+.. code-block:: java
+
+    AmazonKinesisClient client = new AmazonKinesisClient(config.AWS_CREDENTIALS_PROVIDER);
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
+        String line;
+        while ((line = br.readLine()) != null) {
+            Customer customer = mapper.readValue(line, Customer.class);
+            PutRecordRequest request = new PutRecordRequest();
+            request.setStreamName(config.KINESIS_INPUT_STREAM);
+            request.setData(ByteBuffer.wrap(line.getBytes()));
+            request.setPartitionKey(Integer.toString(customer.getId()));
+            client.putRecord(request);
+        }
+    }
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Consuming
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If one uses the raw api offered by kinesis, the following can read from a stream:
+
+.. code-block:: java
+
+    GetShardIteratorRequest getShardIteratorRequest = new GetShardIteratorRequest();
+    getShardIteratorRequest.setStreamName(myStreamName);
+    getShardIteratorRequest.setShardId(shard.getShardId());
+    getShardIteratorRequest.setShardIteratorType("TRIM_HORIZON");
+
+    //
+    // If the result of this operation is null, a reshard has occurred.
+    // it will now be neccessary to relist the shards.
+    //
+    GetShardIteratorResult getShardIteratorResult = client.getShardIterator(getShardIteratorRequest);
+    String shardIterator = getShardIteratorResult.getShardIterator();
+
+    List<Record> records;
+        
+    while (true) {
+       
+      // Create a new getRecordsRequest with an existing shardIterator 
+      GetRecordsRequest getRecordsRequest = new GetRecordsRequest();
+      getRecordsRequest.setShardIterator(shardIterator);
+      getRecordsRequest.setLimit(25); 
+    
+      GetRecordsResult getRecordsResult = client.getRecords(getRecordsRequest);
+      records = getRecordsResult.getRecords(); // this can be empty
+      
+      try {
+        Thread.sleep(1000); // wait between reads
+      } 
+      catch (InterruptedException exception) {
+        throw new RuntimeException(exception);
+      }
+      
+      shardIterator = result.getNextShardIterator();
+    }
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Details
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Data records are only available for 24 hours after they have been stored.
+
+If records are written very quickly, kinesis essentially sees them at the same
+time and thus may assign them the same sequence number. To gurantee stictly
+increasing sequence numbers, one can use the `SequenceNumberForOrdering`
+parameter which allows you to specify the previous sequence number.
+
+Each kinesis application needs a unique name per AWS account as a dynamo table
+is created for control data.
 
 --------------------------------------------------------------------------------
 Amazon RDS
@@ -1303,3 +1546,15 @@ follows:
       }
     } while (shouldRetry && retries < MAX_NUMBER_OF_RETRIES);
 
+
+--------------------------------------------------------------------------------
+Amazon Mechanical Turk
+--------------------------------------------------------------------------------
+
+* http://docs.aws.amazon.com/AWSMechTurk/latest/AWSMechanicalTurkGettingStartedGuide/Welcome.html
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Summary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. todo:: finish updating

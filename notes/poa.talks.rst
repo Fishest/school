@@ -1548,4 +1548,12 @@ http://www.allthingsdistributed.com/2007/10/amazons_dynamo.html
 Summary
 ------------------------------------------------------------
 
- DHTs, consistent hashing, versioning, vector clocks, quorum, anti-entropy based recovery
+DHTs, consistent hashing, versioning, vector clocks, quorum, anti-entropy based recovery
+
+============================================================
+Searching Large Dynamic Datasets
+============================================================
+
+------------------------------------------------------------
+Summary
+------------------------------------------------------------

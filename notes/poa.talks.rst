@@ -551,6 +551,24 @@ Here is how a writer works in the ABD algorithm:
    response back to the client.
 
 ------------------------------------------------------------
+Analysis
+------------------------------------------------------------
+
+**Correctness**
+
+* every trace through the states is correct
+* can prove with TLA+
+* can manually do pen / paper analysis
+
+**Liveness**
+
+* system can always take a step
+
+**Termination**
+
+* system will eventually terminate (no infinite traces)
+
+------------------------------------------------------------
 Consensus
 ------------------------------------------------------------
 
@@ -572,8 +590,8 @@ Paxos Consensus
 ------------------------------------------------------------
 
 * Quorum based algorithm
-* proposer is two rounds and does not always succeed (not
-  guranteed to terminate), FLP Impossibility Proof
+* proposer is two rounds and does not always succeed
+* not guranteed to terminate; FLP Impossibility Proof
 * storage nodes host the state machine
 * Chubby, alf, zookeeper
 * no pipelining (batching and windowing)

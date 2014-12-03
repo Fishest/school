@@ -505,3 +505,157 @@ which model dependencies. Angular has a number already defined to perform:
     // to specify more dependencies, just list them
     app.controller('StoreController', [ '$http', '$log', function($http, $log) {
     }]);
+
+--------------------------------------------------------------------------------
+Developer Guide
+--------------------------------------------------------------------------------
+
+https://docs.angularjs.org/guide/controller
+
+Angular can be described as a framework consisting of the following pieces:
+
+* **template**
+  
+  In angular, the templates are actually HTML that is marked with various
+  directives. The root directive `ng-app` marks the start of the application
+  that is scanned and compiled when the page is loaded. The rest of the
+  magic is achieved through angular's data binding.
+
+* **directive**
+
+  Angular allows basic HTML to be extended with custom attributes and elements.
+  Although angular provides a number of attributes out of the box, it makes it
+  easy to create your own to add additional functionality to HTML. Bascially,
+  think of these as the template expressions that should be parsed and then
+  bound to the controller models achieving the two way data binding.
+
+* **model**
+
+  This is the source of truth for an angular application. Models in angular
+  are actually just properties of the controller, however angular has another
+  way of achieving models that is equivalent to the environment in compilers.
+  This is achieved with the `$scope` utility which uses prototypical inheritence
+  to have model hierachry.
+
+* **scope**
+
+  This is the context where the model is stored and the controllers are run.
+  All directives and expressions have access to it and use it in their operation.
+  Scopes also include a number of utilities that make them a bit more useful then
+  a simple javascript object:
+
+  * `$watch` - to register pubsub for model changes
+  * `$emit` - to manually send an event to parents
+  * `$broadcast` - to manually send an event to children
+  * `$digest` - run after an `$apply` to check for dirty changes to `$emit`
+  * `$apply` - to manually apply changes to the model
+
+  The lifecycle of scopes is as follows:
+
+  * **create** - the root scope is created by the injector during bootstrap
+  * **watch**  - when compiling templates, watchers are registered on scopes
+  * **mutate** - model mutations are performed in `$scope.$apply`
+  * **observe** - `$digest` looks for changes and alerts all affected `$watch`
+  * **destroy** - when the scope is no longer in use, call `$scope.$destroy()`
+
+  Watches can be by reference, by collection, or by value (in increasing order
+  of performance cost). Use the cheapest one that makes sense, but make sure
+  that you use the correct one that will reflect your changes.
+
+* **expression**
+
+  These are simply javascript expressions that are evaled against the current
+  `$scope` with the `$eval` method. There is no flow control support (except
+  for ternary) and common errors result in `null` and `undefined` instead of
+  throwing errors. Furthermore, the result of expressions can be chained to
+  filters.
+
+  These expressions are actually safer to run than traditional expressions sent
+  to `eval` because they use the `$parse` service which blocks access to globals.
+  In order to use things like `window`, the expression must rely upon a service,
+  for example `$window`.
+
+  If the expression is run from the result of an event, the event data will be
+  passed into the expression as `$event` (either jqlite or jquery object).
+
+  Another useful feature is a one time binding that will only be evaluated
+  once `{{::binding}}`. For expressions: `{{ item in ::items }}`.
+
+* **compiler**
+
+  Parses the template and instantiates directives and expressions.
+
+* **filter**
+
+  These simply format the value of an expression for display to the user.
+  They can be chained in the expression using `|`. Filters can also be
+  injected into controllers by declaring a dependency on `filterXXX`.
+
+  To create your own filter, simply provide a pure idempotent function
+  to the `filter` method on the module.
+
+.. code-block::
+
+    {{ expression | filter }}
+    {{ expression | filter1 | filter2 }}
+    {{ expression | filter:arg1:arg2 }}
+
+    // define our own filter
+    app.filter('reverse', function(value) {
+      return value.split('').reverse().join('');
+    });
+
+* **view**
+
+  The view in angular is actually HTML that is marked up with custom template
+  code. Not only can one use templates to parse expressions, angular lets one
+  create custom HTML elements as proposed by the upcoming shadow-dom construct.
+
+* **controller**
+
+  All the business logic for an angular application is stored in a controller.
+  The documentation gives a succint definition as "a javascript constructor
+  function that is used to augment a scope." So, the controller can set the
+  initial values of the `$scope` and add behavior to the `$scope` that can
+  in turn modify it based on user input. Controllers should be very slim and
+  as much code as possible should be moved to services and shared. Some general
+  rules for when not to use angular controllers are:
+
+  * manipulating the DOM - use databinding instead
+  * format input - use angular form controls instead
+  * filter output - use angular filters instead
+  * share code or state across - use angular services instead
+  * manage component life-cycle - let the injector do its job
+
+* **injector**
+  
+  Angular has its own built in IOC container to perform dependency injection.
+  It works via an idoiomatic DSL where modules or controllers define the
+  dependencies they need (imports) and utilities define themselves as available
+  for usage (exports). This is generally the same as require.js.
+
+* **module**
+
+  This is simply a container for the different parts of an application including
+  controllers, services, filters, and directives. It includes the ability to
+  configure itself and a run method (both essentially main methods) and to
+  require other modules which can configure themselves.
+
+* **service**
+
+  Services are a little misleading, in fact they are just reusable units
+  of business logic that work independent of the view. It should be noted that
+  angular services are lazyily initialized and are singletons! The convention
+  for built in services is to prefix them with `$`. Services are created with 
+  the `factory` method of the module or by the injected `$provide` service.
+  The latter is used to perform mock injection during testing.
+
+.. code-block:: javascript
+
+    angular
+    .module('myModule', [])
+    .factory('myService', ['$log', function($log) {
+      var service = {}; // build something to return
+      $log.log("I have created a new service instance");
+      return service;
+    }]);

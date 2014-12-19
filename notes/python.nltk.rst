@@ -490,3 +490,384 @@ deaper down the graph words match, the tigher they are related:
 
     right.path_similarity(orca)  # score between 0..1 of how similar
     right.path_similarity(right) # comparison with oneself is always 1
+
+--------------------------------------------------------------------------------
+Chapter 3: Processing Raw Text
+--------------------------------------------------------------------------------
+
+If we need to use our own text sources, we can use the tools offered by `nltk`
+to work with them directly. It should be noted that a number of texts include
+headers, line numbers, or other artifacts that we would like to remove. Although
+there is no automatic way to remove all of these elements, a little manual work
+or simple python should make this a quick task:
+
+.. code-block:: python
+
+    from nltk import word_tokenize
+    from urllib import request
+
+    url = "http://www.gutenberg.org/files/2554/2554.txt"
+    response = request.urlopen(url)
+    raw_text = response.read().decode('utf8')
+    tokens = word_tokenize(raw_text)
+    text = nltk.Text(tokens)
+
+If you are pulling data from a web page, you can remove some of the HTML with
+`BeautifulSoup`:
+
+.. code-block:: python
+
+    from bs4 import BeautifulSoup
+
+    url      = "http://news.bbc.co.uk/2/hi/health/2284783.stm"
+    html     = request.urlopen(url).read().decode('utf8')
+    # there is also nltk.clean_html(html)
+    raw_text = BeautifulSoup(html).get_text()
+    tokens   = word_tokenize(raw_text[start:end])
+    text     = nltk.Text(tokens)
+    text.concordance('gene')
+
+We can also parse rss or atom feeds using the universal feed parser:
+
+.. code-block:: python
+
+    # -*- coding: utf8 -*-
+    import feedparser
+
+    feed = feedparser.parse("http://languagelog.ldc.upenn.edu/nll/?feed=atom")
+    feed['feed']['title']
+
+`nltk` includes a regex engine that makes it easy to tokenize text using the `<match>`
+operator:
+
+.. code-block:: python
+
+    from nltk.corpus import gutenberg, nps_chat
+    moby = nltk.Text(gutenberg.words('melville-moby_dick.txt'))
+    moby.findall(r"<a> (<.*>) <man>")
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Normalizing Text
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If we want to be able to search for text in a well defined way, a good processing
+step for text is to stem it (use the porter stemmer for a general search system):
+
+.. code-block:: python
+
+    import nltk
+
+    raw_text = nltk.corpus.gutenberg.raw('melville-moby_dick.txt')
+    tokens   = nltk.word_tokenize(raw_text)
+
+    porter    = nltk.PorterStemmer()
+    lancaster = nltk.LancasterStemmer()
+
+    [(token, lancaster.stem(token)) in tokens]
+    [(token, porter.stem(token)) in tokens]
+
+What follows is a simple text indexer that can be used to search a corpus:
+
+.. code-block:: python
+
+    import ntlk
+
+    class Indexer(object):
+
+        def __init__(self, text, stemmer=None):
+            self.text = text
+            self.stemmer = stemmer or nltk.PorterStemmer()
+            self.index = nltk.Index((self.stemmer.stem(word), index)
+                for index, word in enumerate(text))
+
+        def search(self, word, width=40):
+            token = self.stemmer.stem(word)
+            count = int(width / 4.0)
+            for index in self.index[token]:
+                lcontext = ' '.join(self.text[index-count:index])
+                rcontext = ' '.join(self.text[index:index+count])
+                ldisplay = '{:>{width}}'.format(lcontext[-width:], width=width)
+                rdisplay = '{:{width}}'.format(rcontext[:width], width=width)
+                print (ldisplay, rdisplay)
+
+       tokens = nltk.corpus.webtext.words('grail.txt')
+       index  = IndexedText(tokens)
+       index.search('lie')
+
+The wordnet lemmatizer only removes affixes if the word is in its dictionary, as
+such it is a bit slower, but more precise. It is a good choice if you want to 
+build a vocabulary of a given text:
+
+.. code-block:: python
+
+    import nltk
+
+    lemma = nltk.WordNetLemmatizer()
+    [lemma.lemmatize(token) for token in tokens]
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Tokenizing Text
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+nltk proivdes a regular expression tokenizer that be be plugged with various
+regular expressions:
+
+.. code-block:: python
+
+    import re
+
+    re.split(r'[ \t\n]+', raw_text)   # split on whitespace
+    re.split(r'\W+', raw_text)        # split on all whitespace
+    re.findall('\w+|\S\w*', raw_text) # split by finding all words
+
+    pattern = r'''(?x)    # set flag to allow verbose regexps
+        ([A-Z]\.)+        # abbreviations, e.g. U.S.A.
+      | \w+(-\w+)*        # words with optional internal hyphens
+      | \$?\d+(\.\d+)?%?  # currency and percentages, e.g. $12.40, 82%
+      | \.\.\.            # ellipsis
+      | [][.,;"'?():-_`]  # these are separate tokens; includes ], [
+    '''
+    nltk.regexp_tokenize(raw_text, pattern)
+
+However, creating a custom tokenizer is complicated and hard to get perfect. The
+best method is to train on a raw text that has already been tokenized. nltk provides
+the treebank dataset that can help with this purpose. Another thing to think about is
+normalizing contractions (either by spliting into common tokens like "did" "n't" or
+by replacing the words with a lookup table into "did" "not"):
+
+.. code-block:: python
+
+    import nltk
+
+    nltk.corpus.treebank_raw.raw() # the original raw text
+    nltk.corpus.treebank.words()   # the tokenized set of words
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Segmentation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Generally before we tokenize a text into words, we would first tokenize it into
+sentences. The nltk toolkit supplies the *Punkt* sentence segmenter for this
+purpose (this is generally hard because periods are used for abbreviations and
+other uses):
+
+.. code-block:: python
+
+    import nltk
+
+    raw_text = nltk.corpus.gutenberg.raw('chesterton-thursday.txt')
+    nltk.sent_tokenize(raw_text)
+
+Say we have a stream of letters and need to represent segmentation of sentences
+and words, here is a simple technique:
+
+.. code-block:: python
+
+    text = "doyouseethekittyseethedoggydoyoulikethekittylikethedoggy" # run on letters
+    seg1 = "0000000000000001000000000010000000000000000100000000000"  # sentences
+    seg2 = "0100100100100001001001000010100100010010000100010010000"  # words
+
+    def segment(text, segments):
+        ''' Given a piece of run on text and a segmentation list
+        where a '0' indicates a letter in a word and '1' represents
+        the last letter in a word, return the words in the sentence.
+
+        :param text: The run on text
+        :param segments: The segments to split on
+        '''
+        index = 0
+        words = []
+        for i in range(len(segments)):
+            if segments[i] == '1':
+                words.append(text[index:i + 1])
+                index = i + 1
+        words.append(text[index:])
+        return words
+
+    segment(text, seg1)
+    segment(text, seg2)
+
+    def evaluate(text, segments):
+        ''' evaluates an objective function on the supplied
+        segmentation of the given text. Smaller scores are better.
+
+        :param text: The raw text to segment
+        :param segments: A possible segmentation
+        :returns: The resulting score for this segmentation
+        '''
+        words = segment(text, segments)
+        text_size = len(words)
+        lexicon_size = sum(len(word) + 1 for word in set(words))
+        return text_size + lexicon_size
+
+    evaluate(text, seg1)
+    evaluate(text, seg2)
+
+We can use these utilities and a quick simulated annealing implementation to search
+for trivial segmentations:
+
+.. code-block:: python
+
+    from random import randint
+
+    def flip(segments, pos):
+        return segments[:pos] + str(1 - int(segments[pos])) + segments[pos+1:]
+
+    def flip_n(segments, n):
+        for i in range(n):
+            segments = flip(segments, randint(0, len(segments) - 1))
+        return segments
+
+    def simulated_annealing(text, segments, iterations=5000, cooling_rate=1.5):
+        temperature = float(len(segments))
+        while temperature > 0.5:
+            best_segments, best = segments, evaluate(text, segments)
+            for i in range(iterations):
+                guess = flip_n(segments, int(temperature + 0.5))
+                score = evaluate(text, guess)
+                if score < best:
+                    best, best_segments = score, guess
+            score, segments = best, best_segments
+            temperature = temperature / cooling_rate
+            print "%d:\t%s" % (evaluate(text, segments), segment(text, segments))
+        return segments
+
+The rest of the chapter focuses on text formatting, but it also mentions this handy utility:
+
+.. code-block:: python
+
+    from textwrap import fill
+
+    text = ' '.join(str(n) for n in range(500))
+    wrapped = fill(text, width=80)
+    print(wrapped)
+
+--------------------------------------------------------------------------------
+Chapter 4: Python Review
+--------------------------------------------------------------------------------
+
+This chapter is mostly a python review, although it also includes a few summaries
+of programming techniques and python libraries:
+
+.. code-block:: python
+    
+    import networkx as nx
+    import matplotlib
+    from nltk.corpus import wordnet as wn
+    
+    def traverse(graph, start, node):
+        graph.depth[node.name] = node.shortest_path_distance(start)
+        for child in node.hyponyms():
+            graph.add_edge(node.name, child.name) [1]
+            traverse(graph, start, child) [2]
+    
+    def hyponym_graph(start):
+        G = nx.Graph() [3]
+        G.depth = {}
+        traverse(G, start, start)
+        return G
+    
+    def graph_draw(graph):
+        nx.draw_graphviz(graph,
+             node_size = [16 * graph.degree(n) for n in graph],
+             node_color = [graph.depth[n] for n in graph],
+             with_labels = False)
+        matplotlib.pyplot.show()
+        
+    dog = wn.synset('dog.n.01')
+    graph = hyponym_graph(dog)
+    graph_draw(graph)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Gematria Problem
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+    letter_values = {
+        'a':1, 'b':2, 'c':3, 'd':4, 'e':5, 'f':80, 'g':3, 'h':8,
+        'i':10, 'j':10, 'k':20, 'l':30, 'm':40, 'n':50, 'o':70, 'p':80, 'q':100,
+        'r':200, 's':300, 't':400, 'u':6, 'v':6, 'w':800, 'x':60, 'y':10, 'z':7
+    }
+
+    def gematria(word, values=letter_values):
+        return sum(values.get(char, 0) for char in  word.lower())
+
+    def gematria_words(words):
+        return [gematria(word) for word in words]
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Soundex Algorithm
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. code-block:: python
+
+    def soundex(word):
+        '''
+        http://en.wikipedia.org/wiki/Soundex
+
+        :param word: The word to get the soundex encoding for
+        :returns: The soundex encoding for that word
+        '''
+        vowels = set('aeiouy')
+        ignore = set('aeiouyhw')
+        lookup = {
+            'b': '1', 'f': '1', 'p': '1', 'v': '1',
+            'c': '2', 'g': '2', 'j': '2', 'k': '2', 'q': '2', 's': '2', 'x': '2', 'z': '2',
+            'd': '3', 't': '3',
+            'l': '4',
+            'm': '5', 'n': '5',
+            'r': '6',
+        }
+        prev = None
+        result = word[0].upper()
+        for char in word.lower()[1:]:
+            if char not in ignore:
+                value = lookup.get(char, None)
+                if not value: continue # we don't know these characters
+                if result[-1] != value or prev in vowels:
+                    result = result + value
+            prev = char
+        result = result[:4] + ('0' * (4 - len(result)))
+        return result
+
+    def soundex_words(words):
+        return [soundex(word) for word in words]
+
+    def build_soundex_dictionary(words):
+        ''' Create a dictionary of how english words sound and
+        can be used as a spelling checker.
+
+        :param words: The words to build a dictionary for
+        :returns: A lookup dictionary of matching words
+        '''
+        lookup = {}
+        for word in words:
+            value = soundex(word)
+            lookup.setdefault(value, []).append(word)
+        return lookup
+
+    class SoundexSpellCheck(object):
+
+        def __init__(self, words):
+            self.lookup = build_soundex_dictionary(words)
+
+        def correct(self, word):
+            return self.lookup.get(soundex(word), [])
+
+.. todo:: http://en.wikipedia.org/wiki/Metaphone
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Statistically Improbable Phrase
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. todo:: http://en.wikipedia.org/wiki/Statistically_Improbable_Phrases
+
+
+--------------------------------------------------------------------------------
+Chapter 5: Categorizing and Tagging Words
+--------------------------------------------------------------------------------
+
+.. todo:: http://www.nltk.org/book/ch05.html

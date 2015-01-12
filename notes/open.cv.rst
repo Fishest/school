@@ -93,4 +93,4 @@ The following is a simple example of working with individual pixels of an opencv
         }
    }
 
-Page 41
+.. todo:: Page 41

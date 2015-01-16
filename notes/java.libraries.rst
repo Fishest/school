@@ -49,13 +49,172 @@ Basic template of a JUnit test:
                 emptyList.size());
         }
 
-        // code that tests an exceptional expectation
-        @Test(expected-IndexOutOfBoundsException.class)
-        public void testForException() {
-            emptyList.get(0);
+        @Ignore // ignore a test that shouldn't be used yet
+        @Test
+        public void testUnfinishedTest() { }
+    }
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Exceptions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Junit offers a few different ways to test for exceptions in your tests:
+
+.. code-block:: java
+
+    public class ExceptionTests {
+
+        @Test(expected=IndexOutOfBoundsException.class)
+        public void test_exception_message() {
+            new ArrayList<Object>().get(0);
         }
     }
 
+.. code-block:: java
+
+    public class ExceptionTests {
+
+        @Test
+        public void test_exception_message() {
+            try {
+                new ArrayList<Object>().get(0);
+            } catch (IndexOutOfBoundsException ex) {
+                assertThat(ex.getMessage(), is("Index: 0, Size: 0"));
+            }
+        }
+    }
+
+.. code-block:: java
+
+    import static org.junit.JUnitMatchers.containsString;
+
+    public class ExceptionTests {
+        @Rule ExpectedException thrown = ExpectedException.none();
+
+        @Test
+        public void test_exception_message() {
+            thrown.expect(IndexOutOfBoundsException.class);
+            thrown.expectMessage("Index: 0, Size: 0");       // exact match
+            thrown.expectMessage(containsString("Size: 0")); // using matchers
+
+            new ArrayList<Object>().get(0);
+        }
+    }
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Matchers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Junit includes the hamcrest matchers for more advanced matching which can be
+used for better error messages and more readable tests:
+
+.. code-block:: java
+
+    import static org.hamcrest.CoreMatchers.allOf;
+    import static org.hamcrest.CoreMatchers.anyOf;
+    import static org.hamcrest.CoreMatchers.equalTo;
+    import static org.hamcrest.CoreMatchers.not;
+    import static org.hamcrest.CoreMatchers.sameInstance;
+    import static org.hamcrest.CoreMatchers.startsWith;
+    import static org.junit.Assert.assertThat;
+
+    public class AssertTests {
+        @Test
+        public void test_hamcrest_matchers() {
+            assertThat("good", allOf(equalTo("good"), startsWith("good")));
+            assertThat("good", not(allOf(equalTo("bad"), equalTo("good"))));
+            assertThat("good", anyOf(equalTo("bad"), equalTo("good")));
+            assertThat(7, not(CombinableMatcher.<Integer> either(equalTo(3)).or(equalTo(4))));
+            assertThat(new Object(), not(sameInstance(new Object())));
+        }
+    }
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Rules
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There is one rule for creating temporary folders that are created and cleaned
+before each test is run:
+
+.. code-block:: java
+
+    public static class HasTempFolder {
+      @Rule
+      public TemporaryFolder folder = new TemporaryFolder();
+
+      @Test
+      public void testUsingTempFolder() throws IOException {
+        File createdFile = folder.newFile("myfile.txt");
+        File createdFolder = folder.newFolder("subfolder");
+        // ...
+      }
+    } 
+
+ExternalResource allows one to create and tear down an external resource like
+a file, socket, etc:
+
+.. code-block:: java
+
+    public static class UsesExternalResource {
+      Server myServer = new Server();
+
+      @Rule
+      public ExternalResource resource = new ExternalResource() {
+        @Override
+        protected void before() throws Throwable {
+          myServer.connect();
+        };
+
+        @Override
+        protected void after() {
+          myServer.disconnect();
+        };
+      };
+
+      @Test
+      public void testFoo() {
+        new Client().run(myServer);
+      }
+    }
+
+`ErrorCollector` allows one to collect all errors from a test instead of
+stopping on the first error:
+
+.. code-block:: java
+
+    public static class UsesErrorCollectorTwice {
+      @Rule
+      public ErrorCollector collector= new ErrorCollector();
+
+      @Test
+      public void example() {
+        collector.addError(new Throwable("first thing went wrong"));
+        collector.addError(new Throwable("second thing went wrong"));
+      }
+    }
+
+`TimeoutRule` applies the same global timeout to all the tests in a class:
+
+.. code-block:: java
+
+    public static class HasGlobalTimeout {
+      public static String log;
+
+      @Rule
+      public TestRule globalTimeout = new Timeout(20);
+
+      @Test
+      public void testInfiniteLoop1() {
+        log+= "ran1";
+        for(;;) {}
+      }
+
+      @Test
+      public void testInfiniteLoop2() {
+        log+= "ran2";
+        for(;;) {}
+      }
+    }
 
 --------------------------------------------------------------------------------
 Guice

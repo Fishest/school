@@ -1852,4 +1852,471 @@ to focus on the first two questions.
 Chapter 7: Extracting Information From Text
 --------------------------------------------------------------------------------
 
+This chapter is used to answer the following questions:
 
+* How can we build a system that extracts structured data from unstructured text?
+* What are robust methods for identifying the entities and relationships in a text?
+* Which corpora are appropriate for this work and how do we train a model with them?
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Information Extraction
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following is a general structure of a nltk information retrieval system. The
+first three steps can be handled by the following code:
+
+.. code-block:: python
+
+    import nltk
+
+    def ie_preprocess(document):
+        sentences = nltk.sent_tokenize(document)
+        sentences = [nltk.word_tokenize(sent) for sent in sentences]
+        sentences = [nltk.pos_tag(sent) for sent in sentences]
+        return sentences
+
+.. image:: http://www.nltk.org/images/ie-architecture.png
+   :target: http://www.nltk.org/images/ie-architecture.png
+   :align: center
+
+Next, we segment and label the entities that might have interesting relations to
+each other. These will generally be definite noun phrases or proper names. Some
+times indefinite nouns or noun chunks can be useful. Finally, we search for
+specific patterns between pairs of entities that occur near to each other in the
+text and use those patterns to build tuples of relationships.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Chunking
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The basic technique for entity detection is chunking which segments and labels
+multi-token sequences. This will produce a number of non overlapping chunks. The
+first thing we will look at is Noun Phrase chunking (NP Chunking). We will start
+with a simple regex parser:
+
+.. code-block:: python
+
+    import nltk
+
+    sentence = [
+        ("the", "DT"), ("little", "JJ"), ("yellow", "JJ"),
+        ("dog", "NN"), ("barked", "VBD"), ("at", "IN"), ("the", "DT"), ("cat", "NN")
+    ]
+        
+    grammar = r"""
+      NP: {<DT|PP\$>?<JJ>*<NN>}   # chunk determiner/possessive, adjectives and noun
+            {<NNP>+}              # chunk sequences of proper nouns
+    """                           # if you add comments, they will show up in the trace
+    grammar = "NP: {<DT>?<JJ.*>*<NN.*>+}" # this will match any type of adjective or noun
+    grammar = "NP: {<DT>?<JJ>*<NN>}"
+    parser  = nltk.RegexpParser(grammar)
+    result  = parser.parse(sentence)
+    print(result)
+    result.draw()
+
+The parser is driven by tag patterns which are used to describe a sequence of
+tagged words. The grammars can be tested using `nltk.app.chunkparser()`. Chunking
+makes it much easier to explore a text corpus:
+
+.. code-block:: python
+
+    import nltk
+
+    def find_chunks(grammar, sents):
+        parser = nltk.RegexpParser(grammar)
+        for sent in sents:
+            tree = parser.parse(sent)
+            for subtree in tree.subtrees():
+                if subtree.label() == 'CHUNK':
+                    print(subtree)
+
+    sents   = nltk.corpus.brown.tagged_sents() 
+    grammar = 'CHUNK: {<V.*> <TO> <V.*>}' # VERB to VERB
+    find_chunks(grammar, sents)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Chinking
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Chinking is the process of removing a sequence of tokens from a chunk. If the
+matching tokens span an entire chunk, then that chunk is removed. If the chink
+is in the middle of a chunk, the chunk is split into two. It the chink is at
+the head or tail, it is simply removed from the chunk:
+
+.. code-block:: python
+
+    import nltk
+
+    grammar = r"""
+      NP:
+          {<.*>+}          # Chunk everything
+          }<VBD|IN>+{      # Chink sequences of VBD and IN
+    """
+    sentence = [
+        ("the", "DT"), ("little", "JJ"), ("yellow", "JJ"),
+        ("dog", "NN"), ("barked", "VBD"), ("at", "IN"),  ("the", "DT"), ("cat", "NN")
+    ]
+    parser = nltk.RegexpParser(grammar)
+    print(parser.parse(sentence))
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Representation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Chunks can be represented with tags or with trees. The most widespread usage in
+files is IOB tags. This works by using three tags to represent the chunk:
+
+* **I** : inside the chunk (so `I-JJ`)
+* **B** : begin the chunk (so `B-NP`)
+* **O** : outside of the chunk (the POS is usualy left out, so `O`)
+
+While this is good for storing the structures in files, in memory trees are
+generally used. This makes it easy to quickly manipulate and walk through the
+structure of chunks. What follows is an example of converting IOB tags into a nltk
+tree:
+
+.. code-block:: python
+
+    text = '''
+    he PRP B-NP
+    accepted VBD B-VP
+    the DT B-NP
+    position NN I-NP
+    of IN B-PP
+    vice NN B-NP
+    chairman NN I-NP
+    of IN B-PP
+    Carlyle NNP B-NP
+    Group NNP I-NP
+    , , O
+    a DT B-NP
+    merchant NN I-NP
+    banking NN I-NP
+    concern NN I-NP
+    . . O'''
+    nltk.chunk.conllstr2tree(text, chunk_types=['NP']).draw()
+
+Furthermore, nltk includes a large corpus of chunked text that can be used for
+training and validation:
+
+.. code-block:: python 
+
+    # this is the conll2000 corpus which consists of 270k chunked words of the
+    # wallstreet journal. It includes three chunk types: NP, VP, and PP
+    from nltk.corpus import conll2000
+    print(conll2000.chunked_sents('train.txt')[99]) # print the 100'th training chunk
+    print(conll2000.chunked_sents('train.txt', chunk_types=['NP'])[99]) # print only the NP chunk
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Evaluation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We start our evaluation out with a simple baseline of a chunker that creates no
+chunks:
+
+.. code-block:: python
+
+    from nltk.corpus import conll2000
+
+    parser = nltk.RegexpParser("")
+    test_sents = conll2000.chunked_sents('test.txt', chunk_types=['NP'])
+    print(parser.evaluate(test_sents))
+
+Now if we make a parser that checks for common noun phrase starters:
+
+.. code-block:: python
+
+    grammar = r"NP: {<[CDJNP].*>+}"
+    parser = nltk.RegexpParser(grammar)
+    print(parser.evaluate(test_sents))
+
+We can do better with a simple data driven parser based on a unigram tagger:
+
+.. code-block:: python
+
+    import nltk
+
+    class UnigramChunker(nltk.ChunkParserI):
+
+        @classmethod
+        def create_from_tree(klass, sents):
+            train_sents = [
+                [(tag, chunk) for word, tag, chunk in nltk.chunk.tree2conlltags(sent)]
+                              for sent in sents]
+            return klass(train_sents)
+
+        def __init__(self, train_data):
+            ''' Initializes a new unigram chunked 
+
+            :param train_data: The sentence training data
+            '''
+            self.tagger = nltk.UnigramTagger(train_data)
+
+        def parse(self, sentence):
+            ''' Parses a sentence into chunks using the previously
+            trained model.
+
+            :param sentence: A sentence with pos tagged words
+            :returns: The sentence chunks
+            '''
+            pos_tags = [pos for (word, pos) in sentence]
+            tagged_pos_tags = self.tagger.tag(pos_tags)
+            chunktags = [chunktag for (pos, chunktag) in tagged_pos_tags]
+            conlltags = [(word, pos, chunktag) for ((word, pos), chunktag)
+                         in zip(sentence, chunktags)]
+            return nltk.chunk.conlltags2tree(conlltags)
+
+    test_sents  = conll2000.chunked_sents('test.txt', chunk_types=['NP'])
+    train_sents = conll2000.chunked_sents('train.txt', chunk_types=['NP'])
+    chunker = UnigramChunker.create_from_tree(train_sents)
+    print(chunker.evaluate(test_sents))
+
+        
+    pos_tags = sorted(set(pos for sent in train_sents
+                              for (word,pos) in sent.leaves()))
+    print(chunker.tagger.tag(pos_tags))
+
+We can get a little better performance by using a bigram chunker which we can
+create with just a little extra work:
+
+.. code-block:: python
+
+    class BigramChunker(UnigramChunker):
+
+        def __init__(self, train_data):
+            ''' Initializes a new unigram chunked 
+
+            :param train_data: The sentence training data
+            '''
+            self.tagger = nltk.BigramTagger(train_data)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Classifier Based Chunkers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+    class ConsecutiveNPChunkTagger(nltk.TaggerI):
+
+        def __init__(self, train_sents, features):
+            train_set = []
+            for tagged_sent in train_sents:
+                untagged_sent = nltk.tag.untag(tagged_sent)
+                history = []
+                for index, (word, tag) in enumerate(tagged_sent):
+                    featureset = features(untagged_sent, index, history)
+                    train_set.append((featureset, tag))
+                    history.append(tag)
+            self.features = features
+            self.classifier = nltk.MaxentClassifier.train
+                train_set, algorithm='megam', trace=0)
+
+        def tag(self, sentence):
+            history = []
+            for index, word in enumerate(sentence):
+                featureset = self.features(sentence, index, history)
+                tag = self.classifier.classify(featureset)
+                history.append(tag)
+            return zip(sentence, history)
+
+    class ConsecutiveNPChunker(nltk.ChunkParserI):
+
+        def __init__(self, train_sents):
+            tagged_sents = [[((w,t),c) for (w,t,c) in
+                             nltk.chunk.tree2conlltags(sent)]
+                            for sent in train_sents]
+            self.tagger = ConsecutiveNPChunkTagger(tagged_sents)
+
+        def parse(self, sentence):
+            tagged_sents = self.tagger.tag(sentence)
+            conlltags = [(word, tag, chunk) for ((word, tag),chunk) in tagged_sents]
+            return nltk.chunk.conlltags2tree(conlltags)
+
+    def pos_features(sentence, i, history):
+        word, pos = sentence[i]
+        return {"pos" : pos}
+
+    chunker = ConsecutiveNPChunker(train_sents, npchunk_features)
+    print(chunker.evaluate(test_sents))
+
+We can plug in different feature extractors to see if they make the
+classifier have better results:
+
+.. code-block:: python    
+
+    def two_pos_features(sentence, i, history):
+        word, pos = sentence[i]
+        if i == 0:
+            prevword, prevpos = "<START>", "<START>"
+        else: prevword, prevpos = sentence[i-1]
+
+        return {"pos": pos, "prevpos": prevpos}
+
+    def cur_word_features(sentence, i, history):
+        word, pos = sentence[i]
+        if i == 0:
+            prevword, prevpos = "<START>", "<START>"
+        else: prevword, prevpos = sentence[i-1]
+
+        return {"pos": pos, "word": word, "prevpos": prevpos}
+            
+     def npchunk_features(sentence, i, history):
+         word, pos = sentence[i]
+         if i == 0:
+             prevword, prevpos = "<START>", "<START>"
+         else: prevword, prevpos = sentence[i-1]
+
+         if i == len(sentence)-1:
+             nextword, nextpos = "<END>", "<END>"
+         else: nextword, nextpos = sentence[i+1]
+         return {
+             "pos": pos,
+             "word": word,
+             "prevpos": prevpos,
+             "nextpos": nextpos,
+             "prevpos+pos": "%s+%s" % (prevpos, pos),
+             "pos+nextpos": "%s+%s" % (pos, nextpos),
+             "tags-since-dt": tags_since_dt(sentence, i)
+         }
+           
+     def tags_since_dt(sentence, index):
+         tags = set()
+         for word, pos in sentence[:index]:
+             if pos == 'DT':
+                 tags = set()
+             else: tags.add(pos)
+         return '+'.join(sorted(tags))
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Recursion in Linguistic Structures
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We can create recursive hierarchies in the chunks:
+
+.. code-block:: pyhton
+
+    grammar = r"""
+        NP: {<DT|JJ|NN.*>+}          # Chunk sequences of DT, JJ, NN
+        PP: {<IN><NP>}               # Chunk prepositions followed by NP
+        VP: {<VB.*><NP|PP|CLAUSE>+$} # Chunk verbs and their arguments
+        CLAUSE: {<NP><VP>}           # Chunk NP, VP
+    """
+    parser   = nltk.RegexpParser(grammar, loop=2)
+    sentence = [
+        ("Mary", "NN"), ("saw", "VBD"), ("the", "DT"), ("cat", "NN"),
+        ("sit", "VB"), ("on", "IN"), ("the", "DT"), ("mat", "NN")
+    ]
+    print(parser.parse(sentence))
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Trees
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Trees are useful for representing hierarchical structures:
+
+.. code-block:: python
+
+    tree1 = nltk.Tree('NP', ['Alice'])
+    tree2 = nltk.Tree('NP', ['the', 'rabbit'])
+    tree3 = nltk.Tree('VP', ['chased', tree2])
+    tree4 = nltk.Tree('S', [tree1, tree3])
+    
+    print(tree1) # (NP Alice)
+    print(tree2) # (NP the rabbit)
+    print(tree4) # (S (NP Alice) (VP chased (NP the rabbit)))
+    
+    print(tree4[1])  # (VP chased (NP the rabbit))
+    tree4[1].label() # 'VP'
+    tree4.leaves()   # ['Alice', 'chased', 'the', 'rabbit']
+    tree4[1][1][1]   # 'rabbit'
+    tree3.draw()
+
+We can traverse the language trees using standard tree traversal:
+
+.. code-block:: python
+
+    def traverse(node):
+        try:
+            node.label()
+        except AttributeError:
+            print(node, end=" ")
+        else:
+            # Now we know that t.node is defined
+            print('(', node.label(), end=" ")
+            for child in node:
+                traverse(child)
+            print(')', end=" ")
+    
+     tree = nltk.Tree('(S (NP Alice) (VP chased (NP the rabbit)))')
+     traverse(tree)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Named Entity Recognition
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The goal of a named entity recognition (NER) system is to identify all textual
+mentions of the named entities. This can be broken down into two sub-tasks:
+identifying the boundaries of the NE, and identifying its type. This is useful
+for other tasks as well such as question answering.
+
+When the information retrieval system returns a hit for a question, we can use
+a NER system to filter the result to a simple response to a question instead of
+a page of text.
+
+One approach to NER is to use a gazetteer or a geographical dictionary. The
+problem with this is that there will be a number of false positives that must be
+filtered out.
+
+`nltk` has an already trained classifier for named entities:
+
+.. code-block:: python
+
+    sent = nltk.corpus.treebank.tagged_sents()[22]
+    print(nltk.ne_chunk(sent))
+
+We can extract relations using a simple regex parser for triples of (X, '...in...', Y):
+
+.. code-block:: python
+
+    import re, nltk
+
+    pattern = re.compile(r'.*\bin\b(?!\b.+ing)')
+    for doc in nltk.corpus.ieer.parsed_docs('NYT_19980315'):
+        for rel in nltk.sem.extract_rels('ORG', 'LOC', doc, corpus='ieer', pattern = pattern):
+            print(nltk.sem.rtuple(rel))
+
+We can use the part of speech tags as well to generate these semantic tuples:
+
+.. code-block:: python
+
+    from nltk.corpus import conll2002
+    vnv = """
+        (
+        is/V|    # 3rd sing present and
+        was/V|   # past forms of the verb zijn ('be')
+        werd/V|  # and also present
+        wordt/V  # past of worden ('become)
+        )
+        .*       # followed by anything
+        van/Prep # followed by van ('of')
+    """
+    pattern = re.compile(vnv, re.VERBOSE)
+    for doc in conll2002.chunked_sents('ned.train'):
+        for r in nltk.sem.extract_rels('PER', 'ORG', doc, corpus='conll2002', pattern=pattern):
+            print(nltk.sem.clause(r, relsym="VAN"))
+
+--------------------------------------------------------------------------------
+Chapter 8: Analyzing Sentence Structure
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Chapter 9: Building Feature Based Grammars
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Chapter 10: Analyzing the Meaning of Sentences
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Chapter 11: Managing Linguistic Data
+--------------------------------------------------------------------------------

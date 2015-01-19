@@ -74,6 +74,65 @@ object:
   - quotes are needed for invalid javascript keys: `{ 'this name' : 'value' }`
   - otherwise they are not needed `{ this_name : "value" }`
 
+Every object is linked to a prototype object from which it inherits
+properties. All object literals are linked to `Object.prototype` by
+default. One can force another object to be the prototype of:
+
+.. code-block:: javascript
+
+    if (typeof Object.create != 'function') { // can use like Object.create(stooge);
+        Object.create = function(o) {         // changes to the new instance will not
+            var F = function() {};            // affect the original.
+            F.prototype = o;
+            return new F();
+        };
+    }
+
+If we try to retrieve a value from an object and it doesn't exist,
+we will delegate to its prototype and up the chain. The object chain
+is dynamic:
+
+.. code-block:: javascript
+
+  var a_stooge = Object.create(stooge);
+  a_stooge.name; // undefined
+  stooge.name = "larry";
+  a_stooge.name; // larry
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Reflection
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We can get the type of a given variable with `typeof`. This will
+delegate to the prototype chain.
+
+`_.hasOwnProperty` will return `true` or `false` if the immediate
+object has a given property (this will not perform any delegation).
+
+`for (name in object)` will iterate through every property and function
+in the object with delegation up the property chain with the caveats:
+
+* no specific order is guranteed
+* functions can be filtered with `typeof`
+* if you need order or just specific properties, create an array
+* the array can be filitered, looped, etc
+
+.. code-block:: javascript
+
+    var props = ["name", "age", "nickname"];
+    for (i = 0; i < props.length; i += 1) {  // this doesn't pull up the
+        console.log(a_stooge[props[i]]);     // prototype chain of array
+    }
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Delete
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Delete will remove a property if the object has it without affectecting
+the prototype linkage (downwards). This will cause the next prototype
+instance to be examined (think virtual overrides).
+
 ---------------------------------------------------------------------
 Chapter 4 - Functions (26)
 ---------------------------------------------------------------------

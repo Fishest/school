@@ -203,11 +203,173 @@ A function always returns. If a value is not supplied, then it will
 return `undefined` by default. If the function is a constructor and
 nothing is returned, `this` is returned by default.
 
-.. todo:: finish notes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Exceptions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The idiomatic standard is to throw an object with a `name` and a
+`message` property. There is also only one catch per try block.
+If more catches are needed, they have to be filtered by type in the
+catch body.
+
+.. code-block:: javascript
+
+    try {
+      throw { name: "my error", message: "something happened" };
+    } catch(e) {
+      console.log(e.name + ' ' + e.message);
+    }
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Augmenting Types
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Types can be augmented by adding new prototyped methods or properties.
+
+.. code-block:: javascript
+
+    Function.prototype.method = function(name, func) {
+      this.prototype[name] = func;
+      return this;
+    };
+
+    // this lets us do the following
+    Number.method('integer', function() {
+      return Math[this < 0 ? 'ceil' : 'floor'](this);
+    });
+
+A good defensive strategy is to only add new prototypes if a method
+doesn't exist. This will prevent libraries and frameworks from
+stomping over each other. These methods will all appear in the `for`
+loop.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Scope
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Javascript has function scope but not block scope. Since this is the
+case, define variables at the top of function or class objects so
+globals are evident.
+
+Inner functions have access to parameters and variables of parent
+functions (except this and arguments). The best way to control scope
+is to simply use closures.
+
+.. code-block:: javascript
+
+    var myobj = function() {
+      var value = 0;
+      return {
+        increment: function(inc) { value += typeof inc === 'number' ? inc : 1; },
+        getValue:  function() { return value; } // access value in closure
+      };
+    }(); // call the anonymous function
+
+One should avoid creating functions in a loop and closing over a
+reference instead of a value:
+
+.. code-block:: javascript
+
+    var fade = function(node) { // call like fade(document.body);
+      var level = 1,
+          step = function() {
+            var hex = level.toString(16);
+            node.style.backgroundColor = '#FFFF' + hex + hex;
+            if (level < 15) {
+              level += 1;
+              setTimeout(step, 100); // callback
+            }
+          };
+    };
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Callbacks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: javascript
+
+    // a bad example
+    var request  = build_request();
+    var response = send_request(request);
+    display(response);
+
+    // a good example with async callbacks
+    var request  = build_request();
+    send_request(request, function(response) {
+      display(response);
+    });
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Modules
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We can use functions and closures to create object modules which can
+be used to encapsulate internals or private methods. If we return
+this instead of nothing, we can create fluent interfaces that cascade
+(chaining). For example, we can add a simply currying to javascript:
+
+.. code-block:: javascript
+
+    Function.method('curry', function() {
+      var args = [].slice.call(arguments, 1), // arguments has no concat
+          that = this;
+      return function() {
+        return that.apply(null, args.concat(toArray(arguments)));
+      };
+    };
 
 ---------------------------------------------------------------------
 Chapter 5 - Inheritence (46)
 ---------------------------------------------------------------------
+
+Javascript doesn't have any casting or typing, so think of it as
+duck typing. To create a base class, simply create a constructor
+function and assign the prototype to the parent:
+
+.. code-block:: javascript
+
+    Function.method('inherits', function(parent) {
+      this.protype = new parent();
+      return this;
+    });
+
+    var Cat = function(name) {
+      this.name = name;
+    }.inherits(Mammal);
+
+If new is not called, `this` will never be bound. It will instead
+point to the global object (window). However, inheritence is not
+the only method of performing code reuse. For example, the parameter
+can be a json object that has the operation methods that if not
+defined can be defaulted.
+
+.. code-block:: javascript
+
+    var Mammal = function(spec) {
+      return {
+        get_name: function() { return spec.name; }
+      };
+    }
+
+    var Cat = function(spec) {
+      return Mammal(spec || {
+        name: 'cat'
+      });
+    };
+
+To add `super` to the language (can also use this idea to create
+mixins as well):
+
+.. code-block:: javascript
+
+    Object.method('super', function(name) {
+      var that = this,
+        method = that[name];
+
+      return function() {
+        return method.apply(that, arguments);
+      };
+    });
 
 ---------------------------------------------------------------------
 Chapter 6 - Arrays (58)
@@ -276,8 +438,6 @@ Appendix - The Bad Parts
 * using `==`
 * using the `with` statement
 * a lot of personal style issues (Crockford)
-
-.. todo:: finish copying notes
 
 ---------------------------------------------------------------------
 Json Parser

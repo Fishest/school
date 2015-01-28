@@ -117,8 +117,8 @@ What follows are a collection of problems in natural language processing:
   Automated systems that can answer simple or complex questions using speech as the
   input and output.
 
-.. image:: http://www.nltk.org/images/dialogue.png
-   :target: http://www.nltk.org/images/dialogue.png
+.. image:: images/nltk-pipeline.png
+   :target: http://www.nltk.org/book/ch01.html
    :align: center
 
 * **textual entailment**
@@ -1875,8 +1875,8 @@ first three steps can be handled by the following code:
         sentences = [nltk.pos_tag(sent) for sent in sentences]
         return sentences
 
-.. image:: http://www.nltk.org/images/ie-architecture.png
-   :target: http://www.nltk.org/images/ie-architecture.png
+.. image:: images/nltk-entity-pipeline.png
+   :target: http://www.nltk.org/book/ch07.html
    :align: center
 
 Next, we segment and label the entities that might have interesting relations to
@@ -2309,9 +2309,312 @@ We can use the part of speech tags as well to generate these semantic tuples:
 Chapter 8: Analyzing Sentence Structure
 --------------------------------------------------------------------------------
 
+The goal of this chapter is to answer the following questions:
+
+* How can we use a formal grammar to describe the structure of an unlimited set of sentences?
+* How do we represent the structure of sentences using syntax trees?
+* How do parsers analyze a sentence and automatically build a syntax tree?
+
+We can start by looking at an ambiguous sentence and writing a simple generative
+parser to decode it:
+
+.. code-block:: python
+
+    groucho_grammar = nltk.CFG.fromstring("""
+        S   -> NP VP
+        PP  -> P NP
+        NP  -> Det N | Det N PP | 'I'
+        VP  -> V NP | VP PP
+        Det -> 'an' | 'my'
+        N   -> 'elephant' | 'pajamas'
+        V   -> 'shot'
+        P   -> 'in'
+    """)
+   
+    // other sentences are:
+    // * visiting relatives are timesome
+    // * fighting animals could be dangerous
+
+    sent = ['I', 'shot', 'an', 'elephant', 'in', 'my', 'pajamas']
+    parser = nltk.ChartParser(groucho_grammar)
+    for tree in parser.parse(sent):
+        print(tree)
+
+A grammar specifies how a sentence can be subdivided into its immediate
+constituents, and how these can be further subdivided until we reach the level
+of individual words.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Grammatical Structures
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* **noun**
+* **adjective**
+* **preposition**
+* **determinter**
+
+  Includes words like: the, an, a, some
+
+* **prepositional phrase (PP)**
+
+  A phrase making a prepostion statement; examples:
+
+  - in the brook
+  - behind your back
+
+* **noun phrase (NP)**
+* **adjective phrase (AP)**
+
+* **coordinate structure**
+  
+  Where two phrases are joined with a coordinating conjunction such as and, but,
+  or. More formally: If `v_1` and `v_2` are both phrases of grammatical category
+  `X`, then `v_1` and `v_2` is also a phrase of category `X`. For example:
+
+  - The book's ending was (NP the worst part and the best part) for me.
+  - On land they are (AP slow and clumsy looking).
+
+* **constituent structure**
+
+  Constituent structure is based on the observation that words combine with other
+  words to form units. These units can be replaced without making rending the
+  sentence structure ill-formed. If we flip the smallest structure, we are left
+  with a phrase tree where every node is a constituent and the children are the
+  immediate consituents.
+
+.. image:: images/nltk-constituent-structure.png
+   :target: http://www.nltk.org/book/ch08.html
+   :align: center
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Context Free Grammar
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+    grammar = nltk.CFG.fromstring("""
+        S   -> NP VP
+        VP  -> V NP | V NP PP
+        PP  -> P NP
+        V   -> "saw" | "ate" | "walked"
+        NP  -> "John" | "Mary" | "Bob" | Det N | Det N PP
+        Det -> "a" | "an" | "the" | "my"
+        N   -> "man" | "dog" | "cat" | "telescope" | "park"
+        P   -> "in" | "on" | "by" | "with"
+    """)
+        
+    // explore this with the `nltk.app.rdparser()` demo
+    sent = "Mary saw Bob".split()
+    parser = nltk.RecursiveDescentParser(grammar)
+    for tree in parser.parse(sent):
+        print(tree)
+
+.. code-block:: python
+
+    def run_grammer(text, path):
+        ''' A simply utility to run test data through an
+        external grammar.
+
+        :param text: The text to run the parser on
+        :param path: The path to the parser grammar
+        '''
+        grammar = nltk.data.load('file:' + path)
+        sent    = text.split()
+        parser  = nltk.RecursiveDescentParser(grammar, trace=2)
+        for tree in parser.parse(sent):
+             print(tree)
+
+    run_grammer("Mary saw Bob", "grammar.cfg")
+
+Grammars in nltk cannot combine grammatical categories and lexical items in the
+same production rule (`PP -> 'of' NP`). So simply make the lexical items new
+grammatical categories. Also, multi word lexical items cannot be used either, so
+use `NP -> New_York` instead of `NP -> New York`.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Recursion in Syntatic Structure
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It should be noted that a recursive descent parser cannot parse left-recusive
+productions.
+
+.. code-block:: python
+
+    grammar = nltk.CFG.fromstring("""
+        S     -> NP VP
+        NP    -> Det Nom | PropN
+        Nom   -> Adj Nom | N
+        VP    -> V Adj | V NP | V S | V NP PP
+        PP    -> P NP
+        PropN -> 'Buster' | 'Chatterer' | 'Joe'
+        Det   -> 'the' | 'a'
+        N     -> 'bear' | 'squirrel' | 'tree' | 'fish' | 'log'
+        Adj   -> 'angry' | 'frightened' |  'little' | 'tall'
+        V     ->  'chased'  | 'saw' | 'said' | 'thought' | 'was' | 'put'
+        P     -> 'on'
+    """) 
+
+    sent = "the angry bear chased the frightened little squirrel".split()
+    sent = "Chatterer said Buster thought the tree was tall".split()
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Parsers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`nltk` has include a number of parsers that can be used. First there is the
+top down recursive descent parser. It works by 'predicting' what the input will
+be before inspecting the input. This parser has three short-commings:
+
+1. left-recursive productions like `NP -> NP PP` send it into an infinite loop
+2. it wastes a lot of time considering words that do not correspond to the input
+3. it discards previously parsed results that may be used again
+
+.. code-block:: python
+
+    parser = nltk.RecursiveDescentParser(grammar)
+    sent   = 'Mary saw a dog'.split()
+    for tree in parser.parse(sent):
+        print(tree)
+
+A better approach is a bottom-up parser like shift-reduce. This works by trying
+to find a sequence of words and phrases that correspond to the right hand side of
+a grammar production. It then replaces them with the left hand side until it
+reaches the starting production. The shift-reduce parser in the `nltk` package
+does not perform any backtracking so it may miss a parse even if one exists and
+it will only find a single parse. In general, shift-reduce parsers usually use
+some kind of heuristic to control when to shift or reduce (or resolve conflicts
+of multiple reductions). The advantages of this parser over the recursive
+descent parser are:
+
+1. they only build a parsing structure from the words in the input
+2. they only build each sub-structure once regardless of which reduction is used
+
+.. code-block:: python
+
+    parser = nltk.ShiftReduceParser(grammar)
+    sent   = 'Mary saw a dog'.split()
+    for tree in parser.parse(sent):
+        print(tree)
+
+The *left-corner parser* finds a balance between *top-down* and *bottom-up*
+parsers. It is a top-down parser that uses bottom-up filtering to produce the
+left corner of each production rule (a preprocessing step). Then, before
+descending, it checks if the current context matches the supplied corner.
+
+Chart parsing uses dynamic programming to store previously evaluated sub
+problems. The structure it builds is the *well-formed substring table*.
+Generally, we can enter `A` in (i, j) if there is a production `A -> B C`,
+and we find nonterminal `B` in (i, k) and `C` in (k, j)
+
+.. code-block:: python
+
+    def initialize_wfst(tokens, grammar):
+        length = len(tokens)
+        table  = [[None for i in range(length + 1)] for j in range(length + 1)]
+        for i in range(length):
+            productions = grammar.productions(rhs=tokens[i])
+            table[i][i + 1] = productions[0].lhs()
+        return table
+
+    def complete_wfst(table, tokens, grammar, trace=False):
+        index  = { p.rhs() : p.lhs() for p in grammar.productions() }
+        length = len(tokens)
+        for span in range(2, length + 1):
+            for start in range(length + 1 - span):
+                end = start + span
+                for mid in range(start + 1, end):
+                    nt1, nt2 = table[start][mid], table[mid][end]
+                    production = (nt1, nt2)
+                    if nt1 and nt2 and (production in index):
+                        table[start][end] = index[production]
+                        if trace:
+                            print("[%s] %3s [%s] %3s [%s] ==> [%s] %3s [%s]" % \
+                            (start, nt1, mid, nt2, end, start, index[production], end))
+        return table
+
+    def display(table, tokens):
+        print('\nWFST ' + ' '.join(("%-4d" % i) for i in range(1, len(table))))
+        for i in range(len(table) -1 ):
+            print("%d   " % i, end=" ")
+            for j in range(1, len(table)):
+                print("%-4s" % (table[i][j] or '.'), end=" ")
+            print()
+
+    tokens = "I shot an elephant in my pajamas".split()
+    table1 = inittialize_wfst(tokens, groucho_grammar)
+    table2 = complete_wfst(table1, tokens, grammar)
+    display(table1, tokens)
+    display(table2, tokens)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Dependency Grammar
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Dependency is a binary asymmetric relation that holds between a head and its
+dependents. The head of a sentence is usually the tensed verb, and every other
+word is dependent on the head, or connects to it through a dependency path. The
+structure is represented with a directed graph with arcs being relations to
+the word nodes.
+
+.. code-block:: python
+
+    grammar = nltk.DependencyGrammar.fromstring("""
+        'shot' -> 'I' | 'elephant' | 'in'
+        'elephant' -> 'an' | 'in'
+        'in' -> 'pajamas'
+        'pajamas' -> 'my'
+    """)
+    print(grammar)
+
+A dependent parse is projective if when the word nodes are presented in linear
+order, there are no edge crossings. This basically means that a word and all
+its descendents form a contiguous sequence of words in the sentence. What
+follows is a collection of criteria for deciding the word head:
+
+* H determines the distribution class of C, or the external syntactic properties of C are due to H
+* H determines the semantic type of C
+* H is obligatory while D may be optional
+* H selects D and determines whether it is obligatory or optional
+* The morphological form of D is determined by H (e.g. agreement or case government)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Valency and the Lexicon
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following are verb phrase productions along with their lexical heads. The
+dependents that occur with the `VP` are called the complements and are strong
+constraints on which verbs can appear with what complements. The verbs are thus
+said to have different **valencies**:
+
+.. code-block:: text
+
+    VP -> V Adj   (was)
+    VP -> V NP    (saw)
+    VP -> V S     (thought)
+    VP -> V NP PP (put)
+
+To make sure we parse sentences correctly such that verbs co-occur with their
+correct complements, we need to create sub-categories of verbs:
+
+.. code-block:: text
+
+    Symbol  Meaning             Example
+    --------------------------------------------------
+    IV      intransitive verbs  barked
+    TV      transitive verbs    saw a man
+    DatV    dative verbs        gave a dog to a man
+    SV      sentential verbs    said that a dog barked
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Grammar Development
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 --------------------------------------------------------------------------------
 Chapter 9: Building Feature Based Grammars
 --------------------------------------------------------------------------------
+
+.. todo:: finish this book http://www.nltk.org/book/ch09.html
 
 --------------------------------------------------------------------------------
 Chapter 10: Analyzing the Meaning of Sentences

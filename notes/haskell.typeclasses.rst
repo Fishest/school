@@ -26,3 +26,5 @@ special imports are needed to use it. Here is the definition of `Functor`:
 
     class Functor f where
       fmap :: (a -> b) -> f a -> f b
+
+.. todo:: finish notes

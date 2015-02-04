@@ -21,11 +21,14 @@ Summary
 There are two main kinds of machine learning:
 
 * **Supervised**
+
   Given data with labels, can we predict a label for a new example. The primary
   uses for supervised learning are to classification, regression, and ranking.
   Popular algorithms are: linear models, decision trees, random forests,
   K-nearest neighbors, neural networks, and bayesian learning.
+
 * **Unsupervised**
+
   Given unlabeld data, can we learn something about it. The primary uses for
   unsupervised learning are for clustering, manifold learning, dimensionality
   reduction, association rule mining, and topic models (LDA). Popular algorithms
@@ -37,11 +40,16 @@ There are two main kinds of machine learning:
 
 In supervised learning there are two main types:
 
-* **Classification** - If the label is a (+) / (-) class or multiclass and we want to
+* **Classification**
+  
+  If the label is a (+) / (-) class or multiclass and we want to
   predict the label of a new example. Algorithms include logistic regression, decision
   trees (leaf is the label), random forests (ensemble), support vector machines,
   and naive bayes.
-* **Regression** - If the label is numeric (real) and we want to predict future
+
+* **Regression**
+
+  If the label is numeric (real) and we want to predict future
   values. Algorithms include linear regression, regression trees (leaf is numeric value),
   and kernel regression.
 

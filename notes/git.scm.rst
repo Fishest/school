@@ -661,3 +661,5 @@ Can dump and create tress with:
     mkdir backup; cd backup
     git init
     cat ../backup.dag | git fast-import
+
+.. todo:: finish notes

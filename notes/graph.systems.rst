@@ -3,13 +3,16 @@ Graph Representations
 ================================================================================
 
 --------------------------------------------------------------------------------
-Web Graph: http://webgraph.di.unimi.it/
+Web Graph
 --------------------------------------------------------------------------------
 
+http://webgraph.di.unimi.it/
 
 --------------------------------------------------------------------------------
-Netflix Graph: https://github.com/Netflix/netflix-graph
+Netflix Graph
 --------------------------------------------------------------------------------
+
+https://github.com/Netflix/netflix-graph
 
 All verticies are converted to ordinal integer indexes and the directed
 relationships are represented as a map[ordinal, list[ordinal]]::
@@ -88,15 +91,32 @@ Determining if an object is connected to another object is O(n) instead
 of the hashmap solution which is O(1).
 
 --------------------------------------------------------------------------------
-OrientDB Graph: https://github.com/nuvolabase/orientdb
+OrientDB Graph
 --------------------------------------------------------------------------------
 
+https://github.com/nuvolabase/orientdb
 
 --------------------------------------------------------------------------------
-Neo4j Graph: http://www.neo4j.org/learn/production
+Neo4j Graph
 --------------------------------------------------------------------------------
 
+http://www.neo4j.org/learn/production
+
 --------------------------------------------------------------------------------
-FlockDB Graph: https://github.com/twitter/flockdb
+FlockDB Graph
 --------------------------------------------------------------------------------
+
+https://github.com/twitter/flockdb
 http://engineering.twitter.com/2010/05/introducing-flockdb.html
+
+--------------------------------------------------------------------------------
+Titan Cassandra
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Twitter Cassovary
+--------------------------------------------------------------------------------
+
+https://github.com/twitter/cassovary
+
+.. todo:: finish notes

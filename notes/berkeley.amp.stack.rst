@@ -25,6 +25,8 @@ as well as the subprojects at `https://amplab.cs.berkeley.edu/software/`_.
 What follows is the mini-camp offered by AMP:
 `http://ampcamp.berkeley.edu/big-data-mini-course/`_.
 
+.. todo:: do the mini course
+
 --------------------------------------------------------------------------------
 Spark
 --------------------------------------------------------------------------------

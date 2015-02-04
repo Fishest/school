@@ -1,13 +1,13 @@
-============================================================ 
+================================================================================
 Paper Summaries
-============================================================ 
+================================================================================
 
 A collection of summaries of the google papers value:
 <http://research.google.com/pubs/papers.html>
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Dapper: Systems Tracing Infrastructure
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 * opensource version is zookeeper
 * pinpoint, magpie, and x-trace are similar systems
@@ -56,7 +56,9 @@ Dapper: Systems Tracing Infrastructure
   - can limit total logging with an upper bound (config)
   - also allow key/value traces for counters, binary messages, etc
 
-* example of adding tracing to a trace::
+* example of adding tracing to a trace:
+
+.. code-block:: java
 
     Tracer t = Tracer.getCurrentTracer();
     String request = ...;
@@ -131,9 +133,9 @@ Dapper: Systems Tracing Infrastructure
 * **adaptive sampling** - 1 request out of 1000 to be sampled
   gives correct data
 
-------------------------------------------------------------
-Chubby: 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
+Chubby: Discovery and Configuration Service
+--------------------------------------------------------------------------------
 
 * opensource version is zookeeper
 * purpose of the lock service is to allow clients to
@@ -315,9 +317,9 @@ Chubby:
 
   - most popular was as a name server
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Tenzing: Sql on Mapreduce
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 * opensource version is hive
 * can query row stores, column stores, bigtable, GFS
@@ -412,29 +414,142 @@ A typical Tenzing query goes through the following steps:
   - avoid compulsory sorting
   - if the dataset is small (<128 mb), it is done client side
 
-------------------------------------------------------------
-Dremel:
-------------------------------------------------------------
+--------------------------------------------------------------------------------
+Dremel: Realtime Hadoop Queries
+--------------------------------------------------------------------------------
 
-------------------------------------------------------------
-Pregel:
-------------------------------------------------------------
+.. todo:: notes
 
-------------------------------------------------------------
-MapReduce
-------------------------------------------------------------
+Opensource versions of dremel are:
 
+* Impala from Cloudera
+* Drill from Apache
+* Shark from AMP lab
+
+--------------------------------------------------------------------------------
+Pregel: Large Scale Graph Processing
+--------------------------------------------------------------------------------
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Summary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In summary: programs are expressed as a sequnce of iterations in each of which
+a vertex and receive messages sent in the previous iteration, send messages to
+other vertices, and modify its own state and outgoing edges or mutate the graph
+topology. This is all wrapped in an expressive API that hides the complexities
+of being efficient, scalable, fault tolerant, message passing between nodes in
+the cluster, etc.
+
+Efficiently running various algorithms over graphs has the following problems:
+
+* poor locality of memory access
+* minimal work per vertex
+* changing degree of parallelism
+* distributing graph cliques to nodes in a cluster
+* the size of a graph for a single node (BGL)
+
+Pregel addresses this with the following programming model:
+
+* computations consist of a number of iterations (supersteps)
+* during each superstep, a user defined function is run on each vertex
+* this function operates on a single vertex `V` and single superstep `S`
+* the function can read messages sent to `V` at `S - 1`
+* the function can send messages sent to any `V` at `S + 1` (usually neighbors)
+* the function can modify the state of `V` and its outgoing edges
+* the API is presented as synchronous so concurrency concerns are mitigated
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Programming Model
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+What follows is the c++ api:
+
+.. code-block:: c++
+
+    //
+    // Users subclass the following type to implement a pregel program
+    // by overriding the Compute method.
+    //
+    // Although apparently limiting, the types can be made more flexible
+    // by using things like protocol buffers
+    //
+    template <typename VertexValue, typename EdgeValue, typename MessageValue>
+    class Vertex {
+      public:
+        virtual void Compute(MessageIterator* msgs) = 0;
+        const string& vertex_id() const;
+        int64 superstep() const;
+        const VertexValue& GetValue();
+        VertexValue* MutableValue();
+        OutEdgeIterator GetOutEdgeIterator();
+        void SendMessageTo(const string& dest_vertex, const MessageValue& message);
+        void VoteToHalt();
+    };
+
+The input is a directed graph where each vertex has a unique `vertex identifier`
+combined with a user defined mutable value. The edges are associated with their
+source and have target vertexes as well as a user defined mutable value. Edges
+are not first class citizens and have no computation associated with them. The
+algorithm terminates when every vertex votes to halt. This is modeled as a two
+state machine:
+
+* *active* - all vertexes start active and remain so while there is still work.
+* *halted* - when there is no further work; can be made active by external work.
+
+  - once halted, the vertex will not be included in future supersteps
+  - receiving a message will awaken a node
+  - after receiving a message, the vertex must explicitly halt again
+
+The output is the set of values explicitly output by the vertices. This is usually
+a graph representation that is isomorphic to the orignal graph, but not neccessarly
+so. For example, a graph mining algorithm may output statistics or a clustering
+algorithm may output the cliques.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Aggregators and Combiners
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To reduce the overhead of message passing, users can define `Combiners` to
+aggregate a number of messages intended for a single vertex into one message. For
+example, the total sum of values.
+
+Pregel also supports `Aggregators` to allow all vertices to perform global
+communication. At superstep `S` all verticies can emit a value, all of which get
+reduced and made available to all vertices in superstep `S + 1`. This can be used
+for statistics and a number of `Aggregators` are already defined: min, max, sum.
+The aggregator can be used for coordination by making an `and` aggregator and
+running until all the vertices meet some predicate condition.  The aggregator can
+exist for a single superstep, or can be sticky and last for the entire process.
+
+Pregel was designed for sparse graphs, so graphs with high fan-in and fan-out
+will suffer performance degredation. This may be combated with aggregators.
+Large graphs will spill to disk and they have not found a reliable way to
+partition the graph.
+
+The opensource Apache version is Giraph.
+
+.. todo:: references
+[45]  Leslie G. Valiant, A Bridging Model for Parallel Computation
+[31] Challenges in Parallel Graph Processing
+
+--------------------------------------------------------------------------------
+MapReduce: Embarrissingly Parallel Framework
+--------------------------------------------------------------------------------
+
+.. todo:: notes
 * opensource version is hadoop
 
-------------------------------------------------------------
-Bigtable
-------------------------------------------------------------
+--------------------------------------------------------------------------------
+Bigtable: Infinitely Scalable Column Store
+--------------------------------------------------------------------------------
 
+.. todo:: notes
 * opensource version is cassandra, HBase
 
-------------------------------------------------------------
-Sawzall
-------------------------------------------------------------
+--------------------------------------------------------------------------------
+Sawzall: SQL Queries on Hadoop
+--------------------------------------------------------------------------------
 
 * opensource is apache pig
 * can we make awk distributed?
@@ -501,16 +616,16 @@ Sawzall
   - `when (i: each int; j some int; query[i] == keywords[j]) emit keyword[j];`
   - also have some, each, all quantifiers
 
-------------------------------------------------------------
- Thialfi
-------------------------------------------------------------
-
-------------------------------------------------------------
- FlumeJava
-------------------------------------------------------------
+--------------------------------------------------------------------------------
+Thialfi
+--------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------
- Large Scale Distributed Deep Networks
+FlumeJava: Large Scale Data Mover
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Large Scale Distributed Deep Networks
 --------------------------------------------------------------------------------
 
 Increasing the scale of deep learning with respect to training examples and the
@@ -538,7 +653,9 @@ With larger datasets, the problem of scaling up SGD for convex problems become c
 * create many small models on GPU farms and averaging their results
 * MapReduce and GraphLap found insufficient (Mahout?)
 
-DistBelief basically works as follows:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+DistBelief Architecture Summary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * Each node in the neural network has its computation defined
 * The input data it needs is exposed via messaging (updard and downward)
@@ -546,7 +663,9 @@ DistBelief basically works as follows:
 * Speedups are great except for fully connected structure dominated by communication
 * Slowest machine can be a bottleneck
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Architecture of DistBelief:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * Downpour (online) and Sandblaster (batch)
 * Both make use of a centralized shared parameter server to replicate models
@@ -579,108 +698,99 @@ Architecture of DistBelief:
 * gets/sends parameter updates at lower frequency than Downpour
 
 
-------------------------------------------------------------
- references
-------------------------------------------------------------
+--------------------------------------------------------------------------------
+References
+--------------------------------------------------------------------------------
+
 A comparison of join algorithms for log processing in MapReduce.
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 The Tail At Scale
--------------------------------------------------
+--------------------------------------------------------------------------------
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Component Variability
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Limit queuing effects on the inner-most systems by keeping
-only a very small queue of work to do. Otherwise, this will
-multiply throughout the system. Furthermore, having a priority
-queue (interactive reqeusts vs background reqeusts) can increase
-the performance of the system.
+Limit queuing effects on the inner-most systems by keeping only a very small
+queue of work to do. Otherwise, this will multiply throughout the system.
+Furthermore, having a priority queue (interactive reqeusts vs background
+reqeusts) can increase the performance of the system.
 
-Large service requests can be broken into a number of smaller
-cheap requests that can be interleaved and run concurrently. Time
-slicing can prevent a few large requests from slowing down the
-execution of a large number of small concurrent requests.
+Large service requests can be broken into a number of smaller cheap requests
+that can be interleaved and run concurrently. Time slicing can prevent a few
+large requests from slowing down the execution of a large number of small
+concurrent requests.
 
-If you have large background tasks, break them into smaller
-more granular pieces, throttle them, and run them during periods
-of lower overall load.  It may be usefull to synchronize such
-background activies across the fleet to create a quick burst
-of activity across the fleet simultaneously (slowing down activity
-during that period), otherwise all requests' tail is pushed out
-by constant background activity.
+If you have large background tasks, break them into smaller more granular pieces,
+throttle them, and run them during periods of lower overall load. It may be
+usefull to synchronize such background activies across the fleet to create a quick
+burst of activity across the fleet simultaneously (slowing down activity during
+that period), otherwise all requests' tail is pushed out by constant background
+activity.
 
-Caching will not reduce the tail latency unless the
-cache configuration can contain the entire working set
-of the application.
+Caching will not reduce the tail latency unless the cache configuration can
+contain the entire working set of the application.
 
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Within Request Short Term Adaptations
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For within short term requets, a way to reduce the tail
-latency is to make the initial request and then hedge a
-second request if the first request has not returned in
-the 95th percentile expected latency. When the first of
-these requests returns, cancel the other request. This
-will result in increasing the overall load in the system
-by 5%.
+For within short term requets, a way to reduce the tail latency is to make the
+initial request and then hedge a second request if the first request has not
+returned in the 95th percentile expected latency. When the first of these
+requests returns, cancel the other request. This will result in increasing the
+overall load in the system by 5%.
 
-Another way to perform this is to "tie" a request to 
-another server. This works by queueing a reqeust to two
-servers at once (as a hedge), but including in the message
-the other server the request was sent to.  Then the first
-server to dequeue the request in question sends a cancellation
-message to the other server to prevent it from doing the same
-work.  This approach works better than random queueing, examining
-the queue of the service (to put on the smallest queue), and
-other techniques. In order to prevent the case where both
-servers pop the request at the same time and send cancellation
-messages to each other (say when the queues are empty), the
-client should introduce a small bit of random timeout between
-sending the two messages; a small delay of two times the average
-network message delay (1 ms in modern data centers).
+Another way to perform this is to "tie" a request to another server. This works
+by queueing a reqeust to two servers at once (as a hedge), but including in the
+message the other server the request was sent to. Then the first server to
+dequeue the request in question sends a cancellation message to the other server
+to prevent it from doing the same work. This approach works better than random
+queueing, examining the queue of the service (to put on the smallest queue), and
+other techniques. In order to prevent the case where both servers pop the request
+at the same time and send cancellation messages to each other (say when the queues
+are empty), the client should introduce a small bit of random timeout between
+sending the two messages; a small delay of two times the average network message
+delay (1 ms in modern data centers).
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Cross-Request Long-Term Adaptions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To combat imbalance, create a number of mircro partitions instead
-of large partitions per server.  Google uses say 20 partitions per
-machine (much more than the size of a single machine partition) 
-which allows it to shed load in 5% increments in 1/20th of 
-the time. These are then dynamically assigned and load balanced to
-specific servers.  Load balancing is then a matter of moving
+To combat imbalance, create a number of mircro partitions instead of large
+partitions per server.  Google uses say 20 partitions per machine (much more
+than the size of a single machine partition) which allows it to shed load in 5%
+increments in 1/20th of the time. These are then dynamically assigned and load
+balanced to specific servers.  Load balancing is then a matter of moving
 responsibility of these partitions from one machine to another.
 
-If the service can detect or predict a hot item, additional replicas
-of these items can be created and stored in a number of partitions.
-This way, load can be balanced without having to move partitions around
-the system.
+If the service can detect or predict a hot item, additional replicas of these
+items can be created and stored in a number of partitions.  This way, load can
+be balanced without having to move partitions around the system.
 
-Finally, a system that is consistently perfoming slowly (say as it is
-constantly overload) can be put on probation and not actively used until
-its situation improves. The request server can then issue shadow requests
-behind the scenese to collect updated statistics about the machine in
-probation until is situation improves and it can be reincorperated.
+Finally, a system that is consistently perfoming slowly (say as it is constantly
+overload) can be put on probation and not actively used until its situation
+improves. The request server can then issue shadow requests behind the scenese
+to collect updated statistics about the machine in probation until is situation
+improves and it can be reincorperated.
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Large Information Retrieval Systems
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Speed is a key quality metric in a large IR system, and as such it may
-be better to return a response that is "good enough" instead of the best
-response.  As such, some systems may be able to be returned before all of
-the responses they issue are returned if we can deem that it has taken too
-long and the result is "good enough." This scheme can also be used to ignore
-nonessential subsystems to improve responsiveness (ads, spelling correction).
+Speed is a key quality metric in a large IR system, and as such it may be better
+to return a response that is "good enough" instead of the best response. As such,
+some systems may be able to be returned before all of the responses they issue
+are returned if we can deem that it has taken too long and the result is "good
+enough." This scheme can also be used to ignore nonessential subsystems to
+improve responsiveness (ads, spelling correction).
 
-If a system has a number of edge cases that have not been exercised, it may
-be a good idea to send out a "canary request" to one system and wait to see
-if it returns before fanning the request out among the fleet to prevent a DoS
-and to provide an extra layer of robustness.
+If a system has a number of edge cases that have not been exercised, it may be a
+good idea to send out a "canary request" to one system and wait to see if it
+returns before fanning the request out among the fleet to prevent a DoS and to
+provide an extra layer of robustness.
 
 It may be appropriate to tolerate critical mutations of data as these generally
 take less time to process then the related read requests (which need to perform

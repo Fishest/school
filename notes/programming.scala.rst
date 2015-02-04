@@ -234,3 +234,5 @@ virtual inheritence:
       def startup(): Unit
       def shutdown(): Unit
     }
+
+.. todo:: finish notes

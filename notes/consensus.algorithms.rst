@@ -1,6 +1,10 @@
--------------------------------------------------
+================================================================================
+Consensus Algorithms
+================================================================================
+
+--------------------------------------------------------------------------------
 Raft Consensus Algorithm
--------------------------------------------------
+--------------------------------------------------------------------------------
 
 The main goals and or differences about RAFT is that:
 
@@ -45,9 +49,9 @@ results of that command could be visible to clients), then
 no other server may apply a different command for the same 
 log entry.
 
--------------------------------------------------
+--------------------------------------------------------------------------------
 Paxos Consensus Algorithm
--------------------------------------------------
+--------------------------------------------------------------------------------
 
 Paxis is constructed using a "Single Decree" that works as follows:
 
@@ -59,3 +63,10 @@ We can combine multiple instances of the Single Decree together to
 agree on a series of values forming the log; this is known as
 Multi-Paxos (or Multi Decree).
 
+.. todo:: convert notes
+
+--------------------------------------------------------------------------------
+Zookeeper Consensus Algorithm
+--------------------------------------------------------------------------------
+
+.. todo:: convert notes

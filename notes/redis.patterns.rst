@@ -11,6 +11,8 @@ https://developer.mozilla.org/en-US/docs/Mozilla/Redis_Tips
 Todo
 --------------------------------------------------------------------------------
 
+.. todo:: finish these examples
+
 * locks
 * pub/sum message bus
 * user cardinality

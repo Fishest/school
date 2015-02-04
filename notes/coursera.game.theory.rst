@@ -131,3 +131,5 @@ cannot be dominant cycles.
 
 In prisoners dilemma, the nash equilibria is the only
 state that is not the pareto-optima.
+
+.. todo:: finish class

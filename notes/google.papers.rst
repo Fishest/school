@@ -430,6 +430,8 @@ Opensource versions of dremel are:
 Pregel: Large Scale Graph Processing
 --------------------------------------------------------------------------------
 
+The opensource Apache version is Giraph.
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Summary
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -527,11 +529,282 @@ will suffer performance degredation. This may be combated with aggregators.
 Large graphs will spill to disk and they have not found a reliable way to
 partition the graph.
 
-The opensource Apache version is Giraph.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Mutations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Mutations to the graph are messages that are sent out in superstep `S` and
+applied before superstep `S + 1`. Since there can be conflicts in the operations
+the following process is used:
+
+* edge deletes are processed before edge additions
+* removing a vertex remotes all the out edges
+* for multiple create operations for the same data, one is chosen at random
+* unless a handler is supplied which can choose the correct one
+* global mutation is synchronized by applying the entire batch at once
+* local mutation is inherently safe
+
+The graph storage is backed by simple reader and writer interfaces which make it
+easy to create a graph from whatever format or backing store a user needs. There
+are default implementations for text files, bigtable, GFS.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Implementation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Pregel runs on the google cluster which is simple x86 machines stored in racks
+with high intra-bandwidth. Persistant data is stored in GFS or bigtable and
+temporary data like buffered messages is stored on local disk. The chubby name
+server is used to refer to cluster instances instead of physical machines.
+
+The graph is partitioned based on the vertex id. This is simply based on using
+a `hash(id) mod N` with the number of servers in the cluster. This way all
+servers know which node a vertex is on. This distribution can be overloaded
+depending on the use case (web search for example may put all pages for the
+same domain on the same cluster).
+
+The user program is then run on `N` machines in the cluster with one of them
+running as the master. The workers use the name service to look up the master
+and send registration messages. The master decides how many partitions the
+graph should have and assigns one or more partitions to each worker. Each
+worker is given the complete set of assignments for all workers so that
+messages can be coordinated between workers.
+
+The graph input is then assigned in chunks to all the workers who will:
+
+1. update their datastructures if the vertex belongs to them
+2. enqueue a message to another worker if it does not
+3. after all verticies are read, they are marked as active
+
+The master then instructs each worker to begin a superstep:
+
+1. they read and apply their enqueued messages
+2. iterate through each vertex in their partitions
+3. enqueue any messages that need to be delivered
+4. send their number of active verticies to the master and finish this step
+5. this is repeated as long as vertices are active or messages are in transit
+
+After the computation halts, the master may inform each worker to persist
+its portion of the graph.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Fault Tolerance
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fault tolerance is achieved through checkpointing. At the beginning of each
+superstep, the master tells the workers to save the state of their partitions to
+persistant storage: edge values, vertex values, incoming messages. The master
+saves the aggregator values.
+
+Worker failures are detected with regular ping messages. If a worker does not
+receive a ping within a certain time limit, it kills itself. If a master does
+not receive a response from a worker in a certain time limit, it marks the
+worker as failed.
+
+When a worker is marked as failed, its partition is rebalanced across the
+cluster and they are informed to reload their entire state (including the 
+new values) from persistant storage. This may be many steps before the current
+superstep. The checkpointing frequency is balanced by a cost value.
+
+There is work in progress to recompute the state by keeping a log of outgoing
+messages so all the state can be rebuilt just for the lost partitions. Non
+deterministic algorithms can be made deterministic by seeding the generator
+based on the superstep.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Worker Implementation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The worker maintains its graph in memory that can be represented as follows:
+
+.. code-block:: scala
+
+    case class EdgeState[E](source: VertexId, state: E)
+    case class VertexState[V, E](state: V, edges, List[EdgeState[E]],
+      messages: Queue[Message], is_active: Boolean)
+
+    type VertexId = String
+    type Graph[V, E] = Map[VertexId, VertexState[V, E]]
+
+The general work of each superstep is as follows:
+
+.. code-block:: scala
+
+    val updates = for {
+      id, vertex <- graph.items(),
+      if vertex.is_active or !vertex.messages.empty
+    } yield compute(vertex.state, vertex.edges, vertex.messages)
+
+There are two copies of the `isActive` and `messages`: one for the current
+superstep and one for receiving updates for the next superstep. While the
+current superstep is being processed, another thread is receiving the updates
+for the next superstep from other workers.
+
+The update messages are sent based on locality. If the update is to a local
+vertex, it is placed directly in the queue of the vertex. If the update is
+for a remote vertex, the messages are buffered until they reach a certain
+size and then a single message is sent asynchronously (buffer size).
+
+If combiners are used, they are applied when they are added to the outgoing
+message queue and when they are received at the incoming message queue (local
+and remote).
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Master Implementation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The master is responsible for knowing all the workers, their partitions, and how
+to contact them and manage work. Its data structure sizes are proportional to
+the number of partitions, so it can scale to very large graphs with a single
+host. Each worker is assigned a unique identifier at registration along with
+addressing information.
+
+The master basically works as a barrier between supersteps. It sends out `N`
+superstep compute messages and then waits for `N` responses before moving to
+the next superstep. If it fails to get `N` responses, it moves to recovery mode.
+
+The master also maintains statitics about the processing that it displays via
+an HTTP web service:
+
+* progress of the computation
+* the total size of the graph
+* a histogram of its distribution of out degrees
+* the number of active vertices
+* the timing and message traffic of recent supersteps
+* the values of user defined aggregators
+
+Aggregators work by having each worker compute its local global value for the
+current superstep. The workers then communicate to reduce the global value by
+forming a tree and reducing. The global values are then computed and sent to
+the master who distributes them to all workers at the next superstep.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Applications
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* **page rank**
+
+.. code-block:: c++
+
+    class PageRankVertex : public Vertex<double, void, double> {
+      public:
+        virtual void Compute(MessageIterator* msgs) {
+            if (superstep() >= 1) {
+                double sum = 0;
+                for (; !msgs->Done(); msgs->Next())
+                sum += msgs->Value();
+                *MutableValue() = 0.15 / NumVertices() + 0.85 * sum; //* rst
+            }
+
+            // normally this would run until convergence using aggregators
+            if (superstep() < 30) {
+                const int64 n = GetOutEdgeIterator().size();
+                SendMessageToAllNeighbors(GetValue() / n);
+            } else {
+                VoteToHalt();
+            }
+        }
+    };
+
+* **shortest paths**
+
+.. code-block:: c++
+
+    class ShortestPathVertex : public Vertex<int, int, int> {
+      public:
+        virtual void Compute(MessageIterator* msgs) {
+            int mindist = IsSource(vertex_id()) ? 0 : INF;
+            for (; !msgs->Done(); msgs->Next())
+                mindist = min(mindist, msgs->Value());
+
+            if (mindist < GetValue()) {
+                *MutableValue() = mindist; //* rst
+                OutEdgeIterator iter = GetOutEdgeIterator();
+                for (; !iter.Done(); iter.Next())
+                    SendMessageTo(iter.Target(), mindist + iter.GetValue());
+            }
+            VoteToHalt();
+        }
+    };
+
+    // A combiner can reduce the network traffic substantially
+    class MinIntCombiner : public Combiner<int> {
+        virtual void Combine(MessageIterator* msgs) {
+            int mindist = INF;
+            for (; !msgs->Done(); msgs->Next())
+                mindist = min(mindist, msgs->Value());
+            Output("combined_source", mindist);
+        }
+    };
+
+* **bipartite matching**
+
+  The code is not included, but it uses `superstep mod 4` to drive a state
+  machine with the following steps:
+
+  0. all left verticies send a join message to all their edges and then halt
+
+     - if it is already matched or has no edges, it will never restart
+     - otherwise it will recieve a response and restart
+
+  1. each right vertex randomly responds true to one of the messages
+
+     - it then sends false to all the other messages
+     - it then halts
+
+  2. each left vertex randomly responds true to one of the messages
+
+     - if it is already matched, it wouldn't have sent a message in state 0
+
+  3. each right vertex updates its state with the accept messages and halts
+
+  The vertex value is a tuple of two flags (is_left and is_right) as well as
+  the name of its matched vertex once known. The edges have no value, and the
+  messages are boolean.
+
+* **semi-clustering**
+
+  The input is a directed weighted graph with edges in both directions. This
+  can represent a communication graph (users who communicate more have higher
+  weights). This will return at most `C_max` clusters where a vertex can be
+  in more than one cluster.
+
+  Each vertex maintains a list of members in its cluster (max C_max) sorted by
+  score. The list is initialized by the vertex assigning itself to the cluster
+  with a score of 1. The remainder of the algorithm is as follows:
+
+  * the vertex broadcasts a message to all its neighbors
+  * vertex `V` iterates over the clusters `c_1 .. c_k` sent to it
+
+    - if `V` is not in `c` and `V_c < C_max`, `V` adds itself to `c`
+    - this forms `c*`
+
+  * the semi clusters `c_1 .. c_k` `c*_1 .. c*_k` are sorted by their scores
+
+    - the best clusters are sent to their neighbors
+    - vertex `V` updates its list of semi-clusters with the ones it is in
+
+  * the algorithm is terminated when the clusters stop changing or after `N` steps
+  * the list of semi-clusters are reduced to the global list of best clusters
+
+  A semi cluser `c` is assigned a score as follows:
+
+.. code-block:: text
+
+    S_c = (I_c - f_b * B_c) / (V_c * (V_c - 1) / 2)
+
+    I_c = sum of the weihts of all internal edges
+    B_c = the sum of the weights of all boundary edges
+    V_c = the number of vertices in the semi-cluser
+    f_b = the boundary edge score factor (supplied 0..1)
+
+    The score is normalized by the number of edges in the clique
+    V_c so large clusters do not dominate.
 
 .. todo:: references
 [45]  Leslie G. Valiant, A Bridging Model for Parallel Computation
 [31] Challenges in Parallel Graph Processing
+[37] delta stepping method
 
 --------------------------------------------------------------------------------
 MapReduce: Embarrissingly Parallel Framework

@@ -1,8 +1,8 @@
 ================================================================================
-Paper Summaries
+Google Papers
 ================================================================================
 
-A collection of summaries of the google papers value:
+A collection of summaries of some of the google papers:
 <http://research.google.com/pubs/papers.html>
 
 --------------------------------------------------------------------------------
@@ -1070,3 +1070,25 @@ take less time to process then the related read requests (which need to perform
 processing).  Also, most updates can be done off the critical path (async). Finally,
 for systems that request consistent updates, the quorum based algorithms are
 inherently tail tolerant as slow systems (2 out of 5) don't assist in the quorum.
+
+--------------------------------------------------------------------------------
+MillWheel
+--------------------------------------------------------------------------------
+
+http://research.google.com/pubs/pub41378.html
+
+.. todo:: take notes
+
+--------------------------------------------------------------------------------
+BigTable
+--------------------------------------------------------------------------------
+
+http://research.google.com/archive/bigtable.html
+
+--------------------------------------------------------------------------------
+Spanner
+--------------------------------------------------------------------------------
+
+http://static.googleusercontent.com/external_content/untrusted_dlcp/research.google.com/en/us/archive/spanner-osdi2012.pdf
+
+.. todo:: take notes

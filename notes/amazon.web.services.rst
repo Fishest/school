@@ -902,6 +902,8 @@ http://aws.amazon.com/iam/
 Summary
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. todo:: read up
+
 --------------------------------------------------------------------------------
 Amazon S3
 --------------------------------------------------------------------------------
@@ -1027,13 +1029,20 @@ Request Execution
 
 * **Logical Transformation**
 
-  The optimizer performs a rewrite of the query that incorporates optimizations such as predicate pushing, correlated subquery decorrelation, join elimination, common subexpression optimization, and several other processes.
+  The optimizer performs a rewrite of the query that incorporates optimizations
+  such as predicate pushing, correlated subquery decorrelation, join elimination,
+  common subexpression optimization, and several other processes.
 
 * **Query Plan**
   
-  The final query tree is converted to a query plan. Creating a query plan involves determining which methods and processing steps to use, such as, hash join or merge join, aggregation planning, and join ordering.
+  The final query tree is converted to a query plan. Creating a query plan
+  involves determining which methods and processing steps to use, such as, hash
+  join or merge join, aggregation planning, and join ordering.
 
-You can use the EXPLAIN command to view the query plan, or explain plan. The query plan is a fundamental tool for analyzing and tuning complex queries. For more information about how to use an explain plan to optimize your queries, see Analyzing the query plan.
+  You can use the EXPLAIN command to view the query plan, or explain plan. The
+  query plan is a fundamental tool for analyzing and tuning complex queries. For
+  more information about how to use an explain plan to optimize your queries, see
+  Analyzing the query plan.
 
 .. code-block:: sql
 
@@ -1061,7 +1070,13 @@ You can use the EXPLAIN command to view the query plan, or explain plan. The que
 
 * **Execution Engine**
   
-  The execution engine assembles a sequence of steps, segments, and streams to execute the query plan supplied by the optimizer. It then generates and compiles C++ code to be executed by the compute nodes. Compiled code executes much faster than interpreted code and uses less compute capacity. When benchmarking your queries, you should always compare the times for the second execution of a query, because the first execution time includes the overhead of compiling the code. For more information, see Benchmarking with Compiled Code.
+  The execution engine assembles a sequence of steps, segments, and streams to
+  execute the query plan supplied by the optimizer. It then generates and compiles
+  C++ code to be executed by the compute nodes. Compiled code executes much faster
+  than interpreted code and uses less compute capacity. When benchmarking your queries,
+  you should always compare the times for the second execution of a query, because the
+  first execution time includes the overhead of compiling the code. For more information,
+  see Benchmarking with Compiled Code.
 
 * **Compute Nodes**
   
@@ -1234,6 +1249,12 @@ Amazon S3
 --------------------------------------------------------------------------------
 
 http://aws.amazon.com/s3/
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Summary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. todo:: read up
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Tips
@@ -1567,7 +1588,7 @@ Amazon Mechanical Turk
 Summary
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. todo:: finish updating
+.. todo:: finish notes
 
 --------------------------------------------------------------------------------
 Amazon Cloudfront
@@ -1579,4 +1600,4 @@ Amazon Cloudfront
 Summary
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. todo:: finish updating
+.. todo:: finish notes

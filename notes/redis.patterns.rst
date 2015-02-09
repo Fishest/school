@@ -1,11 +1,13 @@
 ================================================================================
 Redis Patterns
 ================================================================================
+
 http://www.slideshare.net/dvirsky/kicking-ass-with-redis
 http://redis.io/documentation
 http://shop.oreilly.com/product/0636920020127.do
 http://www.paperplanes.de/2010/2/16/a_collection_of_redis_use_cases.html
 https://developer.mozilla.org/en-US/docs/Mozilla/Redis_Tips
+http://word.bitly.com/post/41284219720/forget-table
 
 --------------------------------------------------------------------------------
 Todo

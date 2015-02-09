@@ -6,6 +6,8 @@ Consensus Algorithms
 Raft Consensus Algorithm
 --------------------------------------------------------------------------------
 
+https://ramcloud.stanford.edu/wiki/download/attachments/11370504/raft.pdf
+
 The main goals and or differences about RAFT is that:
 
 1. Was designed to be easily understood (decomposed
@@ -53,6 +55,18 @@ log entry.
 Paxos Consensus Algorithm
 --------------------------------------------------------------------------------
 
+http://arxiv.org/pdf/1103.2408.pdf
+https://www.youtube.com/watch?v=JEpsBg0AO6o
+http://www.cs.utexas.edu/users/lorenzo/corsi/cs380d/papers/paper2-1.pdf
+http://www.cs.cornell.edu/fbs/publications/SMSurvey.pdf
+http://research.microsoft.com/en-us/um/people/blampson/58-consensus/Abstract.html
+http://research.microsoft.com/en-us/um/people/lamport/pubs/lamport-paxos.pdf
+http://research.microsoft.com/en-us/um/people/lamport/pubs/paxos-simple.pdf
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Summary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Paxis is constructed using a "Single Decree" that works as follows:
 
 1. One or more severs prose a value
@@ -66,7 +80,17 @@ Multi-Paxos (or Multi Decree).
 .. todo:: convert notes
 
 --------------------------------------------------------------------------------
-Zookeeper Consensus Algorithm
+ZAB: Zookeeper Consensus Algorithm
 --------------------------------------------------------------------------------
+
+http://www.stanford.edu/class/cs347/reading/zab.pdf
+
+.. todo:: convert notes
+
+--------------------------------------------------------------------------------
+Viewstamped Replication
+--------------------------------------------------------------------------------
+
+http://pmg.csail.mit.edu/papers/vr-revisited.pdf
 
 .. todo:: convert notes

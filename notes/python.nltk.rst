@@ -2610,16 +2610,125 @@ correct complements, we need to create sub-categories of verbs:
 Grammar Development
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+It is extremely complicated to make a strong general parser for a language. This
+is complicated by the fact that there are at some times massive numbers of parse
+treeds for seemingly simple sentences: "fish fish fish." One way to handle this
+is with a weighted grammar. A probabilistic context free grammar (PCFG) is just
+such a solution. It associates a probability with each of its productions. The
+parser then produces the most likely parse out of the many possible productions.
+
+.. code-block:: python
+
+    grammar = nltk.PCFG.fromstring("""
+        S    -> NP VP              [1.0]
+        VP   -> TV NP              [0.4]
+        VP   -> IV                 [0.3]
+        VP   -> DatV NP NP         [0.3]
+        TV   -> 'saw'              [1.0]
+        IV   -> 'ate'              [1.0]
+        DatV -> 'gave'             [1.0]
+        NP   -> 'telescopes'       [0.8]
+        NP   -> 'Jack'             [0.2]
+    """)
+    print(grammar)
+
+    parser = nltk.ViterbiParser(grammar)
+    for tree in parser.parse(['Jack', 'saw', 'telescopes']):
+        print(tree)
+
+
 --------------------------------------------------------------------------------
 Chapter 9: Building Feature Based Grammars
 --------------------------------------------------------------------------------
 
-.. todo:: finish this book http://www.nltk.org/book/ch09.html
+The goal of this chapter is to answer the following questions:
+
+* How can we extend the framework of context free grammars with features so as
+  to gain more fine-grained control over grammatical categories and productions?
+
+* What are the main formal properties of feature structures and how do we use
+  them computationally?
+
+* What kinds of linguistic patterns and grammatical constructions can we now
+  capture with feature based grammars?
+
+We would like to go farther than simply generating the part of speech for a word
+and instead provide full *feature structures*. There an be many or few for a
+given word. what follows is a simple example of two structures:
+
+.. code-block:: python
+
+    # CAT  -> category
+    # ORTH -> spelling (orthography)
+    # REF  -> reference
+    # REL  -> relation
+    kim   = {'CAT': 'NP', 'ORTH': 'Kim', 'REF': 'k'}
+    chase = {'CAT': 'V',  'ORTH': 'chased', 'REL': 'chase'}
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Attributes and Constraints
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+How would we encode *Subject Verb Agreement* into a CFG grammar? The obvious way
+would be to make productions for all six forms of subject and verb; however this
+will make our grammars huge. Another way is to encode properties into the
+grammar:
+
+.. code-block:: text
+
+    #------------------------------------------------------------
+    # this adds the property NUM (number) which has values:
+    #
+    # - sg singular
+    # - pl plural
+    # - ?n is a variable for that property that each instance is
+    #      constrained to once assigned. If the property doesn't
+    #      matter, we can leave it empty and the production can
+    #      be used for any value.
+    #------------------------------------------------------------
+
+    S           -> NP[NUM=?n] VP[NUM=?n]
+    NP[NUM=?n]  -> Det[NUM=?n] N[NUM=?n]
+    VP[NUM=?n]  -> V[NUM=?n]
+
+    Det[NUM=sg] -> 'this'
+    Det[NUM=pl] -> 'these'
+    Det         -> 'the' | 'some' | 'any'
+
+    N[NUM=sg]   -> 'dog'
+    N[NUM=pl]   -> 'dogs'
+    V[NUM=sg]   -> 'runs'
+    V[NUM=pl]   -> 'run'
+
+The grammar can have as many or few properties as it wants. There is also an
+extension to this system to make the properties and values typed so only
+correct values can be supplied:
+
+.. code-block:: python
+
+    from nltk import load_parser [1]
+
+    tokens = 'Kim likes children'.split()
+    parser = load_parser('grammars/book_grammars/feat0.fcfg', trace=2)
+    for tree in parser.parse(tokens):
+        print(tree)
+
+    nltk.data.show_cfg('grammars/book_grammars/feat0.fcfg')
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Terminology
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. todo:: finish http://www.nltk.org/book/ch09.html
 
 --------------------------------------------------------------------------------
 Chapter 10: Analyzing the Meaning of Sentences
 --------------------------------------------------------------------------------
 
+.. todo:: finish http://www.nltk.org/book/ch10.html
+
 --------------------------------------------------------------------------------
 Chapter 11: Managing Linguistic Data
 --------------------------------------------------------------------------------
+
+.. todo:: finish http://www.nltk.org/book/ch11.html

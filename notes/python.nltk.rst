@@ -2719,7 +2719,164 @@ correct values can be supplied:
 Terminology
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. todo:: finish http://www.nltk.org/book/ch09.html
+Features that cannot be decomposed into subparts are referred to as *atomic*. A
+special case of *atomic* features are *boolean* features usually represented
+with `+` / `-` or `t` / `f`. So a verb that may or may not be auxiliary (can, may
+will, and do) could be represented as `V[tense=pres, +AUX]`.
+
+Instead of atomic features, features can be *complex* and make use of *attribute
+value matrix* values. This is basically storing a structure as a feature:
+
+.. code-block:: text
+
+    [POS = N           ]
+    [                  ]
+    [AGR = [PER = 3   ]]
+    [      [NUM = pl  ]]
+    [      [GND = fem ]]
+
+It helps to think of feature structures as graphs (DAGs). We work with features
+structures in nltk as follows:
+
+.. code-block:: python
+
+    # basically a dictionary
+    feature = nltk.FeatureStructure(TENSE='past', NUM='sg')
+    feature['CASE'] = 'acc'
+    print(feature)
+    print(feature['TENSE'])
+
+    # these both equal the same value
+    complex = nltk.FeatureStructure(POS='N', AGR=feature)
+    complex = nltk.FeatStruct("[POS='N', AGR=[TENSE='past', NUM='sg', CASE='acc']]"))
+
+Since the structure is a graph, we can use feature sharing to use the same
+information in multiple places in the structure. We do this by using tags or
+coindexes to mark the common field:
+
+.. code-block:: python
+
+    # prefix the common feature with (n)
+    # reference it with NAME->(n)
+    complex = nltk.FeatStruct("""
+      [NAME='Lee', ADDRESS=(1)[NUMBER=74, STREET='rue Pascal'],
+      SPOUSE=[NAME='Kim', ADDRESS->(1)]]
+    """)
+    print(complex)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Subsumption and Unification
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We can order feature structures based on the information they contain. Some are
+partial and have less information than a complete structure. This ordering is
+called *subsumption*. `S_0` subsumes `S_1` if all the information contained in
+`S_1` is also contained in `S_0`. If we have two structures with differing
+information, then neither subsumes the other.
+
+However, there are cases when we would like to merge the data in two or more
+structures. This is known as unification. It is a symmetric operation so
+`a unify b == b unify a`. If a subsuming structure unifies another, the result
+is the structure with the most information. If the two structures have divergent
+data, they cannot be unified:
+
+.. code-block:: python
+
+    feature1 = nltk.FeatStruct(NUMBER=74, STREET='rue Pascal')
+    feature2 = nltk.FeatStruct(CITY='Paris')
+    print(feature1.unify(feature2))
+
+    # divergent feature cannot be unified
+    feature1 = nltk.FeatStruct(NUMBER=74)
+    feature2 = nltk.FeatStruct(NUMBER=75)
+    print(feature1.unify(feature2)) # None
+
+It should be noted that if you update a field in shared structure, all fields
+that reference that entity will get updated.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Extending a Feature Based Grammar
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Instead of having labels for different kinds of verbs in productions like:
+
+.. code-block:: text
+    
+    VP -> IV    # intransitive verb
+    VP -> TV NP # transitive verb
+
+We can instead use structured features to add subcategories of verbs. This idea
+was realized by Generalized Phrase Structure Grammar (GPSG):
+
+.. code-block:: text
+    
+    VP[TENSE=?t, NUM=?n] -> V[SUBCAT=intrans, TENSE=?t, NUM=?n]
+    VP[TENSE=?t, NUM=?n] -> V[SUBCAT=trans, TENSE=?t, NUM=?n] NP
+    VP[TENSE=?t, NUM=?n] -> V[SUBCAT=clause, TENSE=?t, NUM=?n] SBar
+    
+    V[SUBCAT=intrans, TENSE=pres, NUM=sg] -> 'disappears' | 'walks'
+    V[SUBCAT=trans, TENSE=pres, NUM=sg]   -> 'sees' | 'likes'
+    V[SUBCAT=clause, TENSE=pres, NUM=sg]  -> 'says' | 'claims'
+    
+    V[SUBCAT=intrans, TENSE=pres, NUM=pl] -> 'disappear' | 'walk'
+    V[SUBCAT=trans, TENSE=pres, NUM=pl]   -> 'see' | 'like'
+    V[SUBCAT=clause, TENSE=pres, NUM=pl]  -> 'say' | 'claim'
+    
+    V[SUBCAT=intrans, TENSE=past, NUM=?n] -> 'disappeared' | 'walked'
+    V[SUBCAT=trans, TENSE=past, NUM=?n]   -> 'saw'  | 'liked'
+    V[SUBCAT=clause, TENSE=past, NUM=?n]  -> 'said' | 'claimed'
+
+Instead of defining this top down, we can use the sub-category to define the
+valency of the productions. So a verb like `put` may require `NP` and `PP`
+compliments. When one of the arguments is bound, they sub-category can be
+reduced until it is an empty list and thus a valid production rule:
+
+.. code-block:: text
+
+    V[SUBCAT=<>]
+    |   |
+    NP  V[SUBCAT=<NP>]
+    |   |
+    |   V[SUBCAT=<NP, PP, PP>]
+    |   |   |        |
+    |   |   NP       PP
+    |   |   |        |
+    kim put the book on the table
+
+Another feature that we might like to add is the head and child of a phrase
+(although not all phrases have a head like coordinate phrases):
+
+* V (verb) are heads of VP
+* N (noun) are heads of NP
+* A (adjective) are heads of AP
+* P (prepositions) are heads of PP
+
+This is addressed with *X-Bar* syntax by abstrating out the notion of phrasal
+level. All phrase types should share a structural similarity:
+
+* `N''` -> NP  (a student of French) ; maximal projection
+* `N'`  -> NOM (student of French) ; phrasal projection
+* `N`   -> N   (student) ; head of phrase ; zero projection
+
+.. code-block:: text
+
+    S        -> N[BAR=2] V[BAR=2]
+    N[BAR=2] -> Det N[BAR=1]
+    N[BAR=1] -> N[BAR=1] P[BAR=2]
+    N[BAR=1] -> N[BAR=0] P[BAR=2]
+    N[BAR=1] -> N[BAR=0]XS
+
+
+Verbs that can be positioned initially in inverted clauses belong to the class
+known as auxiliaries. They can be captured with: `S[+INV] -> V[+AUX] NP VP`.
+
+For cases where there are gaps, we can use *slash* categories to add the notion
+that a value will be missing (S[+INT]/NP). This gets reduced to a feature of
+the word to the left `S[SLASH=NP]`:
+
+* Who do you like __? 
+* Who do you claim that you like __?
+* Who do you claim that Jody says that you like __?
 
 --------------------------------------------------------------------------------
 Chapter 10: Analyzing the Meaning of Sentences

@@ -9,6 +9,26 @@ Avro
 http://avro.apache.org/
 
 --------------------------------------------------------------------------------
+Parquet
+--------------------------------------------------------------------------------
+
+http://parquet.incubator.apache.org/
+https://blog.twitter.com/2013/dremel-made-simple-with-parquet
+
+* delta encoding
+  - for sorted data with minimal variation
+
+.. image:: images/delta-encoding.jpg
+   :target: http://en.wikipedia.org/wiki/Delta_encoding
+   :align: center
+
+* prefix coding
+* dictionary encoding
+* run length encoding
+* predicate pushdown (rows)
+* projection pushdown (columns)
+
+--------------------------------------------------------------------------------
 Message Pack
 --------------------------------------------------------------------------------
 
@@ -25,3 +45,9 @@ Protocol Buffers
 --------------------------------------------------------------------------------
 
 https://developers.google.com/protocol-buffers/
+
+--------------------------------------------------------------------------------
+Snappy Compression
+--------------------------------------------------------------------------------
+
+https://code.google.com/p/snappy/

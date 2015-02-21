@@ -2882,10 +2882,254 @@ the word to the left `S[SLASH=NP]`:
 Chapter 10: Analyzing the Meaning of Sentences
 --------------------------------------------------------------------------------
 
-.. todo:: finish http://www.nltk.org/book/ch10.html
+The goal of this chapter is to answer the following questions:
 
+* How can we represent natural language meaning so that a computer can process
+  these representations?
+
+* How can we associate meaning representations with an unlimited set of
+  sentences?
+
+* How can we use programs that connect the meaning representations of sentences
+  to stores of knowledge?
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Querying a Database
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Say we have a database of facts and we want to answer the following question:
+"What country is Athens in?".
+
+.. code-block:: python
+
+    from nltk import load_parser
+
+    queries = {
+        'What cities are located in China' : "SELECT country FROM city_table WHERE city = 'Athens'",
+        'Which country is Athens in'       : "SELECT City FROM city_table WHERE Country = 'china'",
+    }
+    question = queries.keys()[0]
+    parser = load_parser('grammars/book_grammars/sql0.fcfg')
+    trees  = list(parser.parse(question.split()))
+    answer = trees[0].label()['SEM']
+    answer = [string for string in answer if string]
+    query = ' '.join(answer)
+    print(query)
+
+    from nltk.sem import chat80
+    rows = chat80.sql_query('corpora/city_database/city.db', query)
+    for row in rows:
+        print(row[0], end=" ")
+
+    nltk.data.show_cfg('grammars/book_grammars/sql0.fcfg')
+    # % start S
+    # S[SEM=(?np + WHERE + ?vp)]    -> NP[SEM=?np] VP[SEM=?vp]
+    # VP[SEM=(?v + ?pp)]            -> IV[SEM=?v] PP[SEM=?pp]
+    # VP[SEM=(?v + ?ap)]            -> IV[SEM=?v] AP[SEM=?ap]
+    # NP[SEM=(?det + ?n)]           -> Det[SEM=?det] N[SEM=?n]
+    # PP[SEM=(?p + ?np)]            -> P[SEM=?p] NP[SEM=?np]
+    # AP[SEM=?pp]                   -> A[SEM=?a] PP[SEM=?pp]
+    # NP[SEM='Country="greece"']    -> 'Greece'
+    # NP[SEM='Country="china"']     -> 'China'
+    # Det[SEM='SELECT']             -> 'Which' | 'What'
+    # N[SEM='City FROM city_table'] -> 'cities'
+    # IV[SEM='']                    -> 'are'
+    # A[SEM='']                     -> 'located'
+    # P[SEM='']                     -> 'in'
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Propositional Logic
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to represent knowledge systems, we need to reduce the statements in a
+sentence into boolean expressions that evaluate to true or false. We can then
+represent them as a set and use basic logic. Reducing a sentence to this level
+is called its *logical form* and the operations on it are called *propositional
+logic*. The following are the operations that `nltk` uses:
+
+.. code-block:: python
+
+    nltk.boolean_ops()
+    # negation            -    not
+    # conjunction         &    and
+    # disjunction         |    or
+    # implication         ->   implies
+    # equivalence         <->  equals
+
+The following is a summary of the truth conditions for the boolean operators
+in propositional logic. Here `φ` and `ψ` simply represent two statements:
+
+.. code-block:: text
+
+    Boolean Operator                          Truth Conditions
+    -----------------------------------------------------------------------------------------------------------------
+    negation    (it is not the case that ...) (     -φ) is true in s iff φ is false in s
+    conjunction (and)                         (φ  &  ψ) is true in s iff φ is true in s and ψ is true in s
+    disjunction (or)                          (φ  |  ψ) is true in s iff φ is true in s or ψ is true in s
+    implication (if ..., then ...)            (φ  -> ψ) is true in s iff φ is false in s or ψ is true in s
+    equivalence (if and only if)              (φ <-> ψ) is true in s iff φ and ψ are both true in s or both false in s
+
+`nltk` allows one to create expressions with this operations:
+
+.. code-block:: python
+
+    read_expr = nltk.sem.Expression.fromstring
+    read_expr('-(P & Q)')
+    read_expr('P & Q')
+    read_expr('P | (R -> Q)')
+    read_expr('P <-> -- P')
+
+A logical question is called an *argument*. It is made up of one or more *assumptions*
+that lead to a *conclusion* via *inference*. We can show this formally like:
+`[SnF, SnF -> -FnS] / -FnS` (`[assumptions] / conclusion`). `nltk` has an inference
+system that binds to many popular provers like *Prover9*:
+
+.. code-block:: python
+
+    read_expr = nltk.sem.Expression.fromstring
+    SnF = read_expr('SnF')
+    NotFnS = read_expr('-FnS')
+    R = read_expr('SnF -> -FnS')
+    prover = nltk.Prover9()
+    prover.prove(NotFnS, [SnF, R])
+
+To assign values to the variables, we have to give them a valuation:
+
+.. code-block:: python
+
+    value = nltk.Valuation([('P', True), ('Q', True), ('R', False)])
+    dom = set()
+    g = nltk.Assignment(dom)
+    model = nltk.Model(dom, value)
+
+    print(value['P'])
+    print(model.evaluate('(P & Q)', g))
+    print(model.evaluate('-(P & Q)', g))
+    print(model.evaluate('(P & R)', g))
+    print(model.evaluate('(P | R)', g))
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+First Order Logic
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+First order logic takes everything from propositional logic and adds a few more
+pieces, namely *predicates* which take *terms*:
+
+* *unary* - The sentence "Andrew Walks" can be `walk(anderew)`
+* *binary*  - The sentence "Mark sees Mary" can be `see(mark, mary)`
+
+In order to make these work with nltk, we need to actually mark the types. So
+entities are `e` and formulas are `t`:
+
+.. code-block:: python
+
+    read_expr = nltk.sem.Expression.fromstring
+    sig  = {'walk': '<e, t>', 'see' : '<e, <e, t>>'} # binary predicates are curried
+    expr = read_expr('walk(angus)', signature=sig)
+    expr.function.type # e
+    expr.argument.type # t
+
+
+We can create a logical expression from the statement:
+"He is a dog and he disappeared"
+
+.. code-block:: text
+
+    x                                # he is bound to a variable
+    dog(x) & dissaper(x)             # we use x in an open formula
+    exists x.(dog(x) & disappear(x)) # we bind an existential quantifier to x (for one x)
+                                     # at least one x is a dog and dissapeared
+    all x.(dog(x) -> disappear(x))   # we bind a universal quantifier to x (for all x)
+                                     # for every x, if x is a dog then it will dissapear
+    ((exists x. dog(x)) -> bark(x))  # the second x is actually a free variable, this is open
+    all x.((exists x. dog(x)) -> bark(x)) # now the expression is closed
+
+Here is how this looks in `nltk`:
+
+.. code-block:: python
+    
+    read_expr = nltk.sem.Expression.fromstring
+    read_expr('dog(cyril)').free()        # { }
+    read_expr('dog(x)').free()            # { x }
+    read_expr('own(angus, cyril)').free() # { }
+    read_expr('exists x.dog(x)').free()   # { }
+    read_expr('((some x. walk(x)) -> sing(x))').free() # { x }
+    read_expr('exists x.own(y, x)').free() # { y }
+
+
+We can then feed this into the prover interface to check for logical
+statements:
+
+.. code-block:: python
+
+    import nltk
+
+    read_expr = nltk.sem.Expression.fromstring
+    NotFnS = read_expr('-north_of(f, s)')
+    FnS = read_expr('north_of(f, s)')
+    SnF = read_expr('north_of(s, f)')
+    R = read_expr('all x. all y. (north_of(x, y) -> -north_of(y, x))')
+
+    prover = nltk.Prover9() 
+    prover.prove(NotFnS, [SnF, R])  # True
+    prover.prove(FnS, [SnF, R])     # False
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+First Order Logic Summary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+What follows is the additional language offered by first order logic:
+
+.. code-block:: text
+
+    ------------------------------------------------------------
+    Example         Description
+    ------------------------------------------------------------
+    =               equality
+    !=              inequality
+    exists          existential quantifier
+    all universal   quantifier
+    e.free()        show free variables of e
+    e.simplify()    carry out β-reduction on e
+
+Given a first-order logic language `L`, a model `M` for L is a pair `<D, Val>`
+where `D` is an nonempty set called the *domain of the model*, and `Val` is a
+function called the *valuation function* which assigns values from `D` to
+expressions of `L` as follows:
+
+* Every individual constant `c` in `L`, `Val(c)` is an element of `D`
+* Every predicate symbol `P` of arity `n >= 0`, `Val(P)` is a function from `Dn`
+  to `{ True, False }`. With arity zero, `P` is just a truth value.
+
+We can now represent this with nltk:
+
+.. code-block:: python
+
+    mapping = '''
+       bertie => b
+       olive  => o
+       cyril  => c
+       boy    => {b}
+       girl   => {o}
+       dog    => {c}
+       walk   => {o, c}
+       see    => {(b, o), (c, b), (o, c)}
+    '''
+    domain = { 'b', 'o', 'c' }
+    value  = nltk.Valuation.fromstring(mapping)
+    assign = nltk.Assignment(domain, [('x', 'o'), ('y', 'c')])
+    model  = nltk.Model(domain, value)
+    model.evaluate('see(olive, y)', assign)
+
+    print(domain)
+    print(value)
+    print(assign)
+
+.. todo:: finish http://www.nltk.org/book/ch10.html
 --------------------------------------------------------------------------------
 Chapter 11: Managing Linguistic Data
 --------------------------------------------------------------------------------
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. todo:: finish http://www.nltk.org/book/ch11.html

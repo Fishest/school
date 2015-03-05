@@ -3119,11 +3119,91 @@ We can now represent this with nltk:
     value  = nltk.Valuation.fromstring(mapping)
     assign = nltk.Assignment(domain, [('x', 'o'), ('y', 'c')])
     model  = nltk.Model(domain, value)
-    model.evaluate('see(olive, y)', assign)
+    model.evaluate('see(olive, y)', assign) # True
 
     print(domain)
     print(value)
     print(assign)
+
+    # we can now evaluate various expressions
+    model.evaluate('see(bertie, olive) & boy(bertie) & -walk(bertie)', g) # True
+    m.evaluate('exists x.(girl(x) & walk(x))', g) # True
+
+    # we can also clear an assignment
+    assign.purge()
+    model.evaluate('see(olive, y)', assign) # Undefined
+
+Sometimes it is useful to see what in the domain satifies the logic. For
+this `nltk` has the `satisfiers` helper:
+
+.. code-block:: python
+
+    fmla1 = read_expr('girl(x) | boy(x)')
+    model.satisfiers(fmla1, 'x', g) # {'b', 'o'}
+    fmla2 = read_expr('girl(x) -> walk(x)')
+    model.satisfiers(fmla2, 'x', g) # {'c', 'b', 'o'}
+    fmla3 = read_expr('walk(x) -> girl(x)')
+    model.satisfiers(fmla3, 'x', g) # {'b', 'o'}
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Model Building
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We can now build models from sentences using the *Mace4* model framework. Mace
+will attempt to find a counter example for the expressions while prover will
+try to find a proof. So the two may have different runtime characteristics
+depending on the expression. What follows is an example of this operation:
+
+.. code-block:: python
+
+    a3 = read_expr('exists x.(man(x) & walks(x))')
+    c1 = read_expr('mortal(socrates)')
+    c2 = read_expr('-mortal(socrates)')
+    builder = nltk.Mace(5)
+    print(builder.build_model(None, [a3, c1])) # True
+    print(builder.build_model(None, [a3, c2])) # True
+    print(builder.build_model(None, [c1, c2])) # False
+
+    a4 = read_expr('exists y. (woman(y) & all x. (man(x) -> love(x,y)))')
+    a5 = read_expr('man(adam)')
+    a6 = read_expr('woman(eve)')
+    g = read_expr('love(adam,eve)')
+    command = nltk.MaceCommand(g, assumptions=[a4, a5, a6])
+    command.build_model()
+    print(command.valuation)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The Sementics of English Sentences
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+*Principle of Compositionality*: The meaning of a whole is a function of the
+meanings of the parts and of the way they are syntactically combined.
+
+To go further in this chapter, we need to use lambda calculus. Lambda calculus
+allows us to bind variables to pure functions:
+
+* `{w | w ∈ V & P(w)}` - First order Logic
+* `λw. (V(w) ∧ P(w))`  - Lambda calculus
+* `λw. (V(w) ∧ P(w)) (value)` - Beta reduction
+* `(V(value) ∧ P(value))` - Reduced form
+
+What follows is a brief summary of using this with nltk:
+
+.. code-block:: python
+
+    read_expr = nltk.sem.Expression.fromstring
+    expr = read_expr(r'\x.(walk(x) & chew_gum(x))')
+    expr        # <LambdaExpression \x.(walk(x) & chew_gum(x))>
+    expr.free() # set()
+    print(read_expr(r'\x.(walk(x) & chew_gum(y))'))
+
+    # examples of Beta reduction
+    expr = read_expr(r'\x.(walk(x) & chew_gum(x))(gerald)')
+    print(expr)            # \x.(walk(x) & chew_gum(x))(gerald)
+    print(expr.simplify()) # (walk(gerald) & chew_gum(gerald))
+    print(read_expr(r'\x.\y.(dog(x) & own(y, x))(cyril)').simplify())
+    print(read_expr(r'\x y.(dog(x) & own(y, x))(cyril, angus)').simplify())
+
 
 .. todo:: finish http://www.nltk.org/book/ch10.html
 --------------------------------------------------------------------------------

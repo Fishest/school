@@ -12,8 +12,9 @@ Initial 10 to 15 minutes
   - make sure you are interviewing for the correct position
 * Ask about current work / job history; just fluff to ease the interview
 * Ask a few soft probing questions
-  - Why do you want to work for amazon
-  - What amazon products have you used (AWS) / What do you like about amazon
+  - Why do you want to work for <company>
+  - What <company> products have you used
+  - What do you like about <company>
   - Why are you leaving your current position
   - What is the hardest project you have worked on, why?
   - What is the worst project you have worked on, why? 

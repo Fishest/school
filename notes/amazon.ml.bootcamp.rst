@@ -2,18 +2,6 @@
 Machine Learning Bootcamp
 ================================================================================
 
-https://w.amazon.com/index.php/Machine_Learning_Bootcamp
-
-.. code-block:: bash
-
-    ssh ml-bootcamp-60001.pdx1.amazon.com
-    sudo mkdir /home/gccollin
-    sudo chown gccollin:amazon /home/gccollin
-    echo -e "\nexport PATH=\$PATH:/apollo/env/MLEnvImprovement/bin/" >> ~/.zshrc
-    source ~/.zshrc
-    echo 'com.amazon.access.ML-BOOTCAMP-emluser-1' > /home/gccollin/.emldefaultmaterialset   
-    cd /home/gccollin
-
 --------------------------------------------------------------------------------
 Summary
 --------------------------------------------------------------------------------

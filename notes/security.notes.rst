@@ -42,7 +42,6 @@ Security Utilities
 * **wireshark**
 * hashcat
 * beef xss
-* amazon xss scanner
 * owasp zap
 * wireshark / fiddler / nmap / netcat / hping3
 

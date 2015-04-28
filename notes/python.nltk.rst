@@ -3204,8 +3204,146 @@ What follows is a brief summary of using this with nltk:
     print(read_expr(r'\x.\y.(dog(x) & own(y, x))(cyril)').simplify())
     print(read_expr(r'\x y.(dog(x) & own(y, x))(cyril, angus)').simplify())
 
+To deal with transitive verbs:
 
-.. todo:: finish http://www.nltk.org/book/ch10.html
+.. code-block:: python
+
+    read_expr = nltk.sem.Expression.fromstring
+    tvp = read_expr(r'\X x.X(\y.chase(x,y))')
+    np = read_expr(r'(\P.exists x.(dog(x) & P(x)))')
+    vp = nltk.sem.ApplicationExpression(tvp, np)
+    print(vp)            # (\X x.X(\y.chase(x,y)))(\P.exists x.(dog(x) & P(x)))
+    print(vp.simplify()) # \x.exists z2.(dog(z2) & chase(x,z2))
+
+Nltk also has the ability to define grammars to convert sentences to expressions:
+
+.. code-block:: python
+
+    from nltk import load_parser
+    parser = load_parser('grammars/book_grammars/simple-sem.fcfg', trace=0)
+    sentence = 'Angus gives a bone to every dog'
+    tokens = sentence.split()
+    for tree in parser.parse(tokens):
+        print(tree.label()['SEM'])    # all z2.(dog(z2) -> exists z1.(bone(z1) & give(angus,z1,z2)))
+
+    # To inspect semantic interpretations
+    sents = ['Irene walks', 'Cyril bites an ankle']
+    grammar_file = 'grammars/book_grammars/simple-sem.fcfg'
+    for results in nltk.interpret_sents(sents, grammar_file):
+        for (synrep, semrep) in results:
+            print(synrep)
+
+Using these tools, we can now build logical forms and check sentences against them:
+
+.. code-block:: python
+    
+    mapping = """
+        bertie => b
+        olive  => o
+        cyril  => c
+        boy    => {b}
+        girl   => {o}
+        dog    => {c}
+        walk   => {o, c}
+        see    => {(b, o), (c, b), (o, c)}
+    """
+    value   = nltk.Valuation.fromstring(mapping)
+    assign  = nltk.Assignment(value.domain)
+    model   = nltk.Model(value.domain, value)
+    sent    = 'Cyril sees every boy'
+    grammar = 'grammars/book_grammars/simple-sem.fcfg'
+    results = nltk.evaluate_sents([sent], grammar, model, assign)[0]
+    for (syntree, semrep, result) in results:
+        print(semrep) # all z4.(boy(z4) -> see(cyril,z4))
+        print(result) # True
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Quantifier Ambiguity
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We can resolve ambiguity by using cooper storage:
+
+.. code-block:: python
+            
+   from nltk.sem import cooper_storage as cs
+
+   sentence = 'every girl chases a dog'
+   trees = cs.parse_with_bindops(sentence, grammar='grammars/book_grammars/storage.fcfg')
+   semrep = trees[0].label()['SEM']
+   cs_semrep = cs.CooperStore(semrep)
+   print(cs_semrep.core)       # chase(z2,z4)
+   for bo in cs_semrep.store:
+           print(bo)           # bo(\P.all x.(girl(x) -> P(x)),z2)
+                               # bo(\P.exists x.(dog(x) & P(x)),z4)
+
+        
+   cs_semrep.s_retrieve(trace=True)
+   for reading in cs_semrep.readings:
+       print(reading)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Discourse Semantics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Basically, how do we extend the logical sentence structure to two or more
+sentences such that we can create the following:
+
+* Angus owns a dog. It bit Irene.
+* `b.bit \any x.(dog(x) ∧ own(Angus, x) ^ bite(x, Irene))`
+
+Here `it` is an *anaphoric antecedent* that must be resolved using the previous
+sentence. We can do this in nltk as follows:
+
+.. code-block:: python
+
+    read_dexpr = nltk.sem.DrtExpression.fromstring
+    drs1 = read_dexpr('([x, y], [angus(x), dog(y), own(x, y)])') [1]
+    print(drs1) # ([x,y],[angus(x), dog(y), own(x,y)])
+    drs1.draw() # to view the result graphically
+
+    # to convert to first order logic
+    print(drs1.fol()) # exists x y.(angus(x) & dog(y) & own(x,y))
+
+    # DRS can be merged using concatination
+    drs2 = read_dexpr('([x], [walk(x)]) + ([y], [run(y)])')
+    print(drs2)            # (([x],[walk(x)]) + ([y],[run(y)]))
+    print(drs2.simplify()) # ([x,y],[walk(x), run(y)])
+
+    # merging two DSR
+    drs3 = read_dexpr('([], [(([x], [dog(x)]) -> ([y],[ankle(y), bite(x, y)]))])')
+    print(drs3.fol()) # all x.(dog(x) -> exists y.(ankle(y) & bite(x,y)))
+
+    # resolving pronouns
+    drs4 = read_dexpr('([x, y], [angus(x), dog(y), own(x, y)])')
+    drs5 = read_dexpr('([u, z], [PRO(u), irene(z), bite(u, z)])')
+    drs6 = drs4 + drs5
+    print(drs6.simplify())                    # ([u,x,y,z],[angus(x), dog(y), own(x,y), PRO(u), irene(z), bite(u,z)])
+    print(drs6.simplify().resolve_anaphora()) # ([u,x,y,z],[angus(x), dog(y), own(x,y), (u = [x,y,z]), irene(z), bite(u,z)])
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Discourse Processing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We can keep a collection of sentences and check that the discourse is consistent
+across the sentences:
+
+.. code-block:: python
+
+    dt = nltk.DiscourseTester(['A student dances', 'Every student is a person'])
+    dt.readings()
+
+    # new sentences can be added and checked for consistency
+    dt.add_sentence('No person dances', consistchk=True) 
+
+    # sentences can be removed if they are inconsistent
+    dt.retract_sentence('No person dances', verbose=True)
+
+    # sentences can be added and checked for new information
+    dt.add_sentence('A person dances', informchk=True)
+
+    # invalid readings can be filtered out
+    dt.readings(show_thread_readings=True, filter=True)
+
 --------------------------------------------------------------------------------
 Chapter 11: Managing Linguistic Data
 --------------------------------------------------------------------------------

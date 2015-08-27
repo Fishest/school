@@ -128,3 +128,133 @@ somewhere in the classpath::
     
     log4j.category.org.springframework.beans.factory=DEBUG
 
+
+--------------------------------------------------------------------------------
+Spring MVC
+--------------------------------------------------------------------------------
+
+http://docs.spring.io/spring/docs/current/spring-framework-reference/html/mvc.html
+
+--------------------------------------------------------------------------------
+Spring Testing
+--------------------------------------------------------------------------------
+
+http://docs.spring.io/spring/docs/current/spring-framework-reference/html/testing.html
+
+--------------------------------------------------------------------------------
+Spring Scheduling
+--------------------------------------------------------------------------------
+
+http://docs.spring.io/spring/docs/current/spring-framework-reference/html/scheduling.html
+
+Spring abstracts its operations behind the `TaskExecutor` interface which is
+simply a way to abstract the various implementations:
+
+* `SimpleAsyncTaskExecutor` - thread per task
+* `SyncTaskExecutor` - run on the calling thread
+* `ConcurrentTaskExecutor` - explicitly configured java executor
+* `ThreadPoolTaskExecutor` - simply java executor implementation
+* `SimpleThreadPoolTaskExecutor` - based on Quartz's threadpool implementation
+* `WorkManagerTaskExecutor` - CommonJ thread pool implementation
+
+What follows is a simple example of using the `TaskExecutor` interface and
+configuring an explicit instance:
+
+.. code-block:: java
+
+    import org.springframework.core.task.TaskExecutor;
+    
+    public class TaskExecutorExample {
+    
+        private class MessagePrinterTask implements Runnable {
+    
+            private String message;
+    
+            public MessagePrinterTask(String message) {
+                this.message = message;
+            }
+    
+            public void run() {
+                System.out.println(message);
+            }
+    
+        }
+    
+        private TaskExecutor taskExecutor;
+   
+        public TaskExecutorExample(TaskExecutor taskExecutor) {
+            this.taskExecutor = taskExecutor;
+        }
+    
+        public void printMessages() {
+            for(int i = 0; i < 25; i++) {
+                taskExecutor.execute(new MessagePrinterTask("Message" + i));
+            }
+        }
+    }
+
+.. code-block:: xml
+
+    <bean id="taskExecutor"
+      class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+      <property name="corePoolSize" value="5" />
+      <property name="maxPoolSize" value="10" />
+      <property name="queueCapacity" value="25" />
+    </bean>
+    
+    <bean id="taskExecutorExample" class="TaskExecutorExample">
+      <constructor-arg ref="taskExecutor" />
+    </bean>
+
+There is also the `TaskScheduler` abstraction which can be used to schedule
+repeated tasks at some interval. There is also the `Trigger` interface which
+can be used to schedule the next task based on the results of the current
+one. There are a few implementations of the following interface:
+
+* `CronTrigger` - for complex cron based schedules
+* `PeriodicTrigger` - that accecpts a fixed period and delay
+
+.. code-block:: java
+
+    public interface Trigger {
+        Date nextExecutionTime(TriggerContext triggerContext);
+    }
+
+    public interface TriggerContext {
+        Date lastScheduledExecutionTime();
+        Date lastActualExecutionTime();
+        Date lastCompletionTime();
+    }
+
+There are implementations of the `TaskScheduler` that back up to the current
+`ScheduledExecutorService` implementation as well as a few third party
+implementations.
+
+To make use of `Scheduled` or `Async` annotations, enable them on your
+configuration classes:
+
+.. code-block:: java
+
+    @Configuration
+    @EnableAsync
+    @EnableScheduling
+    public class TaskConfig {
+
+        // scheduled methods must return void and not accept any arguments
+        // if this is needed, they should be configured classes
+        @Scheduled(fixedRate=5000)
+        public void doSomething() { }
+
+        @Scheduled(cron="\*/5 * * * * MON-FRI")
+        public void doSomethingElse() { }
+
+        // Async methods can take and return values, but they must be wrapped
+        // in Future. The Async annotation can take a value to specify what
+        // executor it should be run in. To catch exceptions from Async methods
+        // implement the `AsyncUncaughtExceptionHandler` interface
+        @Async
+        public Future<String> doSomethingLater(String input) { }
+    }
+
+These interfaces also wrap `Quartz` pretty thinly, but allow one to drive
+quartz code with a little less configuration.

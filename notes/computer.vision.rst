@@ -6,6 +6,11 @@ Computer Vision
 Summary
 --------------------------------------------------------------------------------
 
+* Normalized Cut (Shi & Malik)
+* Spatial Pyramid Matching (Ponce)
+* Histogram of Gradients (Dalal and Triggs)
+* Deformable Part Model
+
 --------------------------------------------------------------------------------
 Image Kernels
 --------------------------------------------------------------------------------

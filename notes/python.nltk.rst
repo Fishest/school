@@ -3348,6 +3348,9 @@ across the sentences:
 Chapter 11: Managing Linguistic Data
 --------------------------------------------------------------------------------
 
+The TIMIT database contains a large collection of sentences uttered by various
+regions to understand phoneme differences by various speakers.
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. todo:: finish http://www.nltk.org/book/ch11.html

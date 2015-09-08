@@ -8,8 +8,10 @@ http://martin.kleppmann.com/2012/12/05/schema-evolution-in-avro-protocol-buffers
 Avro
 --------------------------------------------------------------------------------
 
-http://avro.apache.org/
-http://avro.apache.org/docs/1.7.2/api/java/org/apache/avro/io/parsing/doc-files/parsing.html
+Links
+
+* http://avro.apache.org/
+* http://avro.apache.org/docs/1.7.2/api/java/org/apache/avro/io/parsing/doc-files/parsing.html
 
 Given the following schema, it will be encoded as follows:
 
@@ -50,7 +52,7 @@ Given the following schema, it will be encoded as follows:
   - you can add a new field if it has a null default
   - you can remove a field if it has a null default
 
-To know the schema being used
+* To know the schema being used
 
   - hadoop stores the schema used in the object container file
   - for RPC, the server can negotiate the schema once in long lived connections
@@ -64,8 +66,10 @@ record, file, or network connection is tagged with the schema version.
 Parquet
 --------------------------------------------------------------------------------
 
-http://parquet.incubator.apache.org/
-https://blog.twitter.com/2013/dremel-made-simple-with-parquet
+Links
+
+* http://parquet.incubator.apache.org/
+* https://blog.twitter.com/2013/dremel-made-simple-with-parquet
 
 * delta encoding
   - for sorted data with minimal variation
@@ -84,13 +88,17 @@ https://blog.twitter.com/2013/dremel-made-simple-with-parquet
 Message Pack
 --------------------------------------------------------------------------------
 
-http://msgpack.org/
+Links
+
+* http://msgpack.org/
 
 --------------------------------------------------------------------------------
 Thrift
 --------------------------------------------------------------------------------
 
-https://thrift.apache.org/
+Links
+
+* https://thrift.apache.org/
 
 Given the following schema, it will be encoded as follows:
 
@@ -122,8 +130,10 @@ and three binary. It also includes a full RPC framework.
 Protocol Buffers
 --------------------------------------------------------------------------------
 
-https://developers.google.com/protocol-buffers/
-https://developers.google.com/protocol-buffers/docs/encoding
+Links
+
+* https://developers.google.com/protocol-buffers/
+* https://developers.google.com/protocol-buffers/docs/encoding
 
 Given the following schema, it will be encoded as follows:
 
@@ -185,23 +195,31 @@ similar in scope to Thrift. It is based on HTTP/2:
 Flat Buffers
 --------------------------------------------------------------------------------
 
-https://github.com/google/flatbuffers
+Links 
+
+* https://github.com/google/flatbuffers
 
 --------------------------------------------------------------------------------
 Simple Binary Encoding
 --------------------------------------------------------------------------------
 
-http://mechanical-sympathy.blogspot.com/2014/05/simple-binary-encoding.html
-https://github.com/real-logic/simple-binary-encoding
+Links 
+
+* http://mechanical-sympathy.blogspot.com/2014/05/simple-binary-encoding.html
+* https://github.com/real-logic/simple-binary-encoding
 
 --------------------------------------------------------------------------------
 Snappy Compression
 --------------------------------------------------------------------------------
 
-https://code.google.com/p/snappy/
+Links 
+
+* https://code.google.com/p/snappy/
 
 --------------------------------------------------------------------------------
 Cap'n Proto
 --------------------------------------------------------------------------------
 
-https://capnproto.org/
+Links 
+
+* https://capnproto.org/

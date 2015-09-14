@@ -252,3 +252,7 @@ If many clients are using your subsystem, and you don't want
 to have facades for all of them, hoist your system to an open
 system and give a unified service interface that other's can
 use.
+
+================================================================================
+Command Query Responsibility Seperation (CQRS)
+================================================================================

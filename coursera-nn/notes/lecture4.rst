@@ -63,3 +63,46 @@ a large update when different and a small update when getting closer.
 --------------------------------------------------------------------------------
 Neuro-Probabilistic Language Models
 --------------------------------------------------------------------------------
+
+We cannot model speech recognition systems using audio waves alone as the input
+world is too messy. As such, we need to add some statistical model to help us
+guess what the correct next word should be. For this we can use something simple
+like the Trigram Model (we stick to 3 because otherwise we will have probabilities
+of zero most examples):
+
+.. code-block:: math
+
+    P(w_3 = c | w_1 = a, w_2 = b) = count(abc)
+    ----------------------------    ---------
+    P(w_3 = d | w_1 = a, w_2 = b) = count(abd)
+
+The trigram model also fails to understand similar words / sentences. It only uses
+the words it sees. We can do better by converting the words into features and using
+them to train a model (Bengio's Model).
+
+.. code-block:: text
+
+    [          large softmax units (one per word)         ] (must be 100,000 or more)
+    |                          |                          |
+    | [predict output word from features of input words]  | (need lots of training data)
+    |            |                           |            |
+    [learned encoding word t_1] [learned encoding word t_2] (may overfit and must be small)
+    |                                                     |
+    [index at word t_1]                 [index at word t_2] (basically a lookup table)
+
+How can we deal with the large number of outputs? We can instead create a serial
+architecture where we run each candidate word through as an input with the previous
+two words. Then the final output is a logic score for that candidate word. We can
+then choose the word with the largest response. Another idea is to train a model that
+outputs a feature vector that maps to nodes in a tree. Then to find the correct word,
+we use the feature vector to choose "left or right."
+
+Another idea is to train a general feature representation for a window of words (size 11).
+We then can replace a word in the middle with the correct word or a random word. The output
+should respond highly if the word is good and low if it does not. This network can then
+be used for a number of different NLP tasks.
+
+We can look at how the newtork learns similar words by mapping them to a 2D embedding such
+that similar words are clustered with each other. We can also use `t-sne` to place similar
+clusters near each other as well. We can train this example simply using strings of words
+from Wikipedia (no supervision). The network can predict word meanings simply from context.

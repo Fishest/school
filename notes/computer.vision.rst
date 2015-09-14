@@ -41,7 +41,8 @@ Applying the kernels is basically the following process:
 * *sobel*
 
   Sobel kernels are Used to show only the differences in adjacent pixel values
-  in a particular direction. It can be used for edge detection
+  in a particular direction. It can be used for edge detection. This also
+  computes the gradient of an image (derivative).
 
 .. code-block:: clojure
 
@@ -110,7 +111,8 @@ Applying the kernels is basically the following process:
 
 * *edge detect*
 
-  Used to detect edges in an image.
+  Used to detect edges in an image. This also computes the Laplacian of an image
+  (second derivative).
 
 .. code-block:: clojure
 

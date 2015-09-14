@@ -8,7 +8,8 @@ Golang
 Introduction
 ------------------------------------------------------------
 
-* allows complete separation of a type's data from its behavior
+Go allows complete separation of a type's data from its behavior:
+
   - duck-typing - values are handled by functions based on provided methods
   - aggregation (has-a relationship) and delegation handled by structs
   - interfaces are built around implemented methods
@@ -21,11 +22,14 @@ Introduction
 Importing
 ------------------------------------------------------------
 
-* If a single file compiles, it will link
-  - no linker flags needed
-  - this are extracted from the import clause
+If a single file compiles, it will link:
 
-examples::
+  - no linker flags needed
+  - these are extracted from the import clause
+
+An example main program (which can be built with `go build`):
+
+.. code-block:: go
 
     package main
     import "fmt"
@@ -178,8 +182,40 @@ Numbers
 * `math/big` contains arbitrary length int and rational numbers
 * can convert between pointers and ints with the unsafe package
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Patterns (chapter 4)
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 .. todo:: chapter 4
+
+--------------------------------------------------------------------------------
+Go Routines
+--------------------------------------------------------------------------------
+
+These can be though of as cheap / green threads. There can be thousands of these
+running at any given time as they are mutiplexed over the available threads such
+that as many routines can run as possible.
+
+--------------------------------------------------------------------------------
+Go Channels
+--------------------------------------------------------------------------------
+
+Go provides a mechanism for threads / routines to communicate with each other
+and these are channels. To create a channel, one can use either of the forms:
+
+.. code-block:: go
+
+    var c chan int
+    c = make(chan int)  // with manual type annotations
+
+    c := make(chan int) // using type 
+
+Then to communicate over the channel, use the arrow operator to point in the
+direction of data flow. It should be noted that sending and receiving block
+and thus can be used to synchronize two parties. Channels can also be buffered
+so that they behave more like mailboxes and thus don't synchronize.
+
+.. code-block:: go
+
+    c <- 1     // sending on a channel
+    value <- c // receiving from a channel

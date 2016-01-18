@@ -120,3 +120,18 @@ Twitter Cassovary
 https://github.com/twitter/cassovary
 
 .. todo:: finish notes
+
+--------------------------------------------------------------------------------
+Facebook GraphQL
+--------------------------------------------------------------------------------
+
+http://facebook.github.io/graphql/
+https://learngraphql.com/basics/introduction
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Summary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GraphQL is an application layer query language (facade). It allows one to define
+their backend data in a well defined graph schema agnostic of the underlying
+database.

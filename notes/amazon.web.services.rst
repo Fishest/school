@@ -10,22 +10,22 @@ The currently available services supplied by AWS are as follows:
 * **Computing**
 
   - Elastic Compute Cloud (EC2)
-  - Elastic Map Reduce (EMR)
   - AutoScaling
   - Elastic Load Balancing
   - Amazon Mechanical Turk
+  - AWS Lambda
 
 * **Networking**
 
   - AWS Direct Connect
   - Amazon Route 53
   - Amazon VPC
+  - Amazon Elastic Load Balancing
 
 * **Database**
 
   - Amazon DynamoDB
   - Amazon RDS
-  - Amazon Redshift
   - Amazon ElastiCache
   - Amazon SimpleDB
 
@@ -36,16 +36,25 @@ The currently available services supplied by AWS are as follows:
   - Amazon CloudFront
   - AWS Storage Gateway
   - AWS ElastiCache
+  - AWS Elastic Block Storage
+  - AWS Elastic File System
 
 * **Management**
 
   - AWS Elastic Beanstalk
   - AWS CloudFormation
   - Amazon CloudWatch
-  - AWS Data Pipeline
   - AWS Identity and Access Management
   - AWS OpsWorks
-  - Kinesis
+
+* **Analytics**
+
+  - Amazon Kinesis
+  - AWS Data Pipeline
+  - Amazon EMR (Elastic Map Reduce)
+  - Amazon Machine Learning
+  - Amazon Quicksight
+  - Amazon Redshift
 
 * **Application Services**
 
@@ -55,6 +64,7 @@ The currently available services supplied by AWS are as follows:
   - Amazon Simple Email Service (SES)
   - Amazon Simple Workflow Service (SWF)
   - Amazon CloudSearch
+  - Amazon IoT
 
 --------------------------------------------------------------------------------
 Libraries

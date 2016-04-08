@@ -88,7 +88,8 @@ Class 2:
 * When telling a story, you should know in the first five offers the promise
   - If you haven't gotten it yet, you are trolling for ideas: choose something
   - The promise is a yes no question that when answered will resolve the story
-  - Although you may not know the answer to the question yet, you can assume it based on how you think the audience would expect it to end
+  - Although you may not know the answer to the question yet, you can assume it
+  - assume based on how you think the audience would expect it to end
   - This doesn't have to be the case, but don't work to flip it just to be creative
 
 --------------------------------------------------------------------------------
@@ -126,6 +127,45 @@ Class 3:
   - Del Close: put the offer as far away from you as possible and try and get there
   - you may never get to the offer, but that is okay; the audience will see the attempt
   - Viola Spolina: who cares about the story, just play the game and it will come
+
+--------------------------------------------------------------------------------
+Class 4:
+--------------------------------------------------------------------------------
+
+* let the audience guide the performance (remember, until you get on stage you are audience as well)
+* in a perfect world, the entire performance should change based on the audience changing
+  - in the extreme if a single person in the audience zones out or leaves the show
+* let your 'view' as an audience member guide what should come next (will you change the channel based on your decision)
+* decisions that break with those expectations take the audience out of the scene (and it takes a bit to get them back into it)
+* a great way to practice this skill is to play "what comes next" every day for say 15 minutes
+  - simply watch life and ask yourself "what comes next"
+  - check what actually happens based on what you though would happen
+  - what would have been a better action?
+  - you will eventually build up a strong catalog of expected reactions to various situations
+
+--------------------------------------------------------------------------------
+Class 5:
+--------------------------------------------------------------------------------
+
+* todo
+
+--------------------------------------------------------------------------------
+Class 6:
+--------------------------------------------------------------------------------
+
+* todo
+
+--------------------------------------------------------------------------------
+Class 7:
+--------------------------------------------------------------------------------
+
+* todo
+
+--------------------------------------------------------------------------------
+Class 8:
+--------------------------------------------------------------------------------
+
+* todo
 
 ================================================================================
 Unexpected Productions

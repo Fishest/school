@@ -125,7 +125,9 @@ Servicing and Parts
   gloss.
 
 * Fuel can part and cost
+
 * Fuel can adapter part and cost
+
 * Mercury Fuel Line Kit (Attwood)
   Mfg #93806MUS7
 
@@ -280,6 +282,81 @@ Running Rigging
 .. TODO:: line listing
 
 --------------------------------------------------------------------------------
+Rigging Ordering List
+--------------------------------------------------------------------------------
+
+What follows is an order list for the current running rigging:
+
+* **Cunningham / Downhaul**
+  
+  - 15" @ (3/8") Samson White XLS
+  - whipped on bitter end
+  - 1 inch eye on working end (connects to block clevis pin)
+
+* **Boom Vang**
+  
+  - 40" @ (3/8") Samson Black XLS
+  - whipped on bitter end
+  - 1 inch eye on working end (connects to block clevis pin)
+
+* **Spinnaker Halyard**
+  
+  - 90" @ (5/16") Samson Blue/White MLX
+  - whipped on bitter end
+  - spliced to snap shackle on working end
+
+* **Spinnaker Sheet (x2)**
+  
+  - &5" @ (3/8") Samson Blue XLS
+  - whipped on bitter end
+  - spliced to trigger shackle on working end
+
+* **Fore Sail Halyard**
+  
+  - 83" @ (5/16") Samson Green/White MLX
+  - whipped on bitter end
+  - spliced to snap shackle on working end
+
+* **Main Sail Halyard**
+  
+  - 83" @ (5/16") Samson Red/White MLX
+  - whipped on bitter end
+  - spliced to halyard shackle on working end
+
+* **Main Sail Sheet**
+  
+  - 75" @ (3/8") Samson Red XLS
+  - whipped on bitter end
+  - 1 inch eye on working end (connects to block clevis pin)
+
+* **Fore Sail Sheet**
+  
+  - 75" @ (3/8") Samson Green XLS
+  - whipped on bitter end
+  - whipped on working end
+
+* **Fore Sail Furling Line**
+  
+  - 75" @ (1/4") Samson Yacht Braid White/Green XLS
+  - continuous loop
+
+* **Main Sail Reefing Line**
+  
+  - 50" @ (5/16") Samson Yacht Braid White/Red XLS
+  - whipped on bitter end
+  - whipped on working end
+
+* **Main Sail Outhaul**
+
+  - ?
+
+* **Traveler Sheet (x2)**
+
+  - 15" @ (5/16) Samson Solid Black XLS (Mfg #456020205030)
+  - 1 inch eye on working end (connects to block)
+  - black stopper ball on working end (Mfg #RF1315BLK)
+
+--------------------------------------------------------------------------------
 Roller Furler
 --------------------------------------------------------------------------------
 
@@ -309,6 +386,101 @@ Sails
 
 .. TODO:: images labeling each sail
 .. TODO:: use case of each sail (head sail)
+.. TODO:: measure existing sails
+
+--------------------------------------------------------------------------------
+Measurements
+--------------------------------------------------------------------------------
+
+**Catalina 27**
+
+.. code-block:: text
+
+    I    = 34.4 ft  / 10.49 m
+    J    = 11.2 ft  /  3.42 m
+    P    = 28.6 ft  /  8.71 m
+    E    = 10.5 ft  /  3.19 m
+    ISP  = 34.4 ft  / 10.49 m
+    JSP  = 11.2 ft  /  3.42 m
+    PY   = NA
+    EY   = NA
+
+    * I     = measured along the front of mast from the genoa halyard to the main deck.
+    * J     = the base of the foretriangle measured along the deck from the headstay pin to the front of the mast.
+    * P     = the luff length of the mainsail, measured along the aft face of the mast from the top of the boom to the highest point that the mainsail can be hoisted.
+    * E     = the foot length of the mainsail, measured along the boom from the aft face of the mast to the outermost point on the boom to which the main can be pulled.
+    * ISP   = similar to I. It is measured from the highest spinnaker halyard to the main deck.
+    * JSP   = the length of the spinnaker pole or the distance from the forward end of the bowsprit (fully extended) to the front face of the mast.
+    * Iy    = the measurement from the staysail halyard to the main deck.
+    * Jy    = the measurement from the staysail stay pin to the front face of the mast.
+    * LP    = the shortest distance between the clew and the luff of the genoa.
+    * Py/Ey = respectively, are the luff length and foot length of the mizzen of a yawl or ketch, measured in the same way as for the mainsail.
+
+**Approximate Sail Area**
+
+.. code-block:: text
+
+    * Mainsail                        = (P x E) / 1.87           = 171.4 ft^2 / 16.17 m^2
+    * 155% Genoa                      = (( J x I ) / 2) x 1.63   = 314.7 ft^2 / 29.24 m^2
+    * 135% Genoa                      = (( J x I ) / 2) x 1.42   = 274.2 ft^2 / 25.47 m^2
+    * 100% Jib                        = ( I x J ) / 2            = 203.0 ft^2 / 18.86 m^2
+    * Racing Symmetrical Spinnaker    = 1.5 x J x I              = 575.5 ft^2 / 53.47 m^2
+    * Racing Asymmetrical Spinnaker   = 1.5 x J x I              = 575.5 ft^2 / 53.47 m^2
+    * Cruising Asymmetrical Spinnaker = 1.4 x J x I              = 536.0 ft^2 / 49.80 m^2
+
+**Main Sail**
+
+.. code-block:: text
+
+    * Luff  =  28.67 ft   /  8.738 m
+    * Foot  =  10.50 ft   /  3.200 m
+    * Leech =  29.91 ft   /  9.116 m
+    * Diag  =  30.19 ft   /  9.201 m
+    * Head  =   4.50 in   /    114 mm
+    * Area  = 154.18 ft^2 / 14.324 m^2
+
+**Jib Sail 100%**
+
+.. code-block:: text
+
+    * Luff   =   29.50 ft   /  8.991 m
+    * Foot   =   13.75 ft   /  4.190 m
+    * Leech  =   26.75 ft   /  8.153 m
+    * L-Perp =   12.45 ft   /  3.794 m
+    * Area   =  183.71 ft^2 / 17.067 m^2
+
+**Storm Jib Sail**
+
+.. code-block:: text
+
+    * Luff   =  19.96 ft   / 6.083 m
+    * Foot   =   8.46 ft   / 2.578 m
+    * Leech  =  16.32 ft   / 4.974 m
+    * L-Perp =   6.75 ft   / 2.057 m
+    * Area   =  67.36 ft^2 / 6.258 m^2
+
+**Genoa Sail 135%**
+**Genoa Sail 150%**
+
+**Symmetrical Spinnaker**
+
+.. code-block:: text
+
+    * Stay   =  34.47 ft   / 10.506 m
+    * Foot   =  20.25 ft   /  6.172 m
+    * Girth  =  20.25 ft   /  6.172 m
+    * Area   =  593.0 ft^2 / 55.092 m^2
+
+**Asymmetrical Spinnaker**
+
+.. code-block:: text
+
+    * Luff   =  19.96 ft   / 6.083 m
+    * Foot   =   8.46 ft   / 2.578 m
+    * Leech  =  16.32 ft   / 4.974 m
+    * L-Perp =   6.75 ft   / 2.057 m
+    * Area   =  67.36 ft^2 / 6.258 m^2
+
 
 ================================================================================
 Storage and Organization
@@ -342,6 +514,24 @@ The screw bung for the instrument transducers is in the same package.
 --------------------------------------------------------------------------------
 Internal Maintenance
 --------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Outside Cleaning
+--------------------------------------------------------------------------------
+
+To clean the deck, any standard boat cleaning soap is fine. Every so often,
+simply mix some concentrate in a bucket and scrub down the deck. Rinse when
+complete. No need to polish or wax as a new gelcoat is needed first.
+
+If you have been sailing in saltwater, rinse the boat off after usage (or if
+beer has been spilled in the cockpit).
+
+Make sure the lines are all hanging and not sitting in water to prevent mold
+and aging the line.
+
+To polish the hardware, use a plastic polishing agent to defog and clean all
+the plastic hardware (simply polish on and wipe off). For metal hardware, use
+the metal polish in the cabin (simply polish and wipe off).
 
 --------------------------------------------------------------------------------
 Deck Maintenance

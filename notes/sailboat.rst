@@ -18,9 +18,12 @@ guesswork when:
 Outboard Engine
 ================================================================================
 
-The sailboat is run with a Mercury 2-Stroke 9.9 HP outboard. It is fixed in
-place and not used to steer. Simply raise or lower it, start or stop it, and
-then use the tiller to steer. There is no prop walk or wash with this outboard.
+The sailboat is run with a Mercury 2-Stroke 9.9 HP outboard. It can be fixed in
+place so that it does not move, or it can actually be used to steer. The latter
+is useful if one is in a situation where they cannot get enough water moving
+past the rudder to steer with the tiller. Otherwise, simply raise or lower it,
+start or stop it, and then use the tiller to steer. There is no prop walk or
+wash with this outboard.
 
 .. TODO:: images labeling each component
 
@@ -98,12 +101,26 @@ What Not To Do
   the shore, you can plug in the battery charger. If you are on the water, use
   the pull chord and then let the alternator charge the battery back up.
 
+* Do not remove the outboard without having a halyard attached to it
+  If it falls in the water, getting it out is going to be a pain! Furthermore,
+  make sure the safety leash is installed through the transom screws to prevent
+  them from unwinding and as a failsafe if they fail. As of now it is attached
+  to the rudder post; in the future it should be attached to a secure eye.
+
 --------------------------------------------------------------------------------
 Servicing and Parts
 --------------------------------------------------------------------------------
 
-* zinc (part) and cost and how to replace
-* alternator part and cost
+* Zinc Anode
+  If you wait too long to replace this; getting it off is near impossible.
+  I recommend a socket wrench with a long lever arm.
+.. todo part number
+
+* Mercury Spark Plugs (2x)
+.. todo part number, gap
+
+* Mercury Outboard Alternator
+.. todo part, cost
 
 * Outboard Servicing
   http://ballardmarineservice.com/
@@ -124,9 +141,20 @@ Servicing and Parts
   sand / steel brush the material down to the metal and then prime / paint /
   gloss.
 
-* Fuel can part and cost
+* Moeller 6.5 Gallon Fuel Tank
+  Mfg #620049LP
 
-* Fuel can adapter part and cost
+  Make sure to only fill to 6 gallons to use the pre-measured ratios for
+  the oil and additives. Make sure to fill off the boat so the gas fumes
+  will not settle in the cabin. Make sure all the caps are tight and the
+  vent is closed after usage.
+
+* Mercury Fuel Line Quick Connector
+  Mfg #033418-10
+
+  Check to make sure this connects to the gas tanks and the male fuel line
+  barb correctly and tightly. If this is loose, air and water will get into
+  the fuel line.
 
 * Mercury Fuel Line Kit (Attwood)
   Mfg #93806MUS7
@@ -164,7 +192,8 @@ Servicing and Parts
 
   Do not use cheap 2-stroke oil that you would use in a lawn mower. This gums up
   the engine, causes it to smoke, and idel hard. This should be added at a 50/1
-  ratio to the fuel. This means 15.4 ounces or 0.96 pints (one bottle is fine).
+  ratio to the fuel. This means 15.4 ounces or 0.96 pints (one bottle is fine)
+  should be added to 6 gallons of gas.
 
 * Marine Grade Non-Ethanol Unleaded (87) Minimum Octane Fuel
 
@@ -178,7 +207,13 @@ Servicing and Parts
   When you fill up the cans, make sure they are on the ground (not on the boat)
   and fill up to 6 gallons (they hold 6.5 each). This makes sure they are not
   overfilled, gives room to expand, and allows room for the additives. Make
-  sure to add the additives first so a good mixture can occur.
+  sure to add the additives first so a good mixture can occur. Another reason
+  to fill the tanks off the boat is that gas fumes settle low and could fill
+  the cabin.
+
+  The gas tanks should be monitored as the fuel level bob is not too accurate
+  (it shows empty with a gallon or so left). Continuing, do not top off the tanks
+  as it is very hard to get the mixture correct.
 
 ================================================================================
 Electrical System
@@ -290,7 +325,7 @@ What follows is an order list for the current running rigging:
 * **Cunningham / Downhaul**
   
   - 15" @ (3/8") Samson White XLS
-  - whipped on bitter end
+  - whipped on bitter end (finish with stopper knot)
   - 1 inch eye on working end (connects to block clevis pin)
 
 * **Boom Vang**
@@ -302,38 +337,38 @@ What follows is an order list for the current running rigging:
 * **Spinnaker Halyard**
   
   - 90" @ (5/16") Samson Blue/White MLX
-  - whipped on bitter end
-  - spliced to snap shackle on working end
+  - whipped on bitter end (finish with stopper knot)
+  - spliced to swivel snap shackle on working end
 
 * **Spinnaker Sheet (x2)**
   
-  - &5" @ (3/8") Samson Blue XLS
+  - 55" @ (3/8") Samson Blue XLS
   - whipped on bitter end
-  - spliced to trigger shackle on working end
+  - spliced to soft dynema shackle on working end (connects to clew)
 
 * **Fore Sail Halyard**
   
   - 83" @ (5/16") Samson Green/White MLX
-  - whipped on bitter end
+  - whipped on bitter end (finish with stopper knot)
   - spliced to snap shackle on working end
 
 * **Main Sail Halyard**
   
   - 83" @ (5/16") Samson Red/White MLX
-  - whipped on bitter end
+  - whipped on bitter end (finish with stopper knot)
   - spliced to halyard shackle on working end
 
 * **Main Sail Sheet**
   
   - 75" @ (3/8") Samson Red XLS
-  - whipped on bitter end
+  - whipped on bitter end (finish with stopper knot)
   - 1 inch eye on working end (connects to block clevis pin)
 
 * **Fore Sail Sheet**
   
   - 75" @ (3/8") Samson Green XLS
-  - whipped on bitter end
-  - whipped on working end
+  - whipped on bitter end (finish with stopper knot)
+  - whipped on working end (connect with bowline)
 
 * **Fore Sail Furling Line**
   
@@ -345,6 +380,12 @@ What follows is an order list for the current running rigging:
   - 50" @ (5/16") Samson Yacht Braid White/Red XLS
   - whipped on bitter end
   - whipped on working end
+
+* **Spinnaker Tack Line**
+
+  - 15" @ (5/16") Samson Black/White MLX
+  - whipped on bitter end (to cleat)
+  - spliced to soft shackle on working end (to tack pendant)
 
 * **Main Sail Outhaul**
 
@@ -502,14 +543,15 @@ cockpit to the transom:
 
 #. Under the sink salt water pump intake
 #. Under the sink ice-box and sink drain
-#. Under the starboard bench head sink
+#. Under the starboard bench for head intake / exhaust
 #. Under the v-berth starboard depth sounder
 #. Under the v-berth starboard knotmeter transducer
 
 The bungs for the thru hulls are located in the port locker (sliding white tray).
 The screw bung for the instrument transducers is in the same package.
 
-.. TODO:: images of each location
+.. image:: images/catalina-thru-hull.png
+   :align: center
 
 --------------------------------------------------------------------------------
 Internal Maintenance
@@ -524,7 +566,8 @@ simply mix some concentrate in a bucket and scrub down the deck. Rinse when
 complete. No need to polish or wax as a new gelcoat is needed first.
 
 If you have been sailing in saltwater, rinse the boat off after usage (or if
-beer has been spilled in the cockpit).
+beer has been spilled in the cockpit). There is a coiled hose located in the
+port lazarette.
 
 Make sure the lines are all hanging and not sitting in water to prevent mold
 and aging the line.
@@ -537,6 +580,120 @@ the metal polish in the cabin (simply polish and wipe off).
 Deck Maintenance
 --------------------------------------------------------------------------------
 
+On the boat is a collection of epoxy and gel coat materials. At the moment, the
+only aim is to keep the boat dry and solid as the deck is quite old. As such,
+make sure hardware is installed sercurely, correctly, and bedded in a water
+tight manner. If there are any holes down to epoxy or worse wood, simply seal
+them off with epoxy.
+
+For guides on how to perform the work, these resources are invaluable:
+
+* http://www.pbase.com/mainecruising/boat_projects
+* https://www.youtube.com/user/boatworkstoday
+* Complete Sailboat Maintenance Manual: Don Casey
+
 --------------------------------------------------------------------------------
 Hull Maintenance
 --------------------------------------------------------------------------------
+
+================================================================================
+General Information
+================================================================================
+
+--------------------------------------------------------------------------------
+Bridge Clearance
+--------------------------------------------------------------------------------
+
+Basically assume that the boat is 40' tall and you should be okay going through
+everything larger than that (the following are at mean regulated lake level at
+the center of the bridge or high tide in question):
+
+* Burlington-Northern RR Bridge - 42 feet (206-784-2976)
+* Ballard Bridge - 44 feet (206-282-9525)
+* Fremont Bridge - 30 feet (206-386-4234)
+* University Bridge - 42.6 feet (206-684-4765)
+* Montlake Bridge - 46 feet (206.720.3048)
+* Mercer Island Bridge West - 28 feet
+* Mercer Island Bridge East - 65 feet
+* 520 West Passage - 43 feet (206.440.4490)
+* 520 East Passage - 70 feet (206.440.4490)
+
+If you need the bridge to open, you can do one of the following:
+
+* One long blast followed by one short blast as you approach the bridge
+* Call the bridge operator on Marine Channel 13 as you are in sight
+* Call the supplied phone number to schedule an arrival
+
+When you go the horn route, the bridge operator will blow back (5) short blasts.
+This should be interpreted as "I heard you, and I will open the bridge the next
+chance I get" rather than the usual "I do not understand / I cannot do that."
+
+If you are going through the locks, make sure to put two bumpers on each side of
+the boat and bow and stern lines on both sides of the boat. This will prevent
+any last second swapping around. Just to prevent any problems, simply leave the
+outboard in neutral or make sure it can be started before the locks open to the
+sound. There is a great deal of current that will quickly sweep you to the rail
+bridge.
+
+--------------------------------------------------------------------------------
+Contacts
+--------------------------------------------------------------------------------
+
+The following services can be contacted via phone or VHF radio:
+
+* Hiram Chittenden Locks - 206-783-7000
+* US Coast Guard - 206-217-6001
+* Harbor Patrol - 206-684-4071
+* US Marine Forecaster - 206-526-6087
+* Canada NEXUS Clearance - 800-562-5940
+* Distress and Urgent Traffic - Channel 16
+* Bridge to Bridge - Channel 13
+* Vessel Traffic Services - Channel 14
+* Marina Operations (all) - Channel 66A
+
+If you want to talk to another non-commercial port or ship, use the following
+VHF channels: 68, 69, 71, 72, and 78A. For more information on working with VHF,
+use this guide:
+
+http://www.boatus.com/boattech/casey/vhf-basics.asp
+
+--------------------------------------------------------------------------------
+Weather / Tides / Currents
+--------------------------------------------------------------------------------
+
+When you are making a trip, it is a good idea to simple write out a table of the
+tides and currents for where you will be along with a summary of the expected
+weather. The following can help with making these plans:
+
+* Deep Zoom Current Predictions - http://www.deepzoom.com/#about
+* NOAA Seattle - http://www.wrh.noaa.gov/sew/
+* NOAA Buoy Data - http://www.ndbc.noaa.gov/maps/Northwest.shtml
+* NOAA Buoy Data (West Point) - http://www.ndbc.noaa.gov/station_page.php?station=wpow1
+* Washington Ferry Weather - http://i90.atmos.washington.edu/ferry/Ferryjs/mainframe1.htm
+* NOAA Graphical Forecast - http://graphical.weather.gov/sectors/sew.php
+* Puget Sound Coastal Waters Forecast - http://weather.noaa.gov/cgi-bin/fmtbltn.pl?file=forecasts/marine/coastal/pz/pzz135.txt
+* Puget Sound Tide Predictions - http://www.dairiki.org/tides/daily.php
+* NOAA Seattle Tides - http://tidesonline.noaa.gov/plotcomp.shtml?station_info=9447130+Seattle,+WA+&flag=0
+* PNW Marine Report - http://www.atmos.washington.edu/data/marine_report.html
+* NOAA Current Predictions - http://tidesandcurrents.noaa.gov/noaacurrents/Regions
+* Shilshole Water Conditions - https://tidesandcurrents.noaa.gov/stationhome.html?id=9447130
+* Windyty Wind Forecasts - https://www.windyty.com/?47.610,-122.334,3
+
+--------------------------------------------------------------------------------
+Crusing Information
+--------------------------------------------------------------------------------
+
+The following is a grab bag of sailing resources that should be invaluable to one
+cruising in the PNW. Also note there a number of guides and books on the tablet
+in the boat:
+
+* Magnetic Declination Calculator - http://www.ngdc.noaa.gov/geomag-web/#declination
+* Magnetic Declination - https://www.ngdc.noaa.gov/geomag/declination.shtml
+* Shilshole Cruising Distances - http://nwcruising.net/nm_folders/shilshole.html
+* Sailing Resources - http://www.islandsailing.org/sailor-resources/
+* Marine Project Guides - http://www.pbase.com/mainecruising/boat_projects
+* Vessel Finder - https://www.vesselfinder.com/
+* Ferry Watch - http://www.wsdot.com/ferries/vesselwatch/
+* Nautical Charts and Resources - https://sites.google.com/site/nauticalfree/#US
+* NOAA Charts (Lake Union / Lake Washington) - http://www.charts.noaa.gov/OnLineViewer/18447.shtml
+* PNW Coast Pilot Volume 7 - http://www.nauticalcharts.noaa.gov/nsd/coastpilot_w.php?book=7

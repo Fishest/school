@@ -1,5 +1,5 @@
 ================================================================================
-Cyrano - J/105
+Cyrano - J/105: Seattle Sailing
 ================================================================================
 
 * 04/15/2015 - CYC Sound Series - Dominique Margetson
@@ -48,9 +48,10 @@ Cyrano - J/105
 * 08/03/2016 - CYC Sound Series - Dominique Margetson
 
 * 08/10/2016 - CYC Sound Series - Mark Meenan
+* 08/17/2016 - CYC Sound Series - Dominique Margetson
 
 ================================================================================
-Moonlight Flit - Catalina 27
+Moonlight Flit - Catalina 27: Galen Collins
 ================================================================================
 
 * 03/26/2016 - Harbor Island Transfer - Galen Collins
@@ -73,8 +74,10 @@ Moonlight Flit - Catalina 27
 * 08/13/2016 - Poulsbo Trip - Galen Collins
 * 08/14/2016 - Poulsbo Trip - Galen Collins
 
+* 08/16/2016 - Duck Dodge - Galen Collins
+
 ================================================================================
-Vela Volta - Bavaria 35c
+Vela Volta - Bavaria 35c: Steve Kirsh
 ================================================================================
 
 * 06/12/2015 - San Juans Trip - Galen Collins
@@ -92,7 +95,7 @@ Vela Volta - Bavaria 35c
 * 05/29/2016 - Swiftsure Race - Steve Kirsh (offshore)
 
 ================================================================================
-Astraeo - J/35C
+Astraeo - J/35C: Seattle Sailing
 ================================================================================
 
 * 08/25/2016 - San Jauns Trip - Galen Collins
@@ -114,7 +117,7 @@ Fast Tango - J/120
 * 09/21/2014 - ASA 104 - Steve Summers
 
 ================================================================================
-White Rabbit - J/40
+White Rabbit - J/40: Seattle Sailing
 ================================================================================
 
 * 04/29/2016 - ASA 106 - Steve Summers
@@ -122,7 +125,7 @@ White Rabbit - J/40
 * 05/01/2016 - ASA 106 - Steve Summers
 
 ================================================================================
-J/80
+J/80: Seattle Sailing
 ================================================================================
 
 * 03/07/2015 - ASA 103 - Spinnaker Class - Dennis Palmer
@@ -135,7 +138,7 @@ Jaded - J/105
 * 11/07/2015 - Andrew Ross Day Trip - Galen Collins
 
 ================================================================================
-Otava - Jeanneau 38
+Otava - Jeanneau 38: Seattle Sailing
 ================================================================================
 
 * 09/18/2015 - Gig Harbor Sail Trip - Galen Collins
@@ -154,7 +157,7 @@ Peer Gynt - J/105
 * 10/25/2015 - SYC Grand Prix Race - Steve Summers
 
 ================================================================================
-Dingy - Blancherd Junior Knockabout
+Dingy - Blancherd Junior Knockabout: Center for Wooden Boats
 ================================================================================
 
 * 08/11/2013 - ASA 101 - Center for Wooden Boats
@@ -168,14 +171,14 @@ Dingy - Blancherd Junior Knockabout
 * 07/20/2015 - Day Sail - Galen Collins
 
 ================================================================================
-Hobie Cat
+Hobie Cat: Sail Sand Point
 ================================================================================
 
 * 07/07/2013 - Day Sail - Galen Collins
 * 09/26/2015 - Day Sail - Galen Collins
 
 ================================================================================
-Tom's Boat
+Tom's Boat: Tom
 ================================================================================
 
 * 05/14/2015 - Day Float - Tom

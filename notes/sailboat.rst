@@ -25,7 +25,7 @@ past the rudder to steer with the tiller. Otherwise, simply raise or lower it,
 start or stop it, and then use the tiller to steer. There is no prop walk or
 wash with this outboard.
 
-.. TODO:: images labeling each component
+.. todo:: images labeling each component
 
 --------------------------------------------------------------------------------
 Starting Operation
@@ -64,44 +64,44 @@ Stopping Operation
 What Not To Do
 --------------------------------------------------------------------------------
 
-* Do not switch the battery switch to (off) while the outboard is running
+* *Do not switch the battery switch to (off) while the outboard is running*
   This will blow out the alternator if it is wired through the battery switch.
 
-* Do not run without opening the gas can vent
+* *Do not run without opening the gas can vent*
   The engine will simply choke out and stall (if it even starts). If it stalls,
   simply open the gas vent and restart.
 
-* Do not run with the choke open
+* *Do not run with the choke open*
   This will choke out the carborator and eventually stall out. If it stalls,
   simply close the choke and restart the engine.
 
-* Do not leave the outboard sitting in water
+* *Do not leave the outboard sitting in water*
   It will cause the gear box to be overhauled sooner. The gearbox cleaning
 
-* Do not store after running in saltwater without rinsing
+* *Do not store after running in saltwater without rinsing*
   This will corrode parts and build up deposits in the engine.
 
-* Do not use gas without 2-cycle oil added
+* *Do not use gas without 2-cycle oil added*
   This will burn out the engine.
 
-* Do not use cheap gas / oil / or gas without stablizer
+* *Do not use cheap gas / oil / or gas without stablizer*
   This will gum up the components and will require an overhaul sooner.
 
-* Do not overprime the engine (pressing the fuel bulb)
+* *Do not overprime the engine (pressing the fuel bulb)*
   This will flood the engine which will need to dry before running. To fix this
   you can wait, or you can open the engine, take out the spark plugs, try and
   start it a few times, replace the spark plugs, and you should be good to go.
 
-* Do not hold the starter for more than five seconds
+* *Do not hold the starter for more than five seconds*
   If you do this again and again for too long without breaks in between (say
   5 to 10 minutes), you will burn out the starter motor.
 
-* Do not run the batteries down
+* *Do not run the batteries down*
   If this happens you won't be able to use the ignition switch. If you are near
   the shore, you can plug in the battery charger. If you are on the water, use
   the pull chord and then let the alternator charge the battery back up.
 
-* Do not remove the outboard without having a halyard attached to it
+* *Do not remove the outboard without having a halyard attached to it*
   If it falls in the water, getting it out is going to be a pain! Furthermore,
   make sure the safety leash is installed through the transom screws to prevent
   them from unwinding and as a failsafe if they fail. As of now it is attached
@@ -111,18 +111,18 @@ What Not To Do
 Servicing and Parts
 --------------------------------------------------------------------------------
 
-* Zinc Anode
+* **Zinc Anode**
+  *Mfg #42121A2*
+
   If you wait too long to replace this; getting it off is near impossible.
   I recommend a socket wrench with a long lever arm.
-.. todo part number
 
-* Mercury Spark Plugs (2x)
-.. todo part number, gap
+* **Mercury Spark Plugs (2x)**
+  *Mfg #33-19424 | NGK BP8HS-15*
 
-* Mercury Outboard Alternator
-.. todo part, cost
+  The gap is 1.5mm / 0.060"
 
-* Outboard Servicing
+* **Outboard Servicing**
   http://ballardmarineservice.com/
 
   There is one Mercury Licensed service center near Seattle and that is Ballard
@@ -133,31 +133,31 @@ Servicing and Parts
   will push the "Mercury" brand (fittings, fuel tanks, paint, etc). The plus
   side is that you know it will work correctly and they will have it in stock.
 
-* Mercury Engine Paint
-  Model # 4531208 | Mfg # 802878Q50
+* **Mercury Engine Paint**
+  *Model # 4531208 | Mfg # 802878Q50*
 
   If you would like to repaint the outboard (say the prop if it is starting to
   weather), then you can get a three stage paint system from mercury. Simply
   sand / steel brush the material down to the metal and then prime / paint /
   gloss.
 
-* Moeller 6.5 Gallon Fuel Tank
-  Mfg #620049LP
+* **Moeller 6.5 Gallon Fuel Tank**
+  *Mfg #620049LP*
 
   Make sure to only fill to 6 gallons to use the pre-measured ratios for
   the oil and additives. Make sure to fill off the boat so the gas fumes
   will not settle in the cabin. Make sure all the caps are tight and the
   vent is closed after usage.
 
-* Mercury Fuel Line Quick Connector
-  Mfg #033418-10
+* **Mercury Fuel Line Quick Connector**
+  *Mfg #033418-10*
 
   Check to make sure this connects to the gas tanks and the male fuel line
   barb correctly and tightly. If this is loose, air and water will get into
   the fuel line.
 
-* Mercury Fuel Line Kit (Attwood)
-  Mfg #93806MUS7
+* **Mercury Fuel Line Kit (Attwood)**
+  *Mfg #93806MUS7*
 
   The reasoning to use this over a cheaper Walmart kit is that this allows low
   permeation allowing less air and water to enter the carb. Cheaper kits will
@@ -166,36 +166,36 @@ Servicing and Parts
   to the fuel tank you are using (push in, twist clockwise, and pull back to
   test the lock) and then attach the fuel valve to the outboard.
 
-* Mercury Quickare Fuel Treatment (1)
-  Model #12419586 | Mfg #8M0047920
+* **Mercury Quickare Fuel Treatment (1)**
+  *Model #12419586 | Mfg #8M0047920*
 
   This should be added every time the fuel is refilled (both left and right
   tanks). For (6) gallons of fuel add 0.6 ounces.
 
-* Mercury Quickleen Engine and Fuel System Cleaner (2) 
-  Model #12419594 | Mfg #8M0047921
+* **Mercury Quickleen Engine and Fuel System Cleaner (2)**
+  *Model #12419594 | Mfg #8M0047921*
 
   This should be added every other time the fuel is refilled. Simply add it to
   the tank on the left and make sure to switch tanks between refills. For (6)
   gallons of fuel add 1.2 ounces.
 
-* Mercury Quickstor Fuel Stabalizer (3) 
-  Model _ | Mfg #8M0047932
+* **Mercury Quickstor Fuel Stabalizer (3)**
+  *Model _ | Mfg #8M0047932*
 
   Ideally fuel will not be stored over winter and instead dropped off at the 
   hazardous waste dump in the spring. However if there is a good bit of fuel
   left that can be stored, make sure to add this to it.  For (6) gallons of fuel
   add 1.2 ounces.
 
-* Mercury / Quicksilver Premium 2-cycle oil
-  Model #542178 | Mfg #858020Q01
+* **Mercury / Quicksilver Premium 2-cycle oil**
+  *Model #542178 | Mfg #858020Q01*
 
   Do not use cheap 2-stroke oil that you would use in a lawn mower. This gums up
   the engine, causes it to smoke, and idel hard. This should be added at a 50/1
   ratio to the fuel. This means 15.4 ounces or 0.96 pints (one bottle is fine)
   should be added to 6 gallons of gas.
 
-* Marine Grade Non-Ethanol Unleaded (87) Minimum Octane Fuel
+* **Marine Grade Non-Ethanol Unleaded (87) Minimum Octane Fuel**
 
   The fuel filter for the outboard is pretty simple so it does not remove too
   much from the oil / fuel mixture. Futhermore, the engine does not handle
@@ -212,8 +212,9 @@ Servicing and Parts
   the cabin.
 
   The gas tanks should be monitored as the fuel level bob is not too accurate
-  (it shows empty with a gallon or so left). Continuing, do not top off the tanks
-  as it is very hard to get the mixture correct.
+  (it shows empty with a gallon or so left). Continuing, do not just top off
+  the tanks as it is hard to get the mixture correct. Rather, try to fill in
+  gallon increments.
 
 ================================================================================
 Electrical System
@@ -223,8 +224,107 @@ Electrical System
 Battery System
 --------------------------------------------------------------------------------
 
-.. TODO:: images labeling each component
-.. TODO:: electrical diagram
+.. todo:: images labeling each component
+.. todo:: electrical diagram
+
+================================================================================
+Galley
+================================================================================
+
+.. todo
+   - organize cleaning products
+   - ogranize drawers
+   - get basic cutlery, plates, mugs (goodwill trip)
+   - get a good cooler fake ice block
+   - find a better way to use cooler (quarter berth)
+
+--------------------------------------------------------------------------------
+Stove
+--------------------------------------------------------------------------------
+
+The stove is a simply alchohol unit. Under the stove is a bottle of stove fuel
+that can be used. Simply take off the chopping board, raise the stove by the
+handles, and add the fuel to one or both sides if needed. Then light the stove
+with the grill lighters from the top drawer and close the stove top. Make sure
+that the snuffers are open all the way or closing the top will simply put out
+the flame.
+
+To control heat, use the snuffer slider switches. When you want the fire out,
+simply close them both. In the top drawer there are put holders, however the
+stove really should not be used while sailing (only motoring) as it is not
+gimbled and anything hot will simply roll off.
+
+In the back of the cabinet, there is a pot, skillet, and kettle that can be
+used for cooking. Make sure to leave the pans on the stove while they are still
+hot and do not put the chopping board back on the stove until it is cooled off.
+
+.. todo
+  - fix the slider switches (missing one)
+  - fix the pot holders
+  - add a cheap skillet and basic cooking utensils
+  - fix the left stove handle
+
+--------------------------------------------------------------------------------
+Grill
+--------------------------------------------------------------------------------
+
+The grill on the stern pulpit is a propane Magma <model number>. To use it,
+simply take off the cover, insert the fuel regulator, and screw in a Coleman
+propane tank. To light:
+
+* push down on the regulator and turn to a high value
+* push the Magma ignitor until lit
+* turn down the regulator and start cooking
+
+If the ignitor does not work, there are grill lighters in the top drawer in the
+galley. To maintain the grill, always take the regulator off and store inside in
+the top drawer. Also, always take the propane tank off, cover with the cap, and
+store in the port lazarette. Finally, make sure the grill cover is put back on
+and the fuel intake pipe cover is back on.
+
+To take care of the inside grill, make sure to wash it with warm soapy water and
+oil it before use. For the inner working parts, wash occasionally to remove rust.
+The outside can be polished with metal varnish.
+
+The bracket system does not fit exactly, so it needs to be shimmed at all parts
+using rubber gasket material. At the moment, everything is just completely
+tightened, but this does make it hard to move the grill. Make sure that the
+steel tether is always connected to the grill in case any fitting comes loose
+as the grill will sink immediatly! It should be noted that Magma over charges
+for replacement parts and losing two of the following will cost more than I
+paid for all the grill parts together!
+
+* **Coleman 16.4 oz Propane Fuel**
+  *Mfg #332409*
+
+  Keep the caps on to prevent dirt getting into the intake and make sure
+  to store them in the port side lazarette.
+
+* **Magma Control Valve Regulator**
+  Model # 308226 | Mfg # 10-267
+
+  Make sure to take off and store inside the boat. Please put the caps back
+  on to prevent dirt entering and oxidation occuring.
+
+* **Magma Radiant Heat Plate**
+  Model # 6915011 | Mfg # 10-765
+
+* **Magma Cooking Grill**
+  Model # 255929 | Mfg # 10-453
+
+* **Magma Venturi Tube**
+  Model # 5925078 | Mfg # 10-160
+
+  Make sure this is tight on the grill and that the cap is placed back on the
+  open end after use to prevent dirt build up.
+
+.. todo
+   - clean grill insides of rust
+   - clean grill top and season it
+   - polish outside of grill
+   - permanetly fix the shims
+   - add cover to grill intake
+   - add simple small grill tools
 
 ================================================================================
 Water System
@@ -256,6 +356,11 @@ the seacocks and drain hose are replaced.
 * fresh water hoses parts (y-split) (colored for salt / fresh / waste)
 * fresh water diagram
 
+.. todo
+   - replace hosing
+   - empty, refil, and clean water tank
+   - fix pump circuit and pump
+
 --------------------------------------------------------------------------------
 Salt Water System
 --------------------------------------------------------------------------------
@@ -275,6 +380,10 @@ when back in crusing mode.
 * salt water faucet pump
 * salt water hose part
 * salt water diagram
+
+.. todo
+   - fix salt water pump
+   - fix tubing and thru hull test
 
 --------------------------------------------------------------------------------
 Head System
@@ -305,16 +414,23 @@ will keep the smell down.
 Every so often, run white vinegar through the head system if you are pumping out
 or bleach if you are running into the tank.
 
-.. TODO:: images labeling each component
-.. TODO:: water diagram
+.. todo:: images labeling each component
+.. todo:: water diagram
+
+.. todo
+   - clean head
+   - oil valves (flush oil)
+   - tighten connections / tubing
+   - add handle while peeing
+   - add basic toiletries
 
 ================================================================================
 Running Rigging
 ================================================================================
 
-.. TODO:: images labeling each component
-.. TODO:: line diagram
-.. TODO:: line listing
+.. todo:: images labeling each component
+.. todo:: line diagram
+.. todo:: line listing
 
 --------------------------------------------------------------------------------
 Rigging Ordering List
@@ -410,6 +526,28 @@ Tiller / Rudder
 --------------------------------------------------------------------------------
 
 ================================================================================
+Underway
+================================================================================
+
+--------------------------------------------------------------------------------
+Under Motor
+--------------------------------------------------------------------------------
+
+* very lee heavy / pushed by wind current easily
+* reverse is hard
+* needs lots of speed to be steerable
+
+--------------------------------------------------------------------------------
+Under Sail
+--------------------------------------------------------------------------------
+
+* lots of weather helm; travel down from center to balance
+* boom vang doesn't do much
+* cunningham and tight halyard for old sails
+* outhaul not too useful for old sail
+* downwind is slow unless spinnaker or wing out
+
+================================================================================
 Standing Rigging
 ================================================================================
 
@@ -417,17 +555,17 @@ Standing Rigging
 Mast
 ================================================================================
 
-.. TODO:: electrical diagram
-.. TODO:: line diagram
-.. TODO:: parts listing (sheaves, rollers)
+.. todo:: electrical diagram
+.. todo:: line diagram
+.. todo:: parts listing (sheaves, rollers)
 
 ================================================================================
 Sails
 ================================================================================
 
-.. TODO:: images labeling each sail
-.. TODO:: use case of each sail (head sail)
-.. TODO:: measure existing sails
+.. todo:: images labeling each sail
+.. todo:: use case of each sail (head sail)
+.. todo:: measure existing sails
 
 --------------------------------------------------------------------------------
 Measurements
@@ -527,8 +665,16 @@ Measurements
 Storage and Organization
 ================================================================================
 
-.. TODO:: images labeling each component
-.. TODO:: boat cross section labeled
+--------------------------------------------------------------------------------
+Anchors
+--------------------------------------------------------------------------------
+
+* anchor locker (160 ft rode)
+* anchor bucket (90 ft rode)
+* backup danforth
+
+.. todo:: images labeling each component
+.. todo:: boat cross section labeled
 
 ================================================================================
 Boat Hull
@@ -588,8 +734,8 @@ them off with epoxy.
 
 For guides on how to perform the work, these resources are invaluable:
 
-* http://www.pbase.com/mainecruising/boat_projects
-* https://www.youtube.com/user/boatworkstoday
+* `Boat Projects <http://www.pbase.com/mainecruising/boat_projects>`_
+* `Boat Works Today <https://www.youtube.com/user/boatworkstoday>`_
 * Complete Sailboat Maintenance Manual: Don Casey
 
 --------------------------------------------------------------------------------
@@ -608,15 +754,15 @@ Basically assume that the boat is 40' tall and you should be okay going through
 everything larger than that (the following are at mean regulated lake level at
 the center of the bridge or high tide in question):
 
-* Burlington-Northern RR Bridge - 42 feet (206-784-2976)
-* Ballard Bridge - 44 feet (206-282-9525)
-* Fremont Bridge - 30 feet (206-386-4234)
-* University Bridge - 42.6 feet (206-684-4765)
-* Montlake Bridge - 46 feet (206.720.3048)
-* Mercer Island Bridge West - 28 feet
-* Mercer Island Bridge East - 65 feet
-* 520 West Passage - 43 feet (206.440.4490)
-* 520 East Passage - 70 feet (206.440.4490)
+* **Burlington-Northern RR Bridge** - 42 feet (206-784-2976)
+* **Ballard Bridge** - 44 feet (206-282-9525)
+* **Fremont Bridge** - 30 feet (206-386-4234)
+* **University Bridge** - 42.6 feet (206-684-4765)
+* **Montlake Bridge** - 46 feet (206.720.3048)
+* **Mercer Island Bridge West** - 28 feet
+* **Mercer Island Bridge East** - 65 feet
+* **520 West Passage** - 43 feet (206.440.4490)
+* **520 East Passage** - 70 feet (206.440.4490)
 
 If you need the bridge to open, you can do one of the following:
 
@@ -641,21 +787,21 @@ Contacts
 
 The following services can be contacted via phone or VHF radio:
 
-* Hiram Chittenden Locks - 206-783-7000
-* US Coast Guard - 206-217-6001
-* Harbor Patrol - 206-684-4071
-* US Marine Forecaster - 206-526-6087
-* Canada NEXUS Clearance - 800-562-5940
-* Distress and Urgent Traffic - Channel 16
-* Bridge to Bridge - Channel 13
-* Vessel Traffic Services - Channel 14
-* Marina Operations (all) - Channel 66A
+* **Hiram Chittenden Locks** - 206-783-7000
+* **US Coast Guard** - 206-217-6001
+* **Harbor Patrol** - 206-684-4071
+* **US Marine Forecaster** - 206-526-6087
+* **Canada NEXUS Clearance** - 800-562-5940
+* **Distress and Urgent Traffic** - Channel 16
+* **Bridge to Bridge** - Channel 13
+* **Vessel Traffic Services** - Channel 14
+* **Marina Operations (all)** - Channel 66A
 
 If you want to talk to another non-commercial port or ship, use the following
 VHF channels: 68, 69, 71, 72, and 78A. For more information on working with VHF,
-use this guide:
+use the following guide:
 
-http://www.boatus.com/boattech/casey/vhf-basics.asp
+* `VHF Basics <http://www.boatus.com/boattech/casey/vhf-basics.asp>`_
 
 --------------------------------------------------------------------------------
 Weather / Tides / Currents
@@ -665,19 +811,19 @@ When you are making a trip, it is a good idea to simple write out a table of the
 tides and currents for where you will be along with a summary of the expected
 weather. The following can help with making these plans:
 
-* Deep Zoom Current Predictions - http://www.deepzoom.com/#about
-* NOAA Seattle - http://www.wrh.noaa.gov/sew/
-* NOAA Buoy Data - http://www.ndbc.noaa.gov/maps/Northwest.shtml
-* NOAA Buoy Data (West Point) - http://www.ndbc.noaa.gov/station_page.php?station=wpow1
-* Washington Ferry Weather - http://i90.atmos.washington.edu/ferry/Ferryjs/mainframe1.htm
-* NOAA Graphical Forecast - http://graphical.weather.gov/sectors/sew.php
-* Puget Sound Coastal Waters Forecast - http://weather.noaa.gov/cgi-bin/fmtbltn.pl?file=forecasts/marine/coastal/pz/pzz135.txt
-* Puget Sound Tide Predictions - http://www.dairiki.org/tides/daily.php
-* NOAA Seattle Tides - http://tidesonline.noaa.gov/plotcomp.shtml?station_info=9447130+Seattle,+WA+&flag=0
-* PNW Marine Report - http://www.atmos.washington.edu/data/marine_report.html
-* NOAA Current Predictions - http://tidesandcurrents.noaa.gov/noaacurrents/Regions
-* Shilshole Water Conditions - https://tidesandcurrents.noaa.gov/stationhome.html?id=9447130
-* Windyty Wind Forecasts - https://www.windyty.com/?47.610,-122.334,3
+* `Deep Zoom Current Predictions <http://www.deepzoom.com/#about>`_
+* `NOAA Seattle <http://www.wrh.noaa.gov/sew/>`_
+* `NOAA Buoy Data <http://www.ndbc.noaa.gov/maps/Northwest.shtml>`_
+* `NOAA Buoy Data (West Point) <http://www.ndbc.noaa.gov/station_page.php?station=wpow1>`_
+* `Washington Ferry Weather <http://i90.atmos.washington.edu/ferry/Ferryjs/mainframe1.htm>`_
+* `NOAA Graphical Forecast <http://graphical.weather.gov/sectors/sew.php>`_
+* `Puget Sound Coastal Waters Forecast <http://weather.noaa.gov/cgi-bin/fmtbltn.pl?file=forecasts/marine/coastal/pz/pzz135.txt>`_
+* `Puget Sound Tide Predictions <http://www.dairiki.org/tides/daily.php>`_
+* `NOAA Seattle Tides <http://tidesonline.noaa.gov/plotcomp.shtml?station_info=9447130+Seattle,+WA+&flag=0>`_
+* `PNW Marine Report <http://www.atmos.washington.edu/data/marine_report.html>`_
+* `NOAA Current Predictions <http://tidesandcurrents.noaa.gov/noaacurrents/Regions>`_
+* `Shilshole Water Conditions <https://tidesandcurrents.noaa.gov/stationhome.html?id=9447130>`_
+* `Windyty Wind Forecasts <https://www.windyty.com/?47.610,-122.334,3>`_
 
 --------------------------------------------------------------------------------
 Crusing Information
@@ -687,13 +833,13 @@ The following is a grab bag of sailing resources that should be invaluable to on
 cruising in the PNW. Also note there a number of guides and books on the tablet
 in the boat:
 
-* Magnetic Declination Calculator - http://www.ngdc.noaa.gov/geomag-web/#declination
-* Magnetic Declination - https://www.ngdc.noaa.gov/geomag/declination.shtml
-* Shilshole Cruising Distances - http://nwcruising.net/nm_folders/shilshole.html
-* Sailing Resources - http://www.islandsailing.org/sailor-resources/
-* Marine Project Guides - http://www.pbase.com/mainecruising/boat_projects
-* Vessel Finder - https://www.vesselfinder.com/
-* Ferry Watch - http://www.wsdot.com/ferries/vesselwatch/
-* Nautical Charts and Resources - https://sites.google.com/site/nauticalfree/#US
-* NOAA Charts (Lake Union / Lake Washington) - http://www.charts.noaa.gov/OnLineViewer/18447.shtml
-* PNW Coast Pilot Volume 7 - http://www.nauticalcharts.noaa.gov/nsd/coastpilot_w.php?book=7
+* `Magnetic Declination Calculator <http://www.ngdc.noaa.gov/geomag-web/#declination>`_
+* `Magnetic Declination <https://www.ngdc.noaa.gov/geomag/declination.shtml>`_
+* `Shilshole Cruising Distances <http://nwcruising.net/nm_folders/shilshole.html>`_
+* `Sailing Resources <http://www.islandsailing.org/sailor-resources/>`_
+* `Marine Project Guides <http://www.pbase.com/mainecruising/boat_projects>`_
+* `Vessel Finder <https://www.vesselfinder.com/>`_
+* `Ferry Watch <http://www.wsdot.com/ferries/vesselwatch/>`_
+* `Nautical Charts and Resources <https://sites.google.com/site/nauticalfree/#US>`_
+* `NOAA Charts (Lake Union / Lake Washington) <http://www.charts.noaa.gov/OnLineViewer/18447.shtml>`_
+* `PNW Coast Pilot Volume 7 <http://www.nauticalcharts.noaa.gov/nsd/coastpilot_w.php?book=7>`_

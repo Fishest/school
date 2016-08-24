@@ -49,6 +49,7 @@ Cyrano - J/105: Seattle Sailing
 
 * 08/10/2016 - CYC Sound Series - Mark Meenan
 * 08/17/2016 - CYC Sound Series - Dominique Margetson
+* 08/24/2016 - CYC Sound Series - Mark Meenan
 
 ================================================================================
 Moonlight Flit - Catalina 27: Galen Collins
@@ -75,6 +76,7 @@ Moonlight Flit - Catalina 27: Galen Collins
 * 08/14/2016 - Poulsbo Trip - Galen Collins
 
 * 08/16/2016 - Duck Dodge - Galen Collins
+* 08/23/2016 - Duck Dodge - Galen Collins
 
 ================================================================================
 Vela Volta - Bavaria 35c: Steve Kirsh

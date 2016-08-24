@@ -669,12 +669,34 @@ Storage and Organization
 Anchors
 --------------------------------------------------------------------------------
 
-* anchor locker (160 ft rode)
-* anchor bucket (90 ft rode)
-* backup danforth
+There are three anchors aboard the boat:
 
-.. todo:: images labeling each component
-.. todo:: boat cross section labeled
+* **Delta Bow Anchor**
+ 
+  This is on the anchor roller on the bow and has its rode run through the
+  hawsepipe and into the locker at the front of the V-birth. It has 160 ft of
+  rode (15 ft chain) and is permanently connected to a steel ring that prevents
+  it existing from the hawsepipe.
+
+* **Danforth Stern Bucket**
+  
+  Under the companionway steps is a Danforth attached to 90ft of rode (all rope)
+  collected in a organizer bucket. To get to this, simply remove the ladder and
+  cary the bucket and anchor to the stern. Make sure that you connect the bitter
+  end from the back of the bucket to a cleat before you lower the anchor.
+  If you need more rode, use a Zepplin knot to attach more.
+
+* **Backup Danforth**
+  
+  There is a lightweight Danforth folded up in the port Lazarette that has no rode
+  attached to it. This is here in case you have to have to drop one of the anchors
+  and need a backup. Attach it to the chain rode using a shackle or to the rope
+  rode using an anchor hitch or a shackled eye loop.
+
+* `Zepplin Knot <http://www.animatedknots.com/zeppelin/>`_
+* `Anchor Hitch Knot <http://www.animatedknots.com/anchor/>`_
+* `Anchor Selection Guide <http://www.westmarine.com/WestAdvisor/Selecting-The-Right-Anchor>`_
+* `How to Anchor <http://www.westmarine.com/WestAdvisor/How-To-Anchor-Securely>`_
 
 ================================================================================
 Boat Hull
@@ -736,7 +758,6 @@ For guides on how to perform the work, these resources are invaluable:
 
 * `Boat Projects <http://www.pbase.com/mainecruising/boat_projects>`_
 * `Boat Works Today <https://www.youtube.com/user/boatworkstoday>`_
-* Complete Sailboat Maintenance Manual: Don Casey
 
 --------------------------------------------------------------------------------
 Hull Maintenance
@@ -833,6 +854,7 @@ The following is a grab bag of sailing resources that should be invaluable to on
 cruising in the PNW. Also note there a number of guides and books on the tablet
 in the boat:
 
+* `Waggoner Cruising Guide <http://waggonerguide.com/>`_
 * `Magnetic Declination Calculator <http://www.ngdc.noaa.gov/geomag-web/#declination>`_
 * `Magnetic Declination <https://www.ngdc.noaa.gov/geomag/declination.shtml>`_
 * `Shilshole Cruising Distances <http://nwcruising.net/nm_folders/shilshole.html>`_
@@ -843,3 +865,14 @@ in the boat:
 * `Nautical Charts and Resources <https://sites.google.com/site/nauticalfree/#US>`_
 * `NOAA Charts (Lake Union / Lake Washington) <http://www.charts.noaa.gov/OnLineViewer/18447.shtml>`_
 * `PNW Coast Pilot Volume 7 <http://www.nauticalcharts.noaa.gov/nsd/coastpilot_w.php?book=7>`_
+
+--------------------------------------------------------------------------------
+Useful Books
+--------------------------------------------------------------------------------
+
+* `Annaoplis Book of Seamanship <https://www.amazon.com/Annapolis-Book-Seamanship-Fourth/dp/1451650191/>`_
+* `Chapman Piloting and Seamanship <https://www.amazon.com/Chapman-Piloting-Seamanship-Small-Handling/dp/1588169618/>`_
+* `The Complete Sailing Manual <https://www.amazon.com/Complete-Sailing-Manual-Third/dp/0756689694/>`_
+* `US Chart Number 1 <https://www.amazon.com/U-S-Chart-No-Abbreviations-Navigational/dp/1937196976/>`_
+* `Navigation Rules and Regulations <https://www.amazon.com/Navigation-Rules-Regulations-Handbook-Coast/dp/1937196232/>`_
+* `Complete Sailboat Maintenance Manual <https://www.amazon.com/Caseys-Complete-Illustrated-Sailboat-Maintenance/dp/0071462848/>`_

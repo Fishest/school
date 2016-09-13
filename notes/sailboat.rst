@@ -47,11 +47,14 @@ Starting Operation
 #. Lightly go in gear before returning to neutral
 #. Accelerate consistently (do not jump to running at top speed)
 
+If there are problems starting, here is a quick checklist of things to examine:
+`Engine Failure Checklist <http://www.boatingmag.com/boats/top-25-reasons-your-boats-engine-wont-start>`_
+
 --------------------------------------------------------------------------------
 Stopping Operation
 --------------------------------------------------------------------------------
 
-#. Pull out the fuel hose and store to the side
+#. Pull out the fuel hose and store on the tank coiled without kinks
 #. Throttle up to peak for a few seconds
 #. Throttle down to just above neutral and let run till it dies
 #. If you were in salt water, run a hose near the water intake to flush
@@ -235,7 +238,6 @@ Galley
    - organize cleaning products
    - ogranize drawers
    - get basic cutlery, plates, mugs (goodwill trip)
-   - get a good cooler fake ice block
    - find a better way to use cooler (quarter berth)
 
 --------------------------------------------------------------------------------
@@ -323,8 +325,27 @@ paid for all the grill parts together!
    - clean grill top and season it
    - polish outside of grill
    - permanetly fix the shims
-   - add cover to grill intake
-   - add simple small grill tools
+   - patch the grill cover
+
+--------------------------------------------------------------------------------
+Music
+--------------------------------------------------------------------------------
+
+To turn on the radio, simply flip the breaker switch for the radio and turn the
+system on. You can plug in your phone or the on board ipod or use the waterproof
+bluetooth speaker above deck. If you want to use the radio, here are some stations:
+
+* **KEXP**:  90.3 FM (Alternative Rock / Indie)
+* **KBCS**:  91.3 FM (Folk / Jazz)
+* **KUOW**:  94.9 FM (NPR)
+* **KJR**:   95.7 FM (Classic Rock)
+* **KING**:  98.1 FM (Classical)
+* **KZOK**: 102.5 FM (Classic Rock)
+* **KFOO**: 102.9 FM (Alternative Rock)
+* **KISS**: 106.1 FM (Soul)
+* **KIRO**:   710 AM (Sports)
+* **KJR**:    950 AM (Sports)
+* **KRKO**:  1380 AM (Sports)
 
 ================================================================================
 Water System
@@ -421,7 +442,7 @@ or bleach if you are running into the tank.
    - clean head
    - oil valves (flush oil)
    - tighten connections / tubing
-   - add handle while peeing
+   - add top handle while peeing
    - add basic toiletries
 
 ================================================================================
@@ -676,7 +697,7 @@ There are three anchors aboard the boat:
   This is on the anchor roller on the bow and has its rode run through the
   hawsepipe and into the locker at the front of the V-birth. It has 160 ft of
   rode (15 ft chain) and is permanently connected to a steel ring that prevents
-  it existing from the hawsepipe.
+  it existing from the hawsepipe. The rode is marked at every 30 feet.
 
 * **Danforth Stern Bucket**
   

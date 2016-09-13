@@ -50,6 +50,9 @@ Cyrano - J/105: Seattle Sailing
 * 08/10/2016 - CYC Sound Series - Mark Meenan
 * 08/17/2016 - CYC Sound Series - Dominique Margetson
 * 08/24/2016 - CYC Sound Series - Mark Meenan
+* 08/31/2016 - CYC Sound Series - Mark Meenan
+* 09/07/2016 - CYC Sound Series - Mark Meenan
+* 09/14/2016 - CYC Sound Series - Galen Collins
 
 ================================================================================
 Moonlight Flit - Catalina 27: Galen Collins
@@ -77,6 +80,10 @@ Moonlight Flit - Catalina 27: Galen Collins
 
 * 08/16/2016 - Duck Dodge - Galen Collins
 * 08/23/2016 - Duck Dodge - Galen Collins
+* 08/30/2016 - Duck Dodge - Galen Collins
+* 09/06/2016 - Duck Dodge - Galen Collins
+* 09/10/2016 - Day Sail - Galen Collins
+* 09/13/2016 - Day Sail - Galen Collins
 
 ================================================================================
 Vela Volta - Bavaria 35c: Steve Kirsh
@@ -100,10 +107,10 @@ Vela Volta - Bavaria 35c: Steve Kirsh
 Astraeo - J/35C: Seattle Sailing
 ================================================================================
 
-* 08/25/2016 - San Jauns Trip - Galen Collins
-* 08/26/2016 - San Jauns Trip - Galen Collins
-* 08/27/2016 - San Jauns Trip - Galen Collins
-* 08/28/2016 - San Jauns Trip - Galen Collins
+* 08/25/2016 - San Juans Trip - Galen Collins
+* 08/26/2016 - San Juans Trip - Galen Collins
+* 08/27/2016 - San Juans Trip - Galen Collins
+* 08/28/2016 - San Juans Trip - Galen Collins
 
 ================================================================================
 Fast Tango - J/120

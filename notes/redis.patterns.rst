@@ -83,3 +83,10 @@ A simple throttling client can be constructed as follows:
         current_rate = cache.incr(key)
 
         return current_rate > limit
+
+--------------------------------------------------------------------------------
+Sequential Id Generation
+--------------------------------------------------------------------------------
+
+* Snowflake with CAS on unique id portion
+* CAS on ID range, distribute locally then CAS on next range when exhausted

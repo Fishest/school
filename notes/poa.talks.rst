@@ -2,9 +2,9 @@
 Time in Distributed Systems
 ============================================================
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Summary
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 Time is an ordering of events in a sequential order. Events
 can happen before each other (in either order) or even at 
@@ -38,9 +38,9 @@ partial ordering is maintained).
    "Clocks assign numbers to events"
    Cache Coherency Protocol (SMP Caches)
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Lamport Clocks
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 There are three cases that need to be handled:
 
@@ -74,9 +74,9 @@ which causes a lot of problem cases dealing with:
 * Failure
 * Covert Channels
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 ALF Locks
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 Using distributed locks removes the case of concurrent events;
 there is only past and present (before and after `unlock`).
@@ -145,9 +145,9 @@ The relative speed of operations::
     Disk Write    7.8 mil        2.6 ms      90 days
     Disk Read      15 mil        5 ms       173 days
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Write Ahead Logging
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 Write ahead logging can be used to write transaction
 details as they occur. If the transaction fails because
@@ -163,9 +163,9 @@ So all the transactions need to be in RAM and the transactions
 must be committed ASAP.  Also, if the log fills up, then
 everyone is blocked.
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Two Phase Commit
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 Distributed Transaction Minimums::
 
@@ -176,9 +176,9 @@ Distributed Transaction Minimums::
     W = writes
     M = messages
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Why They Suck
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 In any distributed system, messaging will fail. The only way
 to ensure operations are done is to retry them, so every
@@ -207,9 +207,9 @@ This no longer needs distributed transactions and can be
 performed across databases. Customers must now know that
 transfers may be in process.
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Techniques
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 Explicit Transactions handle all the requirements in the
 application
@@ -235,9 +235,9 @@ Herd workflow engine
 POA Gems
 ============================================================
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Endemic Spreading
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 Choose a network peer at random and exchange data with each
 other via push/pull gossip udp messages::
@@ -246,9 +246,9 @@ other via push/pull gossip udp messages::
     b -> status -> a
     # continue until consensus is statistically correct
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 CAP
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 Given consistency, availability, and partition tolerance:
 
@@ -258,9 +258,9 @@ Given consistency, availability, and partition tolerance:
   you cannot make progress, otherwise you are good to go.
 * **PA**: caching, dns, dynamo
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Scalable Architecture
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 * Partition your use cases (users, batch/live, etc) so that problems in
   one will not break the other
@@ -273,9 +273,9 @@ Scalable Architecture
 Load Balances Don't Have To Suck
 ============================================================
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 OSI 7-Layer Model:
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 * (7) Application
 * (6) Presentation
@@ -298,9 +298,9 @@ has no knowledge about the content of the request/service.
 This will forward SSL processing to the backend service
 and can increase performance of the load balancer.
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Common load balancing policies:
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 * Round Robin
 
@@ -329,9 +329,9 @@ Common load balancing policies:
   This has no way to prevent routing requests to a broken
   server.
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Policies for Managing overloaded load balancers:
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 * Surge Connection Queue
 
@@ -345,9 +345,9 @@ Policies for Managing overloaded load balancers:
   If the request cannot be assigned, just return an error
   and let the client try again.
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 How can we make a better load balancer (JLB):
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 * Distributed load balancer
 * Scales to infinity (horizontal)
@@ -373,9 +373,9 @@ How can we make a better load balancer (JLB):
   and reinterprets them as the initial packets. It detects
   overload and accepts configuration.
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 The JLB Process
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 1. Ingress packets arrive at ingress server that wraps packet
 2. It sends the fake packet to a primary flow tracker
@@ -404,9 +404,9 @@ another host to route to:
 Quorums and Chains: Consensus Beyond Paxos
 ============================================================
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Summary
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 What if the central storage fails (durability)::
 
@@ -427,16 +427,16 @@ or are partitioned::
     client -> writer -> storage -|
     client -> reader -> storage -|
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Chain Architecture
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 Nodes chain off of each other and effectively serialize the
 events.
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Quorum
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 On write, the writer must contact a majority of the storage
 nodes, if it does, it is granted a write quorum and is
@@ -459,9 +459,9 @@ Can do a two phase write where we get the current highest
 write version and then make ours higher (so the order is
 preserved).
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Atomic Register Specification
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 The best way to determine if a distributed system works is
 to create a model and:
@@ -490,9 +490,9 @@ Problems with atomic registers (dynamo doesn't use them):
 * write does not return the previous value
 * no way to lock
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Asyncronous Message Passing
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 Given a collection of processes that can receive messages:
 
@@ -531,9 +531,9 @@ the processes and apply the model::
     t = existing time
     Q = quorum
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 ABD Algorithm
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 Here is how a writer works in the ABD algorithm:
 
@@ -550,9 +550,9 @@ Here is how a writer works in the ABD algorithm:
 7. The writer gets back its quorum of acks and then sends a
    response back to the client.
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Analysis
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 **Correctness**
 
@@ -568,9 +568,9 @@ Analysis
 
 * system will eventually terminate (no infinite traces)
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Consensus
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 Powered by Replicated State Machines:
 
@@ -585,9 +585,9 @@ This can easily be created with a chain replication:
 * allows pipelining (writes can quickly flow without blocking)
 * but not fault tolerant
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Paxos Consensus
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 * Quorum based algorithm
 * proposer is two rounds and does not always succeed
@@ -597,9 +597,9 @@ Paxos Consensus
 * no pipelining (batching and windowing)
 * requires redrives in the event of contention
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Dynamic Configuartion
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 * each node in the chain has an active config prefix (not all)
 * can create a dynamic chain architecture
@@ -797,9 +797,9 @@ Avoid return values that require exceptional processing
 Designing 100K Services
 ============================================================
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Summary
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 Given performance, maintainability, and time to market, ideally
 choose two to optimize for but realistically choose one.
@@ -820,9 +820,9 @@ Caching solutions used to increase throughput:
 SWF Oracle to DynamoDB
 ============================================================
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Summary
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 * Tasks and Decisions go on AMP
 * processor picks them up and gathers state form database
@@ -865,9 +865,9 @@ Summary
 Amazon Kinesis
 ============================================================
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Summary
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 * elastic beanstalk
 * streaming map reduce
@@ -924,9 +924,9 @@ Summary
 QLDB - AppendLog
 ============================================================
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Summary
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 The QLDB (Quantum Logging – Quantum as in atomic transactions)
 provides three features:
@@ -1552,9 +1552,9 @@ Transaction on DynamoDB
 
 https://github.com/awslabs/dynamodb-transactions
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Summary
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 ============================================================
 Dynamo: Amazon’s Highly Available Key-value Store 
@@ -1562,9 +1562,9 @@ Dynamo: Amazon’s Highly Available Key-value Store
 
 http://www.allthingsdistributed.com/2007/10/amazons_dynamo.html
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Summary
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 * DHTs
 * consistent hashing
@@ -1577,14 +1577,84 @@ Summary
 Searching Large Dynamic Datasets
 ============================================================
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Summary
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 ============================================================
 Taking Distributd Algorithms to Production
 ============================================================
 
-------------------------------------------------------------
+--------------------------------------------------------------------------------
 Summary
-------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+================================================================================
+Dynamo Retrospective
+================================================================================
+
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+
+* let the smallest system control its rate
+
+  Instead of having a large fleet that is polled on, instead create a smaller
+  fleet that pushes its latest changes up the pipe to the frontend hosts. This
+  lets the smaller fleet fully saturate the pipe instead of having to overload
+  it and thus having to deal with retries, exponential backoff, etc.
+
+.. code-block:: text
+
+    database -> control plane -> alfbus -> front end caches
+
+* colocate inverse workloads (reads / writes / store) and pass savings on to
+  the customers.
+
+* spread the load into segregated pods that will not affect other customers.
+
+  You can also spread a customer to a fixed set of vips that segregat their
+  load to individual cells. This allows customers to only take down a small
+  amount of the total capacity.Can also add hooks to VPC endpoints (can spread on
+  a per customer basis)
+
+.. code-block:: text
+
+    customer -> vip (proxy) -> vip -> frontend -> dataplane
+    customer -> vip -> hub <- (token, endpoint)
+             -> vip -> frontend -> dataplane
+
+
+* don't throw away work
+
+  If you hit a backing store that returns an error (say you pull an invalid key),
+  don't throw away that error and instead _that_ can be cached if it is correct.
+
+* do work proportional to the system
+* watch for exponential backoff plateaus
+
+  Make sure to chomp the delay at some point so you don't block a user for an hour.
+
+* use shuffle sharding
+
+  This allows for horizontal sharding while at the same time preventing a single
+  customer from browning out a large number of hosts.
+
+* beware of modal behaviour
+
+  Eliminate it if possible (no caching) as you are usually just testing the 99%
+  case and then the 1% will pop out and have problems. It is better to have consitent
+  behaviour than behaviour that usually works.
+
+  If it is too [slow / complex / etc] to [blank] when things are going well, why would
+  it be ok to [blank] when things start going wrong? One solution to this is the chaos
+  monkey philosophy so that rare paths are constantly exercised.
+
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+
+* create tight low level APIs that can be scripted manually and then combine them
+  into a workflow system for the public APIs.
+* put all configuration in the control plane and push it in one blob (not brazil
+  config / opconfig / etc).

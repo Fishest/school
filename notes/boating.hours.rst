@@ -84,6 +84,7 @@ Moonlight Flit - Catalina 27: Galen Collins
 * 09/06/2016 - Duck Dodge - Galen Collins
 * 09/10/2016 - Day Sail - Galen Collins
 * 09/13/2016 - Day Sail - Galen Collins
+* 09/23/2016 - Night Sail - Galen Collins
 
 ================================================================================
 Vela Volta - Bavaria 35c: Steve Kirsh
